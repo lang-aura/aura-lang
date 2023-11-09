@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuraLang", "AuraLang\AuraLa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuraLang.Test", "AuraLang.Test\AuraLang.Test.csproj", "{C57AFB7D-0BC2-4F15-B005-AEA17C048D78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuraLang.Cli", "AuraLang.Cli\AuraLang.Cli.csproj", "{3B1542D0-148E-412C-BB25-B797AB0860A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{C57AFB7D-0BC2-4F15-B005-AEA17C048D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C57AFB7D-0BC2-4F15-B005-AEA17C048D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C57AFB7D-0BC2-4F15-B005-AEA17C048D78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B1542D0-148E-412C-BB25-B797AB0860A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B1542D0-148E-412C-BB25-B797AB0860A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B1542D0-148E-412C-BB25-B797AB0860A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B1542D0-148E-412C-BB25-B797AB0860A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
