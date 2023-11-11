@@ -505,10 +505,10 @@ public class AuraParser
         // Parse the expression to be deferred
         var expression = Expression();
         // Make sure the deferred expression is a function call
-        if (expression is not IUntypedAuraCallableExpression) throw new CanOnlyDeferFunctionCallException(Peek().Line);
+        if (expression is not IUntypedAuraCallable callableExpr) throw new CanOnlyDeferFunctionCallException(Peek().Line);
 
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
-        return new UntypedDefer(expression as IUntypedAuraCallableExpression, line);
+        return new UntypedDefer(callableExpr, line);
     }
 
     private UntypedAuraStatement LetDeclaration()
@@ -817,7 +817,7 @@ public class AuraParser
         }
 
         Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
-        return new UntypedCall(callee as IUntypedAuraCallableExpression, arguments, line);
+        return new UntypedCall(callee as IUntypedAuraCallable, arguments, line);
     }
 
     private UntypedAuraExpression Primary()
@@ -976,7 +976,7 @@ public class AuraParser
             Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
             Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 
-            var items = new List<Object>();
+            var items = new List<UntypedAuraExpression>();
             while (!Match(TokType.RightBrace))
             {
                 var expr = Expression();
@@ -1004,10 +1004,10 @@ public class AuraParser
                 }
 
                 Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-                return new UntypedGetIndex(new UntypedListLiteral<Object>(items, line), new UntypedIntLiteral(i, line), line);
+                return new UntypedGetIndex(new UntypedListLiteral<UntypedAuraExpression>(items, line), new UntypedIntLiteral(i, line), line);
             }
 
-            return new UntypedListLiteral<Object>(items, line);
+            return new UntypedListLiteral<UntypedAuraExpression>(items, line);
         }
         else if (Match(TokType.Fn))
         {
@@ -1023,7 +1023,7 @@ public class AuraParser
             Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
             Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 
-            var d = new Dictionary<Object, Object>();
+            var d = new Dictionary<UntypedAuraExpression, UntypedAuraExpression>();
             while (!Match(TokType.RightBrace))
             {
                 var key = Expression();
@@ -1041,7 +1041,7 @@ public class AuraParser
             // Parse tuple's type signature
             var typ = TypeTokenToType(Previous());
             Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
-            var items = new List<Object>();
+            var items = new List<UntypedAuraExpression>();
             while (!Match(TokType.RightBrace))
             {
                 var item = Expression();

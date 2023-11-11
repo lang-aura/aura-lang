@@ -280,7 +280,7 @@ public record UntypedVariable(Tok Name, int Line) : UntypedAuraExpression(Line),
 /// until the end of the enclosing function's execution.
 /// </summary>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function scope</param>
-public record UntypedDefer(UntypedAuraExpression Call, int Line) : UntypedAuraStatement(Line);
+public record UntypedDefer(IUntypedAuraCallable Call, int Line) : UntypedAuraStatement(Line);
 
 /// <summary>
 /// Represents any expression used in a context where a statement is expected. In these situations,
