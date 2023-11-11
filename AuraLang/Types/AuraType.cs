@@ -7,6 +7,7 @@ public abstract class AuraType
     public abstract bool IsSameType(AuraType other);
     public virtual bool IsInheritingType(AuraType other) => false;
     public bool IsSameOrInheritingType(AuraType other) => IsSameType(other) || IsInheritingType(other);
+    public abstract override string ToString();
 }
 
 /// <summary>
@@ -23,10 +24,12 @@ public class Unknown : AuraType
         Name = name;
     }
 
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is Unknown;
     }
+
+    public override string ToString() => "unknown";
 }
 
 /// <summary>
@@ -35,10 +38,12 @@ public class Unknown : AuraType
 /// </summary>
 public class None : AuraType
 {
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is None;
     }
+
+    public override string ToString() => "none";
 }
 
 /// <summary>
@@ -46,10 +51,12 @@ public class None : AuraType
 /// </summary>
 public class Int : AuraType
 {
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is Int;
     }
+
+    public override string ToString() => "int";
 }
 
 /// <summary>
@@ -57,22 +64,30 @@ public class Int : AuraType
 /// </summary>
 public class Float : AuraType
 {
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is Float;
     }
+
+    public override string ToString() => "float";
 }
 
 
 /// <summary>
 /// Represents a string value
 /// </summary>
-public class String : AuraType
+public class String : AuraType, IIterable, IIndexable, IRangeIndexable
 {
     override public bool IsSameType(AuraType other)
     {
         return other is String;
     }
+
+    public AuraType GetIterType() => new Char();
+    public override string ToString() => "string";
+    public AuraType IndexingType() => new Int();
+    public AuraType GetIndexedType() => new Char();
+    public AuraType GetRangeIndexedType() => new String();
 }
 
 /// <summary>
@@ -80,16 +95,18 @@ public class String : AuraType
 /// </summary>
 public class Bool : AuraType
 {
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is Bool;
     }
+
+    public override string ToString() => "bool";
 }
 
 /// <summary>
 /// Represents a resizable array of elements, all of which must have the same type
 /// </summary>
-public class List : AuraType
+public class List : AuraType, IIterable, IIndexable, IRangeIndexable
 {
     /// <summary>
     /// The type of the elements in the list
@@ -101,16 +118,22 @@ public class List : AuraType
         Kind = kind;
     }
 
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is List list && Kind.IsSameType(list.Kind);
     }
+
+    public AuraType GetIterType() => Kind;
+    public override string ToString() => $"[]{Kind}";
+    public AuraType IndexingType() => new Int();
+    public AuraType GetIndexedType() => Kind;
+    public AuraType GetRangeIndexedType() => new List(Kind);
 }
 
 /// <summary>
 /// Represents an Aura function
 /// </summary>
-public class Function : AuraType
+public class Function : AuraType, ICallable
 {
     public string Name { get; init; }
     public AnonymousFunction F { get; init; }
@@ -121,17 +144,21 @@ public class Function : AuraType
         F = f;
     }
 
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is Function;
     }
+
+    public override string ToString() => "function";
+    public List<ParamType> GetParamTypes() => F.Params;
+    public AuraType GetReturnType() => F.ReturnType;
 }
 
 /// <summary>
 /// Represents an anonymous function in Aura, which is basically just a named function
 /// without a name
 /// </summary>
-public class AnonymousFunction : AuraType
+public class AnonymousFunction : AuraType, ICallable
 {
     public List<ParamType> Params { get; init; }
     public AuraType ReturnType { get; init; }
@@ -142,10 +169,21 @@ public class AnonymousFunction : AuraType
         ReturnType = returnType;
     }
 
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is AnonymousFunction;
     }
+
+    public override string ToString()
+    {
+        var params_ = Params
+            .Select(p => p.ToString())
+            .Aggregate("", (prev, curr) => $"{prev}, {curr}");
+        return $"fn({params_}) -> {ReturnType}";
+    }
+
+    public List<ParamType> GetParamTypes() => Params;
+    public AuraType GetReturnType() => ReturnType;
 }
 
 /// <summary>
@@ -167,10 +205,12 @@ public class Class : AuraType
         Methods = methods;
     }
 
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is Class;
     }
+
+    public override string ToString() => "class";
 }
 
 /// <summary>
@@ -194,6 +234,8 @@ public class Module : AuraType
     {
         return other is Module;
     }
+
+    public override string ToString() => "module";
 }
 
 /// <summary>
@@ -204,6 +246,7 @@ public class Module : AuraType
 public class Nil : AuraType
 {
     public override bool IsSameType(AuraType other) => other is Nil;
+    public override string ToString() => "nil";
 }
 
 /// <summary>
@@ -213,6 +256,7 @@ public class Any : AuraType
 {
     public override bool IsInheritingType(AuraType other) => true;
     public override bool IsSameType(AuraType other) => other is Any;
+    public override string ToString() => "any";
 }
 
 /// <summary>
@@ -222,13 +266,14 @@ public class Any : AuraType
 public class Char : AuraType
 {
     public override bool IsSameType(AuraType other) => other is Char;
+    public override string ToString() => "byte";
 }
 
 /// <summary>
 /// Represents a data type containing a series of key-value pairs. All the keys must have the same
 /// type and all the values must have the same type.
 /// </summary>
-public class Map : AuraType
+public class Map : AuraType, IIndexable
 {
     public AuraType Key { get; init; }
     public AuraType Value { get; init; }
@@ -240,6 +285,9 @@ public class Map : AuraType
     }
 
     public override bool IsSameType(AuraType other) => other is Map;
+    public override string ToString() => "map";
+    public AuraType IndexingType() => Key;
+    public AuraType GetIndexedType() => Value;
 }
 
 /// <summary>
@@ -256,4 +304,5 @@ public class Tuple : AuraType
     }
 
     public override bool IsSameType(AuraType other) => other is Tuple;
+    public override string ToString() => "[]any";
 }
