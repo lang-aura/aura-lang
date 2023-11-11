@@ -263,8 +263,8 @@ public class ParserTest
 			new Tok(TokType.Eof, "eof", 1)
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedListLiteral<Object>(
-				new List<Object>
+			new UntypedListLiteral<UntypedAuraExpression>(
+				new List<UntypedAuraExpression>
 				{
 					new UntypedIntLiteral(5, 1),
 					new UntypedIntLiteral(6, 1)
@@ -301,7 +301,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
 			new UntypedMapLiteral(
-				new Dictionary<Object, Object>
+				new Dictionary<UntypedAuraExpression, UntypedAuraExpression>
 				{
 					{
 						new UntypedStringLiteral("Hello", 2),
@@ -339,7 +339,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
 			new UntypedTupleLiteral(
-				new List<Object>
+				new List<UntypedAuraExpression>
 				{
 					new UntypedIntLiteral(1, 1),
 					new UntypedStringLiteral("Hello world", 1)

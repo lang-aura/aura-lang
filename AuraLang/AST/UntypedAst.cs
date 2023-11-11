@@ -4,19 +4,24 @@ using AuraLang.Types;
 
 namespace AuraLang.AST;
 
+public abstract record UntypedAuraAstNode(int Line);
+
 /// <summary>
 /// An untyped Aura expression
 /// </summary>
 /// <param name="Line">The expression's line in the source file</param>
-public abstract record UntypedAuraExpression(int Line);
+public abstract record UntypedAuraExpression(int Line) : UntypedAuraAstNode(Line);
 
 /// <summary>
 /// An untyped Aura statement
 /// </summary>
 /// <param name="Line">The statement's line in the source file</param>
-public abstract record UntypedAuraStatement(int Line);
+public abstract record UntypedAuraStatement(int Line) : UntypedAuraAstNode(Line);
 
-public interface IUntypedAuraCallableExpression { };
+public interface IUntypedAuraCallable
+{
+    string GetName();
+}
 
 public interface IUntypedLiteral<T>
 {
@@ -64,7 +69,7 @@ public record UntypedBlock(List<UntypedAuraStatement> Statements, int Line) : Un
 /// </summary>
 /// <param name="Callee">The expression being called</param>
 /// <param name="Arguments">The call's arguments</param>
-public record UntypedCall(IUntypedAuraCallableExpression Callee, List<UntypedAuraExpression> Arguments, int Line) : UntypedAuraExpression(Line);
+public record UntypedCall(IUntypedAuraCallable Callee, List<UntypedAuraExpression> Arguments, int Line) : UntypedAuraExpression(Line);
 
 /// <summary>
 /// Represents an Aura expression that fetches an attribute from a compound object, such as a
@@ -76,7 +81,10 @@ public record UntypedCall(IUntypedAuraCallableExpression Callee, List<UntypedAur
 /// <param name="Obj">The compound object being queried. This compound object should contain the attribute being fetched via
 /// the <see cref="Name"/> parameter</param>
 /// <param name="Name">The attribute being fetched</param>
-public record UntypedGet(UntypedAuraExpression Obj, Tok Name, int Line) : UntypedAuraExpression(Line);
+public record UntypedGet(UntypedAuraExpression Obj, Tok Name, int Line) : UntypedAuraExpression(Line), IUntypedAuraCallable
+{
+    public string GetName() => Name.Value;
+}
 
 /// <summary>
 /// Represents an Aura expression that fetches a single item from an indexable data type
@@ -152,7 +160,7 @@ public record UntypedStringLiteral(string S, int Line) : UntypedAuraExpression(L
 /// Represents a list literal
 /// </summary>
 /// <param name="L">The list value</param>
-public record UntypedListLiteral<T>(List<T> L, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<List<T>>
+public record UntypedListLiteral<T>(List<T> L, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<List<T>> where T : UntypedAuraExpression
 {
     public List<T> GetValue() => L;
 }
@@ -173,9 +181,9 @@ public record UntypedListLiteral<T>(List<T> L, int Line) : UntypedAuraExpression
 /// <typeparam name="K">The type of the map's keys</typeparam>
 /// <typeparam name="V">The type of the map's values</typeparam>
 /// <param name="M">The map value</param>
-public record UntypedMapLiteral(Dictionary<Object, Object> M, AuraType KeyType, AuraType ValueType, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<Dictionary<Object, Object>>
+public record UntypedMapLiteral(Dictionary<UntypedAuraExpression, UntypedAuraExpression> M, AuraType KeyType, AuraType ValueType, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<Dictionary<UntypedAuraExpression, UntypedAuraExpression>>
 {
-    public Dictionary<Object, Object> GetValue() => M;
+    public Dictionary<UntypedAuraExpression, UntypedAuraExpression> GetValue() => M;
 }
 
 /// <summary>
@@ -188,9 +196,9 @@ public record UntypedMapLiteral(Dictionary<Object, Object> M, AuraType KeyType, 
 /// <param name="T">The tuple value</param>
 /// <param name="Typs">Indicates the type of each item in the tuple. This is necessary because, unlike a list, a tuple does not require that all
 /// items have the same type.</param>
-public record UntypedTupleLiteral(List<Object> T, List<AuraType> Typs, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<List<Object>>
+public record UntypedTupleLiteral(List<UntypedAuraExpression> T, List<AuraType> Typs, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<List<UntypedAuraExpression>>
 {
-    public List<Object> GetValue() => T;
+    public List<UntypedAuraExpression> GetValue() => T;
 }
 
 /// <summary>
@@ -262,14 +270,17 @@ public record UntypedUnary(Tok Operator, UntypedAuraExpression Right, int Line) 
 /// that doesn't match an Aura reserved keyword or reserved token.
 /// </summary>
 /// <param name="Name">The variable's name</param>
-public record UntypedVariable(Tok Name, int Line) : UntypedAuraExpression(Line), IUntypedAuraCallableExpression;
+public record UntypedVariable(Tok Name, int Line) : UntypedAuraExpression(Line), IUntypedAuraCallable
+{
+    public string GetName() => Name.Value;
+}
 
 /// <summary>
 /// Represents a <c>defer</c> statement that is responsible for deferring the supplied function call
 /// until the end of the enclosing function's execution.
 /// </summary>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function scope</param>
-public record UntypedDefer(IUntypedAuraCallableExpression Call, int Line) : UntypedAuraStatement(Line);
+public record UntypedDefer(IUntypedAuraCallable Call, int Line) : UntypedAuraStatement(Line);
 
 /// <summary>
 /// Represents any expression used in a context where a statement is expected. In these situations,
@@ -314,7 +325,10 @@ public record UntypedForEach(Tok EachName, UntypedAuraExpression Iterable, List<
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : UntypedAuraStatement(Line);
+public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : UntypedAuraStatement(Line), IFunction
+{
+    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+}
 
 /// <summary>
 /// Represents an anonymous function, which can be declared the same way as a named function,
@@ -323,7 +337,10 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// <param name="Params">The function's parameters</param>
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
-public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, AuraType ReturnType, int Line) : UntypedAuraExpression(Line);
+public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, AuraType ReturnType, int Line) : UntypedAuraExpression(Line), IFunction
+{
+    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+}
 
 /// <summary>
 /// Represents a <c>let</c> expression that declares a new variable and optionally assigns it an initial value.
@@ -365,7 +382,10 @@ public record UntypedReturn(UntypedAuraExpression? Value, bool Explicit, int Lin
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : UntypedAuraStatement(Line);
+public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : UntypedAuraStatement(Line), IFunction
+{
+    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+}
 
 /// <summary>
 /// Represents a <c>while</c> loop, which follows this syntax:

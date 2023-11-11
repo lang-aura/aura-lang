@@ -16,6 +16,8 @@
     <None Remove="Exceptions\Scanner\" />
     <None Remove="Exceptions\Parser\" />
     <None Remove="ErrorReporter\" />
+    <None Remove="TypeChecker\" />
+    <None Remove="Exceptions\TypeChecker\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Exceptions\" />
@@ -26,5 +28,7 @@
     <Folder Include="Exceptions\Scanner\" />
     <Folder Include="Exceptions\Parser\" />
     <Folder Include="ErrorReporter\" />
+    <Folder Include="TypeChecker\" />
+    <Folder Include="Exceptions\TypeChecker\" />
   </ItemGroup>
 </Project>
