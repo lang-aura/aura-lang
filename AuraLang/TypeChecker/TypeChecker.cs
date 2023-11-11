@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Token;
 using AuraLang.Types;
@@ -21,7 +20,7 @@ public class AuraTypeChecker
     // TODO collect errors
     private readonly Stack<PartiallyTypedClass> _enclosingClass = new();
     private readonly Dictionary<string, Module> _builtInModules = new();
-    private TypedMod _currentModule;
+    private TypedMod? _currentModule;
 
     public AuraTypeChecker(List<UntypedAuraStatement> untypedAst)
     {
@@ -172,7 +171,7 @@ public class AuraTypeChecker
             var iter = Expression(forEachStmt.Iterable);
             if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
             // Add current element variable to list of local variables
-            _variables.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), Scope, _currentModule.Value.Value));
+            _variables.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), Scope, _currentModule!.Value.Value));
             // Type check body
             var typedBody = NonReturnableBody(forEachStmt.Body);
             return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
@@ -237,7 +236,7 @@ public class AuraTypeChecker
                     param.Name.Value,
                     param.ParamType.Typ,
                     Scope,
-                    _currentModule.Value.Value));
+                    _currentModule!.Value.Value));
             }
 
             var typedBody = BlockExpr(f.Body);
@@ -255,7 +254,7 @@ public class AuraTypeChecker
             f.Name.Value,
             new Function(f.Name.Value, new AnonymousFunction(f.GetParamTypes(), f.ReturnType)),
             Scope,
-            _currentModule.Value.Value));
+            _currentModule!.Value.Value));
 
         return new PartiallyTypedFunction(f);
     }
@@ -271,7 +270,7 @@ public class AuraTypeChecker
                 param.Name.Value,
                 paramTyp,
                 Scope + 1,
-                _currentModule.Value.Value));
+                _currentModule!.Value.Value));
         }
 
         var typedBody = BlockExpr(f.Body);
@@ -294,7 +293,7 @@ public class AuraTypeChecker
             case None:
                 return ShortLetStmt(let);
             case Unknown:
-                var v = FindVariable(let.Name.Value, _currentModule.Value.Value);
+                var v = FindVariable(let.Name.Value, _currentModule!.Value.Value);
                 nameTyp = v.Kind;
                 break;
         }
@@ -306,7 +305,7 @@ public class AuraTypeChecker
             let.Name.Value,
             typedInit?.Typ ?? new Nil(),
             Scope,
-            _currentModule.Value.Value));
+            _currentModule!.Value.Value));
 
         return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
     }
@@ -325,7 +324,7 @@ public class AuraTypeChecker
             let.Name.Value,
             typedInit?.Typ ?? new Nil(),
             Scope,
-            _currentModule.Value.Value));
+            _currentModule!.Value.Value));
 
         return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
     }
@@ -372,7 +371,7 @@ public class AuraTypeChecker
             class_.Name.Value,
             new Class(class_.Name.Value, paramNames, class_.GetParamTypes(), methodTypes),
             Scope,
-            _currentModule.Value.Value));
+            _currentModule!.Value.Value));
 
         // Store the partially typed class as the current enclosing class
         var partiallyTypedClass = new PartiallyTypedClass(
@@ -455,7 +454,7 @@ public class AuraTypeChecker
     private TypedAssignment AssignmentExpr(UntypedAssignment assignment)
     {
         // Fetch the variable being assigned to
-        var v = FindVariable(assignment.Name.Value, _currentModule.Value.Value);
+        var v = FindVariable(assignment.Name.Value, _currentModule!.Value.Value);
         // Ensure that the new value and the variable have the same type
         var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
         return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
@@ -515,7 +514,7 @@ public class AuraTypeChecker
     private TypedCall CallExpr(UntypedCall call)
     {
         var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
-        var funcDeclaration = FindVariable(call.Callee.GetName(), _currentModule.Value.Value).Kind as ICallable;
+        var funcDeclaration = FindVariable(call.Callee.GetName(), _currentModule!.Value.Value).Kind as ICallable;
         // Ensure the function call has the correct number of arguments
         if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
         // Type check arguments
@@ -705,7 +704,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked variable expression</returns>
     private TypedVariable VariableExpr(UntypedVariable v)
     {
-        var localVar = FindVariable(v.Name.Value, _currentModule.Value.Value);
+        var localVar = FindVariable(v.Name.Value, _currentModule!.Value.Value);
         return new TypedVariable(v.Name, localVar.Kind, v.Line);
     }
 
