@@ -1,12 +1,36 @@
 ﻿using AuraLang.Cli.Options;
+using AuraLang.Compiler;
+using AuraLang.Parser;
+using AuraLang.Scanner;
+using AuraLang.TypeChecker;
 
 namespace AuraLang.Cli.Commands;
 
-public static class Build
+public class Build
 {
-	public static int ExecuteBuild(BuildOptions opts)
+	private string _path { get; init; }
+	private bool _verbose { get; init; }
+
+	public Build(BuildOptions opts)
 	{
-		Console.WriteLine($"Executing build with verbose = {opts.Verbose}");
+		_path = opts.Path;
+		_verbose = opts.Verbose ?? false;
+	}
+
+	public int Execute()
+	{
+		// Read source file's contents
+		var contents = File.ReadAllText(_path);
+		// Scan tokens
+		var tokens = new AuraScanner(contents).ScanTokens();
+		// Parse tokens
+		var untypedAst = new AuraParser(tokens).Parse();
+		// Type check AST
+		var typedAst = new AuraTypeChecker(untypedAst).CheckTypes();
+		// Compile
+		var output = new AuraCompiler(typedAst).Compile();
+
+		Console.WriteLine(output);
 		return 0;
 	}
 }

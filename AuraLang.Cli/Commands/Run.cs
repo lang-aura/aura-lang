@@ -2,11 +2,25 @@
 
 namespace AuraLang.Cli.Commands;
 
-public static class Run
+public class Run
 {
-	public static int ExecuteRun(RunOptions opts)
+	private Build _build { get; init; }
+	private bool _verbose { get; init; }
+
+	public Run(RunOptions opts)
 	{
-		Console.WriteLine($"Executing run with verbose = {opts.Verbose}");
+		var buildOpts = new BuildOptions();
+		buildOpts.Path = opts.Path;
+		buildOpts.Verbose = opts.Verbose;
+
+		_build = new Build(buildOpts);
+		_verbose = opts.Verbose ?? false;
+	}
+
+	public int Execute()
+	{
+		var contents = _build.Execute();
+		Console.WriteLine($"Contents = {contents}");
 		return 0;
 	}
 }
