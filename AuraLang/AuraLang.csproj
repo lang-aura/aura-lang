@@ -18,6 +18,8 @@
     <None Remove="ErrorReporter\" />
     <None Remove="TypeChecker\" />
     <None Remove="Exceptions\TypeChecker\" />
+    <None Remove="Compiler\" />
+    <None Remove="Exceptions\Compiler\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Exceptions\" />
@@ -30,5 +32,7 @@
     <Folder Include="ErrorReporter\" />
     <Folder Include="TypeChecker\" />
     <Folder Include="Exceptions\TypeChecker\" />
+    <Folder Include="Compiler\" />
+    <Folder Include="Exceptions\Compiler\" />
   </ItemGroup>
 </Project>
