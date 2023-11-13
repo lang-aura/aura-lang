@@ -90,7 +90,14 @@ public class AuraCompiler
             TypedGetIndexRange r => GetIndexRangeExpr(r),
             TypedGrouping g => GroupingExpr(g),
             TypedIf i => IfExpr(i),
-            TypedLiteral<object> l => LiteralExpr(l),
+            TypedLiteral<string> l => StringLiteralExpr(l),
+            TypedLiteral<char> c => CharLiteralExpr(c),
+            TypedLiteral<long> i => IntLiteralExpr(i),
+            TypedLiteral<double> f => FloatLiteralExpr(f),
+            TypedLiteral<bool> b => BoolLiteralExpr(b),
+            TypedLiteral<List<TypedAuraExpression>> l => ListLiteralExpr(l),
+            TypedNil n => NilLiteralExpr(n),
+            TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> d => MapLiteralExpr(d),
             TypedLogical l => LogicalExpr(l),
             TypedSet s => SetExpr(s),
             TypedThis t => ThisExpr(t),
@@ -334,48 +341,47 @@ public class AuraCompiler
         return $"if {cond} {then}{else_}";
     }
 
-    private string LiteralExpr(TypedLiteral<object> literal)
+    private string StringLiteralExpr(TypedLiteral<string> literal) => $"\"{literal.Value}\"";
+
+    private string CharLiteralExpr(TypedLiteral<char> literal) => $"\"{literal.Value}\"";
+
+    private string IntLiteralExpr(TypedLiteral<long> literal) => $"{literal.Value}";
+
+    private string FloatLiteralExpr(TypedLiteral<double> literal) => $"{literal.Value}";
+    
+    private string BoolLiteralExpr(TypedLiteral<bool> literal) => literal.Value ? "true" : "false";
+
+    private string ListLiteralExpr(TypedLiteral<List<TypedAuraExpression>> literal)
     {
-        switch (literal.Typ)
-        {
-            case String:
-                return $"\"{literal.Value}\"";
-            case Char:
-                return $"'{literal.Value}'";
-            case Int:
-                return $"{literal.Value}";
-            case Float:
-                return $"{literal.Value}";
-            case Bool:
-                return (bool)literal.Value ? "true" : "false";
-            case List:
-                var items = (literal.Value as List<TypedAuraExpression>)
-                    .Select(Expression)
-                    .Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}")
-                    .ToList();
-                return $"{AuraTypeToGoType(literal.Typ)}{{{items}}}";
-            case Nil:
-                return "nil";
-            case Map:
-                var items_ = (literal.Value as Dictionary<TypedAuraExpression, TypedAuraExpression>)
-                    .Select(pair =>
-                    {
-                        var keyExpr = Expression(pair.Key);
-                        var valueExpr = Expression(pair.Value);
-                        return $"{keyExpr}: {valueExpr}";
-                    })
-                    .Aggregate(string.Empty, (prev, curr) => $"{prev},\n{curr}")
-                    .ToList();
-                return $"{AuraTypeToGoType(literal.Typ)}{{\n{items_}}}";
-            case Tuple:
-                var tupleItems = ((List<TypedAuraExpression>)literal.Value)
-                    .Select(Expression)
-                    .Aggregate(string.Empty, (prev, curr) => $"{prev},{curr}")
-                    .ToList();
-                return $"{AuraTypeToGoType(literal.Typ)}{{{tupleItems}}}";
-            default:
-                return $"{literal.Value}";
-        }
+        var items = literal.Value
+            .Select(Expression)
+            .Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}")
+            .ToList();
+        return $"{AuraTypeToGoType(literal.Typ)}{{{items}}}";
+    }
+
+    private string NilLiteralExpr(TypedNil nil) => "nil";
+
+    private string MapLiteralExpr(TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> literal)
+    {
+        var items = literal.Value.Select(pair =>
+            {
+                var keyExpr = Expression(pair.Key);
+                var valueExpr = Expression(pair.Value);
+                return $"{keyExpr}: {valueExpr}";
+            })
+            .Aggregate(string.Empty, (prev, curr) => $"{prev},\n{curr}")
+            .ToList();
+        return $"{AuraTypeToGoType(literal.Typ)}{{\n{items}}}";
+    }
+
+    private string TupleLiteralExpr(TypedLiteral<List<TypedAuraExpression>> literal)
+    {
+        var tupleItems = ((List<TypedAuraExpression>)literal.Value)
+            .Select(Expression)
+            .Aggregate(string.Empty, (prev, curr) => $"{prev},{curr}")
+            .ToList();
+        return $"{AuraTypeToGoType(literal.Typ)}{{{tupleItems}}}";
     }
 
     private string LogicalExpr(TypedLogical logical)

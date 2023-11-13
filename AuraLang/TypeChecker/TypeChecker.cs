@@ -1,4 +1,5 @@
-﻿using AuraLang.AST;
+﻿using System.Text.Json.Serialization;
+using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Token;
 using AuraLang.Types;
@@ -477,14 +478,14 @@ public class AuraTypeChecker
             AuraType blockTyp = new Nil();
             if (typedStmts.Any())
             {
-                var lastStmt = typedStmts.Last() as TypedReturn;
-                if (lastStmt is not null)
+                var lastStmt = typedStmts.Last();
+                if (lastStmt is TypedReturn r)
                 {
-                    blockTyp = lastStmt.Value is not null ? lastStmt.Value.Typ : new Nil();
+                    blockTyp = r.Value is not null ? r.Value.Typ : new Nil();
                 }
                 else
                 {
-                    if (lastStmt!.Typ is not None)
+                    if (lastStmt.Typ is not None)
                     {
                         blockTyp = lastStmt.Typ;
                     }

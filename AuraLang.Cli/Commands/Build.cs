@@ -26,7 +26,7 @@ public class Build
 		// Parse tokens
 		var untypedAst = new AuraParser(tokens).Parse();
 		// Type check AST
-		var typedAst = new AuraTypeChecker(untypedAst).CheckTypes();
+		var typedAst = new AuraTypeChecker().CheckTypes(untypedAst);
 		// Compile
 		var output = new AuraCompiler(typedAst).Compile();
 
