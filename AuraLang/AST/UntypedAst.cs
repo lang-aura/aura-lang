@@ -69,7 +69,12 @@ public record UntypedBlock(List<UntypedAuraStatement> Statements, int Line) : Un
 /// </summary>
 /// <param name="Callee">The expression being called</param>
 /// <param name="Arguments">The call's arguments</param>
-public record UntypedCall(IUntypedAuraCallable Callee, List<UntypedAuraExpression> Arguments, int Line) : UntypedAuraExpression(Line);
+public record UntypedCall
+    (IUntypedAuraCallable Callee, List<UntypedAuraExpression> Arguments, int Line) : UntypedAuraExpression(Line),
+        IUntypedAuraCallable
+{
+    public string GetName() => Callee.GetName();
+}
 
 /// <summary>
 /// Represents an Aura expression that fetches an attribute from a compound object, such as a
