@@ -11,28 +11,18 @@ namespace AuraLang.TypeChecker;
 
 public class AuraTypeChecker
 {
-    /// <summary>
-    /// The list of untyped AST node that will be typed checked
-    /// </summary>
-    private List<UntypedAuraStatement> UntypedAst { get; init; }
     private readonly List<Local> _variables = new();
-    private int Scope { get; set; }
+    private int _scope = 1;
     // TODO collect errors
     private readonly Stack<PartiallyTypedClass> _enclosingClass = new();
     private readonly Dictionary<string, Module> _builtInModules = new();
-    private TypedMod? _currentModule;
+    private TypedMod? _currentModule = null;
 
-    public AuraTypeChecker(List<UntypedAuraStatement> untypedAst)
-    {
-        UntypedAst = untypedAst;
-        Scope = 1;
-    }
-
-    public List<TypedAuraStatement> CheckTypes()
+    public List<TypedAuraStatement> CheckTypes(List<UntypedAuraStatement> untypedAst)
     {
         var typedAst = new List<TypedAuraStatement>();
 
-        foreach (var stmt in UntypedAst)
+        foreach (var stmt in untypedAst)
         {
             var typedStmt = Statement(stmt);
             typedAst.Add(typedStmt);
@@ -171,7 +161,7 @@ public class AuraTypeChecker
             var iter = Expression(forEachStmt.Iterable);
             if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
             // Add current element variable to list of local variables
-            _variables.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), Scope, _currentModule!.Value.Value));
+            _variables.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, _currentModule!.Value.Value));
             // Type check body
             var typedBody = NonReturnableBody(forEachStmt.Body);
             return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
@@ -196,7 +186,7 @@ public class AuraTypeChecker
                 _variables.Add(new Local(
                     param.Name.Value,
                     param.ParamType.Typ,
-                    Scope,
+                    _scope,
                     modName));
             }
 
@@ -212,7 +202,7 @@ public class AuraTypeChecker
                         f.GetParamTypes(),
                         f.ReturnType)
                     ),
-                Scope,
+                _scope,
                 modName));
             return new TypedNamedFunction(f.Name, f.Params, typedBody, f.ReturnType, f.Public, f.Line);
         });
@@ -235,7 +225,7 @@ public class AuraTypeChecker
                 _variables.Add(new Local(
                     param.Name.Value,
                     param.ParamType.Typ,
-                    Scope,
+                    _scope,
                     _currentModule!.Value.Value));
             }
 
@@ -253,7 +243,7 @@ public class AuraTypeChecker
         _variables.Add(new Local(
             f.Name.Value,
             new Function(f.Name.Value, new AnonymousFunction(f.GetParamTypes(), f.ReturnType)),
-            Scope,
+            _scope,
             _currentModule!.Value.Value));
 
         return new PartiallyTypedFunction(f);
@@ -269,7 +259,7 @@ public class AuraTypeChecker
             _variables.Add(new Local(
                 param.Name.Value,
                 paramTyp,
-                Scope + 1,
+                _scope + 1,
                 _currentModule!.Value.Value));
         }
 
@@ -304,7 +294,7 @@ public class AuraTypeChecker
         _variables.Add(new Local(
             let.Name.Value,
             typedInit?.Typ ?? new Nil(),
-            Scope,
+            _scope,
             _currentModule!.Value.Value));
 
         return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
@@ -323,7 +313,7 @@ public class AuraTypeChecker
         _variables.Add(new Local(
             let.Name.Value,
             typedInit?.Typ ?? new Nil(),
-            Scope,
+            _scope,
             _currentModule!.Value.Value));
 
         return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
@@ -370,7 +360,7 @@ public class AuraTypeChecker
         _variables.Add(new Local(
             class_.Name.Value,
             new Class(class_.Name.Value, paramNames, class_.GetParamTypes(), methodTypes),
-            Scope,
+            _scope,
             _currentModule!.Value.Value));
 
         // Store the partially typed class as the current enclosing class
@@ -727,13 +717,13 @@ public class AuraTypeChecker
         // Before exiting block, remove any variables created in this scope
         for (var i = _variables.Count - 1; i >= 0; i--)
         {
-            if (_variables[i].Scope < Scope)
+            if (_variables[i].Scope < _scope)
             {
                 break;
             }
             _variables.RemoveAt(_variables.Count - 1);
         }
-        Scope--;
+        _scope--;
     }
 
     private List<TypedAuraStatement> NonReturnableBody(List<UntypedAuraStatement> body)
@@ -749,7 +739,7 @@ public class AuraTypeChecker
 
     private T InNewScope<T>(Func<T> f) where T : TypedAuraAstNode
     {
-        Scope++;
+        _scope++;
         var typedNode = f();
         ExitBlock();
         return typedNode;

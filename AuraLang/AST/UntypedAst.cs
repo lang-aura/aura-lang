@@ -42,7 +42,7 @@ public record UntypedAssignment(Tok Name, UntypedAuraExpression Value, int Line)
 /// binary expression might look like:
 /// <code>5 + 5</code>
 /// However, binary expression can become more complex, and the left and right operands of a binary
-/// expression can themsleves be binary expressions or any other expression.
+/// expression can themselves be binary expressions or any other expression.
 /// The operator in a binary expression are confined to a subset of the operators available in Aura.
 /// Other operators, such as the logical `and` and `or`, are available in other expression types. In
 /// the case of the logical operators, they can be used in a <c>logical</c> expression.
