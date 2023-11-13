@@ -1,4 +1,5 @@
-﻿using AuraLang.AST;
+﻿using System.Globalization;
+using AuraLang.AST;
 using AuraLang.Exceptions.Parser;
 using AuraLang.Shared;
 using AuraLang.Token;
@@ -297,8 +298,10 @@ public class AuraParser
         {
             return ClassDeclaration(Visibility.Private);
         }
-        else if (Match(TokType.Fn) && Peek().Typ == TokType.Identifier)
+        else if (Check(TokType.Fn) && PeekNext().Typ == TokType.Identifier)
         {
+            // Since we only check for the `fn` keyword, we need to advance past it here before entering the NamedFunction() call
+            Advance();
             return NamedFunction(FunctionType.Function, Visibility.Private);
         }
         else if (Match(TokType.Let))
@@ -612,8 +615,8 @@ public class AuraParser
         if (Match(TokType.Equal))
         {
             var value = Assignment();
-            if (expression is UntypedVariable) return new UntypedAssignment((expression as UntypedVariable).Name, value, value.Line);
-            if (expression is UntypedGet) return new UntypedSet((expression as UntypedGet).Obj, (expression as UntypedGet).Name, value, value.Line);
+            if (expression is UntypedVariable v) return new UntypedAssignment(v.Name, value, value.Line);
+            if (expression is UntypedGet g) return new UntypedSet(g.Obj, g.Name, value, value.Line);
             throw new InvalidAssignmentTargetException(Peek().Line);
         }
         else if (Match(TokType.PlusPlus))
@@ -682,7 +685,7 @@ public class AuraParser
         Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
         // If there is no explicit return in the block and the last line of the block is an expression,
         // wrap that expression in an implicit return statement
-        if (!explicitReturn)
+        if (statements.Count > 0 && !explicitReturn)
         {
             var lastStmt = statements[^1] as UntypedExpressionStmt;
             if (lastStmt is not null) statements[^1] = new UntypedReturn(lastStmt.Expression, false, lastStmt.Line);
@@ -836,8 +839,8 @@ public class AuraParser
         }
         else if (Match(TokType.FloatLiteral))
         {
-            var f = float.Parse(Previous().Value);
-            return new UntypedFloatLiteral(f, line);
+            var d = double.Parse(Previous().Value, CultureInfo.InvariantCulture);
+            return new UntypedFloatLiteral(d, line);
         }
         else if (Match(TokType.This)) return new UntypedThis(Previous(), line);
         else if (Match(TokType.Identifier))
