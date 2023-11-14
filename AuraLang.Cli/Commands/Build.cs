@@ -1,4 +1,5 @@
-﻿using AuraLang.Cli.Options;
+﻿using System.Diagnostics;
+using AuraLang.Cli.Options;
 using AuraLang.Compiler;
 using AuraLang.Parser;
 using AuraLang.Scanner;
@@ -30,10 +31,20 @@ public class Build
 		// Compile
 		var output = new AuraCompiler(typedAst).Compile();
 		// Create Go output file
-		var auraPath = Path.Replace(".aura", ".go");
-		File.AppendAllText(auraPath, output);
+		var goPath = Path.Replace(".aura", ".go");
+		File.AppendAllText(goPath, output);
+		FormatGoOutputFile(goPath);
 
 		return 0;
+	}
+
+	private void FormatGoOutputFile(string goPath)
+	{
+		var cmd = new Process();
+		cmd.StartInfo.FileName = "go";
+		cmd.StartInfo.Arguments = $"fmt {goPath}";
+		cmd.Start();
+		cmd.WaitForExit();
 	}
 }
 
