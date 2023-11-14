@@ -189,9 +189,9 @@ public class AuraCompiler
                 // as the initializer of a `for` loop. Go only allows the short syntax (i.e. `x := 0`), whereas Aura allows both styles of variable
                 // declaration. Therefore, if the user has entered the full `let`-style syntax (i.e. `let x: int = 0`) inside the signature of a `for`
                 // loop, it must be compiled to the short syntax in the final Go file.
-                if (let.TypeAnnotation && _enclosingType.Peek() is TypedFor)
+                if (let.TypeAnnotation && _enclosingType.Peek() is not TypedFor)
                 {
-                    return $"var {let.Name.Value} {AuraTypeToGoType(let.Typ)} = {value}";
+                    return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer.Typ)} = {value}";
                 }
                 else
                 {
