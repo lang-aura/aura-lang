@@ -8,19 +8,19 @@ namespace AuraLang.Cli.Commands;
 
 public class Build
 {
-	private string _path { get; init; }
-	private bool _verbose { get; init; }
+	private string Path { get; init; }
+	private bool Verbose { get; init; }
 
 	public Build(BuildOptions opts)
 	{
-		_path = opts.Path;
-		_verbose = opts.Verbose ?? false;
+		Path = opts.Path;
+		Verbose = opts.Verbose ?? false;
 	}
 
 	public int Execute()
 	{
 		// Read source file's contents
-		var contents = File.ReadAllText(_path);
+		var contents = File.ReadAllText(Path);
 		// Scan tokens
 		var tokens = new AuraScanner(contents).ScanTokens();
 		// Parse tokens
@@ -29,8 +29,10 @@ public class Build
 		var typedAst = new AuraTypeChecker().CheckTypes(untypedAst);
 		// Compile
 		var output = new AuraCompiler(typedAst).Compile();
+		// Create Go output file
+		var auraPath = Path.Replace(".aura", ".go");
+		File.AppendAllText(auraPath, output);
 
-		Console.WriteLine(output);
 		return 0;
 	}
 }
