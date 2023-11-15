@@ -83,7 +83,7 @@ public class CompilerTest
     }
 
     [Test]
-    public void TestCompile_Call_NoParams()
+    public void TestCompile_Call_NoArgs()
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
         {

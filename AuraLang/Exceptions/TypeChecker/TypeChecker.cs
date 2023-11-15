@@ -49,3 +49,13 @@ public class IncorrectNumberOfArgumentsException : TypeCheckerException
 {
     public IncorrectNumberOfArgumentsException(int line) : base("Incorrect number of arguments", line) { }
 }
+
+public class CannotGetFromNonClassException : TypeCheckerException
+{
+    public CannotGetFromNonClassException(int line) : base("Cannot get from non-class", line) { }
+}
+
+public class ClassAttributeDoesNotExistException : TypeCheckerException
+{
+    public ClassAttributeDoesNotExistException(int line) : base("Class attribute does not exist", line) { }
+}
