@@ -9,4 +9,4 @@ namespace AuraLang.TypeChecker;
 /// <param name="Kind">The variable's type</param>
 /// <param name="Scope">The scope where the variable was declared</param>
 /// <param name="Module">The module where the variable was declared</param>
-internal record struct Local(string Name, AuraType Kind, int Scope, string Module);
+public record struct Local(string Name, AuraType Kind, int Scope, string Module);
