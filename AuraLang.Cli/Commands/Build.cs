@@ -27,7 +27,10 @@ public class Build
 		// Parse tokens
 		var untypedAst = new AuraParser(tokens).Parse();
 		// Type check AST
-		var typedAst = new AuraTypeChecker().CheckTypes(untypedAst);
+		var typedAst = new AuraTypeChecker(
+			new VariableStore(),
+			new EnclosingClassStore(),
+			new CurrentModuleStore()).CheckTypes(untypedAst);
 		// Compile
 		var output = new AuraCompiler(typedAst).Compile();
 		// Create Go output file
