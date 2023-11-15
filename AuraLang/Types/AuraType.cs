@@ -211,6 +211,36 @@ public class Class : AuraType
     }
 
     public override string ToString() => "class";
+
+    /// <summary>
+    /// Fetches an attribute of the class matching the provided name
+    /// </summary>
+    /// <param name="name">The name of the attribute to fetch</param>
+    /// <returns>The class's attribute matching the provided name, if one exists, else null</returns>
+    public AuraType? GetAttribute(string name)
+    {
+        // Check if attribute is a param
+        try
+        {
+            return ParamNames
+                .Zip(ParamTypes)
+                .First(item => item.First == name)
+                .Second.Typ;
+        }
+        catch (InvalidOperationException)
+        {
+            // Check if attribute is a method
+            try
+            {
+                return Methods.First(m => m.Name == name);
+            }
+            catch (InvalidOperationException)
+            {
+                // If the attribute is neither a param nor a method, return null
+                return null;
+            }
+        }
+    }
 }
 
 /// <summary>

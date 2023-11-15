@@ -11,12 +11,19 @@ namespace AuraLang.TypeChecker;
 
 public class AuraTypeChecker
 {
-    private readonly IVariableStore _variables = new VariableStore();
+    private readonly IVariableStore _variableStore;
     private int _scope = 1;
     // TODO collect errors
-    private readonly Stack<PartiallyTypedClass> _enclosingClass = new();
+    private readonly IEnclosingClassStore _enclosingClassStore;
     private readonly Dictionary<string, Module> _builtInModules = new();
-    private TypedMod? _currentModule;
+    private ICurrentModuleStore _currentModule;
+
+    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore)
+    {
+        _variableStore = variableStore;
+        _enclosingClassStore = enclosingClassStore;
+        _currentModule = currentModuleStore;
+    }
 
     public List<TypedAuraStatement> CheckTypes(List<UntypedAuraStatement> untypedAst)
     {
@@ -161,7 +168,7 @@ public class AuraTypeChecker
             var iter = Expression(forEachStmt.Iterable);
             if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
             // Add current element variable to list of local variables
-            _variables.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, _currentModule!.Value.Value));
+            _variableStore.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, _currentModule.GetName()));
             // Type check body
             var typedBody = NonReturnableBody(forEachStmt.Body);
             return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
@@ -183,7 +190,7 @@ public class AuraTypeChecker
             // Add parameters as local variables
             foreach (var param in f.Params)
             {
-                _variables.Add(new Local(
+                _variableStore.Add(new Local(
                     param.Name.Value,
                     param.ParamType.Typ,
                     _scope,
@@ -194,7 +201,7 @@ public class AuraTypeChecker
             // Ensure the function's body returns the type specified in its signature
             if (!f.ReturnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
             // Add function as local variable
-            _variables.Add(new Local(
+            _variableStore.Add(new Local(
                 f.Name.Value,
                 new AuraFunction(
                     f.Name.Value,
@@ -222,11 +229,11 @@ public class AuraTypeChecker
             // Add the function's parameters as local variables
             foreach(var param in f.Params)
             {
-                _variables.Add(new Local(
+                _variableStore.Add(new Local(
                     param.Name.Value,
                     param.ParamType.Typ,
                     _scope,
-                    _currentModule!.Value.Value));
+                    _currentModule.GetName()!));
             }
 
             var typedBody = BlockExpr(f.Body);
@@ -240,11 +247,11 @@ public class AuraTypeChecker
     private PartiallyTypedFunction PartialFunctionStmt(UntypedNamedFunction f)
     {
         // Add function as local
-        _variables.Add(new Local(
+        _variableStore.Add(new Local(
             f.Name.Value,
             new AuraFunction(f.Name.Value, new AnonymousFunction(f.GetParamTypes(), f.ReturnType)),
             _scope,
-            _currentModule!.Value.Value));
+            _currentModule.GetName()!));
 
         return new PartiallyTypedFunction(f);
     }
@@ -256,11 +263,11 @@ public class AuraTypeChecker
         {
             var paramTyp = param.ParamType.Typ;
             if (param.ParamType.Variadic) paramTyp = new List(paramTyp);
-            _variables.Add(new Local(
+            _variableStore.Add(new Local(
                 param.Name.Value,
                 paramTyp,
                 _scope + 1,
-                _currentModule!.Value.Value));
+                _currentModule.GetName()!));
         }
 
         var typedBody = BlockExpr(f.Body);
@@ -283,7 +290,7 @@ public class AuraTypeChecker
             case None:
                 return ShortLetStmt(let);
             case Unknown:
-                var v = _variables.Find(let.Name.Value, _currentModule!.Value.Value);
+                var v = _variableStore.Find(let.Name.Value, _currentModule.GetName()!);
                 nameTyp = v!.Value.Kind;
                 break;
         }
@@ -291,11 +298,11 @@ public class AuraTypeChecker
         // Type check initializer
         var typedInit = let.Initializer is not null ? ExpressionAndConfirm(let.Initializer, nameTyp) : null;
         // Add new variable to list of locals
-        _variables.Add(new Local(
+        _variableStore.Add(new Local(
             let.Name.Value,
             typedInit?.Typ ?? new Nil(),
             _scope,
-            _currentModule!.Value.Value));
+            _currentModule.GetName()!));
 
         return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
     }
@@ -310,11 +317,11 @@ public class AuraTypeChecker
         // Type check initializer
         var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
         // Add new variable to list of locals
-        _variables.Add(new Local(
+        _variableStore.Add(new Local(
             let.Name.Value,
             typedInit?.Typ ?? new Nil(),
             _scope,
-            _currentModule!.Value.Value));
+            _currentModule.GetName()!));
 
         return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
     }
@@ -327,7 +334,7 @@ public class AuraTypeChecker
     private TypedMod ModStmt(UntypedMod mod)
     {
         var m = new TypedMod(mod.Value, mod.Line);
-        _currentModule = m;
+        _currentModule.Set(m);
         return m;
     }
 
@@ -357,11 +364,11 @@ public class AuraTypeChecker
         var paramNames = class_.Params.Select(p => p.Name.Value).ToList();
 
         // Add typed class to list of locals
-        _variables.Add(new Local(
+        _variableStore.Add(new Local(
             class_.Name.Value,
             new Class(class_.Name.Value, paramNames, class_.GetParamTypes(), methodTypes),
             _scope,
-            _currentModule!.Value.Value));
+            _currentModule.GetName()!));
 
         // Store the partially typed class as the current enclosing class
         var partiallyTypedClass = new PartiallyTypedClass(
@@ -371,12 +378,12 @@ public class AuraTypeChecker
             class_.Public,
             new Class(class_.Name.Value, new List<string>(), class_.GetParamTypes(), methodTypes),
             class_.Line);
-        _enclosingClass.Push(partiallyTypedClass);
+        _enclosingClassStore.Push(partiallyTypedClass);
         // Finish type checking the class's methods
         var typedMethods = partiallyTypedClass.Methods
             .Select(FinishFunctionStmt)
             .ToList();
-        _enclosingClass.Pop();
+        _enclosingClassStore.Pop();
         return new FullyTypedClass(class_.Name, class_.Params, typedMethods, class_.Public, class_.Line);
     }
 
@@ -444,7 +451,7 @@ public class AuraTypeChecker
     private TypedAssignment AssignmentExpr(UntypedAssignment assignment)
     {
         // Fetch the variable being assigned to
-        var v = _variables.Find(assignment.Name.Value, _currentModule!.Value.Value);
+        var v = _variableStore.Find(assignment.Name.Value, _currentModule.GetName()!);
         // Ensure that the new value and the variable have the same type
         var typedExpr = ExpressionAndConfirm(assignment.Value, v!.Value.Kind);
         return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
@@ -504,7 +511,7 @@ public class AuraTypeChecker
     private TypedCall CallExpr(UntypedCall call)
     {
         var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
-        var funcDeclaration = _variables.Find(call.Callee.GetName(), _currentModule!.Value.Value)!.Value.Kind as ICallable;
+        var funcDeclaration = _variableStore.Find(call.Callee.GetName(), _currentModule.GetName()!)!.Value.Kind as ICallable;
         // Ensure the function call has the correct number of arguments
         if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
         // Type check arguments
@@ -522,9 +529,14 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked get expression</returns>
     private TypedGet GetExpr(UntypedGet get)
     {
-        // Type check object
+        // Type check object, which must be a class
         var objExpr = Expression(get.Obj);
-        return new TypedGet(objExpr, get.Name, objExpr.Typ, get.Line);
+        if (objExpr.Typ is not Class c) throw new CannotGetFromNonClassException(get.Line);
+        // Fetch the class's attribute
+        var attrTyp = c.GetAttribute(get.Name.Value);
+        if (attrTyp is null) throw new ClassAttributeDoesNotExistException(get.Line);
+        
+        return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
     }
 
     private TypedSet SetExpr(UntypedSet set)
@@ -549,7 +561,7 @@ public class AuraTypeChecker
         var expr = Expression(getIndex.Obj);
         var indexExpr = Expression(getIndex.Index);
         // Ensure that the object is indexable
-        if (expr is not IIndexable indexableExpr) throw new ExpectIndexableException(getIndex.Line);
+        if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(getIndex.Line);
         if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ)) throw new TypeMismatchException(getIndex.Line); 
 
         return new TypedGetIndex(expr, indexExpr, indexableExpr.GetIndexedType(), getIndex.Line);
@@ -570,7 +582,7 @@ public class AuraTypeChecker
         var lower = Expression(getIndexRange.Lower);
         var upper = Expression(getIndexRange.Upper);
         // Ensure that the object is range indexable
-        if (expr is not IRangeIndexable rangeIndexableExpr) throw new ExpectRangeIndexableException(getIndexRange.Line);
+        if (expr.Typ is not IRangeIndexable rangeIndexableExpr) throw new ExpectRangeIndexableException(getIndexRange.Line);
         if (!rangeIndexableExpr.IndexingType().IsSameType(lower.Typ)) throw new TypeMismatchException(getIndexRange.Line);
         if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ)) throw new TypeMismatchException(getIndexRange.Line);
 
@@ -617,7 +629,7 @@ public class AuraTypeChecker
         var items = literal.GetValue();
         var typedItem = Expression(items.First());
         var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
-        return new(typedItems, typedItem.Typ, literal.Line);
+        return new(typedItems, new List(typedItem.Typ), literal.Line);
     }
 
     private TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> MapLiteralExpr(UntypedMapLiteral literal)
@@ -631,7 +643,7 @@ public class AuraTypeChecker
             var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
             return (typedK, typedV);
         }).ToDictionary(pair => pair.typedK, pair => pair.typedV);
-        return new(typedM, typedValue.Typ, literal.Line);
+        return new(typedM, new Map(typedKey.Typ, typedValue.Typ), literal.Line);
     }
 
     private TypedLiteral<List<TypedAuraExpression>> TupleLiteralExpr(UntypedTupleLiteral literal)
@@ -662,7 +674,7 @@ public class AuraTypeChecker
     /// </summary>
     /// <param name="this_">The `this` expression to type check</param>
     /// <returns>A valid, type checked `this` expression</returns>
-    private TypedThis ThisExpr(UntypedThis this_) => new(this_.Keyword, _enclosingClass.Peek().Typ, this_.Line);
+    private TypedThis ThisExpr(UntypedThis this_) => new(this_.Keyword, _enclosingClassStore.Peek().Typ, this_.Line);
 
     /// <summary>
     /// Type checks a unary expression
@@ -694,7 +706,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked variable expression</returns>
     private TypedVariable VariableExpr(UntypedVariable v)
     {
-        var localVar = _variables.Find(v.Name.Value, _currentModule!.Value.Value);
+        var localVar = _variableStore.Find(v.Name.Value, _currentModule.GetName()!);
         return new TypedVariable(v.Name, localVar!.Value.Kind, v.Line);
     }
 
@@ -705,15 +717,15 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked logical expression</returns>
     private TypedLogical LogicalExpr(UntypedLogical logical)
     {
-        var typedLeft = ExpressionAndConfirm(logical.Left, new Bool());
-        var typedRight = ExpressionAndConfirm(logical.Right, new Bool());
+        var typedLeft = Expression(logical.Left);
+        var typedRight = ExpressionAndConfirm(logical.Right, typedLeft.Typ);
         return new(typedLeft, logical.Operator, typedRight, new Bool(), logical.Line);
     }
 
     private void ExitScope()
     {
         // Before exiting block, remove any variables created in this scope
-        _variables.ExitScope(_scope);
+        _variableStore.ExitScope(_scope);
         _scope--;
     }
 
