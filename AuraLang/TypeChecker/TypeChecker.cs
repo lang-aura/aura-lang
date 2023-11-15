@@ -1,23 +1,22 @@
-﻿using System.Text.Json.Serialization;
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Token;
 using AuraLang.Types;
-using Char = AuraLang.Types.Char;
-using Function = AuraLang.Types.Function;
-using String = AuraLang.Types.String;
-using Tuple = AuraLang.Types.Tuple;
+using AuraChar = AuraLang.Types.Char;
+using AuraFunction = AuraLang.Types.Function;
+using AuraString = AuraLang.Types.String;
+using AuraTuple = AuraLang.Types.Tuple;
 
 namespace AuraLang.TypeChecker;
 
 public class AuraTypeChecker
 {
-    private readonly List<Local> _variables = new();
+    private readonly IVariableStore _variables = new VariableStore();
     private int _scope = 1;
     // TODO collect errors
     private readonly Stack<PartiallyTypedClass> _enclosingClass = new();
     private readonly Dictionary<string, Module> _builtInModules = new();
-    private TypedMod? _currentModule = null;
+    private TypedMod? _currentModule;
 
     public List<TypedAuraStatement> CheckTypes(List<UntypedAuraStatement> untypedAst)
     {
@@ -197,7 +196,7 @@ public class AuraTypeChecker
             // Add function as local variable
             _variables.Add(new Local(
                 f.Name.Value,
-                new Function(
+                new AuraFunction(
                     f.Name.Value,
                     new AnonymousFunction(
                         f.GetParamTypes(),
@@ -243,7 +242,7 @@ public class AuraTypeChecker
         // Add function as local
         _variables.Add(new Local(
             f.Name.Value,
-            new Function(f.Name.Value, new AnonymousFunction(f.GetParamTypes(), f.ReturnType)),
+            new AuraFunction(f.Name.Value, new AnonymousFunction(f.GetParamTypes(), f.ReturnType)),
             _scope,
             _currentModule!.Value.Value));
 
@@ -284,8 +283,8 @@ public class AuraTypeChecker
             case None:
                 return ShortLetStmt(let);
             case Unknown:
-                var v = FindVariable(let.Name.Value, _currentModule!.Value.Value);
-                nameTyp = v.Kind;
+                var v = _variables.Find(let.Name.Value, _currentModule!.Value.Value);
+                nameTyp = v!.Value.Kind;
                 break;
         }
 
@@ -353,7 +352,7 @@ public class AuraTypeChecker
         var partiallyTypedMethods = class_.Methods.Select(PartialFunctionStmt).ToList();
         var methodTypes = partiallyTypedMethods.Select(method =>
         {
-            return new Function(method.Name.Value, new AnonymousFunction(method.GetParamTypes(), method.ReturnType));
+            return new AuraFunction(method.Name.Value, new AnonymousFunction(method.GetParamTypes(), method.ReturnType));
         }).ToList();
         var paramNames = class_.Params.Select(p => p.Name.Value).ToList();
 
@@ -445,9 +444,9 @@ public class AuraTypeChecker
     private TypedAssignment AssignmentExpr(UntypedAssignment assignment)
     {
         // Fetch the variable being assigned to
-        var v = FindVariable(assignment.Name.Value, _currentModule!.Value.Value);
+        var v = _variables.Find(assignment.Name.Value, _currentModule!.Value.Value);
         // Ensure that the new value and the variable have the same type
-        var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
+        var typedExpr = ExpressionAndConfirm(assignment.Value, v!.Value.Kind);
         return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
     }
 
@@ -505,7 +504,7 @@ public class AuraTypeChecker
     private TypedCall CallExpr(UntypedCall call)
     {
         var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
-        var funcDeclaration = FindVariable(call.Callee.GetName(), _currentModule!.Value.Value).Kind as ICallable;
+        var funcDeclaration = _variables.Find(call.Callee.GetName(), _currentModule!.Value.Value)!.Value.Kind as ICallable;
         // Ensure the function call has the correct number of arguments
         if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
         // Type check arguments
@@ -611,7 +610,7 @@ public class AuraTypeChecker
 
     private TypedLiteral<double> FloatLiteralExpr(UntypedFloatLiteral literal) => new(literal.GetValue(), new Float(), literal.Line);
 
-    private TypedLiteral<string> StringLiteralExpr(UntypedStringLiteral literal) => new(literal.GetValue(), new String(), literal.Line);
+    private TypedLiteral<string> StringLiteralExpr(UntypedStringLiteral literal) => new(literal.GetValue(), new AuraString(), literal.Line);
 
     private TypedLiteral<List<TypedAuraExpression>> ListLiteralExpr(UntypedListLiteral<UntypedAuraExpression> literal)
     {
@@ -640,7 +639,7 @@ public class AuraTypeChecker
         var typedTup = literal.GetValue()
             .Select(Expression)
             .ToList();
-        return new(typedTup, new Tuple(typedTup.Select(item => item.Typ).ToList()), literal.Line);
+        return new(typedTup, new AuraTuple(typedTup.Select(item => item.Typ).ToList()), literal.Line);
     }
 
     private TypedLiteral<bool> BoolLiteralExpr(UntypedBoolLiteral literal)
@@ -655,7 +654,7 @@ public class AuraTypeChecker
 
     private TypedLiteral<char> CharLiteralExpr(UntypedCharLiteral literal)
     {
-        return new(literal.GetValue(), new Char(), literal.Line);
+        return new(literal.GetValue(), new AuraChar(), literal.Line);
     }
 
     /// <summary>
@@ -695,8 +694,8 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked variable expression</returns>
     private TypedVariable VariableExpr(UntypedVariable v)
     {
-        var localVar = FindVariable(v.Name.Value, _currentModule!.Value.Value);
-        return new TypedVariable(v.Name, localVar.Kind, v.Line);
+        var localVar = _variables.Find(v.Name.Value, _currentModule!.Value.Value);
+        return new TypedVariable(v.Name, localVar!.Value.Kind, v.Line);
     }
 
     /// <summary>
@@ -711,19 +710,10 @@ public class AuraTypeChecker
         return new(typedLeft, logical.Operator, typedRight, new Bool(), logical.Line);
     }
 
-    private Local FindVariable(string varName, string modName) => _variables.Find(v => v.Name == varName && v.Module == modName);
-
-    private void ExitBlock()
+    private void ExitScope()
     {
         // Before exiting block, remove any variables created in this scope
-        for (var i = _variables.Count - 1; i >= 0; i--)
-        {
-            if (_variables[i].Scope < _scope)
-            {
-                break;
-            }
-            _variables.RemoveAt(_variables.Count - 1);
-        }
+        _variables.ExitScope(_scope);
         _scope--;
     }
 
@@ -742,7 +732,7 @@ public class AuraTypeChecker
     {
         _scope++;
         var typedNode = f();
-        ExitBlock();
+        ExitScope();
         return typedNode;
     }
 }
