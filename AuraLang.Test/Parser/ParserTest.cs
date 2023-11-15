@@ -808,7 +808,7 @@ public class ParserTest
 		Assert.Multiple(() =>
 		{
 			Assert.That(untypedAst, Is.Not.Null);
-			Assert.That(untypedAst!, Has.Count.EqualTo(1));
+			Assert.That(untypedAst, Has.Count.EqualTo(1));
 
 			var expectedJson = JsonConvert.SerializeObject(expected);
 			var actualJson = JsonConvert.SerializeObject(untypedAst[0]);

@@ -1,9 +1,4 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ad530409_002Dadd0_002D4330_002D8c08_002D87cf3706d922/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestTypeCheck_Assignment" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::C57AFB7D-0BC2-4F15-B005-AEA17C048D78::net7.0::AuraLang.Test.TypeChecker.TypeCheckerTest.TestTypeCheck_Assignment&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::C57AFB7D-0BC2-4F15-B005-AEA17C048D78::net7.0::AuraLang.Test.TypeChecker.TypeCheckerTest.TestTypeCheck_Binary&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::C57AFB7D-0BC2-4F15-B005-AEA17C048D78::net7.0::AuraLang.Test.TypeChecker.TypeCheckerTest.TestTypeCheck_Block_EmptyBody&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::C57AFB7D-0BC2-4F15-B005-AEA17C048D78::net7.0::AuraLang.Test.TypeChecker.TypeCheckerTest.TestTypeCheck_Call_NoArgs&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b0fc6d39_002D0c2c_002D46ac_002D8aa1_002D0eb0823f9799/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

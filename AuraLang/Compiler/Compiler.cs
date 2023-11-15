@@ -1,12 +1,11 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using Char = AuraLang.Types.Char;
-using String = AuraLang.Types.String;
-using Tuple = AuraLang.Types.Tuple;
+using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Compiler;
 
@@ -126,7 +125,7 @@ public class AuraCompiler
             // The compiler will always compile an Aura `for` loop to a Go `for` loop without the increment part of the `for` loop's signature. The increment is instead
             // added to the end of the loop's body. The loop's execution will remain the same, so it doesn't seem worth it to extract it from the body and put it back
             // into the loop's signature.
-            return $"for {init}; {cond}; {{{body}\n}}";
+            return body != string.Empty ? $"for {init}; {cond}; {{{body}\n}}" : $"for {init}; {cond}; {{}}";
         }, for_);
     }
 
@@ -136,7 +135,9 @@ public class AuraCompiler
         {
             var iter = Expression(foreach_.Iterable);
             var body = CompileLoopBody(foreach_.Body);
-            return $"for _, {foreach_.EachName.Value} := range {iter} {{{body}\n}}";
+            return body != string.Empty
+                ? $"for _, {foreach_.EachName.Value} := range {iter} {{{body}\n}}"
+                : $"for _, {foreach_.EachName.Value} := range {iter} {{}}";
         }, foreach_);
     }
 
@@ -189,14 +190,15 @@ public class AuraCompiler
                 // as the initializer of a `for` loop. Go only allows the short syntax (i.e. `x := 0`), whereas Aura allows both styles of variable
                 // declaration. Therefore, if the user has entered the full `let`-style syntax (i.e. `let x: int = 0`) inside the signature of a `for`
                 // loop, it must be compiled to the short syntax in the final Go file.
-                if (let.TypeAnnotation && _enclosingType.Peek() is not TypedFor)
+                if (let.TypeAnnotation)
                 {
-                    return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer.Typ)} = {value}";
+                    var b = _enclosingType.TryPeek(out var for_);
+                    if (!b || for_ is not TypedFor)
+                    {
+                        return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer.Typ)} = {value}";
+                    }
                 }
-                else
-                {
-                    return $"{let.Name.Value} := {value}";
-                }
+                return $"{let.Name.Value} := {value}";
         }
     }
 
@@ -207,10 +209,9 @@ public class AuraCompiler
 
     private string ReturnStmt(TypedReturn r)
     {
-        var value = Expression(r.Value);
-        value = value == "nil" ? string.Empty : $" {value}";
-        if (value == "nil") value = string.Empty;
-        return $"return{value}";
+        return r.Value is not null
+            ? $"return {Expression(r.Value)}"
+            : "return";
     }
 
     private string ClassStmt(FullyTypedClass c)
@@ -232,7 +233,9 @@ public class AuraCompiler
             })
             .Aggregate(string.Empty, (prev, curr) => $"{prev}\n\n{curr}");
 
-            return $"type {className} struct {{\n{compiledParams}\n}}\n\n{compiledMethods}";
+            return compiledParams != string.Empty
+                ? $"type {className} struct {{\n{compiledParams}\n}}\n\n{compiledMethods}"
+                : $"type {className} struct {{}}\n\n{compiledMethods}";
         }, c);
     }
 
@@ -240,7 +243,9 @@ public class AuraCompiler
     {
         var cond = Expression(w.Condition);
         var body = CompileLoopBody(w.Body);
-        return $"for {cond} {{{body}\n}}";
+        return body != string.Empty
+            ? $"for {cond} {{{body}\n}}"
+            : $"for {cond} {{}}";
     }
 
     private string ImportStmt(TypedImport i)
@@ -251,10 +256,10 @@ public class AuraCompiler
             //return BuildStdlibPkgImportStmt(name);
             return "";
         }
-        else
-        {
-            return "";
-        }
+
+        return i.Alias is null
+            ? $"import \"{i.Package.Value}\""
+            : $"import {i.Alias.Value.Value} \"{i.Package.Value}\"";
     }
 
     private string CommentStmt(TypedComment com)
@@ -287,23 +292,20 @@ public class AuraCompiler
 
     private string BlockExpr(TypedBlock b)
     {
-        var compiledStmts = new AuraStringBuilder("\n");
+        var compiledStmts = new AuraStringBuilder();
         foreach (var stmt in b.Statements)
         {
             var s = Statement(stmt);
             compiledStmts.WriteString(s, stmt.Line, stmt);
         }
-        return $"{{{compiledStmts.String()}\n}}";
+        return compiledStmts.String() == string.Empty ? "{}" : $"{{\n{compiledStmts.String()}\n}}";
     }
 
     private string CallExpr(TypedCall c)
     {
         var callee = Expression((TypedAuraExpression)c.Callee);
-        var compiledParams = c.Arguments
-            .Select(Expression)
-            .Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}")
-            .ToList();
-        return $"{callee}({compiledParams})";
+        var compiledParams = c.Arguments.Select(Expression);
+        return $"{callee}({string.Join(", ", compiledParams)})";
     }
 
     private string GetExpr(TypedGet get)
@@ -337,27 +339,25 @@ public class AuraCompiler
     {
         var cond = Expression(if_.Condition);
         var then = Expression(if_.Then);
-        var else_ = if_.Else is not null ? $"else {Expression(if_.Else)}" : string.Empty;
+        var else_ = if_.Else is not null ? $" else {Expression(if_.Else)}" : string.Empty;
         return $"if {cond} {then}{else_}";
     }
 
     private string StringLiteralExpr(TypedLiteral<string> literal) => $"\"{literal.Value}\"";
 
-    private string CharLiteralExpr(TypedLiteral<char> literal) => $"\"{literal.Value}\"";
+    private string CharLiteralExpr(TypedLiteral<char> literal) => $"'{literal.Value}'";
 
     private string IntLiteralExpr(TypedLiteral<long> literal) => $"{literal.Value}";
 
-    private string FloatLiteralExpr(TypedLiteral<double> literal) => $"{literal.Value}";
+    private string FloatLiteralExpr(TypedLiteral<double> literal) => string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
     
     private string BoolLiteralExpr(TypedLiteral<bool> literal) => literal.Value ? "true" : "false";
 
     private string ListLiteralExpr(TypedLiteral<List<TypedAuraExpression>> literal)
     {
         var items = literal.Value
-            .Select(Expression)
-            .Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}")
-            .ToList();
-        return $"{AuraTypeToGoType(literal.Typ)}{{{items}}}";
+            .Select(Expression);
+        return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
     }
 
     private string NilLiteralExpr(TypedNil nil) => "nil";
@@ -365,14 +365,12 @@ public class AuraCompiler
     private string MapLiteralExpr(TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> literal)
     {
         var items = literal.Value.Select(pair =>
-            {
-                var keyExpr = Expression(pair.Key);
-                var valueExpr = Expression(pair.Value);
-                return $"{keyExpr}: {valueExpr}";
-            })
-            .Aggregate(string.Empty, (prev, curr) => $"{prev},\n{curr}")
-            .ToList();
-        return $"{AuraTypeToGoType(literal.Typ)}{{\n{items}}}";
+        {
+            var keyExpr = Expression(pair.Key);
+            var valueExpr = Expression(pair.Value);
+            return $"{keyExpr}: {valueExpr}";
+        });
+        return items.Any() ? $"{AuraTypeToGoType(literal.Typ)}{{\n{string.Join(", ", items)}\n}}" : $"{AuraTypeToGoType(literal.Typ)}{{}}";
     }
 
     private string TupleLiteralExpr(TypedLiteral<List<TypedAuraExpression>> literal)
@@ -415,9 +413,12 @@ public class AuraCompiler
 
     private string CompileLoopBody(List<TypedAuraStatement> body)
     {
-        return body
-        .Select(Statement)
-        .Aggregate(string.Empty, (prev, curr) => $"prev\ncurr");
+        return body.Any()
+            ? body
+               .Select(Statement)
+               .Aggregate(string.Empty, (prev, curr) => $"{prev}\n{curr}")
+            : string.Empty;
+
     }
 
     private string CompileParams(List<Param> params_, string sep)

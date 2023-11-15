@@ -285,7 +285,7 @@ public class Map : AuraType, IIndexable
     }
 
     public override bool IsSameType(AuraType other) => other is Map;
-    public override string ToString() => "map";
+    public override string ToString() => $"map[{Key}]{Value}";
     public AuraType IndexingType() => Key;
     public AuraType GetIndexedType() => Value;
 }
