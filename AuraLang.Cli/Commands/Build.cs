@@ -7,18 +7,11 @@ using AuraLang.TypeChecker;
 
 namespace AuraLang.Cli.Commands;
 
-public class Build
+public class Build : AuraCommand
 {
-	private string FilePath { get; init; }
-	private bool Verbose { get; init; }
+	public Build(BuildOptions opts) : base(opts) { }
 
-	public Build(BuildOptions opts)
-	{
-		FilePath = opts.Path;
-		Verbose = opts.Verbose ?? false;
-	}
-
-	public int Execute()
+	public override int Execute()
 	{
 		// Build all Aura files in project
 		var auraFiles = GetAllAuraFiles("./src");
@@ -62,17 +55,6 @@ public class Build
 		var goPath = $"./build/pkg/{fileName}";
 		File.AppendAllText(goPath, output);
 		FormatGoOutputFile(goPath);
-	}
-
-	private List<string> GetAllAuraFiles(string path)
-	{
-		var files = Directory.GetFiles(path).ToList();
-		var dirFiles = Directory.GetDirectories(path).Select(GetAllAuraFiles);
-		return dirFiles.Aggregate(files, (prev, curr) =>
-		{
-			prev.AddRange(curr);
-			return prev;
-		});
 	}
 
 	private void FormatGoOutputFile(string goPath)
