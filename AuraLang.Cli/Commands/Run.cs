@@ -9,9 +9,11 @@ public class Run
 
 	public Run(RunOptions opts)
 	{
-		var buildOpts = new BuildOptions();
-		buildOpts.Path = opts.Path;
-		buildOpts.Verbose = opts.Verbose;
+		var buildOpts = new BuildOptions
+		{
+			Path = opts.Path,
+			Verbose = opts.Verbose ?? false
+		};
 
 		_build = new Build(buildOpts);
 		_verbose = opts.Verbose ?? false;

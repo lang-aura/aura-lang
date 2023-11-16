@@ -9,14 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Commands\" />
     <None Remove="Options\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\" />
-    <Folder Include="Options\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AuraLang\AuraLang.csproj" />
