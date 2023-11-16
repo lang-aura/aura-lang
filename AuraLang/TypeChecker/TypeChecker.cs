@@ -1,5 +1,6 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
+using AuraLang.Stdlib;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraChar = AuraLang.Types.Char;
@@ -15,8 +16,8 @@ public class AuraTypeChecker
     private int _scope = 1;
     // TODO collect errors
     private readonly IEnclosingClassStore _enclosingClassStore;
-    private readonly Dictionary<string, Module> _builtInModules = new();
-    private ICurrentModuleStore _currentModule;
+    private readonly AuraStdlib _stdlib = new();
+    private readonly ICurrentModuleStore _currentModule;
 
     public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore)
     {
@@ -405,13 +406,14 @@ public class AuraTypeChecker
     private TypedImport ImportStmt(UntypedImport import_)
     {
         // First, check if the module being imported is built-in
-        if (!_builtInModules.TryGetValue(import_.Package.Value, out var module))
+        if (!_stdlib.TryGetModule(import_.Package.Value, out var module))
         {
             // TODO Read file at import path and type check it
             // TODO Add module to list of local variables
             // TODO Add local module's public functions to current scope
             return new TypedImport(import_.Package, import_.Alias, import_.Line);
-        } else
+        }
+        else
         {
             // TODO Add module to list of local variables
             // TODO Add local module's public functions to current scope
@@ -529,11 +531,11 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked get expression</returns>
     private TypedGet GetExpr(UntypedGet get)
     {
-        // Type check object, which must be a class
+        // Type check object, which must be gettable
         var objExpr = Expression(get.Obj);
-        if (objExpr.Typ is not Class c) throw new CannotGetFromNonClassException(get.Line);
-        // Fetch the class's attribute
-        var attrTyp = c.GetAttribute(get.Name.Value);
+        if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(get.Line);
+        // Fetch the gettable's attribute
+        var attrTyp = g.Get(get.Name.Value);
         if (attrTyp is null) throw new ClassAttributeDoesNotExistException(get.Line);
         
         return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
