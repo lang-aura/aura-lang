@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using Tommy;
 
 namespace AuraLang.Cli.Toml;
@@ -26,5 +28,17 @@ public class AuraToml
         using var writer = File.CreateText($"{_path}/aura.toml");
         config.WriteTo(writer);
         writer.Flush();
+    }
+
+    public TomlTable Parse()
+    {
+        using var reader = File.OpenText($"{_path}/aura.toml");
+        return TOML.Parse(reader);
+    }
+
+    public string GetProjectName()
+    {
+        var table = Parse();
+        return table["project"]["name"].AsString.Value;
     }
 }
