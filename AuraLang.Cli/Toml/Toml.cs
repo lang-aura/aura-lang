@@ -17,11 +17,11 @@ public class AuraToml
     {
         var config = new TomlTable
         {
-            ["Project"] =
+            ["project"] =
             {
-                ["Name"] = name,
-                ["Version"] = "0.0.1",
-                ["Description"] = string.Empty
+                ["name"] = name,
+                ["version"] = "0.0.1",
+                ["description"] = string.Empty
             }
         };
 
