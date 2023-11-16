@@ -30,7 +30,8 @@ public class AuraScanner
 	/// are added at the end of a blank line.
 	/// </summary>
 	private bool _isLineBlank;
-	private List<Tok> _tokens;
+	private readonly List<Tok> _tokens;
+	private ScannerExceptionContainer _exContainer = new();
 
 	public AuraScanner(string source)
 	{
@@ -39,13 +40,13 @@ public class AuraScanner
 		_current = 0;
 		_line = 1;
 		_isLineBlank = true;
-		_tokens = new();
+		_tokens = new List<Tok>();
 	}
 
 	public List<Tok> ScanTokens()
 	{
 		// Scan each character of the source code
-		for (int i = 0; i < _source.Length; i++)
+		for (var i = 0; i < _source.Length; i++)
 		{
 			SkipWhitespace();
 			// Ensure that we haven't reached the end of the source before scanning the next character
@@ -58,8 +59,17 @@ public class AuraScanner
 			// Now that we have scanned a non-blank character, we know the current line isn't blank
 			_isLineBlank = false;
 
-			_tokens.Add(ScanToken(c));
+			try
+			{
+				_tokens.Add(ScanToken(c));
+			}
+			catch (ScannerException ex)
+			{
+				_exContainer.Add(ex);
+			}
 		}
+
+		if (!_exContainer.IsEmpty()) throw _exContainer;
 		// We append an EOF token to the end of the returned list of tokens to clearly delineate the end of the source
 		_tokens.Add(new Tok(TokType.Eof, "eof", _line));
 		return _tokens;
@@ -186,7 +196,7 @@ public class AuraScanner
             default:
                 // If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
                 // then it must be an invalid character
-                throw new InvalidCharacterException();
+                throw new InvalidCharacterException(_line);
         }
     }
 
@@ -413,7 +423,7 @@ public class AuraScanner
 		// Scan the entire token, up until the closing double quote
 		while (!IsAtEnd() && Peek() != '"') s += Advance();
 		// If we've reached the end of the file without encountering the closing ", we throw an exception
-		if (IsAtEnd()) throw new UnterminatedStringException();
+		if (IsAtEnd()) throw new UnterminatedStringException(_line);
 		// Advance past the closing "
 		Advance();
 
@@ -426,11 +436,11 @@ public class AuraScanner
 		// Scan the entire token, up until the closing single quote
 		while (!IsAtEnd() && Peek() != '\'') s += Advance();
 		// If we've reached the end of the file without encountering the closing ', we throw an exception
-		if (IsAtEnd()) throw new UnterminatedCharException();
+		if (IsAtEnd()) throw new UnterminatedCharException(_line);
 		// Advance past the closing '
 		Advance();
 		// Ensure that the char is a single character
-		if (s.Length > 1) throw new CharLengthGreaterThanOneException();
+		if (s.Length > 1) throw new CharLengthGreaterThanOneException(_line);
 
 		return new Tok(TokType.CharLiteral, s, _line);
 	}

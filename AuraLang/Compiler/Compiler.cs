@@ -37,6 +37,8 @@ public class AuraCompiler
     /// </summary>
     private int _line;
 
+    private CompilerExceptionContainer _exContainer = new();
+
 	public AuraCompiler(List<TypedAuraStatement> typedAst)
 	{
         _typedAst = typedAst;
@@ -47,10 +49,18 @@ public class AuraCompiler
     {
         foreach (var node in _typedAst)
         {
-            var s = Statement(node);
-            _goDocument.WriteStmt(s, node.Line, node);
+            try
+            {
+                var s = Statement(node);
+                _goDocument.WriteStmt(s, node.Line, node);
+            }
+            catch (CompilerException ex)
+            {
+                _exContainer.Add(ex);
+            }
         }
 
+        if (!_exContainer.IsEmpty()) throw _exContainer;
         return _goDocument.Assemble();
     }
 

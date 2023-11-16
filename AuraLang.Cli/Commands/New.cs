@@ -4,21 +4,21 @@ using AuraLang.Cli.Toml;
 
 namespace AuraLang.Cli.Commands;
 
-public class New
+public class New : AuraCommand
 {
-    private NewOptions Opts { get; }
-    
-    public New(NewOptions opts)
-    {
-        Opts = opts;
-    }
+	private string Name { get; }
 
-    public int Execute()
+	public New(NewOptions opts) : base(opts)
+	{
+		Name = opts.Name;
+	}
+
+    public override int Execute()
     {
-	    var projPath = $"{Opts.Path}/{Opts.Name}";
+	    var projPath = $"{FilePath}/{Name}";
 	    Directory.CreateDirectory(projPath);
 	    Directory.CreateDirectory($"{projPath}/src");
-	    File.WriteAllText($"{projPath}/src/{Opts.Name}.aura", "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world!\")\n}\n");
+	    File.WriteAllText($"{projPath}/src/{Name}.aura", "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world!\")\n}\n");
 	    Directory.CreateDirectory($"{projPath}/test");
 	    Directory.CreateDirectory($"{projPath}/build");
 	    Directory.CreateDirectory($"{projPath}/build/pkg");
@@ -38,7 +38,7 @@ public class New
 	    
 	    File.WriteAllText($"{projPath}/README.md", string.Empty);
 	    File.WriteAllText($"{projPath}/aura.toml", string.Empty);
-	    new AuraToml(projPath).InitProject(Opts.Name);
+	    new AuraToml(projPath).InitProject(Name);
 	    
 	    Directory.SetCurrentDirectory($"./{projPath}/build/pkg");
 
@@ -47,7 +47,7 @@ public class New
 			StartInfo = new ProcessStartInfo
 			{
 				FileName = "go",
-				Arguments = $"mod init {Opts.Name}"
+				Arguments = $"mod init {Name}"
 			}
 	    };
 	    modInit.Start();

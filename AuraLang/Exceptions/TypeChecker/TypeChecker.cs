@@ -1,8 +1,16 @@
 ﻿namespace AuraLang.Exceptions.TypeChecker;
 
+public class TypeCheckerExceptionContainer : AuraExceptionContainer
+{
+    public void Add(TypeCheckerException ex)
+    {
+        Exs.Add(ex);
+    }
+}
+
 public abstract class TypeCheckerException : AuraException
 {
-    public TypeCheckerException(string message, int line) : base(message, line) { }
+    protected TypeCheckerException(string message, int line) : base(message, line) { }
 }
 
 public class UnknownStatementTypeException : TypeCheckerException
