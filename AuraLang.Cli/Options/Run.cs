@@ -6,9 +6,9 @@ namespace AuraLang.Cli.Options;
 public class RunOptions
 {
 	[Option('v', "verbose", Required = false, Default = false, HelpText = "Set output level to verbose")]
-	public bool? Verbose { get; set; }
+	public bool? Verbose { get; init; }
 	
-	[Value(0, Required = true, HelpText = "The Aura source file to run")]
-	public string Path { get; set; }
+	[Value(0, Required = false, HelpText = "The Aura source file to run")]
+	public string Path { get; init; }
 }
 

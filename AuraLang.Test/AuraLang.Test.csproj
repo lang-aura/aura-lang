@@ -23,6 +23,7 @@
     <None Remove="Parser\" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Integration\" />
     <Folder Include="Scanner\" />
     <Folder Include="Parser\" />
   </ItemGroup>

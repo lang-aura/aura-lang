@@ -1,11 +1,12 @@
-﻿using AuraLang.Cli.Options;
+﻿using System.Diagnostics;
+using AuraLang.Cli.Options;
 
 namespace AuraLang.Cli.Commands;
 
 public class Run
 {
-	private Build _build { get; init; }
-	private bool _verbose { get; init; }
+	private Build Build { get; init; }
+	private bool Verbose { get; init; }
 
 	public Run(RunOptions opts)
 	{
@@ -15,14 +16,23 @@ public class Run
 			Verbose = opts.Verbose ?? false
 		};
 
-		_build = new Build(buildOpts);
-		_verbose = opts.Verbose ?? false;
+		Build = new Build(buildOpts);
+		Verbose = opts.Verbose ?? false;
 	}
 
 	public int Execute()
 	{
-		var contents = _build.Execute();
-		Console.WriteLine($"Contents = {contents}");
+		Build.Execute();
+		var run = new Process
+		{
+			StartInfo = new ProcessStartInfo
+			{
+				FileName = "./Examples"
+			}
+		};
+		run.Start();
+		run.WaitForExit();
+		
 		return 0;
 	}
 }
