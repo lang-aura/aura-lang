@@ -9,6 +9,10 @@ public class Fmt : AuraCommand
 
     public override int Execute()
     {
+        var contents = File.ReadAllText(FilePath);
+        if (contents[^1] is not '\n') contents += '\n';
+        File.WriteAllText(FilePath, contents);
+
         return 0;
     }
 }
