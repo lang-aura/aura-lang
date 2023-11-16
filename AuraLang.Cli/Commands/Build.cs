@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using AuraLang.Cli.Options;
 using AuraLang.Compiler;
+using AuraLang.Exceptions;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.TypeChecker;
@@ -17,7 +18,15 @@ public class Build : AuraCommand
 		var auraFiles = GetAllAuraFiles("./src");
 		foreach (var af in auraFiles)
 		{
-			BuildFile(af);
+			try
+			{
+				BuildFile(af);
+			}
+			catch (AuraExceptionContainer ex)
+			{
+				ex.Report();
+				return 1;
+			}
 		}
 		// Build Go binary executable
 		Directory.SetCurrentDirectory("./build/pkg");

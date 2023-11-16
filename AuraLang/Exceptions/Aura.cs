@@ -2,18 +2,27 @@
 
 public abstract class AuraExceptionContainer : Exception
 {
-	public List<AuraException> exs = new();
+	protected readonly List<AuraException> Exs = new();
 
-	public bool IsEmpty() => exs.Count == 0;
+	public bool IsEmpty() => Exs.Count == 0;
+
+	public void Report()
+	{
+		var errs = Exs.Select(ex => ex.Error());
+		var output = string.Join("\n\n", errs);
+		Console.WriteLine(output);
+	}
 }
 
 public abstract class AuraException : Exception
 {
-	public int Line { get; init; }
+	public int Line { get; }
 
-	public AuraException(string message, int line) : base(message)
+	protected AuraException(string message, int line) : base(message)
 	{
 		Line = line;
 	}
+
+	public string Error() => $"[{Line}] {Message}";
 }
 
