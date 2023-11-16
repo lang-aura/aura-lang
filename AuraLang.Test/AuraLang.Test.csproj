@@ -23,10 +23,12 @@
     <None Remove="Parser\" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Integration\" />
     <Folder Include="Scanner\" />
     <Folder Include="Parser\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AuraLang.Cli\AuraLang.Cli.csproj" />
     <ProjectReference Include="..\AuraLang\AuraLang.csproj" />
   </ItemGroup>
 </Project>
