@@ -3,12 +3,11 @@ using AuraLang.Cli.Options;
 
 namespace AuraLang.Cli.Commands;
 
-public class Run
+public class Run : AuraCommand
 {
 	private Build Build { get; init; }
-	private bool Verbose { get; init; }
 
-	public Run(RunOptions opts)
+	public Run(RunOptions opts) : base(opts)
 	{
 		var buildOpts = new BuildOptions
 		{
@@ -17,10 +16,9 @@ public class Run
 		};
 
 		Build = new Build(buildOpts);
-		Verbose = opts.Verbose ?? false;
 	}
 
-	public int Execute()
+	public override int Execute()
 	{
 		Build.Execute();
 		var run = new Process
