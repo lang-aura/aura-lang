@@ -9,19 +9,43 @@ namespace AuraLang.Cli.Commands;
 
 public class Build
 {
-	private string Path { get; init; }
+	private string FilePath { get; init; }
 	private bool Verbose { get; init; }
 
 	public Build(BuildOptions opts)
 	{
-		Path = opts.Path;
+		FilePath = opts.Path;
 		Verbose = opts.Verbose ?? false;
 	}
 
 	public int Execute()
 	{
+		// Build all Aura files in project
+		var auraFiles = GetAllAuraFiles("./src");
+		foreach (var af in auraFiles)
+		{
+			BuildFile(af);
+		}
+		// Build Go binary executable
+		Directory.SetCurrentDirectory("./build/pkg");
+		var build = new Process
+		{
+			StartInfo = new ProcessStartInfo
+			{
+				FileName = "go",
+				Arguments = "build"
+			}
+		};
+		build.Start();
+		build.WaitForExit();
+
+		return 0;
+	}
+
+	private void BuildFile(string path)
+	{
 		// Read source file's contents
-		var contents = File.ReadAllText(Path);
+		var contents = File.ReadAllText(path);
 		// Scan tokens
 		var tokens = new AuraScanner(contents).ScanTokens();
 		// Parse tokens
@@ -34,11 +58,21 @@ public class Build
 		// Compile
 		var output = new AuraCompiler(typedAst).Compile();
 		// Create Go output file
-		var goPath = Path.Replace(".aura", ".go");
+		var fileName = Path.ChangeExtension(Path.GetFileName(FilePath), "aura");
+		var goPath = $"./build/pkg/{fileName}";
 		File.AppendAllText(goPath, output);
 		FormatGoOutputFile(goPath);
+	}
 
-		return 0;
+	private List<string> GetAllAuraFiles(string path)
+	{
+		var files = Directory.GetFiles(path).ToList();
+		var dirFiles = Directory.GetDirectories(path).Select(GetAllAuraFiles);
+		return dirFiles.Aggregate(files, (prev, curr) =>
+		{
+			prev.AddRange(curr);
+			return prev;
+		});
 	}
 
 	private void FormatGoOutputFile(string goPath)
@@ -50,4 +84,3 @@ public class Build
 		cmd.WaitForExit();
 	}
 }
-
