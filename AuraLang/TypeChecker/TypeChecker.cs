@@ -18,6 +18,7 @@ public class AuraTypeChecker
     private readonly IEnclosingClassStore _enclosingClassStore;
     private readonly AuraStdlib _stdlib = new();
     private readonly ICurrentModuleStore _currentModule;
+    private TypeCheckerExceptionContainer _exContainer = new();
 
     public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore)
     {
@@ -32,8 +33,15 @@ public class AuraTypeChecker
 
         foreach (var stmt in untypedAst)
         {
-            var typedStmt = Statement(stmt);
-            typedAst.Add(typedStmt);
+            try
+            {
+                var typedStmt = Statement(stmt);
+                typedAst.Add(typedStmt);
+            }
+            catch (TypeCheckerException ex)
+            {
+                _exContainer.Add(ex);
+            }
         }
         // On the first pass of the Type Checker, some nodes are only partially type checked. On this second pass,
         // the type checking process is finished for those partially typed nodes.
@@ -42,11 +50,19 @@ public class AuraTypeChecker
             var f = typedAst[i] as PartiallyTypedFunction;
             if (f is not null)
             {
-                var typedF = FinishFunctionStmt(f);
-                typedAst[i] = typedF;
+                try
+                {
+                    var typedF = FinishFunctionStmt(f);
+                    typedAst[i] = typedF;
+                }
+                catch (TypeCheckerException ex)
+                {
+                    _exContainer.Add(ex);
+                }
             }
         }
 
+        if (!_exContainer.IsEmpty()) throw _exContainer;
         return typedAst;
     }
 

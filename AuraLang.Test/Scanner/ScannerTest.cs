@@ -261,7 +261,7 @@ public class ScannerTest
 		// Arrange
 		var scanner = new AuraScanner("?");
 		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(InvalidCharacterException)));
+		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
 	}
 
 	[Test]
@@ -270,7 +270,7 @@ public class ScannerTest
 		// Arrange
 		var scanner = new AuraScanner("\"unterminated string");
 		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(UnterminatedStringException)));
+		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
 	}
 
 	[Test]
@@ -279,7 +279,7 @@ public class ScannerTest
 		// Arrange
 		var scanner = new AuraScanner("'c");
 		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(UnterminatedCharException)));
+		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
 	}
 
 	[Test]
@@ -288,7 +288,7 @@ public class ScannerTest
 		// Arrange
 		var scanner = new AuraScanner("'aa'");
 		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(CharLengthGreaterThanOneException)));
+		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
 	}
 
 	private static List<Tok> ArrangeAndAct(string source)

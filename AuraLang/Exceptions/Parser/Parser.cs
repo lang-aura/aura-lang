@@ -4,13 +4,13 @@ public class ParserExceptionContainer : AuraExceptionContainer
 {
     public void Add(ParserException ex)
     {
-        exs.Add(ex);
+        Exs.Add(ex);
     }
 }
 
 public abstract class ParserException : AuraException
 {
-    public ParserException(string message, int line) : base(message, line) { }
+    protected ParserException(string message, int line) : base(message, line) { }
 }
 
 public class TooManyParametersException : ParserException
