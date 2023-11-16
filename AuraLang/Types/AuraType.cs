@@ -190,7 +190,7 @@ public class AnonymousFunction : AuraType, ICallable
 /// Represents a class type in Aura. Classes have their own type signature as well as zero or more
 /// methods, each of which also have their own type.
 /// </summary>
-public class Class : AuraType
+public class Class : AuraType, IGettable
 {
     public string Name { get; init; }
     public List<string> ParamNames { get; init; }
@@ -217,7 +217,7 @@ public class Class : AuraType
     /// </summary>
     /// <param name="name">The name of the attribute to fetch</param>
     /// <returns>The class's attribute matching the provided name, if one exists, else null</returns>
-    public AuraType? GetAttribute(string name)
+    public AuraType? Get(string name)
     {
         // Check if attribute is a param
         try
@@ -249,7 +249,7 @@ public class Class : AuraType
 /// which establishes the module's name. Any functions declared in that source file are considered
 /// part of the same module.
 /// </summary>
-public class Module : AuraType
+public class Module : AuraType, IGettable
 {
     public string Name { get; init; }
     public List<Function> PublicFunctions { get; init; }
@@ -266,6 +266,8 @@ public class Module : AuraType
     }
 
     public override string ToString() => "module";
+
+    public AuraType? Get(string attribute) => PublicFunctions.First(f => f.Name == attribute);
 }
 
 /// <summary>
