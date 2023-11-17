@@ -261,7 +261,6 @@ public class CompilerTest
                         {
                             new TypedReturn(
                                 new TypedLiteral<long>(1, new Int(), 2),
-                                true,
                                 2)
                         },
                         new Int(),
@@ -287,7 +286,6 @@ public class CompilerTest
                         {
                             new TypedReturn(
                                 new TypedLiteral<long>(1, new Int(), 2),
-                                true,
                                 2)
                         },
                         new Int(),
@@ -297,7 +295,6 @@ public class CompilerTest
                         {
                             new TypedReturn(
                                 new TypedLiteral<long>(2, new Int(), 4),
-                                true,
                                 2)
                         },
                         new Int(),
@@ -764,7 +761,7 @@ public class CompilerTest
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
         {
-            new TypedReturn(null, true, 1)
+            new TypedReturn(null, 1)
         });
         MakeAssertions(output, "return");
     }
@@ -774,7 +771,7 @@ public class CompilerTest
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
         {
-            new TypedReturn(new TypedLiteral<long>(5, new Int(), 1), true, 1)
+            new TypedReturn(new TypedLiteral<long>(5, new Int(), 1), 1)
         });
         MakeAssertions(output, "return 5");
     }

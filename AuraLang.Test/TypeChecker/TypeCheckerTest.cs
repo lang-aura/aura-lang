@@ -825,7 +825,6 @@ public class TypeCheckerTest
                 new UntypedIntLiteral(1, 1),
                 1)
         });
-            ;
         MakeAssertions(typedAst, new TypedLet(
             new Tok(TokType.Identifier, "i", 1),
             true,
@@ -846,7 +845,6 @@ public class TypeCheckerTest
                 new UntypedIntLiteral(1, 1),
                 1)
         });
-        ;
         MakeAssertions(typedAst, new TypedLet(
             new Tok(TokType.Identifier, "i", 1),
             false,
@@ -862,12 +860,10 @@ public class TypeCheckerTest
         {
             new UntypedReturn(
                 null,
-                true,
                 1)
         });
         MakeAssertions(typedAst, new TypedReturn(
             null,
-            true,
             1));
     }
 
@@ -878,12 +874,10 @@ public class TypeCheckerTest
         {
             new UntypedReturn(
                 new UntypedIntLiteral(5, 1),
-                true,
                 1)
         });
         MakeAssertions(typedAst, new TypedReturn(
             new TypedLiteral<long>(5, new Int(), 1),
-            true,
             1));
     }
 

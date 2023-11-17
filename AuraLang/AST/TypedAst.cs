@@ -216,8 +216,7 @@ public record TypedMod(Tok Value, int Line) : TypedAuraStatement(new None(), Lin
 /// Represents a valid type-checked <c>return</c> statement
 /// </summary>
 /// <param name="Value">The value to return</param>
-/// <param name="Explicit">Indicates whether the value is being returned from an explicit return statement or not</param>
-public record TypedReturn(TypedAuraExpression? Value, bool Explicit, int Line) : TypedAuraStatement(new None(), Line);
+public record TypedReturn(TypedAuraExpression? Value, int Line) : TypedAuraStatement(new None(), Line);
 
 /// <summary>
 /// Represents a valid type-checked class declaration

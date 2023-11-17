@@ -359,11 +359,11 @@ public class AuraTypeChecker
     /// Type checks a return statement
     /// </summary>
     /// <param name="r">The return statement to type check</param>
-    /// <returns>A valid, type checked reurn statement</returns>
+    /// <returns>A valid, type checked return statement</returns>
     private TypedReturn ReturnStmt(UntypedReturn r)
     {
         var typedVal = r.Value is not null ? Expression(r.Value) : null;
-        return new TypedReturn(typedVal, r.Explicit, r.Line);
+        return new TypedReturn(typedVal, r.Line);
     }
 
     /// <summary>

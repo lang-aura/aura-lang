@@ -67,9 +67,8 @@ public class ParserTest
 			new UntypedBlock(
 				new List<UntypedAuraStatement>
 				{
-					new UntypedReturn(
-						new UntypedIntLiteral((long)1, 2),
-						false,
+					new UntypedExpressionStmt(
+						new UntypedIntLiteral(1, 2),
 						2)
 				},
 				1),
@@ -196,7 +195,6 @@ public class ParserTest
 					{
 						new UntypedReturn(
 							new UntypedIntLiteral(1, 2),
-							true,
 							2),
 					},
 					1),
@@ -703,7 +701,6 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedReturn(
 			new UntypedIntLiteral(5, 1),
-			true,
 			1));
 	}
 
