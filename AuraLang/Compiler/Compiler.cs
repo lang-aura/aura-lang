@@ -4,7 +4,6 @@ using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
-using AuraLang.Toml.Parser;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
 

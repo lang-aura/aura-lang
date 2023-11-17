@@ -1,4 +1,4 @@
-using AuraLang.Toml.Parser;
+using AuraLang.Cli.Toml;
 
 namespace AuraLang.Test.Cli.Toml;
 

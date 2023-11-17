@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using AuraLang.Cli.Options;
+using AuraLang.Cli.Toml;
 using AuraLang.Compiler;
 using AuraLang.Exceptions;
 using AuraLang.Parser;
 using AuraLang.Scanner;
-using AuraLang.Toml.Parser;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.Cli.Commands;

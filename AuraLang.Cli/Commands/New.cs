@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using AuraLang.Cli.Options;
-using AuraLang.Toml.Parser;
+using AuraLang.Cli.Toml;
 
 namespace AuraLang.Cli.Commands;
 
