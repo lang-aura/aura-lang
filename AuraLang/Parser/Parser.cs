@@ -477,7 +477,7 @@ public class AuraParser
         // Parse the trailing semicolon
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-        return new UntypedReturn(value, true, line);
+        return new UntypedReturn(value, line);
     }
 
     private UntypedAuraStatement WhileStatement()
@@ -665,7 +665,6 @@ public class AuraParser
     private UntypedBlock Block()
     {
         var line = Previous().Line;
-        var explicitReturn = false;
         var statements = new List<UntypedAuraStatement>();
 
         while (!IsAtEnd() && !Check(TokType.RightBrace))
@@ -675,7 +674,6 @@ public class AuraParser
             // Otherwise, any lines after it will be unreachable.
             if (decl is UntypedReturn)
             {
-                explicitReturn = true;
                 if (!Check(TokType.RightBrace)) throw new UnreachableCodeException(Peek().Line);
             }
 
@@ -683,13 +681,6 @@ public class AuraParser
         }
 
         Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
-        // If there is no explicit return in the block and the last line of the block is an expression,
-        // wrap that expression in an implicit return statement
-        if (statements.Count > 0 && !explicitReturn)
-        {
-            var lastStmt = statements[^1] as UntypedExpressionStmt;
-            if (lastStmt is not null) statements[^1] = new UntypedReturn(lastStmt.Expression, false, lastStmt.Line);
-        }
 
         return new UntypedBlock(statements, line);
     }
