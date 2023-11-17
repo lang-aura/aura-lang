@@ -60,13 +60,14 @@ public class IntegrationTest
                     Arguments = "run hello_world.go",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
-                    WorkingDirectory = "../../../Integration/Examples/build/pkg"
+                    WorkingDirectory = ".build/pkg"
                 }
             };
             Console.WriteLine(Directory.GetCurrentDirectory());
             run.Start();
             var actual = await run.StandardOutput.ReadToEndAsync();
             await run.WaitForExitAsync();
+            Console.WriteLine($"actual = {actual}");
     
             return actual;
         }
