@@ -1,6 +1,6 @@
 using Tomlet.Attributes;
 
-namespace AuraLang.Toml.Data;
+namespace AuraLang.Cli.Toml;
 
 /// <summary>
 /// Represents the <c>project</c> section of an Aura TOML config file

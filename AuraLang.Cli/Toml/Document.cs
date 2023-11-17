@@ -1,6 +1,6 @@
 using Tomlet.Attributes;
 
-namespace AuraLang.Toml.Data;
+namespace AuraLang.Cli.Toml;
 
 /// <summary>
 /// Represents the entire Aura TOML config file
@@ -8,5 +8,5 @@ namespace AuraLang.Toml.Data;
 public record Document
 {
     [TomlProperty("project")]
-    public Project Project { get; set; }
+    public Project Project { get; init; }
 }
