@@ -792,6 +792,18 @@ public class ParserTest
 			1));
 	}
 
+	[Test]
+	public void TestParse_Yield()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Yield, "yield", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedYield(1));
+	}
+
 	private List<UntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange
