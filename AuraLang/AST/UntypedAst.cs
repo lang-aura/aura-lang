@@ -374,10 +374,7 @@ public record UntypedMod(Tok Value, int Line) : UntypedAuraStatement(Line);
 /// circumstances, implicit.
 /// </summary>
 /// <param name="Value">The value to be returned</param>
-/// <param name="Explicit">Indicates whether this return value is being returned from an explicit return statement (i.e. <code>return 5</code>),
-/// or if its an implicit return statement (i.e. when the last line of a block is an expression and its value becomes
-/// the return value of the whole block)</param>
-public record UntypedReturn(UntypedAuraExpression? Value, bool Explicit, int Line) : UntypedAuraStatement(Line);
+public record UntypedReturn(UntypedAuraExpression? Value, int Line) : UntypedAuraStatement(Line);
 
 /// <summary>
 /// Represents a class declaration, which follows the syntax:
