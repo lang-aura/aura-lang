@@ -431,8 +431,22 @@ public class AuraTypeChecker
         }
         else
         {
-            // TODO Add module to list of local variables
-            // TODO Add local module's public functions to current scope
+            // Add module to list of local variables
+            _variableStore.Add(new Local(
+                "io",
+                module,
+                _scope,
+                _currentModule.GetName()!));
+            // Add local module's public functions to current scope
+            foreach (var f in module.PublicFunctions)
+            {
+                _variableStore.Add(new Local(
+                    f.Name,
+                    f,
+                    _scope,
+                    module.Name));
+            }
+            
             return new TypedImport(import_.Package, import_.Alias, import_.Line);
         }
     }
@@ -529,7 +543,7 @@ public class AuraTypeChecker
     private TypedCall CallExpr(UntypedCall call)
     {
         var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
-        var funcDeclaration = _variableStore.Find(call.Callee.GetName(), _currentModule.GetName()!)!.Value.Kind as ICallable;
+        var funcDeclaration = _variableStore.Find(call.Callee.GetName(), call.Callee.GetModuleName() ?? _currentModule.GetName()!)!.Value.Kind as ICallable;
         // Ensure the function call has the correct number of arguments
         if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
         // Type check arguments
