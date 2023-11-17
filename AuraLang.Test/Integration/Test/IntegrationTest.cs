@@ -46,7 +46,8 @@ public class IntegrationTest
                 {
                     FileName = "go",
                     Arguments = "fmt hello_world.go",
-                    WorkingDirectory = "./build/pkg"
+                    WorkingDirectory = "./build/pkg",
+                    UseShellExecute = false
                 }
             };
             fmt.Start();
@@ -60,7 +61,7 @@ public class IntegrationTest
                     Arguments = "run hello_world.go",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
-                    WorkingDirectory = ".build/pkg"
+                    WorkingDirectory = "./build/pkg"
                 }
             };
             Console.WriteLine(Directory.GetCurrentDirectory());
