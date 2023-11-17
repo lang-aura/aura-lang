@@ -4,6 +4,7 @@ using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
+using AuraLang.Toml.Parser;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
 
@@ -14,13 +15,13 @@ public class AuraCompiler
     /// <summary>
     /// The typed Aura AST that will be compiled to Go
     /// </summary>
-    private List<TypedAuraStatement> _typedAst;
+    private readonly List<TypedAuraStatement> _typedAst;
     /// <summary>
     /// Aura allows implicit returns in certain situations, and the behavior of the return statement differs depending on the situaiton and whether its implicit
     /// or explicit. Because of that, the compiler keeps track of any enclosing types, which it refers to when compiling a return statement. The enclosing types
     /// that the compiler is interested in are `if` expressions, blocks, functions, and classes.
     /// </summary>
-    private Stack<TypedAuraAstNode> _enclosingType = new();
+    private readonly Stack<TypedAuraAstNode> _enclosingType = new();
     /// <summary>
     /// The compiler keeps track of variables declared in the Aura typed AST, but it doesn't need to keep track of all available information about these variables.
     /// Instead, it needs to know if the variables were declared as public or not. This is because public functions, classes, etc. in Aura are declared with the
@@ -31,19 +32,23 @@ public class AuraCompiler
     /// <summary>
     /// Is used by the compiler as a buffer to organize the Go output file before producing the final Go string
     /// </summary>
-    private GoDocument _goDocument = new();
+    private readonly GoDocument _goDocument = new();
     /// <summary>
     /// Tracks the current line in the output file
     /// </summary>
     private int _line;
+    /// <summary>
+    /// Contains all exceptions thrown during the compilation process. 
+    /// </summary>
+    private readonly CompilerExceptionContainer _exContainer = new();
+    private string ProjectName { get; }
 
-    private CompilerExceptionContainer _exContainer = new();
-
-	public AuraCompiler(List<TypedAuraStatement> typedAst)
+	public AuraCompiler(List<TypedAuraStatement> typedAst, string projectName)
 	{
         _typedAst = typedAst;
         _line = 1;
-	}
+        ProjectName = projectName;
+    }
 
     public string Compile()
     {
@@ -262,9 +267,8 @@ public class AuraCompiler
     {
         if (IsStdlibImportName(i.Package.Value))
         {
-            //var name = ExtractStdlibPkgName(i.Package.Value);
-            //return BuildStdlibPkgImportStmt(name);
-            return "";
+            var name = ExtractStdlibPkgName(i.Package.Value);
+            return BuildStdlibPkgImportStmt(name);
         }
 
         return i.Alias is null
@@ -484,6 +488,10 @@ public class AuraCompiler
             _ => false
         };
     }
+
+    private string ExtractStdlibPkgName(string pkg) => pkg.Split('/').Last();
+
+    private string BuildStdlibPkgImportStmt(string pkg) => $"import {pkg} \"{ProjectName}/stdlib/{pkg}\"";
 
     private string LogicalOperatorToGoOperator(Tok op)
     {

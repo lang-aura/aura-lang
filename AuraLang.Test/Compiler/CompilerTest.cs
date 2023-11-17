@@ -834,6 +834,19 @@ public class CompilerTest
     }
 
     [Test]
+    public void TestCompile_Import_StdlibPkg()
+    {
+        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        {
+            new TypedImport(
+                new Tok(TokType.Identifier, "aura/io", 1),
+                null,
+                1)
+        });
+        MakeAssertions(output, "import io \"test/stdlib/io\"");
+    }
+
+    [Test]
     public void TestCompile_Comment()
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
@@ -848,7 +861,7 @@ public class CompilerTest
     private string ArrangeAndAct(List<TypedAuraStatement> typedAst)
     {
         // Arrange
-        var compiler = new AuraCompiler(typedAst);
+        var compiler = new AuraCompiler(typedAst, "test");
         // Act
         return compiler.Compile();
     }

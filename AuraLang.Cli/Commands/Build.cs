@@ -4,6 +4,7 @@ using AuraLang.Compiler;
 using AuraLang.Exceptions;
 using AuraLang.Parser;
 using AuraLang.Scanner;
+using AuraLang.Toml.Parser;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.Cli.Commands;
@@ -58,7 +59,8 @@ public class Build : AuraCommand
 			new EnclosingClassStore(),
 			new CurrentModuleStore()).CheckTypes(untypedAst);
 		// Compile
-		var output = new AuraCompiler(typedAst).Compile();
+		var toml = new AuraToml();
+		var output = new AuraCompiler(typedAst, toml.GetProjectName()).Compile();
 		// Create Go output file
 		var fileName = Path.ChangeExtension(Path.GetFileName(FilePath), "aura");
 		var goPath = $"./build/pkg/{fileName}";

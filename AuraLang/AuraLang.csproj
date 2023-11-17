@@ -32,4 +32,7 @@
     <Folder Include="Compiler\" />
     <Folder Include="Exceptions\Compiler\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AuraLang.Toml\AuraLang.Toml.csproj" />
+  </ItemGroup>
 </Project>
