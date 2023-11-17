@@ -1,7 +1,12 @@
+// A classic "Hello World" program written in Aura
 mod main
 
+// Modules can be imported with the `import` statement followed by the module's import path. In this case, the `io` package
+// is being imported from Aura's standard library, as indicated by the `aura/` prefix.
 import aura/io
 
+// Every Aura program must contain a `main` function, which is where the execution will begin
 fn main() {
+    // Print `Hello world!` to the console followed by a newline
 	io.println("Hello world!")
 }
