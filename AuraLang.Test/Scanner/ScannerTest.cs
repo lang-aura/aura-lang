@@ -254,6 +254,13 @@ public class ScannerTest
 		var tokens = ArrangeAndAct("\t");
 		MakeAssertions_Valid(tokens, 1);
 	}
+	
+	[Test]
+	public void TestScan_Yield()
+	{
+		var tokens = ArrangeAndAct("yield");
+		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Yield, "yield", 1));
+	}
 
 	[Test]
 	public void TestScan_InvalidCharacter()

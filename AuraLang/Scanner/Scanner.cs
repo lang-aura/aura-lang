@@ -1,4 +1,3 @@
-using AuraLang.Exceptions;
 using AuraLang.Exceptions.Scanner;
 using AuraLang.Token;
 
@@ -31,7 +30,7 @@ public class AuraScanner
 	/// </summary>
 	private bool _isLineBlank;
 	private readonly List<Tok> _tokens;
-	private ScannerExceptionContainer _exContainer = new();
+	private readonly ScannerExceptionContainer _exContainer = new();
 
 	public AuraScanner(string source)
 	{
@@ -96,7 +95,7 @@ public class AuraScanner
         {
 			return CheckIdentifier(c);
         }
-        else if (IsDigit(c))
+        if (IsDigit(c))
         {
 			return ParseNumber(c);
         }
@@ -118,16 +117,16 @@ public class AuraScanner
 				return MakeSingleCharToken(TokType.RightBracket, c);
             case '=':
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.EqualEqual, _start, _current);
-				else return MakeSingleCharToken(TokType.Equal, c);
+				return MakeSingleCharToken(TokType.Equal, c);
             case '+':
 				if (!IsAtEnd() && Peek() == '+') return MakeToken(TokType.PlusPlus, _start, _current);
-				else if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.PlusEqual, _start, _current);
-				else return MakeSingleCharToken(TokType.Plus, c);
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.PlusEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Plus, c);
             case '-':
 				if (!IsAtEnd() && Peek() == '-') return MakeToken(TokType.MinusMinus, _start, _current);
-				else if (!IsAtEnd() && Peek() == '>') return MakeToken(TokType.Arrow, _start, _current);
-				else if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.MinusEqual, _start, _current);
-				else return MakeSingleCharToken(TokType.Minus, c);
+				if (!IsAtEnd() && Peek() == '>') return MakeToken(TokType.Arrow, _start, _current);
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.MinusEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Minus, c);
             case '/':
                 if (!IsAtEnd() && Peek() == '/')
                 {
@@ -144,7 +143,7 @@ public class AuraScanner
                         _isLineBlank = true;
                     }*/
                 }
-                else if (!IsAtEnd() && Peek() == '*')
+                if (!IsAtEnd() && Peek() == '*')
                 {
                     Advance(); // Advance past the `*` character
                     while (!IsAtEnd() && Peek() != '*' && PeekNext() != '/')
@@ -163,30 +162,27 @@ public class AuraScanner
                     Advance();
 					return MakeToken(TokType.Comment, _start, _current - 1);
                 }
-                else
-                {
-                    if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.SlashEqual, _start, _current);
-                    else return MakeSingleCharToken(TokType.Slash, c);
-                }
+                if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.SlashEqual, _start, _current);
+	            return MakeSingleCharToken(TokType.Slash, c);
             case '*':
                 if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.StarEqual, _start, _current);
-                else return MakeSingleCharToken(TokType.Star, c);
+                return MakeSingleCharToken(TokType.Star, c);
             case '>':
                 if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.GreaterEqual, _start, _current);
-                else return MakeSingleCharToken(TokType.Greater, c);
+                return MakeSingleCharToken(TokType.Greater, c);
             case '<':
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.LessEqual, _start, _current);
-                else return MakeSingleCharToken(TokType.Less, c);
+                return MakeSingleCharToken(TokType.Less, c);
             case '!':
                 if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.BangEqual, _start, _current);
-                else return MakeSingleCharToken(TokType.Bang, c);
+                return MakeSingleCharToken(TokType.Bang, c);
             case '"':
 				return ParseString();
             case '\'':
 				return ParseChar();
             case ':':
                 if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.ColonEqual, _start, _current);
-                else return MakeSingleCharToken(TokType.Colon, c);
+                return MakeSingleCharToken(TokType.Colon, c);
             case ';':
 				return MakeSingleCharToken(TokType.Semicolon, c);
             case '.':
@@ -268,7 +264,7 @@ public class AuraScanner
 
 	private Tok CheckIdentifier(char c)
 	{
-		string tok = "" + c;
+		var tok = "" + c;
 		// Scan the entire token
 		while (!IsAtEnd() && (IsAlpha(Peek()) || IsDigit(Peek()) || Peek() == '/')) tok += Advance();
 
@@ -408,6 +404,8 @@ public class AuraScanner
 				break;
 			case 'w':
 				return CheckKeywordToken(TokType.While, tok, "while");
+			case 'y':
+				return CheckKeywordToken(TokType.Yield, tok, "yield");
 		}
 
 		return new Tok(TokType.Identifier, tok, _line);

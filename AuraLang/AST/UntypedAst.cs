@@ -430,3 +430,9 @@ public record UntypedContinue(int Line) : UntypedAuraStatement(Line);
 /// keyword will immediately break out of the enclosing loop.
 /// </summary>
 public record UntypedBreak(int Line) : UntypedAuraStatement(Line);
+
+/// <summary>
+/// Represents a <c>yield</c> statement that is used to return a value from an <c>if</c> expression or block without
+/// returning from the enclosing function.
+/// </summary>
+public record UntypedYield(int Line) : UntypedAuraStatement(Line);
