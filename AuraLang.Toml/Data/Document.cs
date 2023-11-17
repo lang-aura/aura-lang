@@ -1,6 +1,6 @@
 using Tomlet.Attributes;
 
-namespace AuraLang.Cli.Toml;
+namespace AuraLang.Toml.Data;
 
 /// <summary>
 /// Represents the entire Aura TOML config file

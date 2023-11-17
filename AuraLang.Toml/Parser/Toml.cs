@@ -1,6 +1,7 @@
+using AuraLang.Toml.Data;
 using Tomlet;
 
-namespace AuraLang.Cli.Toml;
+namespace AuraLang.Toml.Parser;
 
 public class AuraToml
 {
