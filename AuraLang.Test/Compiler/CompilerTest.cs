@@ -83,6 +83,53 @@ public class CompilerTest
     }
 
     [Test]
+    public void TestCompile_Call_Stdlib()
+    {
+        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        {
+            new TypedExpressionStmt(
+                new TypedCall(
+                    new TypedGet(
+                        new TypedVariable(
+                            new Tok(TokType.Identifier, "io", 1),
+                            new Module(
+                                "io",
+                                new List<Function>
+                                {
+                                    new(
+                                        "Println",
+                                        new AnonymousFunction(
+                                            new List<ParamType>
+                                            {
+                                                new ParamType(new AuraString(), false)
+                                            },
+                                            new Nil()))
+                                }),
+                            1),
+                        new Tok(TokType.Identifier, "println", 1),
+                        new Function(
+                            "println",
+                            new AnonymousFunction(
+                                new List<ParamType>
+                                {
+                                    new ParamType(
+                                        new AuraString(),
+                                        false)
+                                },
+                                new Nil())),
+                        1),
+                    new List<TypedAuraExpression>
+                    {
+                        new TypedLiteral<string>("Hello world", new AuraString(), 1)
+                    },
+                    new Nil(),
+                    1),
+                1)
+        });
+        MakeAssertions(output, "io.Println(\"Hello world\")");
+    }
+
+    [Test]
     public void TestCompile_Call_NoArgs()
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
@@ -106,7 +153,7 @@ public class CompilerTest
     }
 
     [Test]
-    public void TestCompile_OneParam()
+    public void TestCompile_Call_OneParam()
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
         {
@@ -135,7 +182,7 @@ public class CompilerTest
     }
     
     [Test]
-    public void TestCompile_TwoParams()
+    public void TestCompile_Call_TwoParams()
     {
         var output = ArrangeAndAct(new List<TypedAuraStatement>
         {
