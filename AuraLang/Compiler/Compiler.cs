@@ -316,7 +316,20 @@ public class AuraCompiler
 
     private string CallExpr(TypedCall c)
     {
+        if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
         var callee = Expression((TypedAuraExpression)c.Callee);
+        var compiledParams = c.Arguments.Select(Expression);
+        return $"{callee}({string.Join(", ", compiledParams)})";
+    }
+
+    private string CallExpr_GetCallee(TypedCall c)
+    {
+        var get = c.Callee as TypedGet;
+        var obj = Expression(get!.Obj);
+
+        var callee = IsStdlibPkg(obj)
+            ? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
+            : $"{obj}.{get.Name.Value}";
         var compiledParams = c.Arguments.Select(Expression);
         return $"{callee}({string.Join(", ", compiledParams)})";
     }
@@ -508,5 +521,28 @@ public class AuraCompiler
         var s = f();
         _enclosingType.Pop();
         return s;
+    }
+
+    private string ConvertSnakeCaseToCamelCase(string s)
+    {
+        var camelCase = new StringBuilder();
+        for (var i = 0; i < s.Length; i++)
+        {
+            if (i == 0)
+            {
+                camelCase.Append(char.ToUpper(s[0]));
+                continue;
+            }
+            if (s[i] == '_' && i < s.Length - 1)
+            {
+                camelCase.Append(char.ToUpper(s[i + 1]));
+                i++;
+                continue;
+            }
+
+            camelCase.Append(s[i]);
+        }
+
+        return camelCase.ToString();
     }
 }
