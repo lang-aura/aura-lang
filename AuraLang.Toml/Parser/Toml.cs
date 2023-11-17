@@ -12,6 +12,11 @@ public class AuraToml
         _path = path;
     }
 
+    public AuraToml()
+    {
+        _path = ".";
+    }
+
     public void InitProject(string name)
     {
         var doc = new Document
