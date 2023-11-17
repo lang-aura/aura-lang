@@ -12,6 +12,7 @@ public class IntegrationTest
     [Test]
     public async Task TestIntegration_HelloWorld()
     {
+        Console.WriteLine($"Current directory = {Directory.GetCurrentDirectory()}");
         var output = await ArrangeAndAct("../../../Integration/Examples/src/hello_world.aura");
         MakeAssertions(output, "Hello world!\n");
     }
@@ -20,6 +21,7 @@ public class IntegrationTest
 
     private async Task<string> ArrangeAndAct(string path)
     {
+        Console.WriteLine($"Current directory = {Directory.GetCurrentDirectory()}");
         var contents = ReadFile(path);
         try
         {
@@ -33,6 +35,7 @@ public class IntegrationTest
             // Compile typed AST
             var output = new AuraCompiler(typedAst, "Examples").Compile();
             // Create Go output file
+            Console.WriteLine($"Current directory = {Directory.GetCurrentDirectory()}");
             await File.WriteAllTextAsync("../../../Integration/Examples/build/pkg/hello_world.go", output);
             // Format Go output file
             var fmt = new Process
