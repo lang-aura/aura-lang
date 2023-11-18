@@ -268,5 +268,5 @@ public record TypedNil(int Line) : TypedAuraExpression(new Nil(), Line);
 /// <summary>
 /// Represents a type-checked <c>yield</c> statement
 /// </summary>
-/// <param name="Line"></param>
-public record TypedYield(int Line) : TypedAuraStatement(new None(), Line);
+/// <param name="Value">The value to be yielded from the enclosing expression</param>
+public record TypedYield(TypedAuraExpression Value, int Line) : TypedAuraStatement(new None(), Line);

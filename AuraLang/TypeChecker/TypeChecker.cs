@@ -18,9 +18,9 @@ public class AuraTypeChecker
     private readonly AuraStdlib _stdlib = new();
     private readonly ICurrentModuleStore _currentModule;
     private readonly TypeCheckerExceptionContainer _exContainer = new();
-    private readonly IEnclosingExpressionStore _enclosingExpressionStore;
+    private readonly EnclosingExpressionStore _enclosingExpressionStore;
 
-    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, IEnclosingExpressionStore enclosingExpressionStore)
+    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingExpressionStore enclosingExpressionStore)
     {
         _variableStore = variableStore;
         _enclosingClassStore = enclosingClassStore;
@@ -490,7 +490,9 @@ public class AuraTypeChecker
         var enclosingExpr = _enclosingExpressionStore.Peek();
         if (enclosingExpr is not UntypedIf && enclosingExpr is not UntypedBlock)
             throw new InvalidUseOfYieldKeywordException(y.Line);
-        return new TypedYield(y.Line);
+
+        var value = Expression(y.Value);
+        return new TypedYield(value, y.Line);
     }
 
     /// <summary>

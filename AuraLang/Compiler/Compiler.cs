@@ -435,6 +435,8 @@ public class AuraCompiler
 
     private string VariableExpr(TypedVariable v) => v.Name.Value;
 
+    private string YieldStmt(TypedYield y, string decl) => $"{decl} = {y.Value}";
+
     private string AuraTypeToGoType(AuraType typ) => typ.ToString();
 
     private string CompileLoopBody(List<TypedAuraStatement> body)
@@ -444,7 +446,6 @@ public class AuraCompiler
                .Select(Statement)
                .Aggregate(string.Empty, (prev, curr) => $"{prev}\n{curr}")
             : string.Empty;
-
     }
 
     private string CompileParams(List<Param> params_, string sep)
@@ -470,9 +471,11 @@ public class AuraCompiler
             switch (stmt)
             {
                 case TypedReturn r:
-                    var v = Expression(r.Value);
+                    var v = r.Value is not null ? Expression(r.Value) : string.Empty;
                     body.Append($"\nreturn {v}");
                     break;
+                case TypedYield y:
+                    
                 default:
                     var s = Statement(stmt);
                     body.Append($"\n{s}");

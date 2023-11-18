@@ -798,10 +798,11 @@ public class ParserTest
 		var untypedAst = ArrangeAndAct(new List<Tok>
 		{
 			new(TokType.Yield, "yield", 1),
+			new(TokType.IntLiteral, "5", 1),
 			new(TokType.Semicolon, ";", 1),
 			new(TokType.Eof, "eof", 1)
 		});
-		MakeAssertions(untypedAst, new UntypedYield(1));
+		MakeAssertions(untypedAst, new UntypedYield(new UntypedIntLiteral(5, 1), 1));
 	}
 
 	private List<UntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)

@@ -435,4 +435,5 @@ public record UntypedBreak(int Line) : UntypedAuraStatement(Line);
 /// Represents a <c>yield</c> statement that is used to return a value from an <c>if</c> expression or block without
 /// returning from the enclosing function.
 /// </summary>
-public record UntypedYield(int Line) : UntypedAuraStatement(Line);
+/// <param name="Value">The value to be yielded from the enclosing scope</param>
+public record UntypedYield(UntypedAuraExpression Value, int Line) : UntypedAuraStatement(Line);

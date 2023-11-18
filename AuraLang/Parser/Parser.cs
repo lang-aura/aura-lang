@@ -558,10 +558,11 @@ public class AuraParser
 
     private UntypedAuraStatement Yield()
     {
+        var value = Expression();
         // Consume the trailing semicolon
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-        return new UntypedYield(Previous().Line);
+        return new UntypedYield(value, Previous().Line);
     }
 
     private UntypedAuraStatement ExpressionStatement()
