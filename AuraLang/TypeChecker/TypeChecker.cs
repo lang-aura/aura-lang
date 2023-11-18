@@ -18,10 +18,10 @@ public class AuraTypeChecker
     private readonly AuraStdlib _stdlib = new();
     private readonly ICurrentModuleStore _currentModule;
     private readonly TypeCheckerExceptionContainer _exContainer = new();
-    private readonly EnclosingExpressionStore _enclosingExpressionStore;
-    private readonly EnclosingStatementStore _enclosingStatementStore;
+    private readonly EnclosingNodeStore<UntypedAuraExpression> _enclosingExpressionStore;
+    private readonly EnclosingNodeStore<UntypedAuraStatement> _enclosingStatementStore;
 
-    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingExpressionStore enclosingExpressionStore, EnclosingStatementStore enclosingStatementStore)
+    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingNodeStore<UntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<UntypedAuraStatement> enclosingStatementStore)
     {
         _variableStore = variableStore;
         _enclosingClassStore = enclosingClassStore;
@@ -146,7 +146,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked defer statement</returns>
     private TypedDefer DeferStmt(UntypedDefer defer)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             var typedCall = CallExpr((UntypedCall)defer.Call);
             return new TypedDefer(typedCall, defer.Line);
@@ -168,7 +168,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked for loop</returns>
     private TypedFor ForStmt(UntypedFor forStmt)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             return InNewScope(() =>
             {
@@ -191,7 +191,7 @@ public class AuraTypeChecker
     /// the IIterable interface</exception>
     private TypedForEach ForEachStmt(UntypedForEach forEachStmt)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             return InNewScope(() =>
             {
@@ -217,7 +217,7 @@ public class AuraTypeChecker
     /// the same type as specified in the function's signature</exception>
     private TypedNamedFunction NamedFunctionStmt(UntypedNamedFunction f, string modName)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             return InNewScope(() =>
             {
@@ -259,7 +259,7 @@ public class AuraTypeChecker
     /// than the one specified in the function's signature</exception>
     private TypedAnonymousFunction AnonymousFunctionExpr(UntypedAnonymousFunction f)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             return InNewScope(() =>
             {
@@ -322,7 +322,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked let statement</returns>
     private TypedLet LetStmt(UntypedLet let)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             var nameTyp = let.NameTyp;
             switch (nameTyp)
@@ -355,7 +355,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked short let statement</returns>
     private TypedLet ShortLetStmt(UntypedLet let)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             // Type check initializer
             var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
@@ -389,7 +389,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked return statement</returns>
     private TypedReturn ReturnStmt(UntypedReturn r)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             var typedVal = r.Value is not null ? Expression(r.Value) : null;
             return new TypedReturn(typedVal, r.Line);
@@ -403,7 +403,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked class declaration</returns>
     private FullyTypedClass ClassStmt(UntypedClass class_)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             var partiallyTypedMethods = class_.Methods.Select(PartialFunctionStmt).ToList();
             var methodTypes = partiallyTypedMethods
@@ -443,7 +443,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked while loop</returns>
     private TypedWhile WhileStmt(UntypedWhile while_)
     {
-        return _enclosingStatementStore.WithEnclosingStatement(() =>
+        return _enclosingStatementStore.WithEnclosing(() =>
         {
             return InNewScope(() =>
             {
@@ -547,7 +547,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked assignment expression</returns>
     private TypedAssignment AssignmentExpr(UntypedAssignment assignment)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             // Fetch the variable being assigned to
             var v = _variableStore.Find(assignment.Name.Value, _currentModule.GetName()!);
@@ -564,7 +564,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked binary expression</returns>
     private TypedBinary BinaryExpr(UntypedBinary binary)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedLeft = Expression(binary.Left);
             // The right-hand expression must have the same type as the left-hand expression
@@ -580,7 +580,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked block expression</returns>
     private TypedBlock BlockExpr(UntypedBlock block)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             return InNewScope(() =>
             {
@@ -616,7 +616,7 @@ public class AuraTypeChecker
     /// not match the expected number of parameters</exception>
     private TypedCall CallExpr(UntypedCall call)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
             var funcDeclaration = _variableStore.Find(call.Callee.GetName(), call.Callee.GetModuleName() ?? _currentModule.GetName()!)!.Value.Kind as ICallable;
@@ -638,7 +638,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked get expression</returns>
     private TypedGet GetExpr(UntypedGet get)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             // Type check object, which must be gettable
             var objExpr = Expression(get.Obj);
@@ -653,7 +653,7 @@ public class AuraTypeChecker
 
     private TypedSet SetExpr(UntypedSet set)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedObj = Expression(set.Obj);
             // TODO Make sure the typed object is a class
@@ -673,7 +673,7 @@ public class AuraTypeChecker
     /// correct type</exception>
     private TypedGetIndex GetIndexExpr(UntypedGetIndex getIndex)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var expr = Expression(getIndex.Obj);
             var indexExpr = Expression(getIndex.Index);
@@ -696,7 +696,7 @@ public class AuraTypeChecker
     /// correct type</exception>
     private TypedGetIndexRange GetIndexRangeExpr(UntypedGetIndexRange getIndexRange)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var expr = Expression(getIndexRange.Obj);
             var lower = Expression(getIndexRange.Lower);
@@ -717,7 +717,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked grouping expression</returns>
     private TypedGrouping GroupingExpr(UntypedGrouping grouping)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedExpr = Expression(grouping.Expr);
             return new TypedGrouping(typedExpr, typedExpr.Typ, grouping.Line);
@@ -731,7 +731,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked if expression</returns>
     private TypedIf IfExpr(UntypedIf if_)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedCond = ExpressionAndConfirm(if_.Condition, new Bool());
             var typedThen = BlockExpr(if_.Then);
@@ -753,7 +753,7 @@ public class AuraTypeChecker
 
     private TypedLiteral<List<TypedAuraExpression>> ListLiteralExpr(UntypedListLiteral<UntypedAuraExpression> literal)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var items = literal.GetValue();
             var typedItem = Expression(items.First());
@@ -764,7 +764,7 @@ public class AuraTypeChecker
 
     private TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> MapLiteralExpr(UntypedMapLiteral literal)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var m = literal.GetValue();
             var typedKey = Expression(m.Keys.First());
@@ -781,7 +781,7 @@ public class AuraTypeChecker
 
     private TypedLiteral<List<TypedAuraExpression>> TupleLiteralExpr(UntypedTupleLiteral literal)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedTup = literal.GetValue()
                 .Select(Expression)
@@ -813,7 +813,7 @@ public class AuraTypeChecker
     /// operand are not compatible</exception>
     private TypedUnary UnaryExpr(UntypedUnary unary)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedRight = Expression(unary.Right);
             // Ensure that operand is a valid type and the operand can be used with it
@@ -848,7 +848,7 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked logical expression</returns>
     private TypedLogical LogicalExpr(UntypedLogical logical)
     {
-        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        return _enclosingExpressionStore.WithEnclosing(() =>
         {
             var typedLeft = Expression(logical.Left);
             var typedRight = ExpressionAndConfirm(logical.Right, typedLeft.Typ);

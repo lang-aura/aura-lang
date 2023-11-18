@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using AuraLang.AST;
 using AuraLang.Cli.Options;
 using AuraLang.Cli.Toml;
 using AuraLang.Compiler;
@@ -58,8 +59,8 @@ public class Build : AuraCommand
 			new VariableStore(),
 			new EnclosingClassStore(),
 			new CurrentModuleStore(),
-			new EnclosingExpressionStore(),
-			new EnclosingStatementStore()).CheckTypes(untypedAst);
+			new EnclosingNodeStore<UntypedAuraExpression>(),
+			new EnclosingNodeStore<UntypedAuraStatement>()).CheckTypes(untypedAst);
 		// Compile
 		var toml = new AuraToml();
 		var output = new AuraCompiler(typedAst, toml.GetProjectName()).Compile();
