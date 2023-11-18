@@ -18,11 +18,13 @@ public class TypeCheckerTest
     private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
     private readonly Mock<ICurrentModuleStore> _currentModuleStore = new();
     private readonly Mock<EnclosingExpressionStore> _enclosingExprStore = new();
+    private readonly Mock<EnclosingStatementStore> _enclosingStmtStore = new();
 
     [SetUp]
     public void Setup()
     {
         _enclosingExprStore.CallBase = true;
+        _enclosingStmtStore.CallBase = true;
     }
     
     [Test]
@@ -978,15 +980,71 @@ public class TypeCheckerTest
         _enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedNil(1));
         
         var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
-            _currentModuleStore.Object, _enclosingExprStore.Object);
+            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
         Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
             {
                 new UntypedYield(new UntypedIntLiteral(5, 1), 1)
             })));
     }
 
+    [Test]
+    public void TestTypeCheck_Break()
+    {
+        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedWhile(
+            new UntypedBoolLiteral(true, 1),
+            new List<UntypedAuraStatement>(),
+            1));
+
+        var typedAst = ArrangeAndAct(new List<UntypedAuraStatement>
+        {
+            new UntypedBreak(1)
+        });
+        MakeAssertions(typedAst, new TypedBreak(1));
+    }
+
+    [Test]
+    public void TestTypeCheck_Break_Invalid()
+    {
+        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
+        
+        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
+            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
+        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+        {
+            new UntypedBreak(1)
+        })));
+    }
+    
+    [Test]
+    public void TestTypeCheck_Continue()
+    {
+        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedWhile(
+            new UntypedBoolLiteral(true, 1),
+            new List<UntypedAuraStatement>(),
+            1));
+
+        var typedAst = ArrangeAndAct(new List<UntypedAuraStatement>
+        {
+            new UntypedContinue(1)
+        });
+        MakeAssertions(typedAst, new TypedContinue(1));
+    }
+
+    [Test]
+    public void TestTypeCheck_Continue_Invalid()
+    {
+        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
+        
+        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
+            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
+        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+        {
+            new UntypedContinue(1)
+        })));
+    }
+
     private List<TypedAuraStatement> ArrangeAndAct(List<UntypedAuraStatement> untypedAst)
-        => new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object)
+        => new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
             .CheckTypes(AddModStmtIfNecessary(untypedAst));
 
     private List<UntypedAuraStatement> AddModStmtIfNecessary(List<UntypedAuraStatement> untypedAst)

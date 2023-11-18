@@ -72,3 +72,13 @@ public class InvalidUseOfYieldKeywordException : TypeCheckerException
 {
     public InvalidUseOfYieldKeywordException(int line) : base("Invalid use of yield keyword", line) { }
 }
+
+public class InvalidUseOfBreakKeywordException : TypeCheckerException
+{
+    public InvalidUseOfBreakKeywordException(int line) : base("Invalid use of break keyword", line) { }
+}
+
+public class InvalidUseOfContinueKeywordException : TypeCheckerException
+{
+    public InvalidUseOfContinueKeywordException(int line) : base("Invalid use of continue keyword", line) { }
+}
