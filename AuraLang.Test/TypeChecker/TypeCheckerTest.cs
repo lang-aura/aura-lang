@@ -17,8 +17,8 @@ public class TypeCheckerTest
     private readonly Mock<IVariableStore> _variableStore = new();
     private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
     private readonly Mock<ICurrentModuleStore> _currentModuleStore = new();
-    private readonly Mock<EnclosingExpressionStore> _enclosingExprStore = new();
-    private readonly Mock<EnclosingStatementStore> _enclosingStmtStore = new();
+    private readonly Mock<EnclosingNodeStore<UntypedAuraExpression>> _enclosingExprStore = new();
+    private readonly Mock<EnclosingNodeStore<UntypedAuraStatement>> _enclosingStmtStore = new();
 
     [SetUp]
     public void Setup()
