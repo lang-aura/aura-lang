@@ -10,17 +10,29 @@ namespace AuraLang.Test.Integration.Test;
 
 public class IntegrationTest
 {
+    private const string BasePath = "../../../Integration/Examples";
+    
     [Test]
     public async Task TestIntegration_HelloWorld()
     {
-        var output = await ArrangeAndAct("../../../Integration/Examples/src/hello_world.aura");
+        var output = await ArrangeAndAct($"{BasePath}/src/hello_world.aura");
         MakeAssertions(output, "Hello world!\n");
+    }
+
+    [Test]
+    public async Task TestIntegration_Yield()
+    {
+        var output = await ArrangeAndAct($"{BasePath}/src/yield.aura");
+        MakeAssertions(output, "0\n");
     }
 
     private string ReadFile(string path) => File.ReadAllText(path);
 
     private async Task<string> ArrangeAndAct(string path)
     {
+        var fileName = Path.GetFileNameWithoutExtension(path);
+        Console.WriteLine($"{fileName}");
+        
         var contents = ReadFile(path);
         try
         {
@@ -34,15 +46,15 @@ public class IntegrationTest
             // Compile typed AST
             var output = new AuraCompiler(typedAst, "Examples").Compile();
             // Create Go output file
-            await File.WriteAllTextAsync("../../../Integration/Examples/build/pkg/hello_world.go", output);
+            await File.WriteAllTextAsync($"{BasePath}/build/pkg/{fileName}.go", output);
             // Format Go output file
             var fmt = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "go",
-                    Arguments = "fmt hello_world.go",
-                    WorkingDirectory = "../../../Integration/Examples/build/pkg",
+                    Arguments = $"fmt {fileName}.go",
+                    WorkingDirectory = $"{BasePath}/build/pkg",
                     UseShellExecute = false
                 }
             };
@@ -54,13 +66,12 @@ public class IntegrationTest
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "go",
-                    Arguments = "run hello_world.go",
+                    Arguments = $"run {fileName}.go",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
-                    WorkingDirectory = "../../../Integration/Examples/build/pkg"
+                    WorkingDirectory = $"{BasePath}/build/pkg"
                 }
             };
-            Console.WriteLine(Directory.GetCurrentDirectory());
             run.Start();
             var actual = await run.StandardOutput.ReadToEndAsync();
             await run.WaitForExitAsync();

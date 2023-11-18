@@ -588,17 +588,12 @@ public class AuraTypeChecker
                 if (typedStmts.Any())
                 {
                     var lastStmt = typedStmts.Last();
-                    if (lastStmt is TypedReturn r)
+                    blockTyp = lastStmt switch
                     {
-                        blockTyp = r.Value is not null ? r.Value.Typ : new Nil();
-                    }
-                    else
-                    {
-                        if (lastStmt.Typ is not None)
-                        {
-                            blockTyp = lastStmt.Typ;
-                        }
-                    }
+                        TypedReturn r => r.Value is not null ? r.Value.Typ : new Nil(),
+                        TypedYield y => y.Value.Typ,
+                        _ => lastStmt.Typ is not None ? lastStmt.Typ : new Nil()
+                    };
                 }
                 return new TypedBlock(typedStmts.ToList(), blockTyp, block.Line);
             });
