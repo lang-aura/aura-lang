@@ -321,20 +321,3 @@ public class Map : AuraType, IIndexable
     public AuraType IndexingType() => Key;
     public AuraType GetIndexedType() => Value;
 }
-
-/// <summary>
-/// Represents an ordered collection of elements. Unlike a list, the elements of a tuple do not all need to have
-/// the same type.
-/// </summary>
-public class Tuple : AuraType
-{
-    public List<AuraType> ElementTypes { get; init; }
-
-    public Tuple(List<AuraType> elementTypes)
-    {
-        ElementTypes = elementTypes;
-    }
-
-    public override bool IsSameType(AuraType other) => other is Tuple;
-    public override string ToString() => "[]any";
-}

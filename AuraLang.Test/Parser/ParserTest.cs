@@ -318,41 +318,6 @@ public class ParserTest
 	}
 
 	[Test]
-	public void TestParse_TupleLiteral()
-	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Tup, "tup", 1),
-			new(TokType.LeftBracket, "[", 1),
-			new(TokType.Int, "int", 1),
-			new(TokType.Comma, ",", 1),
-			new(TokType.String, "string", 1),
-			new(TokType.RightBracket, "]", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.IntLiteral, "1", 1),
-			new(TokType.Comma, ",", 1),
-			new(TokType.StringLiteral, "Hello world", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1),
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedTupleLiteral(
-				new List<UntypedAuraExpression>
-				{
-					new UntypedIntLiteral(1, 1),
-					new UntypedStringLiteral("Hello world", 1)
-				},
-				new List<AuraType>
-				{
-					new Int(),
-					new String()
-				},
-				1),
-			1));
-	}
-
-	[Test]
 	public void TestParse_BoolLiteral()
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>
