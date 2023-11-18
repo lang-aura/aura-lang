@@ -3,3 +3,4 @@
 .vs
 .idea
 *.DotSettings.user
+/AuraLang.Test/Integration/Examples/build/pkg/*.go
