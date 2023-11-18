@@ -1,0 +1,21 @@
+mod main
+
+import aura/io
+
+fn main() {
+    // `if` expressions (and blocks) in Aura are capable of returning a value with the `yield` keyword. `yield` works similarly to `return`, except `yield`
+    // returns a value from `if` expressions and blocks instead of returning from the enclosing function. In this case, the variable `i` will contain the
+    // value 0.
+    let i: int = if true {
+        yield 0
+    } else {
+        yield 1
+    }
+    
+    // You can return from the enclosing function inside an `if` expression or block as you normally would, by using the `return` keyword.
+    if false {
+        return
+    }
+    
+    io.printf("%d\n", i) // 0
+}

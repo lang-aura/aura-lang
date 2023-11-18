@@ -1,3 +1,4 @@
+using AuraLang.Compiler;
 using AuraLang.Shared;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
@@ -17,7 +18,18 @@ public class AuraStdlib
                     {
                         new(new AuraString(), false)
                     },
-                    new Nil()))
+                    new Nil())
+                ),
+            new(
+                "printf",
+                new AnonymousFunction(
+                    new List<ParamType>
+                    {
+                        new(new AuraString(), false),
+                        new(new Any(), true)
+                    },
+                    new Nil())
+                )
         })}
     };
 

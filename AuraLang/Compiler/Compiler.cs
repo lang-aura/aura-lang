@@ -192,7 +192,7 @@ public class AuraCompiler
                 return $"{decl}\n{{{body}\n}}";
             case TypedIf if_:
                 var varName = let.Name.Value;
-                var decl_ = $"var {varName} {AuraTypeToGoType(let.Typ)}";
+                var decl_ = $"var {varName} {AuraTypeToGoType(let.Initializer.Typ)}";
                 var init = Expression(if_.Condition);
                 var then = ParseReturnableBody(if_.Then.Statements, varName);
                 // The `else` block can either be a block or another `if` expression
