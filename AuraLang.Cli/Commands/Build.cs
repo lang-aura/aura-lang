@@ -57,7 +57,8 @@ public class Build : AuraCommand
 		var typedAst = new AuraTypeChecker(
 			new VariableStore(),
 			new EnclosingClassStore(),
-			new CurrentModuleStore()).CheckTypes(untypedAst);
+			new CurrentModuleStore(),
+			new EnclosingExpressionStore()).CheckTypes(untypedAst);
 		// Compile
 		var toml = new AuraToml();
 		var output = new AuraCompiler(typedAst, toml.GetProjectName()).Compile();

@@ -67,6 +67,7 @@ public enum TokType
 	Tup, // tup
 	Break, // break
 	Continue, // continue
+	Yield, // yield
 	Identifier,
 	StringLiteral,
 	CharLiteral,

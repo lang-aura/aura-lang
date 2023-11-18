@@ -49,11 +49,11 @@ public class AuraParser
     /// Checks if the next token matches any of the supplied token types. If so, the parser advances past the matched
     /// token and returns true. Otherwise, false is returned.
     /// </summary>
-    /// <param name="TokTypes">A list of acceptable token types for the next token</param>
-    /// <returns>A boolean indicating if the next token's type matches any of the <see cref="TokTypes"/></returns>
-    private bool Match(params TokType[] TokTypes)
+    /// <param name="tokTypes">A list of acceptable token types for the next token</param>
+    /// <returns>A boolean indicating if the next token's type matches any of the <see cref="tokTypes"/></returns>
+    private bool Match(params TokType[] tokTypes)
     {
-        foreach (var tokType in TokTypes)
+        foreach (var tokType in tokTypes)
         {
             if (Check(tokType))
             {
@@ -87,7 +87,7 @@ public class AuraParser
     /// </summary>
     /// <param name="ex">The exception to throw if the next token does not match <c>tokType</c></param>
     /// <param name="tokTypes">The types that the next token should match</param>
-    /// <returnsThe next token, if it matched any of the supplied token types></returns>
+    /// <returns>The next token, if it matched any of the supplied token types></returns>
     private Tok ConsumeMultiple(ParserException ex, params TokType[] tokTypes)
     {
         foreach (var tokType in tokTypes)
@@ -395,25 +395,24 @@ public class AuraParser
     private UntypedAuraStatement Statement()
     {
         if (Match(TokType.For)) return ForStatement();
-        else if (Match(TokType.ForEach)) return ForEachStatement();
-        else if (Match(TokType.Return)) return ReturnStatement();
-        else if (Match(TokType.While)) return WhileStatement();
-        else if (Match(TokType.Defer)) return DeferStatement();
-        else if (Peek().Typ is TokType.Identifier && PeekNext().Typ is TokType.ColonEqual) return ShortLetDeclaration(false);
-        else if (Match(TokType.Comment)) return Comment();
-        else if (Match(TokType.Continue)) return new UntypedContinue(Previous().Line);
-        else if (Match(TokType.Break)) return new UntypedBreak(Previous().Line);
-        else
-        {
-            var line = Peek().Line;
-            // If the statement doesn't begin with any of the Aura statement identifiers, parse it as an expression and
-            // wrap it in an Expression Statement
-            var expr = Expression();
-            // Consume trailing semicolon
-            Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
+        if (Match(TokType.ForEach)) return ForEachStatement();
+        if (Match(TokType.Return)) return ReturnStatement();
+        if (Match(TokType.While)) return WhileStatement();
+        if (Match(TokType.Defer)) return DeferStatement();
+        if (Peek().Typ is TokType.Identifier && PeekNext().Typ is TokType.ColonEqual) return ShortLetDeclaration(false);
+        if (Match(TokType.Comment)) return Comment();
+        if (Match(TokType.Continue)) return new UntypedContinue(Previous().Line);
+        if (Match(TokType.Break)) return new UntypedBreak(Previous().Line);
+        if (Match(TokType.Yield)) return Yield();
+        
+        var line = Peek().Line;
+        // If the statement doesn't begin with any of the Aura statement identifiers, parse it as an expression and
+        // wrap it in an Expression Statement
+        var expr = Expression();
+        // Consume trailing semicolon
+        Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-            return new UntypedExpressionStmt(expr, line);
-        }
+        return new UntypedExpressionStmt(expr, line);
     }
 
     private UntypedAuraStatement ForStatement()
@@ -518,10 +517,10 @@ public class AuraParser
     {
         var line = Previous().Line;
         // Check if the variable is declared as mutable
-        var isMutable = Match(TokType.Mut) ? true : false;
+        var isMutable = Match(TokType.Mut);
         // Parse the variable's name
         var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line));
-        // When declaring a new variable with the full `let` syntax, the variable's name must be followwed
+        // When declaring a new variable with the full `let` syntax, the variable's name must be followed
         // by a colon and the variable's type
         Consume(TokType.Colon, new ExpectColonException(Peek().Line));
         var nameType = ParseParameterType();
@@ -555,6 +554,15 @@ public class AuraParser
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
         return new UntypedComment(text, text.Line);
+    }
+
+    private UntypedAuraStatement Yield()
+    {
+        var value = Expression();
+        // Consume the trailing semicolon
+        Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
+
+        return new UntypedYield(value, Previous().Line);
     }
 
     private UntypedAuraStatement ExpressionStatement()

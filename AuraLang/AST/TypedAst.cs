@@ -264,3 +264,9 @@ public record TypedBreak(int Line) : TypedAuraStatement(new None(), Line);
 /// Represents a type-checked <c>nil</c> keyword
 /// </summary>
 public record TypedNil(int Line) : TypedAuraExpression(new Nil(), Line);
+
+/// <summary>
+/// Represents a type-checked <c>yield</c> statement
+/// </summary>
+/// <param name="Value">The value to be yielded from the enclosing expression</param>
+public record TypedYield(TypedAuraExpression Value, int Line) : TypedAuraStatement(new None(), Line);

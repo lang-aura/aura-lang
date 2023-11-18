@@ -14,17 +14,18 @@ public class AuraTypeChecker
 {
     private readonly IVariableStore _variableStore;
     private int _scope = 1;
-    // TODO collect errors
     private readonly IEnclosingClassStore _enclosingClassStore;
     private readonly AuraStdlib _stdlib = new();
     private readonly ICurrentModuleStore _currentModule;
-    private TypeCheckerExceptionContainer _exContainer = new();
+    private readonly TypeCheckerExceptionContainer _exContainer = new();
+    private readonly EnclosingExpressionStore _enclosingExpressionStore;
 
-    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore)
+    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingExpressionStore enclosingExpressionStore)
     {
         _variableStore = variableStore;
         _enclosingClassStore = enclosingClassStore;
         _currentModule = currentModuleStore;
+        _enclosingExpressionStore = enclosingExpressionStore;
     }
 
     public List<TypedAuraStatement> CheckTypes(List<UntypedAuraStatement> untypedAst)
@@ -84,6 +85,7 @@ public class AuraTypeChecker
             UntypedComment comment => CommentStmt(comment),
             UntypedContinue continue_ => ContinueStmt(continue_),
             UntypedBreak break_ => BreakStmt(break_),
+            UntypedYield yield => YieldStmt(yield),
             _ => throw new UnknownStatementTypeException(stmt.Line)
         };
     }
@@ -476,17 +478,38 @@ public class AuraTypeChecker
     private TypedBreak BreakStmt(UntypedBreak b) => new(b.Line);
 
     /// <summary>
+    /// Type checks a yield statement. The <c>yield</c> keyword can only be used inside of an <c>if</c> expression or
+    /// a block. All other uses of the <c>yield</c> keyword will result in an exception.
+    /// </summary>
+    /// <param name="y">The yield statement to type check</param>
+    /// <returns>A valid, type checked yield statement</returns>
+    /// <exception cref="InvalidUseOfYieldKeywordException">Thrown if the yield statement is not used inside of an <c>if</c>
+    /// expression or a block</exception>
+    private TypedYield YieldStmt(UntypedYield y)
+    {
+        var enclosingExpr = _enclosingExpressionStore.Peek();
+        if (enclosingExpr is not UntypedIf && enclosingExpr is not UntypedBlock)
+            throw new InvalidUseOfYieldKeywordException(y.Line);
+
+        var value = Expression(y.Value);
+        return new TypedYield(value, y.Line);
+    }
+
+    /// <summary>
     /// Type checks an assignment expression
     /// </summary>
     /// <param name="assignment">The assignment expression to type check</param>
     /// <returns>A valid, type checked assignment expression</returns>
     private TypedAssignment AssignmentExpr(UntypedAssignment assignment)
     {
-        // Fetch the variable being assigned to
-        var v = _variableStore.Find(assignment.Name.Value, _currentModule.GetName()!);
-        // Ensure that the new value and the variable have the same type
-        var typedExpr = ExpressionAndConfirm(assignment.Value, v!.Value.Kind);
-        return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            // Fetch the variable being assigned to
+            var v = _variableStore.Find(assignment.Name.Value, _currentModule.GetName()!);
+            // Ensure that the new value and the variable have the same type
+            var typedExpr = ExpressionAndConfirm(assignment.Value, v!.Value.Kind);
+            return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
+        }, assignment);
     }
 
     /// <summary>
@@ -496,10 +519,13 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked binary expression</returns>
     private TypedBinary BinaryExpr(UntypedBinary binary)
     {
-        var typedLeft = Expression(binary.Left);
-        // The right-hand expression must have the same type as the left-hand expression
-        var typedRight = ExpressionAndConfirm(binary.Right, typedLeft.Typ);
-        return new TypedBinary(typedLeft, binary.Operator, typedRight, typedLeft.Typ, binary.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var typedLeft = Expression(binary.Left);
+            // The right-hand expression must have the same type as the left-hand expression
+            var typedRight = ExpressionAndConfirm(binary.Right, typedLeft.Typ);
+            return new TypedBinary(typedLeft, binary.Operator, typedRight, typedLeft.Typ, binary.Line);
+        }, binary);
     }
 
     /// <summary>
@@ -509,28 +535,31 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked block expression</returns>
     private TypedBlock BlockExpr(UntypedBlock block)
     {
-        return InNewScope(() =>
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
         {
-            var typedStmts = block.Statements.Select(Statement);
-            // The block's type is the type of its last statement
-            AuraType blockTyp = new Nil();
-            if (typedStmts.Any())
+            return InNewScope(() =>
             {
-                var lastStmt = typedStmts.Last();
-                if (lastStmt is TypedReturn r)
+                var typedStmts = block.Statements.Select(Statement);
+                // The block's type is the type of its last statement
+                AuraType blockTyp = new Nil();
+                if (typedStmts.Any())
                 {
-                    blockTyp = r.Value is not null ? r.Value.Typ : new Nil();
-                }
-                else
-                {
-                    if (lastStmt.Typ is not None)
+                    var lastStmt = typedStmts.Last();
+                    if (lastStmt is TypedReturn r)
                     {
-                        blockTyp = lastStmt.Typ;
+                        blockTyp = r.Value is not null ? r.Value.Typ : new Nil();
+                    }
+                    else
+                    {
+                        if (lastStmt.Typ is not None)
+                        {
+                            blockTyp = lastStmt.Typ;
+                        }
                     }
                 }
-            }
-            return new TypedBlock(typedStmts.ToList(), blockTyp, block.Line);
-        });
+                return new TypedBlock(typedStmts.ToList(), blockTyp, block.Line);
+            });
+        }, block);
     }
 
     /// <summary>
@@ -542,16 +571,19 @@ public class AuraTypeChecker
     /// not match the expected number of parameters</exception>
     private TypedCall CallExpr(UntypedCall call)
     {
-        var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
-        var funcDeclaration = _variableStore.Find(call.Callee.GetName(), call.Callee.GetModuleName() ?? _currentModule.GetName()!)!.Value.Kind as ICallable;
-        // Ensure the function call has the correct number of arguments
-        if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
-        // Type check arguments
-        var typedArgs = call.Arguments
-            .Zip(funcDeclaration.GetParamTypes())
-            .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
-            .ToList();
-        return new TypedCall(typedCallee!, typedArgs, funcDeclaration.GetReturnType(), call.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+            var funcDeclaration = _variableStore.Find(call.Callee.GetName(), call.Callee.GetModuleName() ?? _currentModule.GetName()!)!.Value.Kind as ICallable;
+            // Ensure the function call has the correct number of arguments
+            if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
+            // Type check arguments
+            var typedArgs = call.Arguments
+                .Zip(funcDeclaration.GetParamTypes())
+                .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
+                .ToList();
+            return new TypedCall(typedCallee!, typedArgs, funcDeclaration.GetReturnType(), call.Line);
+        }, call);
     }
 
     /// <summary>
@@ -561,22 +593,28 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked get expression</returns>
     private TypedGet GetExpr(UntypedGet get)
     {
-        // Type check object, which must be gettable
-        var objExpr = Expression(get.Obj);
-        if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(get.Line);
-        // Fetch the gettable's attribute
-        var attrTyp = g.Get(get.Name.Value);
-        if (attrTyp is null) throw new ClassAttributeDoesNotExistException(get.Line);
-        
-        return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            // Type check object, which must be gettable
+            var objExpr = Expression(get.Obj);
+            if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(get.Line);
+            // Fetch the gettable's attribute
+            var attrTyp = g.Get(get.Name.Value);
+            if (attrTyp is null) throw new ClassAttributeDoesNotExistException(get.Line);
+            
+            return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
+        }, get);
     }
 
     private TypedSet SetExpr(UntypedSet set)
     {
-        var typedObj = Expression(set.Obj);
-        // TODO Make sure the typed object is a class
-        var typedValue = Expression(set.Value);
-        return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ, set.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var typedObj = Expression(set.Obj);
+            // TODO Make sure the typed object is a class
+            var typedValue = Expression(set.Value);
+            return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ, set.Line);
+        }, set);
     }
 
     /// <summary>
@@ -590,13 +628,16 @@ public class AuraTypeChecker
     /// correct type</exception>
     private TypedGetIndex GetIndexExpr(UntypedGetIndex getIndex)
     {
-        var expr = Expression(getIndex.Obj);
-        var indexExpr = Expression(getIndex.Index);
-        // Ensure that the object is indexable
-        if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(getIndex.Line);
-        if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ)) throw new TypeMismatchException(getIndex.Line); 
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var expr = Expression(getIndex.Obj);
+            var indexExpr = Expression(getIndex.Index);
+            // Ensure that the object is indexable
+            if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(getIndex.Line);
+            if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ)) throw new TypeMismatchException(getIndex.Line); 
 
-        return new TypedGetIndex(expr, indexExpr, indexableExpr.GetIndexedType(), getIndex.Line);
+            return new TypedGetIndex(expr, indexExpr, indexableExpr.GetIndexedType(), getIndex.Line);
+        }, getIndex);
     }
 
     /// <summary>
@@ -610,15 +651,18 @@ public class AuraTypeChecker
     /// correct type</exception>
     private TypedGetIndexRange GetIndexRangeExpr(UntypedGetIndexRange getIndexRange)
     {
-        var expr = Expression(getIndexRange.Obj);
-        var lower = Expression(getIndexRange.Lower);
-        var upper = Expression(getIndexRange.Upper);
-        // Ensure that the object is range indexable
-        if (expr.Typ is not IRangeIndexable rangeIndexableExpr) throw new ExpectRangeIndexableException(getIndexRange.Line);
-        if (!rangeIndexableExpr.IndexingType().IsSameType(lower.Typ)) throw new TypeMismatchException(getIndexRange.Line);
-        if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ)) throw new TypeMismatchException(getIndexRange.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var expr = Expression(getIndexRange.Obj);
+            var lower = Expression(getIndexRange.Lower);
+            var upper = Expression(getIndexRange.Upper);
+            // Ensure that the object is range indexable
+            if (expr.Typ is not IRangeIndexable rangeIndexableExpr) throw new ExpectRangeIndexableException(getIndexRange.Line);
+            if (!rangeIndexableExpr.IndexingType().IsSameType(lower.Typ)) throw new TypeMismatchException(getIndexRange.Line);
+            if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ)) throw new TypeMismatchException(getIndexRange.Line);
 
-        return new TypedGetIndexRange(expr, lower, upper, expr.Typ, getIndexRange.Line);
+            return new TypedGetIndexRange(expr, lower, upper, expr.Typ, getIndexRange.Line);
+        }, getIndexRange);
     }
 
     /// <summary>
@@ -628,8 +672,11 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked grouping expression</returns>
     private TypedGrouping GroupingExpr(UntypedGrouping grouping)
     {
-        var typedExpr = Expression(grouping.Expr);
-        return new TypedGrouping(typedExpr, typedExpr.Typ, grouping.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var typedExpr = Expression(grouping.Expr);
+            return new TypedGrouping(typedExpr, typedExpr.Typ, grouping.Line);
+        }, grouping);
     }
 
     /// <summary>
@@ -639,15 +686,18 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked if expression</returns>
     private TypedIf IfExpr(UntypedIf if_)
     {
-        var typedCond = ExpressionAndConfirm(if_.Condition, new Bool());
-        var typedThen = BlockExpr(if_.Then);
-        // Type check else branch
-        TypedAuraExpression? typedElse = null;
-        if (if_.Else is not null)
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
         {
-            typedElse = ExpressionAndConfirm(if_.Else, typedThen.Typ);
-        }
-        return new TypedIf(typedCond, typedThen, typedElse, typedThen.Typ, if_.Line);
+            var typedCond = ExpressionAndConfirm(if_.Condition, new Bool());
+            var typedThen = BlockExpr(if_.Then);
+            // Type check else branch
+            TypedAuraExpression? typedElse = null;
+            if (if_.Else is not null)
+            {
+                typedElse = ExpressionAndConfirm(if_.Else, typedThen.Typ);
+            }
+            return new TypedIf(typedCond, typedThen, typedElse, typedThen.Typ, if_.Line);
+        }, if_);
     }
 
     private TypedLiteral<long> IntLiteralExpr(UntypedIntLiteral literal) => new(literal.GetValue(), new Int(), literal.Line);
@@ -658,48 +708,49 @@ public class AuraTypeChecker
 
     private TypedLiteral<List<TypedAuraExpression>> ListLiteralExpr(UntypedListLiteral<UntypedAuraExpression> literal)
     {
-        var items = literal.GetValue();
-        var typedItem = Expression(items.First());
-        var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
-        return new(typedItems, new List(typedItem.Typ), literal.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var items = literal.GetValue();
+            var typedItem = Expression(items.First());
+            var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
+            return new TypedLiteral<List<TypedAuraExpression>>(typedItems, new List(typedItem.Typ), literal.Line);
+        }, literal);
     }
 
     private TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> MapLiteralExpr(UntypedMapLiteral literal)
     {
-        var m = literal.GetValue();
-        var typedKey = Expression(m.Keys.First());
-        var typedValue = Expression(m.Values.First());
-        var typedM = m.Select(pair =>
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
         {
-            var typedK = ExpressionAndConfirm(pair.Key, typedKey.Typ);
-            var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
-            return (typedK, typedV);
-        }).ToDictionary(pair => pair.typedK, pair => pair.typedV);
-        return new(typedM, new Map(typedKey.Typ, typedValue.Typ), literal.Line);
+            var m = literal.GetValue();
+            var typedKey = Expression(m.Keys.First());
+            var typedValue = Expression(m.Values.First());
+            var typedM = m.Select(pair =>
+            {
+                var typedK = ExpressionAndConfirm(pair.Key, typedKey.Typ);
+                var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
+                return (typedK, typedV);
+            }).ToDictionary(pair => pair.typedK, pair => pair.typedV);
+            return new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(typedM, new Map(typedKey.Typ, typedValue.Typ), literal.Line);
+        }, literal);
     }
 
     private TypedLiteral<List<TypedAuraExpression>> TupleLiteralExpr(UntypedTupleLiteral literal)
     {
-        var typedTup = literal.GetValue()
-            .Select(Expression)
-            .ToList();
-        return new(typedTup, new AuraTuple(typedTup.Select(item => item.Typ).ToList()), literal.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var typedTup = literal.GetValue()
+                .Select(Expression)
+                .ToList();
+            return new TypedLiteral<List<TypedAuraExpression>>(typedTup,
+                new AuraTuple(typedTup.Select(item => item.Typ).ToList()), literal.Line);
+        }, literal);
     }
 
-    private TypedLiteral<bool> BoolLiteralExpr(UntypedBoolLiteral literal)
-    {
-        return new(literal.GetValue(), new Bool(), literal.Line);
-    }
+    private TypedLiteral<bool> BoolLiteralExpr(UntypedBoolLiteral literal) => new(literal.GetValue(), new Bool(), literal.Line);
 
-    private TypedNil NilExpr(UntypedNil literal)
-    {
-        return new(literal.Line);
-    }
+    private TypedNil NilExpr(UntypedNil literal) => new(literal.Line);
 
-    private TypedLiteral<char> CharLiteralExpr(UntypedCharLiteral literal)
-    {
-        return new(literal.GetValue(), new AuraChar(), literal.Line);
-    }
+    private TypedLiteral<char> CharLiteralExpr(UntypedCharLiteral literal) => new(literal.GetValue(), new AuraChar(), literal.Line);
 
     /// <summary>
     /// Type checks a `this` expression
@@ -717,18 +768,21 @@ public class AuraTypeChecker
     /// operand are not compatible</exception>
     private TypedUnary UnaryExpr(UntypedUnary unary)
     {
-        var typedRight = Expression(unary.Right);
-        // Ensure that operand is a valid type and the operand can be used with it
-        if (unary.Operator.Typ is TokType.Minus)
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
         {
-            if (typedRight.Typ is not Int && typedRight.Typ is not Float) throw new MismatchedUnaryOperatorAndOperandException(unary.Line);
-        }
-        else if (unary.Operator.Typ is TokType.Minus)
-        {
-            if (typedRight.Typ is not Bool) throw new MismatchedUnaryOperatorAndOperandException(unary.Line);
-        }
+            var typedRight = Expression(unary.Right);
+            // Ensure that operand is a valid type and the operand can be used with it
+            if (unary.Operator.Typ is TokType.Minus)
+            {
+                if (typedRight.Typ is not Int && typedRight.Typ is not Float) throw new MismatchedUnaryOperatorAndOperandException(unary.Line);
+            }
+            else if (unary.Operator.Typ is TokType.Minus)
+            {
+                if (typedRight.Typ is not Bool) throw new MismatchedUnaryOperatorAndOperandException(unary.Line);
+            }
 
-        return new TypedUnary(unary.Operator, typedRight, typedRight.Typ, unary.Line);
+            return new TypedUnary(unary.Operator, typedRight, typedRight.Typ, unary.Line);
+        }, unary);
     }
 
     /// <summary>
@@ -749,9 +803,12 @@ public class AuraTypeChecker
     /// <returns>A valid, type checked logical expression</returns>
     private TypedLogical LogicalExpr(UntypedLogical logical)
     {
-        var typedLeft = Expression(logical.Left);
-        var typedRight = ExpressionAndConfirm(logical.Right, typedLeft.Typ);
-        return new(typedLeft, logical.Operator, typedRight, new Bool(), logical.Line);
+        return _enclosingExpressionStore.WithEnclosingExpression(() =>
+        {
+            var typedLeft = Expression(logical.Left);
+            var typedRight = ExpressionAndConfirm(logical.Right, typedLeft.Typ);
+            return new TypedLogical(typedLeft, logical.Operator, typedRight, new Bool(), logical.Line);
+        }, logical);
     }
 
     private void ExitScope()
