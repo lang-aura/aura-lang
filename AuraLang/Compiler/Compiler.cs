@@ -471,11 +471,13 @@ public class AuraCompiler
             switch (stmt)
             {
                 case TypedReturn r:
-                    var v = r.Value is not null ? Expression(r.Value) : string.Empty;
-                    body.Append($"\nreturn {v}");
+                    var returnVal = r.Value is not null ? Expression(r.Value) : string.Empty;
+                    body.Append($"\nreturn {returnVal}");
                     break;
                 case TypedYield y:
-                    
+                    var yieldVal = Expression(y.Value);
+                    body.Append($"\n{decl} = {yieldVal}");
+                    break;
                 default:
                     var s = Statement(stmt);
                     body.Append($"\n{s}");
