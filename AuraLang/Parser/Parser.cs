@@ -6,7 +6,6 @@ using AuraLang.Token;
 using AuraLang.Types;
 using Char = AuraLang.Types.Char;
 using String = AuraLang.Types.String;
-using Tuple = AuraLang.Types.Tuple;
 
 namespace AuraLang.Parser;
 
@@ -215,7 +214,7 @@ public class AuraParser
             variadic = true;
         }
 
-        if (!Match(TokType.Int, TokType.Float, TokType.String, TokType.Bool, TokType.LeftBracket, TokType.Any, TokType.Char, TokType.Fn, TokType.Identifier, TokType.Map, TokType.Tup)) throw new ExpectParameterTypeException(Peek().Line);
+        if (!Match(TokType.Int, TokType.Float, TokType.String, TokType.Bool, TokType.LeftBracket, TokType.Any, TokType.Char, TokType.Fn, TokType.Identifier, TokType.Map)) throw new ExpectParameterTypeException(Peek().Line);
 
         var pt = TypeTokenToType(Previous());
         return new ParamType(pt, variadic);
@@ -262,16 +261,6 @@ public class AuraParser
                 var valueType = ParseParameterType();
                 Consume(TokType.RightBracket, new UnterminatedMapTypeSignatureException(Peek().Line));
                 return new Map(keyType.Typ, valueType.Typ);
-            case TokType.Tup:
-                var paramTypes_ = new List<AuraType>();
-                Consume(TokType.LeftBracket, new ExpectLeftBracketAfterTupKeywordException(Peek().Line));
-                while (!Match(TokType.RightBracket))
-                {
-                    var t = ParseParameterType(); // TODO don't use this function because tuple types cannot be variadic
-                    paramTypes_.Add(t.Typ);
-                    Match(TokType.Comma);
-                }
-                return new Tuple(paramTypes_);
             default:
                 throw new UnexpectedTypeException(Peek().Line);
         }
@@ -1037,21 +1026,6 @@ public class AuraParser
             }
 
             return new UntypedMapLiteral(d, keyType.Typ, valueType.Typ, line);
-        }
-        else if (Match(TokType.Tup))
-        {
-            // Parse tuple's type signature
-            var typ = TypeTokenToType(Previous());
-            Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
-            var items = new List<UntypedAuraExpression>();
-            while (!Match(TokType.RightBrace))
-            {
-                var item = Expression();
-                items.Add(item);
-                Match(TokType.Comma);
-            }
-
-            return new UntypedTupleLiteral(items, (typ as Tuple).ElementTypes, line);
         }
         else
         {

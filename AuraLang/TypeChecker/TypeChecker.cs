@@ -6,7 +6,6 @@ using AuraLang.Types;
 using AuraChar = AuraLang.Types.Char;
 using AuraFunction = AuraLang.Types.Function;
 using AuraString = AuraLang.Types.String;
-using AuraTuple = AuraLang.Types.Tuple;
 
 namespace AuraLang.TypeChecker;
 
@@ -110,7 +109,6 @@ public class AuraTypeChecker
             UntypedStringLiteral s => StringLiteralExpr(s),
             UntypedListLiteral<UntypedAuraExpression> l => ListLiteralExpr(l),
             UntypedMapLiteral m => MapLiteralExpr(m),
-            UntypedTupleLiteral t => TupleLiteralExpr(t),
             UntypedBoolLiteral b => BoolLiteralExpr(b),
             UntypedNil n => NilExpr(n),
             UntypedCharLiteral c => CharLiteralExpr(c),
@@ -776,18 +774,6 @@ public class AuraTypeChecker
                 return (typedK, typedV);
             }).ToDictionary(pair => pair.typedK, pair => pair.typedV);
             return new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(typedM, new Map(typedKey.Typ, typedValue.Typ), literal.Line);
-        }, literal);
-    }
-
-    private TypedLiteral<List<TypedAuraExpression>> TupleLiteralExpr(UntypedTupleLiteral literal)
-    {
-        return _enclosingExpressionStore.WithEnclosing(() =>
-        {
-            var typedTup = literal.GetValue()
-                .Select(Expression)
-                .ToList();
-            return new TypedLiteral<List<TypedAuraExpression>>(typedTup,
-                new AuraTuple(typedTup.Select(item => item.Typ).ToList()), literal.Line);
         }, literal);
     }
 

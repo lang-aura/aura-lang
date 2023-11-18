@@ -64,7 +64,6 @@ public enum TokType
 	This, // this
 	As, // as
 	Map, // map
-	Tup, // tup
 	Break, // break
 	Continue, // continue
 	Yield, // yield

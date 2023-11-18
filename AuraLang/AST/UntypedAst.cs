@@ -195,21 +195,6 @@ public record UntypedMapLiteral(Dictionary<UntypedAuraExpression, UntypedAuraExp
 }
 
 /// <summary>
-/// Represents a tuple data type. A simple tuple literal would be declared like this:
-/// <code>tup[int, int]{1, 2}</code>
-/// The tuple's type signature stored in this struct will be used by the type checker to confirm that each element in the tuple matches its expected type. Its
-/// important to note that, even though the elements' types are stored in this untyped struct, the tuple object has not yet been type checked, and it is not
-/// guaranteed that the tuple's elements match their expected type.
-/// </summary>
-/// <param name="T">The tuple value</param>
-/// <param name="Typs">Indicates the type of each item in the tuple. This is necessary because, unlike a list, a tuple does not require that all
-/// items have the same type.</param>
-public record UntypedTupleLiteral(List<UntypedAuraExpression> T, List<AuraType> Typs, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<List<UntypedAuraExpression>>
-{
-    public List<UntypedAuraExpression> GetValue() => T;
-}
-
-/// <summary>
 /// Represents a boolean literal
 /// </summary>
 /// <param name="B">The boolean value</param>

@@ -397,8 +397,6 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.True, tok, "true");
 						case 'h':
 							return CheckKeywordToken(TokType.This, tok, "this");
-						case 'u':
-							return CheckKeywordToken(TokType.Tup, tok, "tup");
 					}
 				}
 				break;
