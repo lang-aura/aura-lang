@@ -1,4 +1,5 @@
 using AuraLang.AST;
+using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
@@ -16,6 +17,7 @@ public class TypeCheckerTest
     private readonly Mock<IVariableStore> _variableStore = new();
     private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
     private readonly Mock<ICurrentModuleStore> _currentModuleStore = new();
+    private readonly Mock<IEnclosingExpressionStore> _enclosingExprStore = new();
     
     [Test]
     public void TestTypeCheck_Assignment()
@@ -947,8 +949,31 @@ public class TypeCheckerTest
             1));
     }
 
+    [Test]
+    public void TestTypeCheck_Yield()
+    {
+        _enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedBlock(new List<UntypedAuraStatement>(), 1));
+                     
+        var typedAst = ArrangeAndAct(new List<UntypedAuraStatement>
+        {
+            new UntypedYield(1)
+        });
+        MakeAssertions(typedAst, new TypedYield(1));
+    }
+
+    [Test]
+    public void TestTypeCheck_Yield_Invalid()
+    {
+        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
+            _currentModuleStore.Object, _enclosingExprStore.Object);
+        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+            {
+                new UntypedYield(1)
+            })));
+    }
+
     private List<TypedAuraStatement> ArrangeAndAct(List<UntypedAuraStatement> untypedAst)
-        => new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object)
+        => new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object)
             .CheckTypes(AddModStmtIfNecessary(untypedAst));
 
     private List<UntypedAuraStatement> AddModStmtIfNecessary(List<UntypedAuraStatement> untypedAst)

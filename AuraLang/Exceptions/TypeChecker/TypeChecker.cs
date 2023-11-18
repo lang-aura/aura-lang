@@ -67,3 +67,8 @@ public class ClassAttributeDoesNotExistException : TypeCheckerException
 {
     public ClassAttributeDoesNotExistException(int line) : base("Class attribute does not exist", line) { }
 }
+
+public class InvalidUseOfYieldKeywordException : TypeCheckerException
+{
+    public InvalidUseOfYieldKeywordException(int line) : base("Invalid use of yield keyword", line) { }
+}
