@@ -4,7 +4,7 @@ namespace AuraLang.Types;
 
 public interface ICallable
 {
-    List<ParamType> GetParamTypes();
+    List<TypedParamType> GetParamTypes();
     AuraType GetReturnType();
 }
 

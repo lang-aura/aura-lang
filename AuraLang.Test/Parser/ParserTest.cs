@@ -311,8 +311,8 @@ public class ParserTest
 						new UntypedIntLiteral(2, 3)
 					}
 				},
-                new String(),
-				new Int(),
+                new Tok(TokType.String, "string", 1),
+				new Tok(TokType.Int, "int", 1),
 				1),
 			1));
 	}
@@ -509,7 +509,7 @@ public class ParserTest
 		MakeAssertions(untypedAst, new UntypedFor(
 			new UntypedLet(
 				new Tok(TokType.Identifier, "i", 1),
-				new None(),
+				null,
 				false,
 				new UntypedIntLiteral(0, 1),
 				1),
@@ -571,9 +571,9 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedNamedFunction(
 			new Tok(TokType.Identifier, "f", 1),
-			new List<Param>(),
+			new List<UntypedParam>(),
 			new UntypedBlock(new List<UntypedAuraStatement>(), 1),
-			new Nil(),
+			null,
 			Visibility.Private,
 			1));
 	}
@@ -593,9 +593,9 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
 				new UntypedAnonymousFunction(
-					new List<Param>(),
+					new List<UntypedParam>(),
 					new UntypedBlock(new List<UntypedAuraStatement>(), 1),
-					new Nil(),
+					null,
 					1),
 			1));
 	}
@@ -616,7 +616,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedLet(
 			new Tok(TokType.Identifier, "i", 1),
-			new Int(),
+			new Tok(TokType.Int, "int", 1),
 			false,
 			new UntypedIntLiteral(5, 1),
 			1));
@@ -635,7 +635,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedLet(
 			new Tok(TokType.Identifier, "i", 1),
-			new None(),
+			null,
 			false,
 			new UntypedIntLiteral(5, 1),
 			1));
@@ -685,7 +685,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedClass(
 			new Tok(TokType.Identifier, "c", 1),
-			new List<Param>(),
+			new List<UntypedParam>(),
 			new List<UntypedNamedFunction>(),
 			Visibility.Private,
 			1));

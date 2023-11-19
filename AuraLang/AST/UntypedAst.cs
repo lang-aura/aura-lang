@@ -189,7 +189,7 @@ public record UntypedListLiteral<T>(List<T> L, int Line) : UntypedAuraExpression
 /// <typeparam name="K">The type of the map's keys</typeparam>
 /// <typeparam name="V">The type of the map's values</typeparam>
 /// <param name="M">The map value</param>
-public record UntypedMapLiteral(Dictionary<UntypedAuraExpression, UntypedAuraExpression> M, AuraType KeyType, AuraType ValueType, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<Dictionary<UntypedAuraExpression, UntypedAuraExpression>>
+public record UntypedMapLiteral(Dictionary<UntypedAuraExpression, UntypedAuraExpression> M, Tok KeyType, Tok ValueType, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<Dictionary<UntypedAuraExpression, UntypedAuraExpression>>
 {
     public Dictionary<UntypedAuraExpression, UntypedAuraExpression> GetValue() => M;
 }
@@ -317,12 +317,13 @@ public record UntypedForEach(Tok EachName, UntypedAuraExpression Iterable, List<
 /// <param name="Name">The function's name</param>
 /// <param name="Params">The function's parameters</param>
 /// <param name="Body">The function's body</param>
-/// <param name="ReturnType">The function's return type</param>
+/// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
+/// been type checked yet.</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : UntypedAuraStatement(Line), IFunction
+public record UntypedNamedFunction(Tok Name, List<UntypedParam> Params, UntypedBlock Body, Tok? ReturnType, Visibility Public, int Line) : UntypedAuraStatement(Line), IUntypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<UntypedParam> GetParams() => Params;
+    public List<UntypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -331,11 +332,12 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// </summary>
 /// <param name="Params">The function's parameters</param>
 /// <param name="Body">The function's body</param>
-/// <param name="ReturnType">The function's return type</param>
-public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, AuraType ReturnType, int Line) : UntypedAuraExpression(Line), IFunction
+/// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
+/// /// been type checked yet.</param>
+public record UntypedAnonymousFunction(List<UntypedParam> Params, UntypedBlock Body, Tok? ReturnType, int Line) : UntypedAuraExpression(Line), IUntypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<UntypedParam> GetParams() => Params;
+    public List<UntypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -350,7 +352,7 @@ public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, Au
 /// be <see cref="Unknown"/></param>
 /// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">The initializer expression whose result will be assigned to the new variable. This expression may be omitted.</param>
-public record UntypedLet(Tok Name, AuraType NameTyp, bool Mutable, UntypedAuraExpression? Initializer, int Line) : UntypedAuraStatement(Line);
+public record UntypedLet(Tok Name, Tok? NameTyp, bool Mutable, UntypedAuraExpression? Initializer, int Line) : UntypedAuraStatement(Line);
 
 /// <summary>
 /// Represents the current source file's module declaration. It should appear at the top of the file and have
@@ -375,10 +377,10 @@ public record UntypedReturn(UntypedAuraExpression? Value, int Line) : UntypedAur
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : UntypedAuraStatement(Line), IFunction
+public record UntypedClass(Tok Name, List<UntypedParam> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : UntypedAuraStatement(Line), IUntypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<UntypedParam> GetParams() => Params;
+    public List<UntypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>

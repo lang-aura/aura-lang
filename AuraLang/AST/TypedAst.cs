@@ -181,10 +181,10 @@ public record TypedForEach(Tok EachName, TypedAuraExpression Iterable, List<Type
 /// <param name="Params">The function's parameters</param>
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
-public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : TypedAuraStatement(new None(), Line), IFunction
+public record TypedNamedFunction(Tok Name, List<TypedParam> Params, TypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : TypedAuraStatement(new None(), Line), ITypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<TypedParam> GetParams() => Params;
+    public List<TypedParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 }
 
 /// <summary>
@@ -193,10 +193,10 @@ public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, 
 /// <param name="Params">The anonymous function's parameters</param>
 /// <param name="Body">The anonymous function's body</param>
 /// <param name="ReturnType">The anonymous function's return type</param>
-public record TypedAnonymousFunction(List<Param> Params, TypedBlock Body, AuraType ReturnType, int Line) : TypedAuraExpression(new None(), Line), IFunction
+public record TypedAnonymousFunction(List<TypedParam> Params, TypedBlock Body, AuraType ReturnType, int Line) : TypedAuraExpression(new None(), Line), ITypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<TypedParam> GetParams() => Params;
+    public List<TypedParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 }
 
 /// <summary>
@@ -227,10 +227,10 @@ public record TypedReturn(TypedAuraExpression? Value, int Line) : TypedAuraState
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
-public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, int Line) : TypedAuraStatement(new None(), Line), IFunction
+public record FullyTypedClass(Tok Name, List<TypedParam> Params, List<TypedNamedFunction> Methods, Visibility Public, int Line) : TypedAuraStatement(new None(), Line), ITypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<TypedParam> GetParams() => Params;
+    public List<TypedParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
     
 }
 
