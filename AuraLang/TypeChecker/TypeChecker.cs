@@ -220,14 +220,7 @@ public class AuraTypeChecker
         {
             return InNewScope(() =>
             {
-                var typedParams = f.Params.Select(p =>
-                {
-                    var typedDefaultValue = p.ParamType.DefaultValue is not null
-                        ? Expression(p.ParamType.DefaultValue)
-                        : null;
-                    var paramTyp = TypeTokenToType(p.ParamType.Typ);
-                    return new TypedParam(p.Name, new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
-                });
+                var typedParams = TypeCheckParams(f.Params);
                 // Add parameters as local variables
                 foreach (var param in typedParams)
                 {
@@ -240,7 +233,7 @@ public class AuraTypeChecker
 
                 var typedBody = BlockExpr(f.Body);
                 // Ensure the function's body returns the type specified in its signature
-                var returnType = f.ReturnType is not null ? TypeTokenToType(f.ReturnType.Value) : new Nil();
+                var returnType = TypeCheckReturnTypeTok(f.ReturnType);
                 if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
                 // Add function as local variable
                 _variableStore.Add(new Local(
@@ -248,7 +241,7 @@ public class AuraTypeChecker
                     new AuraFunction(
                         f.Name.Value,
                         new AnonymousFunction(
-                            typedParams.Select(p => p.ParamType).ToList(),
+                            TypeCheckParamTypes(f.Params),
                             returnType)
                         ),
                     _scope,
@@ -271,14 +264,7 @@ public class AuraTypeChecker
         {
             return InNewScope(() =>
             {
-                var typedParams = f.Params.Select(p =>
-                {
-                    var typedDefaultValue = p.ParamType.DefaultValue is not null
-                        ? Expression(p.ParamType.DefaultValue)
-                        : null;
-                    var paramTyp = TypeTokenToType(p.ParamType.Typ);
-                    return new TypedParam(p.Name, new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
-                });
+                var typedParams = TypeCheckParams(f.Params);
                 // Add the function's parameters as local variables
                 foreach(var param in typedParams)
                 {
@@ -291,31 +277,22 @@ public class AuraTypeChecker
 
                 var typedBody = BlockExpr(f.Body);
                 // Ensure the function's body returns the type specified in its signature
-                var returnType = f.ReturnType is not null ? TypeTokenToType(f.ReturnType.Value) : new Nil();
+                var returnType = TypeCheckReturnTypeTok(f.ReturnType);
                 if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
 
-                return new TypedAnonymousFunction(typedParams.ToList(), typedBody, returnType, f.Line);
+                return new TypedAnonymousFunction(typedParams, typedBody, returnType, f.Line);
             });
         }, f);
     }
 
     private PartiallyTypedFunction PartialFunctionStmt(UntypedNamedFunction f)
     {
-        // TODO Refactor to own function
-        var typedParams = f.Params.Select(p =>
-        {
-            var typedDefaultValue = p.ParamType.DefaultValue is not null
-                ? Expression(p.ParamType.DefaultValue)
-                : null;
-            var paramTyp = TypeTokenToType(p.ParamType.Typ);
-            return new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue);
-        });
-        // TODO Refactor to own function
-        var returnType = f.ReturnType is not null ? TypeTokenToType(f.ReturnType.Value) : new Nil();
+        var typedParamTypes = TypeCheckParamTypes(f.Params);
+        var returnType = TypeCheckReturnTypeTok(f.ReturnType);
         // Add function as local
         _variableStore.Add(new Local(
             f.Name.Value,
-            new AuraFunction(f.Name.Value, new AnonymousFunction(typedParams.ToList(), returnType)),
+            new AuraFunction(f.Name.Value, new AnonymousFunction(typedParamTypes, returnType)),
             _scope,
             _currentModule.GetName()!));
 
@@ -330,14 +307,7 @@ public class AuraTypeChecker
 
     private TypedNamedFunction FinishFunctionStmt(PartiallyTypedFunction f)
     {
-        var typedParams = f.Params.Select(p =>
-        {
-            var typedDefaultValue = p.ParamType.DefaultValue is not null
-                ? Expression(p.ParamType.DefaultValue)
-                : null;
-            var paramTyp = TypeTokenToType(p.ParamType.Typ);
-            return new TypedParam(p.Name, new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
-        });
+        var typedParams = TypeCheckParams(f.Params);
         // Add parameters as local variables
         foreach(var param in f.Params)
         {
@@ -354,7 +324,7 @@ public class AuraTypeChecker
         // Ensure the function's body returns the same type specified in its signature
         if (!f.ReturnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
 
-        return new TypedNamedFunction(f.Name, typedParams.ToList(), typedBody, f.ReturnType, f.Public, f.Line);
+        return new TypedNamedFunction(f.Name, typedParams, typedBody, f.ReturnType, f.Public, f.Line);
     }
 
     /// <summary>
@@ -933,4 +903,25 @@ public class AuraTypeChecker
             _ => throw new UnexpectedTypeException(tok.Line)
         };
     }
+
+    private List<TypedParam> TypeCheckParams(List<UntypedParam> untypedParams)
+    {
+        return untypedParams.Select(p =>
+        {
+            var typedDefaultValue = p.ParamType.DefaultValue is not null
+                ? Expression(p.ParamType.DefaultValue)
+                : null;
+            var paramTyp = TypeTokenToType(p.ParamType.Typ);
+            return new TypedParam(p.Name, new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+        }).ToList();
+    }
+
+    private List<TypedParamType> TypeCheckParamTypes(List<UntypedParam> untypedParams)
+    {
+        return TypeCheckParams(untypedParams)
+            .Select(p => p.ParamType)
+            .ToList();
+    }
+
+    private AuraType TypeCheckReturnTypeTok(Tok? returnTok) => returnTok is not null ? TypeTokenToType(returnTok.Value) : new Nil();
 }
