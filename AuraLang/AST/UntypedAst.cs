@@ -321,7 +321,8 @@ public record UntypedForEach(Tok EachName, UntypedAuraExpression Iterable, List<
 /// <param name="Public">Indicates if the function is public or private</param>
 public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : UntypedAuraStatement(Line), IFunction
 {
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -333,7 +334,8 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// <param name="ReturnType">The function's return type</param>
 public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, AuraType ReturnType, int Line) : UntypedAuraExpression(Line), IFunction
 {
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -375,7 +377,8 @@ public record UntypedReturn(UntypedAuraExpression? Value, int Line) : UntypedAur
 /// <param name="Public">Indicates if the class is public or not</param>
 public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : UntypedAuraStatement(Line), IFunction
 {
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>

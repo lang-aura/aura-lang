@@ -16,6 +16,7 @@ public record PartiallyTypedFunction(Tok Name, List<Param> Params, UntypedBlock 
     public PartiallyTypedFunction(UntypedNamedFunction f) : this(f.Name, f.Params, f.Body, f.ReturnType, f.Public, f.Line) { }
 
     public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<Param> GetParams() => Params;
 }
 
 /// <summary>
@@ -28,4 +29,5 @@ public record PartiallyTypedFunction(Tok Name, List<Param> Params, UntypedBlock 
 public record PartiallyTypedClass(Tok Name, List<Param> Params, List<PartiallyTypedFunction> Methods, Visibility Public, AuraType Typ, int Line) : TypedAuraStatement(Typ, Line), IFunction
 {
     public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    public List<Param> GetParams() => Params;
 }

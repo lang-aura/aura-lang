@@ -183,6 +183,7 @@ public record TypedForEach(Tok EachName, TypedAuraExpression Iterable, List<Type
 /// <param name="ReturnType">The function's return type</param>
 public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : TypedAuraStatement(new None(), Line), IFunction
 {
+    public List<Param> GetParams() => Params;
     public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 }
 
@@ -194,6 +195,7 @@ public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, 
 /// <param name="ReturnType">The anonymous function's return type</param>
 public record TypedAnonymousFunction(List<Param> Params, TypedBlock Body, AuraType ReturnType, int Line) : TypedAuraExpression(new None(), Line), IFunction
 {
+    public List<Param> GetParams() => Params;
     public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 }
 
@@ -227,7 +229,9 @@ public record TypedReturn(TypedAuraExpression? Value, int Line) : TypedAuraState
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, int Line) : TypedAuraStatement(new None(), Line), IFunction
 {
+    public List<Param> GetParams() => Params;
     public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+    
 }
 
 /// <summary>
