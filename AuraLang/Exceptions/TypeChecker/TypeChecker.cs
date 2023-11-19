@@ -82,3 +82,8 @@ public class InvalidUseOfContinueKeywordException : TypeCheckerException
 {
     public InvalidUseOfContinueKeywordException(int line) : base("Invalid use of continue keyword", line) { }
 }
+
+public class CannotMixNamedAndUnnamedArgumentsException : TypeCheckerException
+{
+    public CannotMixNamedAndUnnamedArgumentsException(int line) : base("Cannot mix named and unnamed arguments", line) { }
+}

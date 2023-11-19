@@ -642,20 +642,30 @@ public class AuraTypeChecker
             // Ensure the function call has the correct number of arguments
             if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
             // Type check arguments
+            var named = call.Arguments.All(arg => arg.Item1 is not null);
+            var unnamed = call.Arguments.All(arg => arg.Item1 is null);
+            if (!named && unnamed!) throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
+
             var orderedArgs = call.Arguments
-                .Where(pair => pair.Item1 is null)
                 .Select(pair => pair.Item2)
                 .ToList();
-            foreach (var arg in call.Arguments)
+            if (named)
             {
-                if (arg.Item1 is not null)
+                orderedArgs = call.Arguments
+                    .Where(pair => pair.Item1 is null)
+                    .Select(pair => pair.Item2)
+                    .ToList();
+                foreach (var arg in call.Arguments)
                 {
-                    var index = funcDeclaration.GetParamIndex(arg.Item1!.Value.Value);
-                    if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
-                    else orderedArgs.Insert(index, arg.Item2);
+                    if (arg.Item1 is not null)
+                    {
+                        var index = funcDeclaration.GetParamIndex(arg.Item1!.Value.Value);
+                        if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
+                        else orderedArgs.Insert(index, arg.Item2);
+                    }
                 }
             }
-
+            
             var typedArgs = orderedArgs
                 .Zip(funcDeclaration.GetParamTypes())
                 .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
