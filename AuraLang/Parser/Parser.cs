@@ -170,9 +170,9 @@ public class AuraParser
         }
     }
 
-    private List<Param> ParseParameters()
+    private List<UntypedParam> ParseParameters()
     {
-        var params_ = new List<Param>();
+        var params_ = new List<UntypedParam>();
 
         if (!Check(TokType.RightParen))
         {
@@ -193,8 +193,8 @@ public class AuraParser
                     variadic = true;
                 }
                 // Parse the parameter type
-                var pt = ParseParameterType();
-                params_.Add(new Param(name, new ParamType(pt.Typ, variadic)));
+                var pt = ParseParameter();
+                params_.Add(new UntypedParam(name, new UntypedParamType(pt.Typ, variadic, pt.DefaultValue)));
 
                 if (Check(TokType.RightParen)) return params_;
                 else Consume(TokType.Comma, new ExpectEitherRightParenOrCommaAfterParam(Peek().Line));
@@ -204,8 +204,15 @@ public class AuraParser
         return params_;
     }
 
-    private ParamType ParseParameterType()
+    private Tok ParseParameterType()
     {
+        if (!Match(TokType.Int, TokType.Float, TokType.String, TokType.Bool, TokType.LeftBracket, TokType.Any, TokType.Char, TokType.Fn, TokType.Identifier, TokType.Map)) throw new ExpectParameterTypeException(Peek().Line);
+        return Previous();
+    }
+
+    private UntypedParamType ParseParameter()
+    {
+        // Parse variadic
         var variadic = false;
         if (Match(TokType.Dot))
         {
@@ -213,57 +220,12 @@ public class AuraParser
             Consume(TokType.Dot, new VariadicSignifierMustHaveThreeDots(Peek().Line));
             variadic = true;
         }
-
-        if (!Match(TokType.Int, TokType.Float, TokType.String, TokType.Bool, TokType.LeftBracket, TokType.Any, TokType.Char, TokType.Fn, TokType.Identifier, TokType.Map)) throw new ExpectParameterTypeException(Peek().Line);
-
-        var pt = TypeTokenToType(Previous());
-        return new ParamType(pt, variadic);
-    }
-
-    private AuraType TypeTokenToType(Tok tok)
-    {
-        switch (tok.Typ)
-        {
-            case TokType.Int:
-                return new Int();
-            case TokType.Float:
-                return new Float();
-            case TokType.String:
-                return new String();
-            case TokType.Bool:
-                return new Bool();
-            case TokType.Identifier:
-                return new Unknown(Previous().Value);
-            case TokType.LeftBracket:
-                if (!Match(TokType.Int, TokType.Float, TokType.String, TokType.Bool, TokType.Identifier)) throw new ExpectVariableTypeException(Peek().Line);
-                var listType = TypeTokenToType(Previous());
-                Consume(TokType.RightBracket, new UnterminatedListLiteralException(Peek().Line));
-                return new List(listType);
-            case TokType.Any:
-                return new Any();
-            case TokType.Char:
-                return new Char();
-            case TokType.Fn:
-                Consume(TokType.LeftParen, new ExpectLeftParenAfterFnKeywordException(Peek().Line));
-                var paramTypes = new List<ParamType>();
-                while (!Match(TokType.RightParen))
-                {
-                    var t = ParseParameterType();
-                    paramTypes.Add(t);
-                }
-                Consume(TokType.Arrow, new ExpectArrowInFnSignatureException(Peek().Line));
-                var returnType = ParseParameterType(); // TODO don't use parseParameterType to parse return type
-                return new AnonymousFunction(paramTypes, returnType.Typ);
-            case TokType.Map:
-                Consume(TokType.LeftBracket, new ExpectLeftBracketAfterMapKeywordException(Peek().Line));
-                var keyType = ParseParameterType();
-                Consume(TokType.Colon, new ExpectColonBetweenMapTypesException(Peek().Line));
-                var valueType = ParseParameterType();
-                Consume(TokType.RightBracket, new UnterminatedMapTypeSignatureException(Peek().Line));
-                return new Map(keyType.Typ, valueType.Typ);
-            default:
-                throw new UnexpectedTypeException(Peek().Line);
-        }
+        // Parse type
+        var pt = ParseParameterType();
+        // Parse default value
+        if (!Match(TokType.Equal)) return new UntypedParamType(pt, variadic, null);
+        var defaultValue = Expression();
+        return new UntypedParamType(pt, variadic, defaultValue);
     }
 
     private UntypedAuraStatement Declaration()
@@ -519,7 +481,7 @@ public class AuraParser
         // Parse the trailing semicolon
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-        return new UntypedLet(name, nameType.Typ, isMutable, initializer, line);
+        return new UntypedLet(name, nameType, isMutable, initializer, line);
     }
 
     private UntypedAuraStatement ShortLetDeclaration(bool isMutable)
@@ -533,7 +495,7 @@ public class AuraParser
         // Consume trailing semicolon
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-        return new UntypedLet(name, new None(), isMutable, initializer, line);
+        return new UntypedLet(name, null, isMutable, initializer, line);
     }
 
     private UntypedAuraStatement Comment()
@@ -575,7 +537,7 @@ public class AuraParser
         var params_ = ParseParameters();
         Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
         // Parse the function's return type
-        var returnType = Match(TokType.Arrow) ? TypeTokenToType(Advance()) : new Nil();
+        Tok? returnType = Match(TokType.Arrow) ? Advance() : null;
         Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
         // Parse body
         var body = Block();
@@ -593,7 +555,7 @@ public class AuraParser
         var params_ = ParseParameters();
         Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
         // Parse function's return type
-        var returnType = Match(TokType.Arrow) ? TypeTokenToType(Advance()) : new Nil();
+        Tok? returnType = Match(TokType.Arrow) ? Advance() : null;
         Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
         // Parse body
         var body = Block();
@@ -963,7 +925,7 @@ public class AuraParser
         else if (Match(TokType.LeftBracket))
         {
             // Parse list's type
-            ParseParameterType();
+            ParseParameter();
             Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
             Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 
@@ -1008,9 +970,9 @@ public class AuraParser
         {
             // Parse map's type signature
             Consume(TokType.LeftBracket, new ExpectLeftBracketAfterMapKeywordException(Peek().Line));
-            var keyType = ParseParameterType();
+            var keyType = ParseParameter();
             Consume(TokType.Colon, new ExpectColonException(Peek().Line));
-            var valueType = ParseParameterType();
+            var valueType = ParseParameter();
             Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
             Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 

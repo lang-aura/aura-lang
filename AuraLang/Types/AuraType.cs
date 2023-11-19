@@ -78,7 +78,7 @@ public class Float : AuraType
 /// </summary>
 public class String : AuraType, IIterable, IIndexable, IRangeIndexable
 {
-    override public bool IsSameType(AuraType other)
+    public override bool IsSameType(AuraType other)
     {
         return other is String;
     }
@@ -111,7 +111,7 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable
     /// <summary>
     /// The type of the elements in the list
     /// </summary>
-    public AuraType Kind { get; init; }
+    private AuraType Kind { get; init; }
 
     public List(AuraType kind)
     {
@@ -136,7 +136,7 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable
 public class Function : AuraType, ICallable
 {
     public string Name { get; init; }
-    public AnonymousFunction F { get; init; }
+    private AnonymousFunction F { get; init; }
 
     public Function(string name, AnonymousFunction f)
     {
@@ -150,7 +150,7 @@ public class Function : AuraType, ICallable
     }
 
     public override string ToString() => "function";
-    public List<ParamType> GetParamTypes() => F.Params;
+    public List<TypedParamType> GetParamTypes() => F.ParamTypes;
     public AuraType GetReturnType() => F.ReturnType;
 }
 
@@ -160,12 +160,12 @@ public class Function : AuraType, ICallable
 /// </summary>
 public class AnonymousFunction : AuraType, ICallable
 {
-    public List<ParamType> Params { get; init; }
-    public AuraType ReturnType { get; init; }
+    public List<TypedParamType> ParamTypes { get; }
+    public AuraType ReturnType { get; }
 
-    public AnonymousFunction(List<ParamType> params_, AuraType returnType)
+    public AnonymousFunction(List<TypedParamType> paramTypes, AuraType returnType)
     {
-        Params = params_;
+        ParamTypes = paramTypes;
         ReturnType = returnType;
     }
 
@@ -176,13 +176,13 @@ public class AnonymousFunction : AuraType, ICallable
 
     public override string ToString()
     {
-        var params_ = Params
+        var pt = ParamTypes
             .Select(p => p.ToString())
             .Aggregate("", (prev, curr) => $"{prev}, {curr}");
-        return $"fn({params_}) -> {ReturnType}";
+        return $"fn({pt}) -> {ReturnType}";
     }
 
-    public List<ParamType> GetParamTypes() => Params;
+    public List<TypedParamType> GetParamTypes() => ParamTypes;
     public AuraType GetReturnType() => ReturnType;
 }
 
@@ -194,10 +194,10 @@ public class Class : AuraType, IGettable
 {
     public string Name { get; init; }
     public List<string> ParamNames { get; init; }
-    public List<ParamType> ParamTypes { get; init; }
+    public List<TypedParamType> ParamTypes { get; init; }
     public List<Function> Methods { get; init; }
 
-    public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<Function> methods)
+    public Class(string name, List<string> paramNames, List<TypedParamType> paramTypes, List<Function> methods)
     {
         Name = name;
         ParamNames = paramNames;

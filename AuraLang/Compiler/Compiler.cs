@@ -448,7 +448,7 @@ public class AuraCompiler
             : string.Empty;
     }
 
-    private string CompileParams(List<Param> params_, string sep)
+    private string CompileParams(List<TypedParam> params_, string sep)
     {
         return params_
             .Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}")

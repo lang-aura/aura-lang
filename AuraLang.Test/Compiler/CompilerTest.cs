@@ -99,9 +99,9 @@ public class CompilerTest
                                     new(
                                         "Println",
                                         new AnonymousFunction(
-                                            new List<ParamType>
+                                            new List<TypedParamType>
                                             {
-                                                new ParamType(new AuraString(), false)
+                                                new TypedParamType(new AuraString(), false, null)
                                             },
                                             new Nil()))
                                 }),
@@ -110,11 +110,12 @@ public class CompilerTest
                         new Function(
                             "println",
                             new AnonymousFunction(
-                                new List<ParamType>
+                                new List<TypedParamType>
                                 {
-                                    new ParamType(
+                                    new TypedParamType(
                                         new AuraString(),
-                                        false)
+                                        false,
+                                        null)
                                 },
                                 new Nil())),
                         1),
@@ -141,7 +142,7 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<ParamType>(),
+                                new List<TypedParamType>(),
                                 new Nil())),
                         1),
                     new List<TypedAuraExpression>(),
@@ -164,9 +165,9 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<ParamType>
+                                new List<TypedParamType>
                                 {
-                                    new ParamType(new Int(), false)
+                                    new TypedParamType(new Int(), false, null)
                                 },
                                 new Nil())),
                         1),
@@ -193,10 +194,10 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<ParamType>
+                                new List<TypedParamType>
                                 {
-                                    new(new Int(), false),
-                                    new(new AuraString(), false)
+                                    new(new Int(), false, null),
+                                    new(new AuraString(), false, null)
                                 },
                                 new Nil())),
                         1),
@@ -227,9 +228,9 @@ public class CompilerTest
                             {
                                 "name"
                             },
-                            new List<ParamType>
+                            new List<TypedParamType>
                             {
-                                new ParamType(new AuraString(), false)
+                                new TypedParamType(new AuraString(), false, null)
                             },
                             new List<Function>()),
                         1),
@@ -521,9 +522,9 @@ public class CompilerTest
                             {
                                 "name"
                             },
-                            new List<ParamType>
+                            new List<TypedParamType>
                             {
-                                new ParamType(new AuraString(), false)
+                                new TypedParamType(new AuraString(), false, null)
                             },
                             new List<Function>()),
                         1),
@@ -547,7 +548,7 @@ public class CompilerTest
                     new Class(
                         "Greeter",
                         new List<string>(),
-                        new List<ParamType>(),
+                        new List<TypedParamType>(),
                         new List<Function>()),
                     1),
                 1)
@@ -614,7 +615,7 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<ParamType>(),
+                                new List<TypedParamType>(),
                                 new Nil())),
                         1),
                     new List<TypedAuraExpression>(),
@@ -736,7 +737,7 @@ public class CompilerTest
         {
             new TypedNamedFunction(
                 new Tok(TokType.Identifier, "f", 1),
-                new List<Param>(),
+                new List<TypedParam>(),
                 new TypedBlock(new List<TypedAuraStatement>(), new Nil(), 1),
                 new Nil(),
                 Visibility.Private,
@@ -752,7 +753,7 @@ public class CompilerTest
         {
             new TypedExpressionStmt(
                 new TypedAnonymousFunction(
-                    new List<Param>(),
+                    new List<TypedParam>(),
                     new TypedBlock(new List<TypedAuraStatement>(), new Nil(), 1),
                     new Nil(),
                     1),
@@ -830,7 +831,7 @@ public class CompilerTest
         {
             new FullyTypedClass(
                 new Tok(TokType.Identifier, "Greeter", 1),
-                new List<Param>(),
+                new List<TypedParam>(),
                 new List<TypedNamedFunction>(),
                 Visibility.Public,
                 1)

@@ -104,7 +104,7 @@ public class TypeCheckerTest
                     {
                         new UntypedLet(
                             new Tok(TokType.Identifier, "i", 2),
-                            new Int(),
+                            new Tok(TokType.Int, "int", 1),
                             false,
                             new UntypedIntLiteral(5, 2),
                             2)
@@ -138,7 +138,7 @@ public class TypeCheckerTest
             new Function(
                 "f",
                 new AnonymousFunction(
-                    new List<ParamType>(),
+                    new List<TypedParamType>(),
                     new Nil())),
             1,
             "main"));
@@ -157,7 +157,7 @@ public class TypeCheckerTest
             new TypedCall(
                 new TypedVariable(
                     new Tok(TokType.Identifier, "f", 1),
-                    new Function("f", new AnonymousFunction(new List<ParamType>(), new Nil())),
+                    new Function("f", new AnonymousFunction(new List<TypedParamType>(), new Nil())),
                     1),
                 new List<TypedAuraExpression>(),
                 new Nil(),
@@ -177,9 +177,9 @@ public class TypeCheckerTest
                     {
                         "name"
                     },
-                    new List<ParamType>
+                    new List<TypedParamType>
                     {
-                        new ParamType(new AuraString(), false)
+                        new TypedParamType(new AuraString(), false, null)
                     },
                     new List<Function>()),
                 1,
@@ -206,9 +206,9 @@ public class TypeCheckerTest
                         {
                             "name"
                         },
-                        new List<ParamType>
+                        new List<TypedParamType>
                         {
-                            new ParamType(new AuraString(), false)
+                            new TypedParamType(new AuraString(), false, null)
                         },
                         new List<Function>()),
                     1),
@@ -411,8 +411,8 @@ public class TypeCheckerTest
                     {
                         { new UntypedStringLiteral("Hello", 1), new UntypedIntLiteral(1, 1) }
                     },
-                    new AuraString(),
-                    new Int(),
+                    new Tok(TokType.String, "string", 1),
+                    new Tok(TokType.Int, "int", 1),
                     1),
                 1)
         });
@@ -504,9 +504,9 @@ public class TypeCheckerTest
                     {
                         "name"
                     },
-                    new List<ParamType>
+                    new List<TypedParamType>
                     {
-                        new(new AuraString(), false)
+                        new(new AuraString(), false, null)
                     },
                     new List<Function>()),
                 1,
@@ -534,9 +534,9 @@ public class TypeCheckerTest
                         {
                             "name"
                         },
-                        new List<ParamType>
+                        new List<TypedParamType>
                         {
-                            new ParamType(new AuraString(), false)
+                            new TypedParamType(new AuraString(), false, null)
                         },
                         new List<Function>()),
                     1),
@@ -553,13 +553,13 @@ public class TypeCheckerTest
         _enclosingClassStore.Setup(ecs => ecs.Peek())
             .Returns(new PartiallyTypedClass(
                 new Tok(TokType.Identifier, "Greeter", 1),
-                new List<Param>(),
+                new List<UntypedParam>(),
                 new List<PartiallyTypedFunction>(),
                 Visibility.Public,
                 new Class(
                     "Greeter",
                     new List<string>(),
-                    new List<ParamType>(),
+                    new List<TypedParamType>(),
                     new List<Function>()),
                 1));
         
@@ -577,7 +577,7 @@ public class TypeCheckerTest
                 new Class(
                     "Greeter",
                     new List<string>(),
-                    new List<ParamType>(),
+                    new List<TypedParamType>(),
                     new List<Function>()),
                 1),
             1));
@@ -662,7 +662,7 @@ public class TypeCheckerTest
                 new Function(
                     "f",
                     new AnonymousFunction(
-                        new List<ParamType>(),
+                        new List<TypedParamType>(),
                         new Nil())),
                 1,
                 "main"));
@@ -685,7 +685,7 @@ public class TypeCheckerTest
                     new Function(
                         "f",
                         new AnonymousFunction(
-                            new List<ParamType>(),
+                            new List<TypedParamType>(),
                             new Nil())),
                     1),
                 new List<TypedAuraExpression>(),
@@ -711,7 +711,7 @@ public class TypeCheckerTest
             new UntypedFor(
                 new UntypedLet(
                     new Tok(TokType.Identifier, "i", 1),
-                    new None(),
+                    null,
                     false,
                     new UntypedIntLiteral(0, 1),
                     1),
@@ -784,15 +784,15 @@ public class TypeCheckerTest
         {
             new UntypedNamedFunction(
                 new Tok(TokType.Identifier, "f", 1),
-                new List<Param>(),
+                new List<UntypedParam>(),
                 new UntypedBlock(new List<UntypedAuraStatement>(), 1),
-                new Nil(),
+                null,
                 Visibility.Public,
                 1)
         });
         MakeAssertions(typedAst, new TypedNamedFunction(
             new Tok(TokType.Identifier, "f", 1),
-            new List<Param>(),
+            new List<TypedParam>(),
             new TypedBlock(new List<TypedAuraStatement>(), new Nil(), 1),
             new Nil(),
             Visibility.Public,
@@ -806,15 +806,15 @@ public class TypeCheckerTest
         {
             new UntypedExpressionStmt(
                 new UntypedAnonymousFunction(
-                    new List<Param>(),
+                    new List<UntypedParam>(),
                     new UntypedBlock(new List<UntypedAuraStatement>(), 1),
-                    new Nil(),
+                    null,
                     1),
                 1)
         });
         MakeAssertions(typedAst, new TypedExpressionStmt(
             new TypedAnonymousFunction(
-                new List<Param>(),
+                new List<TypedParam>(),
                 new TypedBlock(
                     new List<TypedAuraStatement>(),
                     new Nil(),
@@ -831,7 +831,7 @@ public class TypeCheckerTest
         {
             new UntypedLet(
                 new Tok(TokType.Identifier, "i", 1),
-                new Int(),
+                new Tok(TokType.Int, "int", 1),
                 false,
                 new UntypedIntLiteral(1, 1),
                 1)
@@ -851,7 +851,7 @@ public class TypeCheckerTest
         {
             new UntypedLet(
                 new Tok(TokType.Identifier, "i", 1),
-                new None(),
+                null,
                 false,
                 new UntypedIntLiteral(1, 1),
                 1)
@@ -899,14 +899,14 @@ public class TypeCheckerTest
         {
             new UntypedClass(
                 new Tok(TokType.Identifier, "Greeter", 1),
-                new List<Param>(),
+                new List<UntypedParam>(),
                 new List<UntypedNamedFunction>(),
                 Visibility.Private,
                 1)
         });
         MakeAssertions(typedAst, new FullyTypedClass(
             new Tok(TokType.Identifier, "Greeter", 1),
-            new List<Param>(),
+            new List<TypedParam>(),
             new List<TypedNamedFunction>(),
             Visibility.Private,
             1));

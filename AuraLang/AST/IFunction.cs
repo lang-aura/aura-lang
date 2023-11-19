@@ -2,8 +2,14 @@
 
 namespace AuraLang.AST;
 
-public interface IFunction
+public interface IUntypedFunction
 {
-	public List<ParamType> GetParamTypes();
+	public List<UntypedParam> GetParams();
+	public List<UntypedParamType> GetParamTypes();
 }
 
+public interface ITypedFunction
+{
+	public List<TypedParam> GetParams();
+	public List<TypedParamType> GetParamTypes();
+}

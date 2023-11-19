@@ -1,5 +1,6 @@
 using AuraLang.Compiler;
 using AuraLang.Shared;
+using AuraLang.Token;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
 
@@ -14,19 +15,19 @@ public class AuraStdlib
             new(
                 "println",
                 new AnonymousFunction(
-                    new List<ParamType>
+                    new List<TypedParamType>
                     {
-                        new(new AuraString(), false)
+                        new(new AuraString(), false, null)
                     },
                     new Nil())
                 ),
             new(
                 "printf",
                 new AnonymousFunction(
-                    new List<ParamType>
+                    new List<TypedParamType>
                     {
-                        new(new AuraString(), false),
-                        new(new Any(), true)
+                        new(new AuraString(), false, null),
+                        new(new Any(), true, null)
                     },
                     new Nil())
                 )
