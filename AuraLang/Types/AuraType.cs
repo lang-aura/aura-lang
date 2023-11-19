@@ -148,8 +148,9 @@ public class Function : AuraType, ICallable
     {
         return other is Function;
     }
-
+    
     public override string ToString() => "function";
+    public List<TypedParam> GetParams() => F.Params;
     public List<TypedParamType> GetParamTypes() => F.Params.Select(p => p.ParamType).ToList();
     public AuraType GetReturnType() => F.ReturnType;
     public int GetParamIndex(string name) => F.Params.FindIndex(p => p.Name.Value == name);
@@ -183,6 +184,7 @@ public class AnonymousFunction : AuraType, ICallable
         return $"fn({pt}) -> {ReturnType}";
     }
 
+    public List<TypedParam> GetParams() => Params;
     public List<TypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
     public AuraType GetReturnType() => ReturnType;
     public int GetParamIndex(string name) => Params.FindIndex(p => p.Name.Value == name);

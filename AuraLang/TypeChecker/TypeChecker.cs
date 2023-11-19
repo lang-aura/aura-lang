@@ -642,19 +642,25 @@ public class AuraTypeChecker
             // Ensure the function call has the correct number of arguments
             if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
             // Type check arguments
-            var typedArgs = new List<TypedAuraExpression>(call.Arguments.Count);
-            foreach (var arg in call.Arguments.Zip(funcDeclaration.GetParamTypes()))
+            var orderedArgs = call.Arguments
+                .Where(pair => pair.Item1 is null)
+                .Select(pair => pair.Item2)
+                .ToList();
+            foreach (var arg in call.Arguments)
             {
-                if (arg.First.Item1 is null)
+                if (arg.Item1 is not null)
                 {
-                    typedArgs.Add(ExpressionAndConfirm(arg.First.Item2, arg.Second.Typ));
-                }
-                else
-                {
-                    typedArgs.Insert(funcDeclaration.GetParamIndex(arg.First.Item1.Value.Value), ExpressionAndConfirm(arg.First.Item2, arg.Second.Typ));
+                    var index = funcDeclaration.GetParamIndex(arg.Item1!.Value.Value);
+                    if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
+                    else orderedArgs.Insert(index, arg.Item2);
                 }
             }
 
+            var typedArgs = orderedArgs
+                .Zip(funcDeclaration.GetParamTypes())
+                .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
+                .ToList();
+            
             return new TypedCall(typedCallee!, typedArgs, funcDeclaration.GetReturnType(), call.Line);
         }, call);
     }
