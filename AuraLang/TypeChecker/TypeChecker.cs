@@ -642,7 +642,7 @@ public class AuraTypeChecker
             // Ensure the function call has the correct number of arguments
             if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
             // Type check arguments
-            var typedArgs = new List<TypedAuraExpression>();
+            var typedArgs = new List<TypedAuraExpression>(call.Arguments.Count);
             foreach (var arg in call.Arguments.Zip(funcDeclaration.GetParamTypes()))
             {
                 if (arg.First.Item1 is null)
