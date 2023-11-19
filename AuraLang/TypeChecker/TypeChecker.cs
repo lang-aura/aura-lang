@@ -644,7 +644,7 @@ public class AuraTypeChecker
             // Type check arguments
             var typedArgs = call.Arguments
                 .Zip(funcDeclaration.GetParamTypes())
-                .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
+                .Select(pair => ExpressionAndConfirm(pair.First.Item2, pair.Second.Typ))
                 .ToList();
             return new TypedCall(typedCallee!, typedArgs, funcDeclaration.GetReturnType(), call.Line);
         }, call);

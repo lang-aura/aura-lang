@@ -755,17 +755,25 @@ public class AuraParser
     private UntypedAuraExpression FinishCall(UntypedAuraExpression callee)
     {
         var line = Previous().Line;
-        var arguments = new List<UntypedAuraExpression>();
+        var arguments = new List<(Tok?, UntypedAuraExpression)>();
         if (!Check(TokType.RightParen))
         {
             while (true)
             {
                 // Function declarations have a max of 255 arguments, so function calls have the same limit
                 if (arguments.Count >= 255) throw new TooManyParametersException(Peek().Line);
+
+                Tok? tag = null;
+                if (PeekNext().Typ is TokType.Colon)
+                {
+                    tag = Advance();
+                    Consume(TokType.Colon, new ExpectColonException(Peek().Line));
+                }
+                
                 var expression = Expression();
-                arguments.Add(expression);
+                arguments.Add((tag, expression));
                 if (Check(TokType.RightParen)) break;
-                else Match(TokType.Comma);
+                Match(TokType.Comma);
             }
         }
 

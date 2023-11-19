@@ -149,7 +149,7 @@ public class TypeCheckerTest
                 new UntypedExpressionStmt(
                     new UntypedCall(
                         new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                        new List<UntypedAuraExpression>(),
+                        new List<(Tok?, UntypedAuraExpression)>(),
                         1),
                     1)
             });
@@ -674,7 +674,7 @@ public class TypeCheckerTest
                     new UntypedVariable(
                         new Tok(TokType.Identifier, "f", 1),
                         1),
-                    new List<UntypedAuraExpression>(),
+                    new List<(Tok?, UntypedAuraExpression)>(),
                     1),
                 1)
         });
