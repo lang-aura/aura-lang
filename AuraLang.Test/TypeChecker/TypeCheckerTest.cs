@@ -138,7 +138,7 @@ public class TypeCheckerTest
             new Function(
                 "f",
                 new AnonymousFunction(
-                    new List<TypedParamType>(),
+                    new List<TypedParam>(),
                     new Nil())),
             1,
             "main"));
@@ -157,7 +157,7 @@ public class TypeCheckerTest
             new TypedCall(
                 new TypedVariable(
                     new Tok(TokType.Identifier, "f", 1),
-                    new Function("f", new AnonymousFunction(new List<TypedParamType>(), new Nil())),
+                    new Function("f", new AnonymousFunction(new List<TypedParam>(), new Nil())),
                     1),
                 new List<TypedAuraExpression>(),
                 new Nil(),
@@ -662,7 +662,7 @@ public class TypeCheckerTest
                 new Function(
                     "f",
                     new AnonymousFunction(
-                        new List<TypedParamType>(),
+                        new List<TypedParam>(),
                         new Nil())),
                 1,
                 "main"));
@@ -685,7 +685,7 @@ public class TypeCheckerTest
                     new Function(
                         "f",
                         new AnonymousFunction(
-                            new List<TypedParamType>(),
+                            new List<TypedParam>(),
                             new Nil())),
                     1),
                 new List<TypedAuraExpression>(),

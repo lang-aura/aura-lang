@@ -15,19 +15,25 @@ public class AuraStdlib
             new(
                 "println",
                 new AnonymousFunction(
-                    new List<TypedParamType>
-                    {
-                        new(new AuraString(), false, null)
+                    new List<TypedParam>
+                    { 
+                        new(
+                            new Tok(TokType.Identifier, "s", 1),
+                            new TypedParamType(new AuraString(), false, null))
                     },
                     new Nil())
                 ),
             new(
                 "printf",
                 new AnonymousFunction(
-                    new List<TypedParamType>
+                    new List<TypedParam>
                     {
-                        new(new AuraString(), false, null),
-                        new(new Any(), true, null)
+                        new(
+                            new Tok(TokType.Identifier, "format", 1),
+                            new TypedParamType(new AuraString(), false, null)),
+                        new(
+                            new Tok(TokType.Identifier, "a", 1),
+                            new TypedParamType(new Any(), true, null))
                     },
                     new Nil())
                 )
