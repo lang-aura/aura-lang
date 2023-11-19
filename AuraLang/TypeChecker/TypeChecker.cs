@@ -644,7 +644,7 @@ public class AuraTypeChecker
             // Type check arguments
             var named = call.Arguments.All(arg => arg.Item1 is not null);
             var unnamed = call.Arguments.All(arg => arg.Item1 is null);
-            if (!named && unnamed!) throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
+            if (!named && !unnamed) throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
 
             var orderedArgs = call.Arguments
                 .Select(pair => pair.Item2)
