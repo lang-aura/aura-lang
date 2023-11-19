@@ -50,15 +50,12 @@ public class AuraParser
     /// <returns>A boolean indicating if the next token's type matches any of the <see cref="tokTypes"/></returns>
     private bool Match(params TokType[] tokTypes)
     {
-        foreach (var tokType in tokTypes)
+        return tokTypes.Any(tt =>
         {
-            if (Check(tokType))
-            {
-                Advance();
-                return true;
-            }
-        }
-        return false;
+            if (!Check(tt)) return false;
+            Advance();
+            return true;
+        });
     }
 
     /// <summary>
