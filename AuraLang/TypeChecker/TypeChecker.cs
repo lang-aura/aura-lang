@@ -241,7 +241,7 @@ public class AuraTypeChecker
                     new AuraFunction(
                         f.Name.Value,
                         new AnonymousFunction(
-                            TypeCheckParamTypes(f.Params),
+                            TypeCheckParams(f.Params),
                             returnType)
                         ),
                     _scope,
@@ -287,12 +287,12 @@ public class AuraTypeChecker
 
     private PartiallyTypedFunction PartialFunctionStmt(UntypedNamedFunction f)
     {
-        var typedParamTypes = TypeCheckParamTypes(f.Params);
+        var typedParams = TypeCheckParams(f.Params);
         var returnType = TypeCheckReturnTypeTok(f.ReturnType);
         // Add function as local
         _variableStore.Add(new Local(
             f.Name.Value,
-            new AuraFunction(f.Name.Value, new AnonymousFunction(typedParamTypes, returnType)),
+            new AuraFunction(f.Name.Value, new AnonymousFunction(typedParams, returnType)),
             _scope,
             _currentModule.GetName()!));
 
@@ -427,7 +427,7 @@ public class AuraTypeChecker
                             ? Expression(p.ParamType.DefaultValue)
                             : null;
                         var methodParamType = TypeTokenToType(p.ParamType.Typ);
-                        return new TypedParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue);
+                        return new TypedParam(p.Name, new TypedParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
                     });
                     return new AuraFunction(method.Name.Value,
                         new AnonymousFunction(typedMethodParams.ToList(), method.ReturnType));
@@ -642,10 +642,25 @@ public class AuraTypeChecker
             // Ensure the function call has the correct number of arguments
             if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
             // Type check arguments
-            var typedArgs = call.Arguments
+            var orderedArgs = call.Arguments
+                .Where(pair => pair.Item1 is null)
+                .Select(pair => pair.Item2)
+                .ToList();
+            foreach (var arg in call.Arguments)
+            {
+                if (arg.Item1 is not null)
+                {
+                    var index = funcDeclaration.GetParamIndex(arg.Item1!.Value.Value);
+                    if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
+                    else orderedArgs.Insert(index, arg.Item2);
+                }
+            }
+
+            var typedArgs = orderedArgs
                 .Zip(funcDeclaration.GetParamTypes())
                 .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
                 .ToList();
+            
             return new TypedCall(typedCallee!, typedArgs, funcDeclaration.GetReturnType(), call.Line);
         }, call);
     }

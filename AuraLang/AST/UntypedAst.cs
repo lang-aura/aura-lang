@@ -69,9 +69,13 @@ public record UntypedBlock(List<UntypedAuraStatement> Statements, int Line) : Un
 /// Represents a function call
 /// </summary>
 /// <param name="Callee">The expression being called</param>
-/// <param name="Arguments">The call's arguments</param>
+/// <param name="Arguments">The call's arguments. Each argument is a tuple containing an optional tag and the argument's value.
+/// An argument's tag must precede the argument's value, and the two are separated by a colon. The tag must match the name
+/// of one of the function's parameters. Tags can be used to specify arguments in a different order than the function's parameters
+/// were defined. For example, the stdlib's <c>printf</c> function could be called with tags like so:
+/// <code>printf(a: 5, format: "%d\n")</code></param>
 public record UntypedCall
-    (IUntypedAuraCallable Callee, List<UntypedAuraExpression> Arguments, int Line) : UntypedAuraExpression(Line),
+    (IUntypedAuraCallable Callee, List<(Tok?, UntypedAuraExpression)> Arguments, int Line) : UntypedAuraExpression(Line),
         IUntypedAuraCallable
 {
     public string GetName() => Callee.GetName();

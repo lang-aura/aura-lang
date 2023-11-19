@@ -99,9 +99,11 @@ public class CompilerTest
                                     new(
                                         "Println",
                                         new AnonymousFunction(
-                                            new List<TypedParamType>
+                                            new List<TypedParam>
                                             {
-                                                new TypedParamType(new AuraString(), false, null)
+                                                new(
+                                                    new Tok(TokType.Identifier, "s", 1),
+                                                    new TypedParamType(new AuraString(), false, null))
                                             },
                                             new Nil()))
                                 }),
@@ -110,12 +112,14 @@ public class CompilerTest
                         new Function(
                             "println",
                             new AnonymousFunction(
-                                new List<TypedParamType>
+                                new List<TypedParam>
                                 {
-                                    new TypedParamType(
-                                        new AuraString(),
-                                        false,
-                                        null)
+                                    new TypedParam(
+                                        new Tok(TokType.Identifier, "s", 1),
+                                        new TypedParamType(
+                                            new AuraString(),
+                                            false,
+                                            null))
                                 },
                                 new Nil())),
                         1),
@@ -142,7 +146,7 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParamType>(),
+                                new List<TypedParam>(),
                                 new Nil())),
                         1),
                     new List<TypedAuraExpression>(),
@@ -165,9 +169,11 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParamType>
+                                new List<TypedParam>
                                 {
-                                    new TypedParamType(new Int(), false, null)
+                                    new(
+                                        new Tok(TokType.Identifier, "i", 1),
+                                        new TypedParamType(new Int(), false, null))
                                 },
                                 new Nil())),
                         1),
@@ -194,10 +200,14 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParamType>
+                                new List<TypedParam>
                                 {
-                                    new(new Int(), false, null),
-                                    new(new AuraString(), false, null)
+                                    new(
+                                        new Tok(TokType.Identifier, "i", 1),
+                                        new TypedParamType(new Int(), false, null)),
+                                    new(
+                                        new Tok(TokType.Identifier, "s", 1),
+                                        new TypedParamType(new AuraString(), false, null))
                                 },
                                 new Nil())),
                         1),
@@ -615,7 +625,7 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParamType>(),
+                                new List<TypedParam>(),
                                 new Nil())),
                         1),
                     new List<TypedAuraExpression>(),

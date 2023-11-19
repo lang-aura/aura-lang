@@ -88,7 +88,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
 			new UntypedCall(new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-			new List<UntypedAuraExpression>(), 1),
+			new List<(Tok?, UntypedAuraExpression)>(), 1),
 			1));
 	}
 
@@ -480,7 +480,7 @@ public class ParserTest
 		MakeAssertions(untypedAst, new UntypedDefer(
 			new UntypedCall(
 				new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-				new List<UntypedAuraExpression>(),
+				new List<(Tok?, UntypedAuraExpression)>(),
 				1),
 			1));
 	}
