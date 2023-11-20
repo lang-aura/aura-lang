@@ -265,37 +265,25 @@ public class ScannerTest
 	[Test]
 	public void TestScan_InvalidCharacter()
 	{
-		// Arrange
-		var scanner = new AuraScanner("?");
-		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
+		ArrangeAndAct_Invalid("?", typeof(InvalidCharacterException));
 	}
 
 	[Test]
 	public void TestScan_UnterminatedString()
 	{
-		// Arrange
-		var scanner = new AuraScanner("\"unterminated string");
-		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
+		ArrangeAndAct_Invalid("\"unterminated string", typeof(UnterminatedStringException));
 	}
 
 	[Test]
 	public void TestScan_UnterminatedChar()
 	{
-		// Arrange
-		var scanner = new AuraScanner("'c");
-		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
+		ArrangeAndAct_Invalid("'c", typeof(UnterminatedCharException));
 	}
 
 	[Test]
 	public void TestScan_TooLongChar()
 	{
-		// Arrange
-		var scanner = new AuraScanner("'aa'");
-		// Assert
-		Assert.That(scanner.ScanTokens, Throws.Exception.TypeOf(typeof(ScannerExceptionContainer)));
+		ArrangeAndAct_Invalid("'aa'", typeof(CharLengthGreaterThanOneException));
 	}
 
 	private static List<Tok> ArrangeAndAct(string source)
@@ -304,6 +292,21 @@ public class ScannerTest
 		var scanner = new AuraScanner(source);
 		// Act
 		return scanner.ScanTokens();
+	}
+
+	private static void ArrangeAndAct_Invalid(string source, Type expected)
+	{
+		// Arrange
+		var scanner = new AuraScanner(source);
+		try
+		{
+			scanner.ScanTokens();
+			Assert.Fail();
+		}
+		catch (ScannerExceptionContainer e)
+		{
+			Assert.That(e.Exs.First(), Is.TypeOf(expected));
+		}
 	}
 
 	private static void MakeAssertions_Valid(List<Tok> tokens, int count, params Tok[] expected)
