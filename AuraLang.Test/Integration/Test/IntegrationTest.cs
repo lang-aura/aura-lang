@@ -30,7 +30,7 @@ public class IntegrationTest
     public async Task TestIntegration_Functions()
     {
         var output = await ArrangeAndAct($"{BasePath}/src/functions.aura");
-        MakeAssertions(output, "Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\n");
+        MakeAssertions(output, "Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\nThe value of i is 10\nThe value of i is 5\n");
     }
 
     private string ReadFile(string path) => File.ReadAllText(path);

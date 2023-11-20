@@ -8,6 +8,8 @@ fn main() {
     f_with_params(s: "Hello world", i: 5)
     i := f_with_return_type()
     io.printf("%d\n", i)
+    f_with_default_value(10)
+    f_with_default_value()
 }
 
 fn f() {
@@ -20,4 +22,8 @@ fn f_with_params(i: int, s: string) {
 
 fn f_with_return_type() -> int {
     return 5
+}
+
+fn f_with_default_value(i: int = 5) {
+    io.printf("The value of i is %d\n", i)
 }
