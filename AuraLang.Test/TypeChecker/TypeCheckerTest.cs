@@ -298,28 +298,21 @@ public class TypeCheckerTest
                     new Nil())),
             1,
             "main"));
-
-        var typeChecker = new AuraTypeChecker(
-            _variableStore.Object,
-            _enclosingClassStore.Object,
-            _currentModuleStore.Object,
-            _enclosingExprStore.Object,
-            _enclosingStmtStore.Object);
-        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(
-            new List<UntypedAuraStatement>
-            {
-                new UntypedExpressionStmt(
-                    new UntypedCall(
-                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                        new List<(Tok?, UntypedAuraExpression)>
-                        {
-                            (
-                                new Tok(TokType.Identifier, "s", 1),
-                                new UntypedStringLiteral("Hello world", 1))
-                        },
-                        1),
-                    1)
-            }));
+        
+        ArrangeAndAct_Invalid(new List<UntypedAuraStatement>
+        {
+            new UntypedExpressionStmt(
+                new UntypedCall(
+                    new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1), 
+                    new List<(Tok?, UntypedAuraExpression)> 
+                    { 
+                        (
+                            new Tok(TokType.Identifier, "s", 1), 
+                            new UntypedStringLiteral("Hello world", 1))
+                    }, 
+                    1), 
+                1)
+        }, typeof(MustSpecifyValueForArgumentWithoutDefaultValueException));
     }
 
     [Test]
@@ -345,30 +338,23 @@ public class TypeCheckerTest
             1,
             "main"));
 
-        var typeChecker = new AuraTypeChecker(
-            _variableStore.Object,
-            _enclosingClassStore.Object,
-            _currentModuleStore.Object,
-            _enclosingExprStore.Object,
-            _enclosingStmtStore.Object);
-        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(
-            new List<UntypedAuraStatement>
-            {
-                new UntypedExpressionStmt(
-                    new UntypedCall(
-                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                        new List<(Tok?, UntypedAuraExpression)>
-                        {
-                            (
-                                new Tok(TokType.Identifier, "s", 1),
-                                new UntypedStringLiteral("Hello world", 1)),
-                            (
-                                null,
-                                new UntypedIntLiteral(5, 1))
-                        },
-                        1),
-                    1)
-            }));
+        ArrangeAndAct_Invalid(new List<UntypedAuraStatement>
+        {
+            new UntypedExpressionStmt(
+                new UntypedCall(
+                    new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+                    new List<(Tok?, UntypedAuraExpression)>
+                    {
+                        (
+                            new Tok(TokType.Identifier, "s", 1),
+                            new UntypedStringLiteral("Hello world", 1)),
+                        (
+                            null,
+                            new UntypedIntLiteral(5, 1))
+                    },
+                    1),
+                1)
+        }, typeof(CannotMixNamedAndUnnamedArgumentsException));
     }
 
     [Test]
@@ -1073,9 +1059,7 @@ public class TypeCheckerTest
     [Test]
     public void TestTypeCheck_Let_Uninitialized_NonDefaultable()
     {
-        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
-            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
-        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+        ArrangeAndAct_Invalid(new List<UntypedAuraStatement>
         {
             new UntypedLet(
                 new Tok(TokType.Identifier, "c", 1),
@@ -1083,7 +1067,7 @@ public class TypeCheckerTest
                 false,
                 null,
                 1)
-        })));
+        }, typeof(MustSpecifyInitialValueForNonDefaultableTypeException));
     }
 
     [Test]
@@ -1220,13 +1204,11 @@ public class TypeCheckerTest
     public void TestTypeCheck_Yield_Invalid()
     {
         _enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedNil(1));
-        
-        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
-            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
-        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
-            {
-                new UntypedYield(new UntypedIntLiteral(5, 1), 1)
-            })));
+
+        ArrangeAndAct_Invalid(new List<UntypedAuraStatement>
+        {
+            new UntypedYield(new UntypedIntLiteral(5, 1), 1)
+        }, typeof(InvalidUseOfYieldKeywordException));
     }
 
     [Test]
@@ -1248,13 +1230,11 @@ public class TypeCheckerTest
     public void TestTypeCheck_Break_Invalid()
     {
         _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
-        
-        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
-            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
-        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+
+        ArrangeAndAct_Invalid(new List<UntypedAuraStatement>
         {
             new UntypedBreak(1)
-        })));
+        }, typeof(InvalidUseOfBreakKeywordException));
     }
     
     [Test]
@@ -1276,18 +1256,30 @@ public class TypeCheckerTest
     public void TestTypeCheck_Continue_Invalid()
     {
         _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
-        
-        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
-            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
-        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+
+        ArrangeAndAct_Invalid(new List<UntypedAuraStatement>
         {
             new UntypedContinue(1)
-        })));
+        }, typeof(InvalidUseOfContinueKeywordException));
     }
 
     private List<TypedAuraStatement> ArrangeAndAct(List<UntypedAuraStatement> untypedAst)
         => new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
             .CheckTypes(AddModStmtIfNecessary(untypedAst));
+
+    private void ArrangeAndAct_Invalid(List<UntypedAuraStatement> untypedAst, Type expected)
+    {
+        try
+        {
+            new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+                .CheckTypes(AddModStmtIfNecessary(untypedAst));
+            Assert.Fail();
+        }
+        catch (TypeCheckerExceptionContainer e)
+        {
+            Assert.That(e.Exs.First(), Is.TypeOf(expected));
+        }
+    }
 
     private List<UntypedAuraStatement> AddModStmtIfNecessary(List<UntypedAuraStatement> untypedAst)
     {

@@ -531,7 +531,7 @@ public class AuraTypeChecker
     {
         var enclosingStmt = _enclosingStatementStore.Peek();
         if (enclosingStmt is not UntypedWhile && enclosingStmt is not UntypedFor && enclosingStmt is not UntypedForEach)
-            throw new InvalidUseOfBreakKeywordException(continue_.Line);
+            throw new InvalidUseOfContinueKeywordException(continue_.Line);
         return new TypedContinue(continue_.Line);
     }
 

@@ -2,7 +2,7 @@
 
 public abstract class AuraExceptionContainer : Exception
 {
-	protected readonly List<AuraException> Exs = new();
+	public readonly List<AuraException> Exs = new();
 
 	public bool IsEmpty() => Exs.Count == 0;
 
