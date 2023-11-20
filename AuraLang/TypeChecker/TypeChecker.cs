@@ -950,10 +950,14 @@ public class AuraTypeChecker
             if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
             else orderedArgs.Insert(index, arg.Item2);
         }
+        // Filter out the parameters that aren't included in the argument list. We will ensure that the omitted parameters have
+        // a default value later. However, if they have a default value, they were already type checked when the function was
+        // first declared, so they don't need to be type checked again here.
+        var includedParams = declaration.GetParams()
+            .Where(p => call.Arguments.Any(arg => arg.Item1!.Value.Value == p.Name.Value));
         // Type check the included named arguments
         var typedArgs = orderedArgs
-            .Zip(declaration.GetParams()
-                .Where(p => call.Arguments.Any(arg => arg.Item1!.Value.Value == p.Name.Value)))
+            .Zip(includedParams)
             .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.ParamType.Typ))
             .ToList();
         // With named arguments, you may omit arguments if they have been declared with a default value.
@@ -962,8 +966,10 @@ public class AuraTypeChecker
         foreach (var missingParam in missingParams)
         {
             var index = declaration.GetParamIndex(missingParam.Name.Value);
-            if (index >= orderedArgs.Count) typedArgs.Add(missingParam.ParamType.DefaultValue ?? throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line));
-            else typedArgs.Insert(index, missingParam.ParamType.DefaultValue ?? throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line));
+            var defaultValue = missingParam.ParamType.DefaultValue ??
+                               throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line);
+            if (index >= orderedArgs.Count) typedArgs.Add(defaultValue);
+            else typedArgs.Insert(index, defaultValue);
         }
                 
         return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
