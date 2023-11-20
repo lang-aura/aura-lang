@@ -33,6 +33,13 @@ public class IntegrationTest
         MakeAssertions(output, "Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\nThe value of i is 10\nThe value of i is 5\n");
     }
 
+    [Test]
+    public async Task TestIntegration_AnonymousFunctions()
+    {
+        var output = await ArrangeAndAct($"{BasePath}/src/anonymous_functions.aura");
+        MakeAssertions(output, "10\n");
+    }
+
     private string ReadFile(string path) => File.ReadAllText(path);
 
     private async Task<string> ArrangeAndAct(string path)
