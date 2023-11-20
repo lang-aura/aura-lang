@@ -1,4 +1,5 @@
-﻿using AuraLang.Shared;
+﻿using AuraLang.AST;
+using AuraLang.Shared;
 using AuraLang.Token;
 
 namespace AuraLang.Types;
@@ -50,7 +51,7 @@ public class None : AuraType
 /// <summary>
 /// Represents an integer value
 /// </summary>
-public class Int : AuraType
+public class Int : AuraType, IDefaultable
 {
     public override bool IsSameType(AuraType other)
     {
@@ -58,12 +59,13 @@ public class Int : AuraType
     }
 
     public override string ToString() => "int";
+    public TypedAuraExpression Default(int line) => new TypedLiteral<long>(0, new Int(), line);
 }
 
 /// <summary>
 /// Represents a floating point value
 /// </summary>
-public class Float : AuraType
+public class Float : AuraType, IDefaultable
 {
     public override bool IsSameType(AuraType other)
     {
@@ -71,13 +73,14 @@ public class Float : AuraType
     }
 
     public override string ToString() => "float";
+    public TypedAuraExpression Default(int line) => new TypedLiteral<double>(0.0, new Float(), line);
 }
 
 
 /// <summary>
 /// Represents a string value
 /// </summary>
-public class String : AuraType, IIterable, IIndexable, IRangeIndexable
+public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable
 {
     public override bool IsSameType(AuraType other)
     {
@@ -89,12 +92,13 @@ public class String : AuraType, IIterable, IIndexable, IRangeIndexable
     public AuraType IndexingType() => new Int();
     public AuraType GetIndexedType() => new Char();
     public AuraType GetRangeIndexedType() => new String();
+    public TypedAuraExpression Default(int line) => new TypedLiteral<string>(string.Empty, new String(), line);
 }
 
 /// <summary>
 /// Represents a boolean value
 /// </summary>
-public class Bool : AuraType
+public class Bool : AuraType, IDefaultable
 {
     public override bool IsSameType(AuraType other)
     {
@@ -102,12 +106,13 @@ public class Bool : AuraType
     }
 
     public override string ToString() => "bool";
+    public TypedAuraExpression Default(int line) => new TypedLiteral<bool>(false, new Bool(), line);
 }
 
 /// <summary>
 /// Represents a resizable array of elements, all of which must have the same type
 /// </summary>
-public class List : AuraType, IIterable, IIndexable, IRangeIndexable
+public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable
 {
     /// <summary>
     /// The type of the elements in the list
@@ -129,6 +134,9 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable
     public AuraType IndexingType() => new Int();
     public AuraType GetIndexedType() => Kind;
     public AuraType GetRangeIndexedType() => new List(Kind);
+
+    public TypedAuraExpression Default(int line) =>
+        new TypedLiteral<List<TypedAuraExpression>>(new List<TypedAuraExpression>(), new List(Kind), line);
 }
 
 /// <summary>
@@ -279,7 +287,7 @@ public class Module : AuraType, IGettable
 
 /// <summary>
 /// Represents a type with no return value. This type is used for expressions that do not return a value.
-/// This t ype differs from <see cref="Unknown"/> in that <c>Nil</c> indicates the type is known to not
+/// This type differs from <see cref="Unknown"/> in that <c>Nil</c> indicates the type is known to not
 /// exist, whereas <c>Unknown</c> indicates that the type is not yet known.
 /// </summary>
 public class Nil : AuraType
@@ -312,7 +320,7 @@ public class Char : AuraType
 /// Represents a data type containing a series of key-value pairs. All the keys must have the same
 /// type and all the values must have the same type.
 /// </summary>
-public class Map : AuraType, IIndexable
+public class Map : AuraType, IIndexable, IDefaultable
 {
     public AuraType Key { get; init; }
     public AuraType Value { get; init; }
@@ -327,4 +335,8 @@ public class Map : AuraType, IIndexable
     public override string ToString() => $"map[{Key}]{Value}";
     public AuraType IndexingType() => Key;
     public AuraType GetIndexedType() => Value;
+
+    public TypedAuraExpression Default(int line) =>
+        new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(
+            new Dictionary<TypedAuraExpression, TypedAuraExpression>(), new Map(Key, Value), line);
 }

@@ -1051,6 +1051,42 @@ public class TypeCheckerTest
     }
 
     [Test]
+    public void TestTypeCheck_Let_Uninitialized()
+    {
+        var typedAst = ArrangeAndAct(new List<UntypedAuraStatement>
+        {
+            new UntypedLet(
+                new Tok(TokType.Identifier, "i", 1),
+                new Tok(TokType.Int, "int", 1),
+                false,
+                null,
+                1)
+        });
+        MakeAssertions(typedAst, new TypedLet(
+            new Tok(TokType.Identifier, "i", 1),
+            true,
+            false,
+            new TypedLiteral<long>(0, new Int(), 1),
+            1));
+    }
+
+    [Test]
+    public void TestTypeCheck_Let_Uninitialized_NonDefaultable()
+    {
+        var typeChecker = new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object,
+            _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object);
+        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(AddModStmtIfNecessary(new List<UntypedAuraStatement>
+        {
+            new UntypedLet(
+                new Tok(TokType.Identifier, "c", 1),
+                new Tok(TokType.Char, "char", 1),
+                false,
+                null,
+                1)
+        })));
+    }
+
+    [Test]
     public void TestTypeCheck_Long_Short()
     {
         var typedAst = ArrangeAndAct(new List<UntypedAuraStatement>
