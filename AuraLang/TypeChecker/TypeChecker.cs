@@ -925,16 +925,25 @@ public class AuraTypeChecker
     {
         var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
         // Ensure the function call has the correct number of arguments
-        if (declaration.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
+        if (declaration.HasVariadicParam() && call.Arguments.Count < declaration.GetParams().Count)
+            throw new IncorrectNumberOfArgumentsException(call.Line);
+        if (!declaration.HasVariadicParam() && declaration.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
         // The arguments are already in order when using positional arguments, so just extract the arguments
         var orderedArgs = call.Arguments
             .Select(pair => pair.Item2)
             .ToList();
-                
-        var typedArgs = orderedArgs
-            .Zip(declaration.GetParamTypes())
-            .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
-            .ToList();
+
+        var typedArgs = new List<TypedAuraExpression>();
+        var paramTypes = declaration.GetParamTypes();
+        var i = 0;
+        foreach (var arg in orderedArgs)
+        {
+            var typedArg = i >= paramTypes.Count 
+                ? ExpressionAndConfirm(arg, paramTypes[^1].Typ)
+                : ExpressionAndConfirm(arg, paramTypes[i].Typ);
+            typedArgs.Add(typedArg);
+            i++;
+        }
             
         return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
     }

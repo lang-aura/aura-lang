@@ -1,0 +1,23 @@
+mod main
+
+import aura/io
+
+fn main() {
+    f()
+    f_with_params(5, "Hello world")
+    f_with_params(s: "Hello world", i: 5)
+    i := f_with_return_type()
+    io.printf("%d\n", i)
+}
+
+fn f() {
+    io.println("Hello from f!")
+}
+
+fn f_with_params(i: int, s: string) {
+    io.printf("You provided the number %d and the string %s\n", i, s)
+}
+
+fn f_with_return_type() -> int {
+    return 5
+}

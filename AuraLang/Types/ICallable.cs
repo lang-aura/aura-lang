@@ -8,5 +8,6 @@ public interface ICallable
     List<TypedParamType> GetParamTypes();
     AuraType GetReturnType();
     int GetParamIndex(string name);
+    bool HasVariadicParam();
 }
 
