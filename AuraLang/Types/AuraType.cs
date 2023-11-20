@@ -1,4 +1,5 @@
 ﻿using AuraLang.Shared;
+using AuraLang.Token;
 
 namespace AuraLang.Types;
 
@@ -151,9 +152,10 @@ public class Function : AuraType, ICallable
     
     public override string ToString() => "function";
     public List<TypedParam> GetParams() => F.Params;
-    public List<TypedParamType> GetParamTypes() => F.Params.Select(p => p.ParamType).ToList();
+    public List<TypedParamType> GetParamTypes() => F.GetParamTypes();
     public AuraType GetReturnType() => F.ReturnType;
-    public int GetParamIndex(string name) => F.Params.FindIndex(p => p.Name.Value == name);
+    public int GetParamIndex(string name) => F.GetParamIndex(name);
+    public bool HasVariadicParam() => F.HasVariadicParam();
 }
 
 /// <summary>
@@ -188,6 +190,7 @@ public class AnonymousFunction : AuraType, ICallable
     public List<TypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
     public AuraType GetReturnType() => ReturnType;
     public int GetParamIndex(string name) => Params.FindIndex(p => p.Name.Value == name);
+    public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
 }
 
 /// <summary>

@@ -450,9 +450,8 @@ public class AuraCompiler
 
     private string CompileParams(List<TypedParam> params_, string sep)
     {
-        return params_
-            .Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}")
-            .Aggregate(string.Empty, (prev, curr) => $"{prev}{sep}{curr}");
+        return string.Join(sep, params_
+            .Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
     }
 
     private string CompileArgs(List<TypedAuraExpression> args)

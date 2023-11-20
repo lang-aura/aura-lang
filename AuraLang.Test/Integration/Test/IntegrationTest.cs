@@ -26,12 +26,18 @@ public class IntegrationTest
         MakeAssertions(output, "0\n");
     }
 
+    [Test]
+    public async Task TestIntegration_Functions()
+    {
+        var output = await ArrangeAndAct($"{BasePath}/src/functions.aura");
+        MakeAssertions(output, "Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\nThe value of i is 10\nThe value of i is 5\n");
+    }
+
     private string ReadFile(string path) => File.ReadAllText(path);
 
     private async Task<string> ArrangeAndAct(string path)
     {
         var fileName = Path.GetFileNameWithoutExtension(path);
-        Console.WriteLine($"{fileName}");
         
         var contents = ReadFile(path);
         try

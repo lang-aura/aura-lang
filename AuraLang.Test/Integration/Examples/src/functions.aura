@@ -1,0 +1,44 @@
+mod main
+
+import aura/io
+
+fn main() {
+    // Function's can be called by specifying the function's name followed by a set of parentheses
+    f()
+    // If the function accepts any arguments, they are provided in between the parentheses
+    f_with_params(5, "Hello world")
+    // Arguments can be declared positionally, like the line above, where the order of the arguments is understood to match
+    // the order of the function's parameters, but they can also be declared via name. In that case, the arguments can be
+    // supplied in any order, and each argument will be stored in the correct parameter based on the matching name.
+    f_with_params(s: "Hello world", i: 5)
+    // Return values can be stored in a local variable
+    i := f_with_return_type()
+    io.printf("%d\n", i) // 5
+    // When a parameter declares a default value, any value provided in the function call will override it
+    f_with_default_value(10)
+    // But the caller can also omit the argument entirely, in which case the parameter's default value will be used
+    f_with_default_value()
+}
+
+// Function declarations in Aura begin with the `fn` keyword followed by the function's name
+fn f() {
+    io.println("Hello from f!")
+}
+
+// Function parameters are specified inside the parentheses following the function's name. Parameters must include a name
+// and a type separated by a colon.
+fn f_with_params(i: int, s: string) {
+    // The function's parameters can be used inside its body just like any other variable
+    io.printf("You provided the number %d and the string %s\n", i, s)
+}
+
+// A function's return type is specified after the parameter list by a `->` symbol and the return value's type. If the function
+// does not return a value, the return type is omitted entirely.
+fn f_with_return_type() -> int {
+    return 5
+}
+
+// Function parameters may be declared with a default value, which must match the parameter's type
+fn f_with_default_value(i: int = 5) {
+    io.printf("The value of i is %d\n", i)
+}
