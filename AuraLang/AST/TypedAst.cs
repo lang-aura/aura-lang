@@ -193,7 +193,7 @@ public record TypedNamedFunction(Tok Name, List<TypedParam> Params, TypedBlock B
 /// <param name="Params">The anonymous function's parameters</param>
 /// <param name="Body">The anonymous function's body</param>
 /// <param name="ReturnType">The anonymous function's return type</param>
-public record TypedAnonymousFunction(List<TypedParam> Params, TypedBlock Body, AuraType ReturnType, int Line) : TypedAuraExpression(new None(), Line), ITypedFunction
+public record TypedAnonymousFunction(List<TypedParam> Params, TypedBlock Body, AuraType ReturnType, int Line) : TypedAuraExpression(new AnonymousFunction(Params, ReturnType), Line), ITypedFunction
 {
     public List<TypedParam> GetParams() => Params;
     public List<TypedParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
