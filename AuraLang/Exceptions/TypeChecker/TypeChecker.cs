@@ -92,3 +92,8 @@ public class MustSpecifyValueForArgumentWithoutDefaultValueException : TypeCheck
 {
     public MustSpecifyValueForArgumentWithoutDefaultValueException(int line) : base("Must specify value for argument without default value", line) { }
 }
+
+public class MustSpecifyInitialValueForNonDefaultableTypeException : TypeCheckerException
+{
+    public MustSpecifyInitialValueForNonDefaultableTypeException(int line) : base("Must specify initial value for non-defaultable type exception", line) { }
+}

@@ -339,7 +339,10 @@ public class AuraTypeChecker
             if (let.NameTyp is null) return ShortLetStmt(let);
             var nameTyp = TypeTokenToType(let.NameTyp.Value);
             // Type check initializer
-            var typedInit = let.Initializer is not null ? ExpressionAndConfirm(let.Initializer, nameTyp) : null;
+            var defaultable = nameTyp as IDefaultable;
+            if (let.Initializer is null && defaultable is null)
+                throw new MustSpecifyInitialValueForNonDefaultableTypeException(let.Line);
+            var typedInit = let.Initializer is not null ? ExpressionAndConfirm(let.Initializer, nameTyp) : defaultable!.Default(let.Line);
             // Add new variable to list of locals
             _variableStore.Add(new Local(
                 let.Name.Value,
