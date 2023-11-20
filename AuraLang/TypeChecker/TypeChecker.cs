@@ -637,41 +637,14 @@ public class AuraTypeChecker
     {
         return _enclosingExpressionStore.WithEnclosing(() =>
         {
-            var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
             var funcDeclaration = _variableStore.Find(call.Callee.GetName(), call.Callee.GetModuleName() ?? _currentModule.GetName()!)!.Value.Kind as ICallable;
-            // Ensure the function call has the correct number of arguments
-            if (funcDeclaration!.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
             // Type check arguments
             var named = call.Arguments.All(arg => arg.Item1 is not null);
-            var unnamed = call.Arguments.All(arg => arg.Item1 is null);
-            if (!named && !unnamed) throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
+            var positional = call.Arguments.All(arg => arg.Item1 is null);
 
-            var orderedArgs = call.Arguments
-                .Select(pair => pair.Item2)
-                .ToList();
-            if (named)
-            {
-                orderedArgs = call.Arguments
-                    .Where(pair => pair.Item1 is null)
-                    .Select(pair => pair.Item2)
-                    .ToList();
-                foreach (var arg in call.Arguments)
-                {
-                    if (arg.Item1 is not null)
-                    {
-                        var index = funcDeclaration.GetParamIndex(arg.Item1!.Value.Value);
-                        if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
-                        else orderedArgs.Insert(index, arg.Item2);
-                    }
-                }
-            }
-            
-            var typedArgs = orderedArgs
-                .Zip(funcDeclaration.GetParamTypes())
-                .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
-                .ToList();
-            
-            return new TypedCall(typedCallee!, typedArgs, funcDeclaration.GetReturnType(), call.Line);
+            if (named) return TypeCheckNamedParameters(call, funcDeclaration!);
+            if (positional) return TypeCheckPositionalParameters(call, funcDeclaration!);
+            throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
         }, call);
     }
 
@@ -946,6 +919,60 @@ public class AuraTypeChecker
         return TypeCheckParams(untypedParams)
             .Select(p => p.ParamType)
             .ToList();
+    }
+    
+    private TypedCall TypeCheckPositionalParameters(UntypedCall call, ICallable declaration)
+    {
+        var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+        // Ensure the function call has the correct number of arguments
+        if (declaration.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
+        // The arguments are already in order when using positional arguments, so just extract the arguments
+        var orderedArgs = call.Arguments
+            .Select(pair => pair.Item2)
+            .ToList();
+                
+        var typedArgs = orderedArgs
+            .Zip(declaration.GetParamTypes())
+            .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.Typ))
+            .ToList();
+            
+        return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
+    }
+
+    private TypedCall TypeCheckNamedParameters(UntypedCall call, ICallable declaration)
+    {
+        var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+        // Insert each named argument into its correct position
+        var orderedArgs = new List<UntypedAuraExpression>();
+        foreach (var arg in call.Arguments)
+        {
+            var index = declaration.GetParamIndex(arg.Item1!.Value.Value);
+            if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
+            else orderedArgs.Insert(index, arg.Item2);
+        }
+        // Filter out the parameters that aren't included in the argument list. We will ensure that the omitted parameters have
+        // a default value later. However, if they have a default value, they were already type checked when the function was
+        // first declared, so they don't need to be type checked again here.
+        var includedParams = declaration.GetParams()
+            .Where(p => call.Arguments.Any(arg => arg.Item1!.Value.Value == p.Name.Value));
+        // Type check the included named arguments
+        var typedArgs = orderedArgs
+            .Zip(includedParams)
+            .Select(pair => ExpressionAndConfirm(pair.First, pair.Second.ParamType.Typ))
+            .ToList();
+        // With named arguments, you may omit arguments if they have been declared with a default value.
+        // Check for any missing parameters and fill in their default value, if they have one
+        var missingParams = declaration.GetParams().Where(p => call.Arguments.All(arg => arg.Item1!.Value.Value != p.Name.Value));
+        foreach (var missingParam in missingParams)
+        {
+            var index = declaration.GetParamIndex(missingParam.Name.Value);
+            var defaultValue = missingParam.ParamType.DefaultValue ??
+                               throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line);
+            if (index >= orderedArgs.Count) typedArgs.Add(defaultValue);
+            else typedArgs.Insert(index, defaultValue);
+        }
+                
+        return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
     }
 
     private AuraType TypeCheckReturnTypeTok(Tok? returnTok) => returnTok is not null ? TypeTokenToType(returnTok.Value) : new Nil();

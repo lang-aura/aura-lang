@@ -87,3 +87,8 @@ public class CannotMixNamedAndUnnamedArgumentsException : TypeCheckerException
 {
     public CannotMixNamedAndUnnamedArgumentsException(int line) : base("Cannot mix named and unnamed arguments", line) { }
 }
+
+public class MustSpecifyValueForArgumentWithoutDefaultValueException : TypeCheckerException
+{
+    public MustSpecifyValueForArgumentWithoutDefaultValueException(int line) : base("Must specify value for argument without default value", line) { }
+}

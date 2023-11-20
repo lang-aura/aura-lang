@@ -3,9 +3,6 @@ using AuraLang.AST;
 using AuraLang.Exceptions.Parser;
 using AuraLang.Shared;
 using AuraLang.Token;
-using AuraLang.Types;
-using Char = AuraLang.Types.Char;
-using String = AuraLang.Types.String;
 
 namespace AuraLang.Parser;
 
@@ -13,7 +10,7 @@ public class AuraParser
 {
     private readonly List<Tok> _tokens;
     private int _index;
-    private ParserExceptionContainer _exContainer = new();
+    private readonly ParserExceptionContainer _exContainer = new();
 
     public AuraParser(List<Tok> tokens)
     {
@@ -37,6 +34,7 @@ public class AuraParser
             catch (ParserException ex)
             {
                 _exContainer.Add(ex);
+                Synchronize();
             }
         }
 
@@ -52,15 +50,12 @@ public class AuraParser
     /// <returns>A boolean indicating if the next token's type matches any of the <see cref="tokTypes"/></returns>
     private bool Match(params TokType[] tokTypes)
     {
-        foreach (var tokType in tokTypes)
+        return tokTypes.Any(tt =>
         {
-            if (Check(tokType))
-            {
-                Advance();
-                return true;
-            }
-        }
-        return false;
+            if (!Check(tt)) return false;
+            Advance();
+            return true;
+        });
     }
 
     /// <summary>
@@ -172,15 +167,15 @@ public class AuraParser
 
     private List<UntypedParam> ParseParameters()
     {
-        var params_ = new List<UntypedParam>();
+        var paramz = new List<UntypedParam>();
 
         if (!Check(TokType.RightParen))
         {
             while (true)
             {
                 // Max of 255 parameters
-                if (params_.Count >= 255) throw new TooManyParametersException(Peek().Line);
-                // Consume the paramter name
+                if (paramz.Count >= 255) throw new TooManyParametersException(Peek().Line);
+                // Consume the parameter name
                 var name = Consume(TokType.Identifier, new ExpectParameterNameException(Peek().Line));
                 // Consume colon separator
                 Consume(TokType.Colon, new ExpectColonAfterParameterName(Peek().Line));
@@ -194,14 +189,14 @@ public class AuraParser
                 }
                 // Parse the parameter type
                 var pt = ParseParameter();
-                params_.Add(new UntypedParam(name, new UntypedParamType(pt.Typ, variadic, pt.DefaultValue)));
+                paramz.Add(new UntypedParam(name, new UntypedParamType(pt.Typ, variadic, pt.DefaultValue)));
 
-                if (Check(TokType.RightParen)) return params_;
-                else Consume(TokType.Comma, new ExpectEitherRightParenOrCommaAfterParam(Peek().Line));
+                if (Check(TokType.RightParen)) return paramz;
+                Consume(TokType.Comma, new ExpectEitherRightParenOrCommaAfterParam(Peek().Line));
             }
         }
 
-        return params_;
+        return paramz;
     }
 
     private Tok ParseParameterType()
@@ -236,34 +231,32 @@ public class AuraParser
             {
                 return ClassDeclaration(Visibility.Public);
             }
-            else if (Match(TokType.Fn))
+            if (Match(TokType.Fn))
             {
                 return NamedFunction(FunctionType.Function, Visibility.Public);
             }
-            else
-            {
-                throw new InvalidTokenAfterPubKeywordException(Peek().Line);
-            }
+
+            throw new InvalidTokenAfterPubKeywordException(Peek().Line);
         }
-        else if (Match(TokType.Class))
+        if (Match(TokType.Class))
         {
             return ClassDeclaration(Visibility.Private);
         }
-        else if (Check(TokType.Fn) && PeekNext().Typ == TokType.Identifier)
+        if (Check(TokType.Fn) && PeekNext().Typ == TokType.Identifier)
         {
             // Since we only check for the `fn` keyword, we need to advance past it here before entering the NamedFunction() call
             Advance();
             return NamedFunction(FunctionType.Function, Visibility.Private);
         }
-        else if (Match(TokType.Let))
+        if (Match(TokType.Let))
         {
             return LetDeclaration();
         }
-        else if (Match(TokType.Mod))
+        if (Match(TokType.Mod))
         {
             return ModDeclaration();
         }
-        else if (Match(TokType.Import))
+        if (Match(TokType.Import))
         {
             var line = Previous().Line;
             var tok = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line));
@@ -279,32 +272,28 @@ public class AuraParser
             Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
             return new UntypedImport(tok, null, line);
         }
-        else if (Match(TokType.Mut))
+        if (Match(TokType.Mut))
         {
             // The only statement that can being with `mut` is a short let declaration (i.e. `mut s := "Hello world")
             if (Peek().Typ is TokType.Identifier && PeekNext().Typ is TokType.ColonEqual)
             {
                 return ShortLetDeclaration(true);
             }
-            else
-            {
-                throw new InvalidTokenAfterMutKeywordException(Peek().Line);
-            }
+
+            throw new InvalidTokenAfterMutKeywordException(Peek().Line);
         }
-        else
-        {
-            return Statement();
-        }
+
+        return Statement();
     }
 
-    private UntypedAuraStatement ClassDeclaration(Visibility public_)
+    private UntypedAuraStatement ClassDeclaration(Visibility pub)
     {
         var line = Previous().Line;
         // Consume the class name
         var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line));
         Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Line));
         // Parse parameters
-        var params_ = ParseParameters();
+        var paramz = ParseParameters();
         Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
         Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
         // Parse the class's methods
@@ -331,7 +320,7 @@ public class AuraParser
         Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-        return new UntypedClass(name, params_, methods, public_, line);
+        return new UntypedClass(name, paramz, methods, pub, line);
     }
 
     private UntypedAuraStatement ModDeclaration()
@@ -391,7 +380,7 @@ public class AuraParser
         var body = new List<UntypedAuraStatement>();
         while (!IsAtEnd() && !Check(TokType.RightBrace)) body.Add(Declaration());
         Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
-        if (increment is not null) body.Add(new UntypedExpressionStmt(increment!, line));
+        if (increment is not null) body.Add(new UntypedExpressionStmt(increment, line));
         // Consume trailing semicolon
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
@@ -527,14 +516,14 @@ public class AuraParser
         return new UntypedExpressionStmt(expr, line);
     }
 
-    private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility public_)
+    private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility pub)
     {
         var line = Previous().Line;
         // Parse the function's name
         var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line));
         Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Line));
         // Parse the function's parameters
-        var params_ = ParseParameters();
+        var paramz = ParseParameters();
         Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
         // Parse the function's return type
         Tok? returnType = Match(TokType.Arrow) ? Advance() : null;
@@ -543,7 +532,7 @@ public class AuraParser
         var body = Block();
         Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-        return new UntypedNamedFunction(name, params_, body, returnType, public_, line);
+        return new UntypedNamedFunction(name, paramz, body, returnType, pub, line);
     }
 
     private UntypedAnonymousFunction AnonymousFunction()
@@ -552,7 +541,7 @@ public class AuraParser
 
         Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Line));
         // Parse function's parameters
-        var params_ = ParseParameters();
+        var paramz = ParseParameters();
         Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
         // Parse function's return type
         Tok? returnType = Match(TokType.Arrow) ? Advance() : null;
@@ -560,7 +549,7 @@ public class AuraParser
         // Parse body
         var body = Block();
 
-        return new UntypedAnonymousFunction(params_, body, returnType, line);
+        return new UntypedAnonymousFunction(paramz, body, returnType, line);
     }
 
     private UntypedAuraExpression Expression()
@@ -649,9 +638,9 @@ public class AuraParser
         var expression = And();
         while (Match(TokType.Or))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = And();
-            expression = new UntypedLogical(expression, operator_, right, expression.Line);
+            expression = new UntypedLogical(expression, op, right, expression.Line);
         }
 
         return expression;
@@ -662,9 +651,9 @@ public class AuraParser
         var expression = Equality();
         while (Match(TokType.And))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = Equality();
-            expression = new UntypedLogical(expression, operator_, right, expression.Line);
+            expression = new UntypedLogical(expression, op, right, expression.Line);
         }
 
         return expression;
@@ -675,9 +664,9 @@ public class AuraParser
         var expression = Comparison();
         while (Match(TokType.BangEqual, TokType.EqualEqual))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = Comparison();
-            expression = new UntypedLogical(expression, operator_, right, expression.Line);
+            expression = new UntypedLogical(expression, op, right, expression.Line);
         }
 
         return expression;
@@ -688,9 +677,9 @@ public class AuraParser
         var expression = Term();
         while (Match(TokType.Greater, TokType.GreaterEqual, TokType.Less, TokType.LessEqual))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = Term();
-            expression = new UntypedLogical(expression, operator_, right, expression.Line);
+            expression = new UntypedLogical(expression, op, right, expression.Line);
         }
 
         return expression;
@@ -701,9 +690,9 @@ public class AuraParser
         var expression = Factor();
         while (Match(TokType.Minus, TokType.MinusEqual, TokType.Plus, TokType.PlusEqual))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = Factor();
-            expression = new UntypedBinary(expression, operator_, right, expression.Line);
+            expression = new UntypedBinary(expression, op, right, expression.Line);
         }
 
         return expression;
@@ -714,9 +703,9 @@ public class AuraParser
         var expression = Unary();
         while (Match(TokType.Slash, TokType.SlashEqual, TokType.Star, TokType.StarEqual))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = Unary();
-            expression = new UntypedBinary(expression, operator_, right, expression.Line);
+            expression = new UntypedBinary(expression, op, right, expression.Line);
         }
 
         return expression;
@@ -726,9 +715,9 @@ public class AuraParser
     {
         if (Match(TokType.Bang, TokType.Minus))
         {
-            var operator_ = Previous();
+            var op = Previous();
             var right = Unary();
-            return new UntypedUnary(operator_, right, operator_.Line);
+            return new UntypedUnary(op, right, op.Line);
         }
 
         return Call();

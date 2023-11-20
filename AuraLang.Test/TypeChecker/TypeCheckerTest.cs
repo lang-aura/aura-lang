@@ -223,6 +223,106 @@ public class TypeCheckerTest
     }
 
     [Test]
+    public void TestTypeCheck_Call_DefaultValues()
+    {
+        _currentModuleStore.Setup(cms => cms.GetName())
+            .Returns("main");
+        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+            "f",
+            new Function(
+                "f",
+                new AnonymousFunction(
+                    new List<TypedParam>
+                    {
+                        new(
+                            new Tok(TokType.Identifier, "i", 1),
+                            new TypedParamType(new Int(), false, new TypedLiteral<long>(10, new Int(), 1))),
+                        new(
+                            new Tok(TokType.Identifier, "s", 1),
+                            new TypedParamType(new AuraString(), false, null))
+                    },
+                    new Nil())),
+            1,
+            "main"));
+        
+        var typedAst = ArrangeAndAct(
+            new List<UntypedAuraStatement>
+            {
+                new UntypedExpressionStmt(
+                    new UntypedCall(
+                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+                        new List<(Tok?, UntypedAuraExpression)>
+                        {
+                            (
+                                new Tok(TokType.Identifier, "s", 1),
+                                new UntypedStringLiteral("Hello world", 1))
+                        },
+                        1),
+                    1)
+            });
+        MakeAssertions(typedAst,  new TypedExpressionStmt(
+            new TypedCall(
+                new TypedVariable(
+                    new Tok(TokType.Identifier, "f", 1),
+                    new Function("f", new AnonymousFunction(new List<TypedParam>(), new Nil())),
+                    1),
+                new List<TypedAuraExpression>
+                {
+                    new TypedLiteral<long>(10, new Int(), 1),
+                    new TypedLiteral<string>("Hello world", new AuraString(), 1)
+                },
+                new Nil(),
+                1),
+            1));
+    }
+
+    [Test]
+    public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
+    {
+        _currentModuleStore.Setup(cms => cms.GetName())
+            .Returns("main");
+        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+            "f",
+            new Function(
+                "f",
+                new AnonymousFunction(
+                    new List<TypedParam>
+                    {
+                        new(
+                            new Tok(TokType.Identifier, "i", 1),
+                            new TypedParamType(new Int(), false, null)),
+                        new(
+                            new Tok(TokType.Identifier, "s", 1),
+                            new TypedParamType(new AuraString(), false, new TypedLiteral<string>("Hello world", new AuraString(), 1)))
+                    },
+                    new Nil())),
+            1,
+            "main"));
+
+        var typeChecker = new AuraTypeChecker(
+            _variableStore.Object,
+            _enclosingClassStore.Object,
+            _currentModuleStore.Object,
+            _enclosingExprStore.Object,
+            _enclosingStmtStore.Object);
+        Assert.Throws<TypeCheckerExceptionContainer>(() => typeChecker.CheckTypes(
+            new List<UntypedAuraStatement>
+            {
+                new UntypedExpressionStmt(
+                    new UntypedCall(
+                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+                        new List<(Tok?, UntypedAuraExpression)>
+                        {
+                            (
+                                new Tok(TokType.Identifier, "s", 1),
+                                new UntypedStringLiteral("Hello world", 1))
+                        },
+                        1),
+                    1)
+            }));
+    }
+
+    [Test]
     public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
     {
         _currentModuleStore.Setup(cms => cms.GetName())
