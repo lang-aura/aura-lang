@@ -220,6 +220,7 @@ public class AuraParser
         // Parse default value
         if (!Match(TokType.Equal)) return new UntypedParamType(pt, variadic, null);
         var defaultValue = Expression();
+        if (!IsLiteral(defaultValue)) throw new ParameterDefaultValueMustBeALiteralException(Peek().Line);
         return new UntypedParamType(pt, variadic, defaultValue);
     }
 
@@ -990,5 +991,15 @@ public class AuraParser
         {
             throw new ExpectExpressionException(Peek().Line);
         }
+    }
+
+    private bool IsLiteral(UntypedAuraExpression expr)
+    {
+        return expr switch
+        {
+            UntypedBoolLiteral or UntypedCharLiteral or UntypedFloatLiteral or UntypedIntLiteral
+                or UntypedListLiteral<UntypedAuraExpression> or UntypedMapLiteral or UntypedStringLiteral => true,
+            _ => false
+        };
     }
 }

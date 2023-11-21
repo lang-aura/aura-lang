@@ -182,3 +182,8 @@ public class ExpectExpressionException : ParserException
 {
     public ExpectExpressionException(int line) : base("Expect expression", line) { }
 }
+
+public class ParameterDefaultValueMustBeALiteralException : ParserException
+{
+    public ParameterDefaultValueMustBeALiteralException(int line) : base("Parameter default value must be a literal", line) { }
+}

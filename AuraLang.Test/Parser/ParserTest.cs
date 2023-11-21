@@ -1,4 +1,5 @@
 ﻿using AuraLang.AST;
+using AuraLang.Exceptions.Parser;
 using AuraLang.Parser;
 using AuraLang.Shared;
 using AuraLang.Token;
@@ -556,6 +557,27 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_NamedFunction_ParamDefaultValue_Invalid()
+	{
+		ArrangeAndAct_Invalid(new List<Tok>
+		{
+			new(TokType.Fn, "fn", 1),
+			new(TokType.Identifier, "f", 1),
+			new(TokType.LeftParen, "(", 1),
+			new(TokType.Identifier, "i", 1),
+			new(TokType.Colon, ":", 1),
+			new(TokType.Int, "int", 1),
+			new(TokType.Equal, "=", 1),
+			new(TokType.Identifier, "var", 1),
+			new(TokType.RightParen, ")", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.RightBrace, "}", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		}, typeof(ParameterDefaultValueMustBeALiteralException));
+	}
+
+	[Test]
 	public void TestParse_NamedFunction_NoParams_NoReturnType_NoBody()
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>
@@ -776,6 +798,21 @@ public class ParserTest
 		var parser = new AuraParser(tokens);
 		// Act
 		return parser.Parse();
+	}
+
+	private void ArrangeAndAct_Invalid(List<Tok> tokens, Type expected)
+	{
+		// Arrange
+		var parser = new AuraParser(tokens);
+		try
+		{
+			parser.Parse();
+			Assert.Fail();
+		}
+		catch (ParserExceptionContainer e)
+		{
+			Assert.That(e.Exs.First(), Is.TypeOf(expected));
+		}
 	}
 
 	private void MakeAssertions(List<UntypedAuraStatement> untypedAst, UntypedAuraStatement expected)
