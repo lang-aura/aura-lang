@@ -17,7 +17,7 @@ public class GoDocument
     /// </summary>
     private readonly AuraStringBuilder _statements = new();
 
-    public void WriteStmt(string s, int line, TypedAuraStatement typ)
+    public void WriteStmt(string s, int line, ITypedAuraStatement typ)
     {
         switch (typ)
         {

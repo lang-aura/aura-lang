@@ -22,7 +22,7 @@ public class AuraStringBuilder
         sb = new(s);
     }
 
-    public void WriteString(string s, int line, TypedAuraStatement typ)
+    public void WriteString(string s, int line, ITypedAuraStatement typ)
     {
         // A value of 0 for `lastLine` indicates that no string has previously been written to this struct
         if (lastLine == 0)

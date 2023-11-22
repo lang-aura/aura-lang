@@ -14,12 +14,12 @@ public class CompilerTest
     [Test]
     public void TestCompile_Assignment()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedAssignment(
                     new Tok(TokType.Identifier, "i", 1),
-                    new TypedLiteral<long>(5, new Int(), 1),
+                    new IntLiteral(5, 1),
                     new Int(),
                     1),
                 1)
@@ -30,13 +30,13 @@ public class CompilerTest
     [Test]
     public void TestCompile_Binary()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedBinary(
-                    new TypedLiteral<long>(5, new Int(), 1),
+                    new IntLiteral(5, 1),
                     new Tok(TokType.Plus, "+", 1),
-                    new TypedLiteral<long>(5, new Int(), 1),
+                    new IntLiteral(5, 1),
                     new Int(),
                     1),
                 1)
@@ -47,11 +47,11 @@ public class CompilerTest
     [Test]
     public void TestCompile_Block_EmptyBody()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedBlock(
-                    new List<TypedAuraStatement>(),
+                    new List<ITypedAuraStatement>(),
                     new Nil(),
                     1),
                 1)
@@ -62,17 +62,17 @@ public class CompilerTest
     [Test]
     public void TestCompile_Block()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedBlock(
-                    new List<TypedAuraStatement>
+                    new List<ITypedAuraStatement>
                     {
                         new TypedLet(
                             new Tok(TokType.Identifier, "i", 2),
                             true,
                             false,
-                            new TypedLiteral<long>(5, new Int(), 2),
+                            new IntLiteral(5, 2),
                             2),
                     },
                     new Nil(),
@@ -85,7 +85,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Call_Stdlib()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedCall(
@@ -99,11 +99,11 @@ public class CompilerTest
                                     new(
                                         "Println",
                                         new AnonymousFunction(
-                                            new List<TypedParam>
+                                            new List<Param>
                                             {
                                                 new(
                                                     new Tok(TokType.Identifier, "s", 1),
-                                                    new TypedParamType(new AuraString(), false, null))
+                                                    new ParamType(new AuraString(), false, null))
                                             },
                                             new Nil()))
                                 }),
@@ -112,20 +112,20 @@ public class CompilerTest
                         new Function(
                             "println",
                             new AnonymousFunction(
-                                new List<TypedParam>
+                                new List<Param>
                                 {
-                                    new TypedParam(
+                                    new Param(
                                         new Tok(TokType.Identifier, "s", 1),
-                                        new TypedParamType(
+                                        new ParamType(
                                             new AuraString(),
                                             false,
                                             null))
                                 },
                                 new Nil())),
                         1),
-                    new List<TypedAuraExpression>
+                    new List<ITypedAuraExpression>
                     {
-                        new TypedLiteral<string>("Hello world", new AuraString(), 1)
+                        new StringLiteral("Hello world", 1)
                     },
                     new Nil(),
                     1),
@@ -137,7 +137,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Call_NoArgs()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedCall(
@@ -146,10 +146,10 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParam>(),
+                                new List<Param>(),
                                 new Nil())),
                         1),
-                    new List<TypedAuraExpression>(),
+                    new List<ITypedAuraExpression>(),
                     new Nil(),
                     1),
                 1)
@@ -160,7 +160,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Call_OneParam()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedCall(
@@ -169,17 +169,17 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParam>
+                                new List<Param>
                                 {
                                     new(
                                         new Tok(TokType.Identifier, "i", 1),
-                                        new TypedParamType(new Int(), false, null))
+                                        new ParamType(new Int(), false, null))
                                 },
                                 new Nil())),
                         1),
-                    new List<TypedAuraExpression>
+                    new List<ITypedAuraExpression>
                     {
-                        new TypedLiteral<long>(5, new Int(), 1)
+                        new IntLiteral(5, 1)
                     },
                     new Nil(),
                     1),
@@ -191,7 +191,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Call_TwoParams()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedCall(
@@ -200,21 +200,21 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParam>
+                                new List<Param>
                                 {
                                     new(
                                         new Tok(TokType.Identifier, "i", 1),
-                                        new TypedParamType(new Int(), false, null)),
+                                        new ParamType(new Int(), false, null)),
                                     new(
                                         new Tok(TokType.Identifier, "s", 1),
-                                        new TypedParamType(new AuraString(), false, null))
+                                        new ParamType(new AuraString(), false, null))
                                 },
                                 new Nil())),
                         1),
-                    new List<TypedAuraExpression>
+                    new List<ITypedAuraExpression>
                     {
-                        new TypedLiteral<long>(5, new Int(), 1),
-                        new TypedLiteral<string>("Hello world", new AuraString(), 1)
+                        new IntLiteral(5, 1),
+                        new StringLiteral("Hello world", 1)
                     },
                     new Nil(),
                     1),
@@ -226,7 +226,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Get()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedGet(
@@ -238,9 +238,9 @@ public class CompilerTest
                             {
                                 "name"
                             },
-                            new List<TypedParamType>
+                            new List<ParamType>
                             {
-                                new TypedParamType(new AuraString(), false, null)
+                                new ParamType(new AuraString(), false, null)
                             },
                             new List<Function>()),
                         1),
@@ -255,7 +255,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_GetIndex()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedGetIndex(
@@ -263,7 +263,7 @@ public class CompilerTest
                         new Tok(TokType.Identifier, "names", 1),
                         new Types.List(new AuraString()),
                         1),
-                    new TypedLiteral<long>(0, new Int(), 1),
+                    new IntLiteral(0, 1),
                     new AuraString(),
                     1),
                 1)
@@ -274,7 +274,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_GetIndexRange()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedGetIndexRange(
@@ -282,8 +282,8 @@ public class CompilerTest
                         new Tok(TokType.Identifier, "names", 1),
                         new Types.List(new AuraString()),
                         1),
-                    new TypedLiteral<long>(0, new Int(), 1),
-                    new TypedLiteral<long>(2, new Int(), 1),
+                    new IntLiteral(0, 1),
+                    new IntLiteral(2, 1),
                     new Types.List(new AuraString()),
                     1),
                 1)
@@ -294,11 +294,11 @@ public class CompilerTest
     [Test]
     public void TestCompile_Grouping()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedGrouping(
-                    new TypedLiteral<string>("Hello world", new AuraString(), 1),
+                    new StringLiteral("Hello world", 1),
                     new AuraString(),
                     1),
                 1)
@@ -309,16 +309,16 @@ public class CompilerTest
     [Test]
     public void TestCompile_If()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedIf(
-                    new TypedLiteral<bool>(true, new Bool(), 1),
+                    new BoolLiteral(true, 1),
                     new TypedBlock(
-                        new List<TypedAuraStatement>
+                        new List<ITypedAuraStatement>
                         {
                             new TypedReturn(
-                                new TypedLiteral<long>(1, new Int(), 2),
+                                new IntLiteral(1, 2),
                                 2)
                         },
                         new Int(),
@@ -334,25 +334,25 @@ public class CompilerTest
     [Test]
     public void TestCompile_If_Else()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedIf(
-                    new TypedLiteral<bool>(true, new Bool(), 1),
+                    new BoolLiteral(true, 1),
                     new TypedBlock(
-                        new List<TypedAuraStatement>
+                        new List<ITypedAuraStatement>
                         {
                             new TypedReturn(
-                                new TypedLiteral<long>(1, new Int(), 2),
+                                new IntLiteral(1, 2),
                                 2)
                         },
                         new Int(),
                         1),
                     new TypedBlock(
-                        new List<TypedAuraStatement>
+                        new List<ITypedAuraStatement>
                         {
                             new TypedReturn(
-                                new TypedLiteral<long>(2, new Int(), 4),
+                                new IntLiteral(2, 4),
                                 2)
                         },
                         new Int(),
@@ -367,10 +367,10 @@ public class CompilerTest
     [Test]
     public void TestCompile_IntLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<long>(5, new Int(), 1),
+                new IntLiteral(5, 1),
                 1)
         });
         MakeAssertions(output, "5");
@@ -379,10 +379,10 @@ public class CompilerTest
     [Test]
     public void TestCompile_FloatLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<double>(5.1, new Float(), 1),
+                new FloatLiteral(5.1, 1),
                 1)
         });
         MakeAssertions(output, "5.1");
@@ -391,10 +391,10 @@ public class CompilerTest
     [Test]
     public void TestCompile_FloatLiteral_WithZeroDecimal()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<double>(5.0, new Float(), 1),
+                new FloatLiteral(5.0, 1),
                 1)
         });
         MakeAssertions(output, "5");
@@ -403,10 +403,10 @@ public class CompilerTest
     [Test]
     public void TestCompile_StringLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<string>("Hello world", new AuraString(), 1),
+                new StringLiteral("Hello world", 1),
                 1)
         });
         MakeAssertions(output, "\"Hello world\"");
@@ -415,16 +415,17 @@ public class CompilerTest
     [Test]
     public void TestCompile_ListLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new System.Collections.Generic.List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<List<TypedAuraExpression>>(new List<TypedAuraExpression>
+                new ListLiteral(
+                    new List<IAuraAstNode>
                     {
-                        new TypedLiteral<long>(1, new Int(), 1),
-                        new TypedLiteral<long>(2, new Int(), 1),
-                        new TypedLiteral<long>(3, new Int(), 1)
+                        new IntLiteral(1, 1),
+                        new IntLiteral(2, 1),
+                        new IntLiteral(3, 1)
                     },
-                    new AuraList(new Int()),
+                    new Int(),
                     1),
                 1)
         });
@@ -434,15 +435,16 @@ public class CompilerTest
     [Test]
     public void TestCompile_MapLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(
-                    new Dictionary<TypedAuraExpression, TypedAuraExpression>
+                new MapLiteral(
+                    new Dictionary<IAuraAstNode, IAuraAstNode>
                     {
-                        { new TypedLiteral<string>("Hello", new AuraString(), 1), new TypedLiteral<long>(1, new Int(), 1) }
+                        { new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
                     },
-                    new Map(new AuraString(), new Int()),
+                    new AuraString(), 
+                    new Int(),
                     1),
                 1)
         });
@@ -452,12 +454,13 @@ public class CompilerTest
     [Test]
     public void TestCompile_MapLiteral_Empty()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(
-                    new Dictionary<TypedAuraExpression, TypedAuraExpression>(),
-                    new Map(new AuraString(), new Int()),
+                new MapLiteral(
+                    new Dictionary<IAuraAstNode, IAuraAstNode>(),
+                    new AuraString(),
+                    new Int(),
                     1),
                 1)
         });
@@ -467,10 +470,10 @@ public class CompilerTest
     [Test]
     public void TestCompile_BoolLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<bool>(true, new Bool(), 1),
+                new BoolLiteral(true, 1),
                 1)
         });
         MakeAssertions(output, "true");
@@ -479,7 +482,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_NilLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedNil(1),
@@ -491,10 +494,10 @@ public class CompilerTest
     [Test]
     public void TestCompile_CharLiteral()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
-                new TypedLiteral<char>('a', new AuraChar(), 1),
+                new CharLiteral('a', 1),
                 1)
         });
         MakeAssertions(output, "'a'");
@@ -503,13 +506,13 @@ public class CompilerTest
     [Test]
     public void TestCompile_Logical()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedLogical(
-                    new TypedLiteral<bool>(true, new Bool(), 1),
+                    new BoolLiteral(true, 1),
                     new Tok(TokType.And, "and", 1),
-                    new TypedLiteral<bool>(false, new Bool(), 1),
+                    new BoolLiteral(false, 1),
                     new Bool(),
                     1),
                 1)
@@ -520,7 +523,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Set()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedSet(
@@ -532,14 +535,14 @@ public class CompilerTest
                             {
                                 "name"
                             },
-                            new List<TypedParamType>
+                            new List<ParamType>
                             {
-                                new TypedParamType(new AuraString(), false, null)
+                                new ParamType(new AuraString(), false, null)
                             },
                             new List<Function>()),
                         1),
                     new Tok(TokType.Identifier, "name", 1),
-                    new TypedLiteral<string>("Bob", new AuraString(), 1),
+                    new StringLiteral("Bob", 1),
                     new AuraString(),
                     1),
                 1)
@@ -550,7 +553,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_This()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedThis(
@@ -558,7 +561,7 @@ public class CompilerTest
                     new Class(
                         "Greeter",
                         new List<string>(),
-                        new List<TypedParamType>(),
+                        new List<ParamType>(),
                         new List<Function>()),
                     1),
                 1)
@@ -569,12 +572,12 @@ public class CompilerTest
     [Test]
     public void TestCompile_Unary_Bang()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedUnary(
                     new Tok(TokType.Bang, "!", 1),
-                    new TypedLiteral<bool>(true, new Bool(), 1),
+                    new BoolLiteral(true, 1),
                     new Bool(),
                     1),
                 1)
@@ -585,12 +588,12 @@ public class CompilerTest
     [Test]
     public void TestCompile_Unary_Minus()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedUnary(
                     new Tok(TokType.Minus, "-", 1),
-                    new TypedLiteral<long>(5, new Int(), 1),
+                    new IntLiteral(5, 1),
                     new Int(),
                     1),
                 1)
@@ -601,7 +604,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Variable()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedVariable(
@@ -616,7 +619,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Defer()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedDefer(
                 new TypedCall(
@@ -625,10 +628,10 @@ public class CompilerTest
                         new Function(
                             "f",
                             new AnonymousFunction(
-                                new List<TypedParam>(),
+                                new List<Param>(),
                                 new Nil())),
                         1),
-                    new List<TypedAuraExpression>(),
+                    new List<ITypedAuraExpression>(),
                     new Nil(),
                     1),
                 1)
@@ -639,14 +642,14 @@ public class CompilerTest
     [Test]
     public void TestCompile_For_EmptyBody()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedFor(
                 new TypedLet(
                     new Tok(TokType.Identifier, "i", 1),
                     false,
                     true,
-                    new TypedLiteral<long>(0, new Int(), 1),
+                    new IntLiteral(0, 1),
                     1),
                 new TypedLogical(
                     new TypedVariable(
@@ -654,10 +657,10 @@ public class CompilerTest
                         new Int(),
                         1),
                     new Tok(TokType.Less, "<", 1),
-                    new TypedLiteral<long>(10, new Int(), 1),
+                    new IntLiteral(10, 1),
                     new Bool(),
                     1),
-                new List<TypedAuraStatement>(),
+                new List<ITypedAuraStatement>(),
                 1)
         });
         MakeAssertions(output, "for i := 0; i < 10; {}");
@@ -666,14 +669,14 @@ public class CompilerTest
     [Test]
     public void TestCompile_For()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedFor(
                 new TypedLet(
                     new Tok(TokType.Identifier, "i", 1),
                     false,
                     true,
-                    new TypedLiteral<long>(0, new Int(), 1),
+                    new IntLiteral(0, 1),
                     1),
                 new TypedLogical(
                     new TypedVariable(
@@ -681,16 +684,16 @@ public class CompilerTest
                         new Int(),
                         1),
                     new Tok(TokType.Less, "<", 1),
-                    new TypedLiteral<long>(10, new Int(), 1),
+                    new IntLiteral(10, 1),
                     new Bool(),
                     1),
-                new List<TypedAuraStatement>
+                new List<ITypedAuraStatement>
                 {
                     new TypedLet(
                         new Tok(TokType.Identifier, "name", 2),
                         false,
                         false,
-                        new TypedLiteral<string>("Bob", new AuraString(), 2),
+                        new StringLiteral("Bob", 2),
                         2)
                 },
                 1)
@@ -701,7 +704,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_ForEach_EmptyBody()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedForEach(
                 new Tok(TokType.Identifier, "name", 1),
@@ -709,7 +712,7 @@ public class CompilerTest
                     new Tok(TokType.Identifier, "names", 1),
                     new AuraList(new AuraString()),
                     1),
-                new List<TypedAuraStatement>(),
+                new List<ITypedAuraStatement>(),
                 1)
         });
         MakeAssertions(output, "for _, name := range names {}");
@@ -718,7 +721,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_ForEach()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedForEach(
                 new Tok(TokType.Identifier, "name", 1),
@@ -726,13 +729,13 @@ public class CompilerTest
                     new Tok(TokType.Identifier, "names", 1),
                     new AuraList(new AuraString()),
                     1),
-                new List<TypedAuraStatement>
+                new List<ITypedAuraStatement>
                 {
                     new TypedLet(
                         new Tok(TokType.Identifier, "i", 1),
                         true,
                         false,
-                        new TypedLiteral<long>(5, new Int(), 1),
+                        new IntLiteral(5, 1),
                         2)
                 },
                 1)
@@ -743,12 +746,12 @@ public class CompilerTest
     [Test]
     public void TestCompile_NamedFunction_NoParams_NoReturnType_NoBody()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedNamedFunction(
                 new Tok(TokType.Identifier, "f", 1),
-                new List<TypedParam>(),
-                new TypedBlock(new List<TypedAuraStatement>(), new Nil(), 1),
+                new List<Param>(),
+                new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
                 new Nil(),
                 Visibility.Private,
                 1)
@@ -759,12 +762,12 @@ public class CompilerTest
     [Test]
     public void TestCompile_AnonymousFunction_NoParams_NoReturnType_NoBody()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedExpressionStmt(
                 new TypedAnonymousFunction(
-                    new List<TypedParam>(),
-                    new TypedBlock(new List<TypedAuraStatement>(), new Nil(), 1),
+                    new List<Param>(),
+                    new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
                     new Nil(),
                     1),
                 1)
@@ -775,13 +778,13 @@ public class CompilerTest
     [Test]
     public void TestCompile_Let_Long()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedLet(
                 new Tok(TokType.Identifier, "i", 1),
                 true,
                 false,
-                new TypedLiteral<long>(5, new Int(), 1),
+                new IntLiteral(5, 1),
                 1)
         });
         MakeAssertions(output, "var i int = 5");
@@ -790,13 +793,13 @@ public class CompilerTest
     [Test]
     public void TestCompile_Let_Short()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedLet(
                 new Tok(TokType.Identifier, "i", 1),
                 false,
                 false,
-                new TypedLiteral<long>(5, new Int(), 1),
+                new IntLiteral(5, 1),
                 1)
         });
         MakeAssertions(output, "i := 5");
@@ -805,7 +808,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Mod()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedMod(
                 new Tok(TokType.Identifier, "main", 1),
@@ -817,7 +820,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Return_NoValue()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedReturn(null, 1)
         });
@@ -827,9 +830,9 @@ public class CompilerTest
     [Test]
     public void TestCompile_Return()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
-            new TypedReturn(new TypedLiteral<long>(5, new Int(), 1), 1)
+            new TypedReturn(new IntLiteral(5, 1), 1)
         });
         MakeAssertions(output, "return 5");
     }
@@ -837,11 +840,11 @@ public class CompilerTest
     [Test]
     public void TestCompile_Class_NoParams_NoMethods()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new FullyTypedClass(
                 new Tok(TokType.Identifier, "Greeter", 1),
-                new List<TypedParam>(),
+                new List<Param>(),
                 new List<TypedNamedFunction>(),
                 Visibility.Public,
                 1)
@@ -852,11 +855,11 @@ public class CompilerTest
     [Test]
     public void TestCompile_While_EmptyBody()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedWhile(
-                new TypedLiteral<bool>(true, new Int(), 1),
-                new List<TypedAuraStatement>(),
+                new BoolLiteral(true, 1),
+                new List<ITypedAuraStatement>(),
                 1)
         });
         MakeAssertions(output, "for true {}");
@@ -865,7 +868,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Import_NoAlias()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedImport(
                 new Tok(TokType.Identifier, "test_pkg", 1),
@@ -878,7 +881,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Import_Alias()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedImport(
                 new Tok(TokType.Identifier, "test_pkg", 1),
@@ -891,7 +894,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Import_StdlibPkg()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedImport(
                 new Tok(TokType.Identifier, "aura/io", 1),
@@ -904,7 +907,7 @@ public class CompilerTest
     [Test]
     public void TestCompile_Comment()
     {
-        var output = ArrangeAndAct(new List<TypedAuraStatement>
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
         {
             new TypedComment(
                 new Tok(TokType.Comment, "// this is a comment", 1),
@@ -913,7 +916,7 @@ public class CompilerTest
         MakeAssertions(output, "// this is a comment");
     }
 
-    private string ArrangeAndAct(List<TypedAuraStatement> typedAst)
+    private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)
     {
         // Arrange
         var compiler = new AuraCompiler(typedAst, "test");

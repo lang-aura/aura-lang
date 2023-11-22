@@ -4,29 +4,22 @@ using AuraLang.Types;
 
 namespace AuraLang.AST;
 
-public abstract record UntypedAuraAstNode(int Line);
+public interface IUntypedAuraAstNode : IAuraAstNode { }
 
 /// <summary>
 /// An untyped Aura expression
 /// </summary>
-/// <param name="Line">The expression's line in the source file</param>
-public abstract record UntypedAuraExpression(int Line) : UntypedAuraAstNode(Line);
+public interface IUntypedAuraExpression : IUntypedAuraAstNode { }
 
 /// <summary>
 /// An untyped Aura statement
 /// </summary>
-/// <param name="Line">The statement's line in the source file</param>
-public abstract record UntypedAuraStatement(int Line) : UntypedAuraAstNode(Line);
+public interface IUntypedAuraStatement : IUntypedAuraAstNode { }
 
 public interface IUntypedAuraCallable
 {
     string GetName();
     string? GetModuleName();
-}
-
-public interface IUntypedLiteral<T>
-{
-    T GetValue();
 }
 
 /// <summary>
@@ -36,7 +29,7 @@ public interface IUntypedLiteral<T>
 /// </summary>
 /// <param name="Name">The name of the variable being assigned a new value</param>
 /// <param name="Value">The variable's new value</param>
-public record UntypedAssignment(Tok Name, UntypedAuraExpression Value, int Line) : UntypedAuraExpression(Line);
+public record UntypedAssignment(Tok Name, IUntypedAuraExpression Value, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a binary expression containing a left and right operand and an operator. A simple
@@ -51,7 +44,7 @@ public record UntypedAssignment(Tok Name, UntypedAuraExpression Value, int Line)
 /// <param name="Left">The expression on the left side of the binary expression</param>
 /// <param name="Operator">The binary expression's operator</param>
 /// <param name="Right">The expression on the right side of the binary expression</param>
-public record UntypedBinary(UntypedAuraExpression Left, Tok Operator, UntypedAuraExpression Right, int Line) : UntypedAuraExpression(Line);
+public record UntypedBinary(IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a block, which is a series of statements wrapped in curly braces. Blocks in Aura
@@ -63,7 +56,7 @@ public record UntypedBinary(UntypedAuraExpression Left, Tok Operator, UntypedAur
 /// that blocks are used. For example, <c>while</c> and <c>for</c> loops do not return a value.
 /// </summary>
 /// <param name="Statements">The block's statements</param>
-public record UntypedBlock(List<UntypedAuraStatement> Statements, int Line) : UntypedAuraExpression(Line);
+public record UntypedBlock(List<IUntypedAuraStatement> Statements, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a function call
@@ -75,7 +68,7 @@ public record UntypedBlock(List<UntypedAuraStatement> Statements, int Line) : Un
 /// were defined. For example, the stdlib's <c>printf</c> function could be called with tags like so:
 /// <code>printf(a: 5, format: "%d\n")</code></param>
 public record UntypedCall
-    (IUntypedAuraCallable Callee, List<(Tok?, UntypedAuraExpression)> Arguments, int Line) : UntypedAuraExpression(Line),
+    (IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, int Line) : IUntypedAuraExpression,
         IUntypedAuraCallable
 {
     public string GetName() => Callee.GetName();
@@ -92,7 +85,7 @@ public record UntypedCall
 /// <param name="Obj">The compound object being queried. This compound object should contain the attribute being fetched via
 /// the <see cref="Name"/> parameter</param>
 /// <param name="Name">The attribute being fetched</param>
-public record UntypedGet(UntypedAuraExpression Obj, Tok Name, int Line) : UntypedAuraExpression(Line), IUntypedAuraCallable
+public record UntypedGet(IUntypedAuraExpression Obj, Tok Name, int Line) : IUntypedAuraExpression, IUntypedAuraCallable
 {
     public string GetName() => Name.Value;
     public string? GetModuleName() => "io"; // TODO
@@ -103,7 +96,7 @@ public record UntypedGet(UntypedAuraExpression Obj, Tok Name, int Line) : Untype
 /// </summary>
 /// <param name="Obj">The compound object being queried</param>
 /// <param name="Index">The index being fetched</param>
-public record UntypedGetIndex(UntypedAuraExpression Obj, UntypedAuraExpression Index, int Line) : UntypedAuraExpression(Line);
+public record UntypedGetIndex(IUntypedAuraExpression Obj, IUntypedAuraExpression Index, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents an Aura expression that fetches a range of items from an indexable data type
@@ -111,7 +104,7 @@ public record UntypedGetIndex(UntypedAuraExpression Obj, UntypedAuraExpression I
 /// <param name="Obj">The compound object being queried</param>
 /// <param name="Lower">The lower bound of the range. This value is inclusive.</param>
 /// <param name="Upper">The upper bound of the range. This value is exclusive.</param>
-public record UntypedGetIndexRange(UntypedAuraExpression Obj, UntypedAuraExpression Lower, UntypedAuraExpression Upper, int Line) : UntypedAuraExpression(Line);
+public record UntypedGetIndexRange(IUntypedAuraExpression Obj, IUntypedAuraExpression Lower, IUntypedAuraExpression Upper, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents one or more Aura expressions grouped together with parentheses. A simple
@@ -119,7 +112,7 @@ public record UntypedGetIndexRange(UntypedAuraExpression Obj, UntypedAuraExpress
 /// <code>(5 + 5)</code>
 /// </summary>
 /// <param name="Expr">The grouped expression</param>
-public record UntypedGrouping(UntypedAuraExpression Expr, int Line) : UntypedAuraExpression(Line);
+public record UntypedGrouping(IUntypedAuraExpression Expr, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents an <c>if</c> expression, which consists of at least two components -
@@ -139,87 +132,12 @@ public record UntypedGrouping(UntypedAuraExpression Expr, int Line) : UntypedAur
 /// to true, the <see cref="Then"/> branch will be executed.</param>
 /// <param name="Then">The branch that will be executed if the <see cref="Condition"/> evaluates to true</param>
 /// <param name="Else">The branch that will be executed if the <see cref="Condition"/> evalutes to false</param>
-public record UntypedIf(UntypedAuraExpression Condition, UntypedBlock Then, UntypedAuraExpression? Else, int Line) : UntypedAuraExpression(Line);
-
-/// <summary>
-/// Represents an integer literal
-/// </summary>
-/// <param name="I">The integer value</param>
-public record UntypedIntLiteral(long I, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<long>
-{
-    public long GetValue() => I;
-}
-
-/// <summary>
-/// Represents a float literal
-/// </summary>
-/// <param name="F">The float value</param>
-public record UntypedFloatLiteral(double F, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<double>
-{
-    public double GetValue() => F;
-}
-
-/// <summary>
-/// Represents a string literal
-/// </summary>
-/// <param name="S">The string value</param>
-public record UntypedStringLiteral(string S, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<string>
-{
-    public string GetValue() => S;
-}
-
-/// <summary>
-/// Represents a list literal
-/// </summary>
-/// <param name="L">The list value</param>
-public record UntypedListLiteral<T>(List<T> L, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<List<T>> where T : UntypedAuraExpression
-{
-    public List<T> GetValue() => L;
-}
-
-/// <summary>
-/// Represents a map data type in Aura. A simple map literal would be declared like this:
-/// <code>
-/// map[string : int]{
-///     "Hello": 1,
-///     "World": 2,
-/// }
-/// </code>
-/// The map's type signature stored in this record will be used by the type checker to confirm that each element
-/// in the map matches its expected type. Its important to note that, even though the key and value types are stored
-/// in this untyped record, the map object has not yet been type checked, and it is not guaranteed that the map's elements
-/// match their expected type.
-/// </summary>
-/// <typeparam name="K">The type of the map's keys</typeparam>
-/// <typeparam name="V">The type of the map's values</typeparam>
-/// <param name="M">The map value</param>
-public record UntypedMapLiteral(Dictionary<UntypedAuraExpression, UntypedAuraExpression> M, Tok KeyType, Tok ValueType, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<Dictionary<UntypedAuraExpression, UntypedAuraExpression>>
-{
-    public Dictionary<UntypedAuraExpression, UntypedAuraExpression> GetValue() => M;
-}
-
-/// <summary>
-/// Represents a boolean literal
-/// </summary>
-/// <param name="B">The boolean value</param>
-public record UntypedBoolLiteral(bool B, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<bool>
-{
-    public bool GetValue() => B;
-}
+public record UntypedIf(IUntypedAuraExpression Condition, UntypedBlock Then, IUntypedAuraExpression? Else, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents Aura's <c>nil</c> keyword.
 /// </summary>
-public record UntypedNil(int Line) : UntypedAuraExpression(Line);
-
-/// <summary>
-/// Represents a char literal
-/// </summary>
-/// <param name="C">The char value</param>
-public record UntypedCharLiteral(char C, int Line) : UntypedAuraExpression(Line), IUntypedLiteral<char>
-{
-    public char GetValue() => C;
-}
+public record UntypedNil(int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a logical expression, which is any binary expression that evaluates
@@ -228,7 +146,7 @@ public record UntypedCharLiteral(char C, int Line) : UntypedAuraExpression(Line)
 /// <param name="Left">The expression on the left side of the expression</param>
 /// <param name="Operator">The logical expression's operator</param>
 /// <param name="Right">The expression on the right side of the expression</param>
-public record UntypedLogical(UntypedAuraExpression Left, Tok Operator, UntypedAuraExpression Right, int Line) : UntypedAuraExpression(Line);
+public record UntypedLogical(IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a set expression, which is a binary expression whose operator must be an equal sign,
@@ -243,13 +161,13 @@ public record UntypedLogical(UntypedAuraExpression Left, Tok Operator, UntypedAu
 /// <param name="Obj">The compound object whose attribute is getting a new value</param>
 /// <param name="Name">The name of the attribute being assigned a new value</param>
 /// <param name="Value">The new value</param>
-public record UntypedSet(UntypedAuraExpression Obj, Tok Name, UntypedAuraExpression Value, int Line) : UntypedAuraExpression(Line);
+public record UntypedSet(IUntypedAuraExpression Obj, Tok Name, IUntypedAuraExpression Value, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents the <c>this</c> keyword when it's used inside of a class's declaration body
 /// </summary>
 /// <param name="Keyword">The <c>this</c> keyword</param>
-public record UntypedThis(Tok Keyword, int Line) : UntypedAuraExpression(Line);
+public record UntypedThis(Tok Keyword, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a unary expression, which consists of an operator and an operand.
@@ -260,14 +178,14 @@ public record UntypedThis(Tok Keyword, int Line) : UntypedAuraExpression(Line);
 /// <param name="Right">The expression's type is determined by the <see cref="Operator"/>. If the operator is
 /// <c>!</c>, the expression must be a boolean value, and if the operator is <c>-</c>, the expression must
 /// be either an integer or a float.</param>
-public record UntypedUnary(Tok Operator, UntypedAuraExpression Right, int Line) : UntypedAuraExpression(Line);
+public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents an Aura variable. At the parsing stage of the compilation process, a variable is any token
 /// that doesn't match an Aura reserved keyword or reserved token.
 /// </summary>
 /// <param name="Name">The variable's name</param>
-public record UntypedVariable(Tok Name, int Line) : UntypedAuraExpression(Line), IUntypedAuraCallable
+public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUntypedAuraCallable
 {
     public string GetName() => Name.Value;
     public string? GetModuleName() => null;
@@ -278,14 +196,14 @@ public record UntypedVariable(Tok Name, int Line) : UntypedAuraExpression(Line),
 /// until the end of the enclosing function's execution.
 /// </summary>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function scope</param>
-public record UntypedDefer(IUntypedAuraCallable Call, int Line) : UntypedAuraStatement(Line);
+public record UntypedDefer(IUntypedAuraCallable Call, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents any expression used in a context where a statement is expected. In these situations,
 /// the expression's return value is ignored.
 /// </summary>
 /// <param name="Expression">The expression that was present in a context where a statement was expected</param>
-public record UntypedExpressionStmt(UntypedAuraExpression Expression, int Line) : UntypedAuraStatement(Line);
+public record UntypedExpressionStmt(IUntypedAuraExpression Expression, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents an Aura <c>for</c> loop, which has the same structure as a C <c>for</c>
@@ -301,7 +219,7 @@ public record UntypedExpressionStmt(UntypedAuraExpression Expression, int Line) 
 /// <param name="Condition">The condition that will be evaluated after each iteration. If the condition evaluates to false, the loop
 /// will exit</param>
 /// <param name="Body">Collection of statements that will be executed on each iteration</param>
-public record UntypedFor(UntypedAuraStatement? Initializer, UntypedAuraExpression? Condition, List<UntypedAuraStatement> Body, int Line) : UntypedAuraStatement(Line);
+public record UntypedFor(IUntypedAuraStatement? Initializer, IUntypedAuraExpression? Condition, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a simplified <c>for</c> loop that supports iterating through an
@@ -312,7 +230,7 @@ public record UntypedFor(UntypedAuraStatement? Initializer, UntypedAuraExpressio
 /// in the iterable</param>
 /// <param name="Iterable">The collection being iterated over</param>
 /// <param name="Body">Collection of statements that will be executed on each iteration</param>
-public record UntypedForEach(Tok EachName, UntypedAuraExpression Iterable, List<UntypedAuraStatement> Body, int Line) : UntypedAuraStatement(Line);
+public record UntypedForEach(Tok EachName, IUntypedAuraExpression Iterable, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a named function declaration. The syntax for declaring a named function looks like:
@@ -324,10 +242,10 @@ public record UntypedForEach(Tok EachName, UntypedAuraExpression Iterable, List<
 /// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
 /// been type checked yet.</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Name, List<UntypedParam> Params, UntypedBlock Body, Tok? ReturnType, Visibility Public, int Line) : UntypedAuraStatement(Line), IUntypedFunction
+public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, Tok? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
-    public List<UntypedParam> GetParams() => Params;
-    public List<UntypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -338,10 +256,10 @@ public record UntypedNamedFunction(Tok Name, List<UntypedParam> Params, UntypedB
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
 /// /// been type checked yet.</param>
-public record UntypedAnonymousFunction(List<UntypedParam> Params, UntypedBlock Body, Tok? ReturnType, int Line) : UntypedAuraExpression(Line), IUntypedFunction
+public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, Tok? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
 {
-    public List<UntypedParam> GetParams() => Params;
-    public List<UntypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -356,7 +274,7 @@ public record UntypedAnonymousFunction(List<UntypedParam> Params, UntypedBlock B
 /// be <see cref="Unknown"/></param>
 /// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">The initializer expression whose result will be assigned to the new variable. This expression may be omitted.</param>
-public record UntypedLet(Tok Name, Tok? NameTyp, bool Mutable, UntypedAuraExpression? Initializer, int Line) : UntypedAuraStatement(Line);
+public record UntypedLet(Tok Name, AuraType? NameTyp, bool Mutable, IUntypedAuraExpression? Initializer, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents the current source file's module declaration. It should appear at the top of the file and have
@@ -364,14 +282,14 @@ public record UntypedLet(Tok Name, Tok? NameTyp, bool Mutable, UntypedAuraExpres
 /// <code>mod <c>mod_name</c></code>
 /// </summary>
 /// <param name="Value">The module's name</param>
-public record UntypedMod(Tok Value, int Line) : UntypedAuraStatement(Line);
+public record UntypedMod(Tok Value, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a <c>return</c> statement, which can be either explicit (i.e. <code>return 5</code>) or, in specific
 /// circumstances, implicit.
 /// </summary>
 /// <param name="Value">The value to be returned</param>
-public record UntypedReturn(UntypedAuraExpression? Value, int Line) : UntypedAuraStatement(Line);
+public record UntypedReturn(IUntypedAuraExpression? Value, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a class declaration, which follows the syntax:
@@ -381,10 +299,10 @@ public record UntypedReturn(UntypedAuraExpression? Value, int Line) : UntypedAur
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Name, List<UntypedParam> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : UntypedAuraStatement(Line), IUntypedFunction
+public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
-    public List<UntypedParam> GetParams() => Params;
-    public List<UntypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -395,14 +313,14 @@ public record UntypedClass(Tok Name, List<UntypedParam> Params, List<UntypedName
 /// <param name="Condition">The condition to be evaluated on each iteration of the loop. The loop will exit when the condition
 /// evaluates to false.</param>
 /// <param name="Body">Collection of statements executed once per iteration</param>
-public record UntypedWhile(UntypedAuraExpression Condition, List<UntypedAuraStatement> Body, int Line) : UntypedAuraStatement(Line);
+public record UntypedWhile(IUntypedAuraExpression Condition, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents an <c>import</c> statement
 /// </summary>
 /// <param name="Package">The name of the package being imported</param>
 /// <param name="Alias">Will contain a value if the import has an alias</param>
-public record UntypedImport(Tok Package, Tok? Alias, int Line) : UntypedAuraStatement(Line);
+public record UntypedImport(Tok Package, Tok? Alias, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents an Aura comment, which can be declared in two different ways. Beginning a comment with
@@ -411,23 +329,23 @@ public record UntypedImport(Tok Package, Tok? Alias, int Line) : UntypedAuraStat
 /// on the same line or a future line.
 /// </summary>
 /// <param name="Text">The comment's text</param>
-public record UntypedComment(Tok Text, int Line) : UntypedAuraStatement(Line);
+public record UntypedComment(Tok Text, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a <c>continue</c> statement that is used as a control flow construct inside a loop. The
-/// <c>continue</c> keyword will advance exeecution to the next iteration in the loop.
+/// <c>continue</c> keyword will advance execution to the next iteration in the loop.
 /// </summary>
-public record UntypedContinue(int Line) : UntypedAuraStatement(Line);
+public record UntypedContinue(int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a <c>break</c> statement that is used as a control flow construct inside a loop. The <c>break</c>
 /// keyword will immediately break out of the enclosing loop.
 /// </summary>
-public record UntypedBreak(int Line) : UntypedAuraStatement(Line);
+public record UntypedBreak(int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a <c>yield</c> statement that is used to return a value from an <c>if</c> expression or block without
 /// returning from the enclosing function.
 /// </summary>
 /// <param name="Value">The value to be yielded from the enclosing scope</param>
-public record UntypedYield(UntypedAuraExpression Value, int Line) : UntypedAuraStatement(Line);
+public record UntypedYield(IUntypedAuraExpression Value, int Line) : IUntypedAuraStatement;

@@ -4,5 +4,5 @@ namespace AuraLang.Types;
 
 public interface IDefaultable
 {
-    TypedAuraExpression Default(int line);
+    ITypedAuraExpression Default(int line);
 }
