@@ -436,6 +436,7 @@ public class AuraScanner
 		// Advance past the closing '
 		Advance();
 		// Ensure that the char is a single character
+		if (s.Length == 0) throw new EmptyCharException(_line);
 		if (s.Length > 1) throw new CharLengthGreaterThanOneException(_line);
 
 		return new Tok(TokType.CharLiteral, s, _line);
