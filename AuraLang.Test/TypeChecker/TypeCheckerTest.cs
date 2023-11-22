@@ -135,9 +135,9 @@ public class TypeCheckerTest
             .Returns("main");
         _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
             "f",
-            new Function(
+            new NamedFunction(
                 "f",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>(),
                     new Nil())),
             1,
@@ -157,7 +157,7 @@ public class TypeCheckerTest
             new TypedCall(
                 new TypedVariable(
                     new Tok(TokType.Identifier, "f", 1),
-                    new Function("f", new AnonymousFunction(new List<Param>(), new Nil())),
+                    new NamedFunction("f", new Function(new List<Param>(), new Nil())),
                     1),
                 new List<ITypedAuraExpression>(),
                 new Nil(),
@@ -172,9 +172,9 @@ public class TypeCheckerTest
             .Returns("main");
         _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
             "f",
-            new Function(
+            new NamedFunction(
                 "f",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>
                     {
                         new(
@@ -210,7 +210,7 @@ public class TypeCheckerTest
             new TypedCall(
                 new TypedVariable(
                     new Tok(TokType.Identifier, "f", 1),
-                    new Function("f", new AnonymousFunction(new List<Param>(), new Nil())),
+                    new NamedFunction("f", new Function(new List<Param>(), new Nil())),
                     1),
                 new List<ITypedAuraExpression>
                 {
@@ -229,9 +229,9 @@ public class TypeCheckerTest
             .Returns("main");
         _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
             "f",
-            new Function(
+            new NamedFunction(
                 "f",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>
                     {
                         new(
@@ -264,7 +264,7 @@ public class TypeCheckerTest
             new TypedCall(
                 new TypedVariable(
                     new Tok(TokType.Identifier, "f", 1),
-                    new Function("f", new AnonymousFunction(new List<Param>(), new Nil())),
+                    new NamedFunction("f", new Function(new List<Param>(), new Nil())),
                     1),
                 new List<ITypedAuraExpression>
                 {
@@ -283,9 +283,9 @@ public class TypeCheckerTest
             .Returns("main");
         _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
             "f",
-            new Function(
+            new NamedFunction(
                 "f",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>
                     {
                         new(
@@ -322,9 +322,9 @@ public class TypeCheckerTest
             .Returns("main");
         _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
             "f",
-            new Function(
+            new NamedFunction(
                 "f",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>
                     {
                         new(
@@ -373,7 +373,7 @@ public class TypeCheckerTest
                     {
                         new(new AuraString(), false, null)
                     },
-                    new List<Function>()),
+                    new List<NamedFunction>()),
                 1,
                 "main"));
             
@@ -402,7 +402,7 @@ public class TypeCheckerTest
                         {
                             new(new AuraString(), false, null)
                         },
-                        new List<Function>()),
+                        new List<NamedFunction>()),
                     1),
                 new Tok(TokType.Identifier, "name", 1),
                 new AuraString(),
@@ -702,7 +702,7 @@ public class TypeCheckerTest
                     {
                         new(new AuraString(), false, null)
                     },
-                    new List<Function>()),
+                    new List<NamedFunction>()),
                 1,
                 "main"));
         
@@ -732,7 +732,7 @@ public class TypeCheckerTest
                         {
                             new(new AuraString(), false, null)
                         },
-                        new List<Function>()),
+                        new List<NamedFunction>()),
                     1),
                 new Tok(TokType.Identifier, "name", 1),
                 new StringLiteral("Bob", 1),
@@ -754,7 +754,7 @@ public class TypeCheckerTest
                     "Greeter",
                     new List<string>(),
                     new List<ParamType>(),
-                    new List<Function>()),
+                    new List<NamedFunction>()),
                 1));
         
         var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
@@ -772,7 +772,7 @@ public class TypeCheckerTest
                     "Greeter",
                     new List<string>(),
                     new List<ParamType>(),
-                    new List<Function>()),
+                    new List<NamedFunction>()),
                 1),
             1));
     }
@@ -853,9 +853,9 @@ public class TypeCheckerTest
         _variableStore.Setup(v => v.Find("f", "main"))
             .Returns(new Local(
                 "f",
-                new Function(
+                new NamedFunction(
                     "f",
-                    new AnonymousFunction(
+                    new Function(
                         new List<Param>(),
                         new Nil())),
                 1,
@@ -876,9 +876,9 @@ public class TypeCheckerTest
             new TypedCall(
                 new TypedVariable(
                     new Tok(TokType.Identifier, "f", 1),
-                    new Function(
+                    new NamedFunction(
                         "f",
-                        new AnonymousFunction(
+                        new Function(
                             new List<Param>(),
                             new Nil())),
                     1),

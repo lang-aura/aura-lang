@@ -94,11 +94,11 @@ public class CompilerTest
                             new Tok(TokType.Identifier, "io", 1),
                             new Module(
                                 "io",
-                                new List<Function>
+                                new List<NamedFunction>
                                 {
                                     new(
                                         "Println",
-                                        new AnonymousFunction(
+                                        new Function(
                                             new List<Param>
                                             {
                                                 new(
@@ -109,9 +109,9 @@ public class CompilerTest
                                 }),
                             1),
                         new Tok(TokType.Identifier, "println", 1),
-                        new Function(
+                        new NamedFunction(
                             "println",
-                            new AnonymousFunction(
+                            new Function(
                                 new List<Param>
                                 {
                                     new Param(
@@ -143,9 +143,9 @@ public class CompilerTest
                 new TypedCall(
                     new TypedVariable(
                         new Tok(TokType.Identifier, "f", 1),
-                        new Function(
+                        new NamedFunction(
                             "f",
-                            new AnonymousFunction(
+                            new Function(
                                 new List<Param>(),
                                 new Nil())),
                         1),
@@ -166,9 +166,9 @@ public class CompilerTest
                 new TypedCall(
                     new TypedVariable(
                         new Tok(TokType.Identifier, "f", 1),
-                        new Function(
+                        new NamedFunction(
                             "f",
-                            new AnonymousFunction(
+                            new Function(
                                 new List<Param>
                                 {
                                     new(
@@ -197,9 +197,9 @@ public class CompilerTest
                 new TypedCall(
                     new TypedVariable(
                         new Tok(TokType.Identifier, "f", 1),
-                        new Function(
+                        new NamedFunction(
                             "f",
-                            new AnonymousFunction(
+                            new Function(
                                 new List<Param>
                                 {
                                     new(
@@ -242,7 +242,7 @@ public class CompilerTest
                             {
                                 new ParamType(new AuraString(), false, null)
                             },
-                            new List<Function>()),
+                            new List<NamedFunction>()),
                         1),
                     new Tok(TokType.Identifier, "name", 1),
                     new AuraString(),
@@ -539,7 +539,7 @@ public class CompilerTest
                             {
                                 new ParamType(new AuraString(), false, null)
                             },
-                            new List<Function>()),
+                            new List<NamedFunction>()),
                         1),
                     new Tok(TokType.Identifier, "name", 1),
                     new StringLiteral("Bob", 1),
@@ -562,7 +562,7 @@ public class CompilerTest
                         "Greeter",
                         new List<string>(),
                         new List<ParamType>(),
-                        new List<Function>()),
+                        new List<NamedFunction>()),
                     1),
                 1)
         });
@@ -625,9 +625,9 @@ public class CompilerTest
                 new TypedCall(
                     new TypedVariable(
                         new Tok(TokType.Identifier, "f", 1),
-                        new Function(
+                        new NamedFunction(
                             "f",
-                            new AnonymousFunction(
+                            new Function(
                                 new List<Param>(),
                                 new Nil())),
                         1),

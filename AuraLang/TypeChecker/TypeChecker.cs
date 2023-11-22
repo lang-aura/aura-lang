@@ -5,7 +5,6 @@ using AuraLang.Stdlib;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraChar = AuraLang.Types.Char;
-using AuraFunction = AuraLang.Types.Function;
 using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.TypeChecker;
@@ -238,9 +237,9 @@ public class AuraTypeChecker
                 // Add function as local variable
                 _variableStore.Add(new Local(
                     f.Name.Value,
-                    new AuraFunction(
+                    new NamedFunction(
                         f.Name.Value,
-                        new AnonymousFunction(
+                        new Function(
                             TypeCheckParams(f.Params),
                             returnType)
                         ),
@@ -292,7 +291,7 @@ public class AuraTypeChecker
         // Add function as local
         _variableStore.Add(new Local(
             f.Name.Value,
-            new AuraFunction(f.Name.Value, new AnonymousFunction(typedParams, returnType)),
+            new NamedFunction(f.Name.Value, new Function(typedParams, returnType)),
             _scope,
             _currentModule.GetName()!));
 
@@ -432,8 +431,8 @@ public class AuraTypeChecker
                         var methodParamType = p.ParamType.Typ;
                         return new Param(p.Name, new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
                     });
-                    return new AuraFunction(method.Name.Value,
-                        new AnonymousFunction(typedMethodParams.ToList(), method.ReturnType));
+                    return new NamedFunction(method.Name.Value,
+                        new Function(typedMethodParams.ToList(), method.ReturnType));
                 })
                 .ToList();
             var paramNames = class_.Params.Select(p => p.Name.Value).ToList();

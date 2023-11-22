@@ -143,12 +143,12 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 /// <summary>
 /// Represents an Aura function
 /// </summary>
-public class Function : AuraType, ICallable
+public class NamedFunction : AuraType, ICallable
 {
     public string Name { get; init; }
-    private AnonymousFunction F { get; init; }
+    private Function F { get; init; }
 
-    public Function(string name, AnonymousFunction f)
+    public NamedFunction(string name, Function f)
     {
         Name = name;
         F = f;
@@ -156,7 +156,7 @@ public class Function : AuraType, ICallable
 
     public override bool IsSameType(AuraType other)
     {
-        return other is Function;
+        return other is NamedFunction;
     }
     
     public override string ToString() => "function";
@@ -171,12 +171,12 @@ public class Function : AuraType, ICallable
 /// Represents an anonymous function in Aura, which is basically just a named function
 /// without a name
 /// </summary>
-public class AnonymousFunction : AuraType, ICallable
+public class Function : AuraType, ICallable
 {
     public List<Param> Params { get; }
     public AuraType ReturnType { get; }
 
-    public AnonymousFunction(List<Param> fParams, AuraType returnType)
+    public Function(List<Param> fParams, AuraType returnType)
     {
         Params = fParams;
         ReturnType = returnType;
@@ -184,7 +184,7 @@ public class AnonymousFunction : AuraType, ICallable
 
     public override bool IsSameType(AuraType other)
     {
-        return other is AnonymousFunction;
+        return other is Function;
     }
 
     public override string ToString()
@@ -210,9 +210,9 @@ public class Class : AuraType, IGettable
     public string Name { get; init; }
     public List<string> ParamNames { get; init; }
     public List<ParamType> ParamTypes { get; init; }
-    public List<Function> Methods { get; init; }
+    public List<NamedFunction> Methods { get; init; }
 
-    public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<Function> methods)
+    public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<NamedFunction> methods)
     {
         Name = name;
         ParamNames = paramNames;
@@ -267,9 +267,9 @@ public class Class : AuraType, IGettable
 public class Module : AuraType, IGettable
 {
     public string Name { get; init; }
-    public List<Function> PublicFunctions { get; init; }
+    public List<NamedFunction> PublicFunctions { get; init; }
 
-    public Module(string name, List<Function> publicFunctions)
+    public Module(string name, List<NamedFunction> publicFunctions)
     {
         Name = name;
         PublicFunctions = publicFunctions;
