@@ -37,7 +37,7 @@ public class IntegrationTest
     public async Task TestIntegration_AnonymousFunctions()
     {
         var output = await ArrangeAndAct($"{BasePath}/src/anonymous_functions.aura");
-        MakeAssertions(output, "10\n");
+        MakeAssertions(output, "10\n20\n");
     }
 
     private string ReadFile(string path) => File.ReadAllText(path);
