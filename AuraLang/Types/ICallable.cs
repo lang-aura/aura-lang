@@ -4,8 +4,8 @@ namespace AuraLang.Types;
 
 public interface ICallable
 {
-    List<TypedParam> GetParams();
-    List<TypedParamType> GetParamTypes();
+    List<Param> GetParams();
+    List<ParamType> GetParamTypes();
     AuraType GetReturnType();
     int GetParamIndex(string name);
     bool HasVariadicParam();

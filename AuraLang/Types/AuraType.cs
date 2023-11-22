@@ -59,7 +59,7 @@ public class Int : AuraType, IDefaultable
     }
 
     public override string ToString() => "int";
-    public TypedAuraExpression Default(int line) => new TypedLiteral<long>(0, new Int(), line);
+    public ITypedAuraExpression Default(int line) => new IntLiteral(0, line);
 }
 
 /// <summary>
@@ -73,7 +73,7 @@ public class Float : AuraType, IDefaultable
     }
 
     public override string ToString() => "float";
-    public TypedAuraExpression Default(int line) => new TypedLiteral<double>(0.0, new Float(), line);
+    public ITypedAuraExpression Default(int line) => new FloatLiteral(0.0, line);
 }
 
 
@@ -92,7 +92,7 @@ public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefault
     public AuraType IndexingType() => new Int();
     public AuraType GetIndexedType() => new Char();
     public AuraType GetRangeIndexedType() => new String();
-    public TypedAuraExpression Default(int line) => new TypedLiteral<string>(string.Empty, new String(), line);
+    public ITypedAuraExpression Default(int line) => new StringLiteral(string.Empty, line);
 }
 
 /// <summary>
@@ -106,7 +106,7 @@ public class Bool : AuraType, IDefaultable
     }
 
     public override string ToString() => "bool";
-    public TypedAuraExpression Default(int line) => new TypedLiteral<bool>(false, new Bool(), line);
+    public ITypedAuraExpression Default(int line) => new BoolLiteral(false, line);
 }
 
 /// <summary>
@@ -135,8 +135,8 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
     public AuraType GetIndexedType() => Kind;
     public AuraType GetRangeIndexedType() => new List(Kind);
 
-    public TypedAuraExpression Default(int line) =>
-        new TypedLiteral<List<TypedAuraExpression>>(new List<TypedAuraExpression>(), new List(Kind), line);
+    public ITypedAuraExpression Default(int line) =>
+        new ListLiteral(new List<IAuraAstNode>(), new List(Kind), line);
 }
 
 /// <summary>
@@ -159,8 +159,8 @@ public class Function : AuraType, ICallable
     }
     
     public override string ToString() => "function";
-    public List<TypedParam> GetParams() => F.Params;
-    public List<TypedParamType> GetParamTypes() => F.GetParamTypes();
+    public List<Param> GetParams() => F.Params;
+    public List<ParamType> GetParamTypes() => F.GetParamTypes();
     public AuraType GetReturnType() => F.ReturnType;
     public int GetParamIndex(string name) => F.GetParamIndex(name);
     public bool HasVariadicParam() => F.HasVariadicParam();
@@ -172,10 +172,10 @@ public class Function : AuraType, ICallable
 /// </summary>
 public class AnonymousFunction : AuraType, ICallable
 {
-    public List<TypedParam> Params { get; }
+    public List<Param> Params { get; }
     public AuraType ReturnType { get; }
 
-    public AnonymousFunction(List<TypedParam> fParams, AuraType returnType)
+    public AnonymousFunction(List<Param> fParams, AuraType returnType)
     {
         Params = fParams;
         ReturnType = returnType;
@@ -194,8 +194,8 @@ public class AnonymousFunction : AuraType, ICallable
         return $"fn({pt}) -> {ReturnType}";
     }
 
-    public List<TypedParam> GetParams() => Params;
-    public List<TypedParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+    public List<Param> GetParams() => Params;
+    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
     public AuraType GetReturnType() => ReturnType;
     public int GetParamIndex(string name) => Params.FindIndex(p => p.Name.Value == name);
     public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
@@ -209,10 +209,10 @@ public class Class : AuraType, IGettable
 {
     public string Name { get; init; }
     public List<string> ParamNames { get; init; }
-    public List<TypedParamType> ParamTypes { get; init; }
+    public List<ParamType> ParamTypes { get; init; }
     public List<Function> Methods { get; init; }
 
-    public Class(string name, List<string> paramNames, List<TypedParamType> paramTypes, List<Function> methods)
+    public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<Function> methods)
     {
         Name = name;
         ParamNames = paramNames;
@@ -336,7 +336,7 @@ public class Map : AuraType, IIndexable, IDefaultable
     public AuraType IndexingType() => Key;
     public AuraType GetIndexedType() => Value;
 
-    public TypedAuraExpression Default(int line) =>
-        new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(
-            new Dictionary<TypedAuraExpression, TypedAuraExpression>(), new Map(Key, Value), line);
+    public ITypedAuraExpression Default(int line) =>
+        new MapLiteral(
+            new Dictionary<IAuraAstNode, IAuraAstNode>(), Key, Value, line);
 }

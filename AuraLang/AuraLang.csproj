@@ -22,7 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Exceptions\" />
-    <Folder Include="AST\" />
     <Folder Include="Shared\" />
     <Folder Include="Parser\" />
     <Folder Include="Exceptions\Scanner\" />

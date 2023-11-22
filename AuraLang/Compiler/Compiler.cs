@@ -14,13 +14,13 @@ public class AuraCompiler
     /// <summary>
     /// The typed Aura AST that will be compiled to Go
     /// </summary>
-    private readonly List<TypedAuraStatement> _typedAst;
+    private readonly List<ITypedAuraStatement> _typedAst;
     /// <summary>
     /// Aura allows implicit returns in certain situations, and the behavior of the return statement differs depending on the situaiton and whether its implicit
     /// or explicit. Because of that, the compiler keeps track of any enclosing types, which it refers to when compiling a return statement. The enclosing types
     /// that the compiler is interested in are `if` expressions, blocks, functions, and classes.
     /// </summary>
-    private readonly Stack<TypedAuraAstNode> _enclosingType = new();
+    private readonly Stack<ITypedAuraAstNode> _enclosingType = new();
     /// <summary>
     /// The compiler keeps track of variables declared in the Aura typed AST, but it doesn't need to keep track of all available information about these variables.
     /// Instead, it needs to know if the variables were declared as public or not. This is because public functions, classes, etc. in Aura are declared with the
@@ -42,7 +42,7 @@ public class AuraCompiler
     private readonly CompilerExceptionContainer _exContainer = new();
     private string ProjectName { get; }
 
-	public AuraCompiler(List<TypedAuraStatement> typedAst, string projectName)
+	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName)
 	{
         _typedAst = typedAst;
         _line = 1;
@@ -68,7 +68,7 @@ public class AuraCompiler
         return _goDocument.Assemble();
     }
 
-    private string Statement(TypedAuraStatement stmt)
+    private string Statement(ITypedAuraStatement stmt)
     {
         return stmt switch
         {
@@ -90,7 +90,7 @@ public class AuraCompiler
         };
     }
 
-    private string Expression(TypedAuraExpression expr)
+    private string Expression(ITypedAuraExpression expr)
     {
         return expr switch
         {
@@ -103,14 +103,14 @@ public class AuraCompiler
             TypedGetIndexRange r => GetIndexRangeExpr(r),
             TypedGrouping g => GroupingExpr(g),
             TypedIf i => IfExpr(i),
-            TypedLiteral<string> l => StringLiteralExpr(l),
-            TypedLiteral<char> c => CharLiteralExpr(c),
-            TypedLiteral<long> i => IntLiteralExpr(i),
-            TypedLiteral<double> f => FloatLiteralExpr(f),
-            TypedLiteral<bool> b => BoolLiteralExpr(b),
-            TypedLiteral<List<TypedAuraExpression>> l => ListLiteralExpr(l),
+            StringLiteral s => StringLiteralExpr(s),
+            CharLiteral c => CharLiteralExpr(c),
+            IntLiteral i => IntLiteralExpr(i),
+            FloatLiteral f => FloatLiteralExpr(f),
+            BoolLiteral b => BoolLiteralExpr(b),
+            ListLiteral l => ListLiteralExpr(l),
             TypedNil n => NilLiteralExpr(n),
-            TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> d => MapLiteralExpr(d),
+            MapLiteral m => MapLiteralExpr(m),
             TypedLogical l => LogicalExpr(l),
             TypedSet s => SetExpr(s),
             TypedThis t => ThisExpr(t),
@@ -317,7 +317,7 @@ public class AuraCompiler
     private string CallExpr(TypedCall c)
     {
         if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
-        var callee = Expression((TypedAuraExpression)c.Callee);
+        var callee = Expression((ITypedAuraExpression)c.Callee);
         var compiledParams = c.Arguments.Select(Expression);
         return $"{callee}({string.Join(", ", compiledParams)})";
     }
@@ -369,43 +369,35 @@ public class AuraCompiler
         return $"if {cond} {then}{else_}";
     }
 
-    private string StringLiteralExpr(TypedLiteral<string> literal) => $"\"{literal.Value}\"";
+    private string StringLiteralExpr(StringLiteral literal) => $"\"{literal.Value}\"";
 
-    private string CharLiteralExpr(TypedLiteral<char> literal) => $"'{literal.Value}'";
+    private string CharLiteralExpr(CharLiteral literal) => $"'{literal.Value}'";
 
-    private string IntLiteralExpr(TypedLiteral<long> literal) => $"{literal.Value}";
+    private string IntLiteralExpr(IntLiteral literal) => $"{literal.Value}";
 
-    private string FloatLiteralExpr(TypedLiteral<double> literal) => string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
+    private string FloatLiteralExpr(FloatLiteral literal) => string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
     
-    private string BoolLiteralExpr(TypedLiteral<bool> literal) => literal.Value ? "true" : "false";
+    private string BoolLiteralExpr(BoolLiteral literal) => (bool)literal.Value ? "true" : "false";
 
-    private string ListLiteralExpr(TypedLiteral<List<TypedAuraExpression>> literal)
+    private string ListLiteralExpr(ListLiteral literal)
     {
-        var items = literal.Value
-            .Select(Expression);
+        var items = ((System.Collections.Generic.List<IAuraAstNode>)literal.Value)
+            .Select(item => Expression((ITypedAuraExpression)item));
         return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
     }
 
     private string NilLiteralExpr(TypedNil nil) => "nil";
 
-    private string MapLiteralExpr(TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> literal)
+    private string MapLiteralExpr(MapLiteral literal)
     {
-        var items = literal.Value.Select(pair =>
+        var items = ((System.Collections.Generic.Dictionary<IAuraAstNode, IAuraAstNode>)literal.Value)
+            .Select(pair =>
         {
-            var keyExpr = Expression(pair.Key);
-            var valueExpr = Expression(pair.Value);
+            var keyExpr = Expression((ITypedAuraExpression)pair.Key);
+            var valueExpr = Expression((ITypedAuraExpression)pair.Value);
             return $"{keyExpr}: {valueExpr}";
         });
         return items.Any() ? $"{AuraTypeToGoType(literal.Typ)}{{\n{string.Join(", ", items)}\n}}" : $"{AuraTypeToGoType(literal.Typ)}{{}}";
-    }
-
-    private string TupleLiteralExpr(TypedLiteral<List<TypedAuraExpression>> literal)
-    {
-        var tupleItems = ((List<TypedAuraExpression>)literal.Value)
-            .Select(Expression)
-            .Aggregate(string.Empty, (prev, curr) => $"{prev},{curr}")
-            .ToList();
-        return $"{AuraTypeToGoType(literal.Typ)}{{{tupleItems}}}";
     }
 
     private string LogicalExpr(TypedLogical logical)
@@ -439,7 +431,7 @@ public class AuraCompiler
 
     private string AuraTypeToGoType(AuraType typ) => typ.ToString();
 
-    private string CompileLoopBody(List<TypedAuraStatement> body)
+    private string CompileLoopBody(List<ITypedAuraStatement> body)
     {
         return body.Any()
             ? body
@@ -448,20 +440,20 @@ public class AuraCompiler
             : string.Empty;
     }
 
-    private string CompileParams(List<TypedParam> params_, string sep)
+    private string CompileParams(List<Param> params_, string sep)
     {
         return string.Join(sep, params_
             .Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
     }
 
-    private string CompileArgs(List<TypedAuraExpression> args)
+    private string CompileArgs(List<ITypedAuraExpression> args)
     {
         return args
             .Select(Expression)
             .Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}");
     }
 
-    private string ParseReturnableBody(List<TypedAuraStatement> stmts, string decl)
+    private string ParseReturnableBody(List<ITypedAuraStatement> stmts, string decl)
     {
         var body = new StringBuilder();
 
@@ -519,7 +511,7 @@ public class AuraCompiler
         };
     }
 
-    private string InNewEnclosingType(Func<string> f, TypedAuraAstNode node)
+    private string InNewEnclosingType(Func<string> f, ITypedAuraAstNode node)
     {
         _enclosingType.Push(node);
         var s = f();

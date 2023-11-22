@@ -18,10 +18,10 @@ public class AuraTypeChecker
     private readonly AuraStdlib _stdlib = new();
     private readonly ICurrentModuleStore _currentModule;
     private readonly TypeCheckerExceptionContainer _exContainer = new();
-    private readonly EnclosingNodeStore<UntypedAuraExpression> _enclosingExpressionStore;
-    private readonly EnclosingNodeStore<UntypedAuraStatement> _enclosingStatementStore;
+    private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
+    private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
 
-    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingNodeStore<UntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<UntypedAuraStatement> enclosingStatementStore)
+    public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore)
     {
         _variableStore = variableStore;
         _enclosingClassStore = enclosingClassStore;
@@ -30,9 +30,9 @@ public class AuraTypeChecker
         _enclosingStatementStore = enclosingStatementStore;
     }
 
-    public List<TypedAuraStatement> CheckTypes(List<UntypedAuraStatement> untypedAst)
+    public List<ITypedAuraStatement> CheckTypes(List<IUntypedAuraStatement> untypedAst)
     {
-        var typedAst = new List<TypedAuraStatement>();
+        var typedAst = new List<ITypedAuraStatement>();
 
         foreach (var stmt in untypedAst)
         {
@@ -69,7 +69,7 @@ public class AuraTypeChecker
         return typedAst;
     }
 
-    private TypedAuraStatement Statement(UntypedAuraStatement stmt)
+    private ITypedAuraStatement Statement(IUntypedAuraStatement stmt)
     {
         return stmt switch
         {
@@ -92,7 +92,7 @@ public class AuraTypeChecker
         };
     }
 
-    private TypedAuraExpression Expression(UntypedAuraExpression expr)
+    private ITypedAuraExpression Expression(IUntypedAuraExpression expr)
     {
         return expr switch
         {
@@ -105,14 +105,14 @@ public class AuraTypeChecker
             UntypedGetIndexRange getIndexRange => GetIndexRangeExpr(getIndexRange),
             UntypedGrouping grouping => GroupingExpr(grouping),
             UntypedIf if_ => IfExpr(if_),
-            UntypedIntLiteral i => IntLiteralExpr(i),
-            UntypedFloatLiteral f => FloatLiteralExpr(f),
-            UntypedStringLiteral s => StringLiteralExpr(s),
-            UntypedListLiteral<UntypedAuraExpression> l => ListLiteralExpr(l),
-            UntypedMapLiteral m => MapLiteralExpr(m),
-            UntypedBoolLiteral b => BoolLiteralExpr(b),
+            IntLiteral i => IntLiteralExpr(i),
+            FloatLiteral f => FloatLiteralExpr(f),
+            StringLiteral s => StringLiteralExpr(s),
+            ListLiteral l => ListLiteralExpr(l),
+            MapLiteral m => MapLiteralExpr(m),
+            BoolLiteral b => BoolLiteralExpr(b),
             UntypedNil n => NilExpr(n),
-            UntypedCharLiteral c => CharLiteralExpr(c),
+            CharLiteral c => CharLiteralExpr(c),
             UntypedLogical logical => LogicalExpr(logical),
             UntypedSet set => SetExpr(set),
             UntypedThis this_ => ThisExpr(this_),
@@ -131,7 +131,7 @@ public class AuraTypeChecker
     /// <returns>The typed expression, as long as it matches the expected type</returns>
     /// <exception cref="UnexpectedTypeException">Thrown if the typed expression doesn't match
     /// the expected type</exception>
-    private TypedAuraExpression ExpressionAndConfirm(UntypedAuraExpression expr, AuraType expected)
+    private ITypedAuraExpression ExpressionAndConfirm(IUntypedAuraExpression expr, AuraType expected)
     {
         var typedExpr = Expression(expr);
         if (!expected.IsSameOrInheritingType(typedExpr.Typ)) throw new UnexpectedTypeException(expr.Line);
@@ -311,7 +311,7 @@ public class AuraTypeChecker
         // Add parameters as local variables
         foreach(var param in f.Params)
         {
-            var paramTyp = TypeTokenToType(param.ParamType.Typ);
+            var paramTyp = param.ParamType.Typ;
             if (param.ParamType.Variadic) paramTyp = new List(paramTyp);
             _variableStore.Add(new Local(
                 param.Name.Value,
@@ -337,7 +337,7 @@ public class AuraTypeChecker
         return _enclosingStatementStore.WithEnclosing(() =>
         {
             if (let.NameTyp is null) return ShortLetStmt(let);
-            var nameTyp = TypeTokenToType(let.NameTyp.Value);
+            var nameTyp = let.NameTyp;
             // Type check initializer
             var defaultable = nameTyp as IDefaultable;
             if (let.Initializer is null && defaultable is null)
@@ -414,10 +414,10 @@ public class AuraTypeChecker
             var typedParams = class_.Params.Select(p =>
             {
                 var typedDefaultValue = p.ParamType.DefaultValue is not null
-                    ? Expression(p.ParamType.DefaultValue)
+                    ? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
                     : null;
-                var paramTyp = TypeTokenToType(p.ParamType.Typ);
-                return new TypedParam(p.Name, new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+                var paramTyp = p.ParamType.Typ;
+                return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
             });
             
             var partiallyTypedMethods = class_.Methods.Select(PartialFunctionStmt).ToList();
@@ -427,10 +427,10 @@ public class AuraTypeChecker
                     var typedMethodParams = method.Params.Select(p =>
                     {
                         var typedMethodDefaultValue = p.ParamType.DefaultValue is not null
-                            ? Expression(p.ParamType.DefaultValue)
+                            ? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
                             : null;
-                        var methodParamType = TypeTokenToType(p.ParamType.Typ);
-                        return new TypedParam(p.Name, new TypedParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
+                        var methodParamType = p.ParamType.Typ;
+                        return new Param(p.Name, new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
                     });
                     return new AuraFunction(method.Name.Value,
                         new AnonymousFunction(typedMethodParams.ToList(), method.ReturnType));
@@ -756,7 +756,7 @@ public class AuraTypeChecker
             var typedCond = ExpressionAndConfirm(if_.Condition, new Bool());
             var typedThen = BlockExpr(if_.Then);
             // Type check else branch
-            TypedAuraExpression? typedElse = null;
+            ITypedAuraExpression? typedElse = null;
             if (if_.Else is not null)
             {
                 typedElse = ExpressionAndConfirm(if_.Else, typedThen.Typ);
@@ -765,45 +765,45 @@ public class AuraTypeChecker
         }, if_);
     }
 
-    private TypedLiteral<long> IntLiteralExpr(UntypedIntLiteral literal) => new(literal.GetValue(), new Int(), literal.Line);
+    private IntLiteral IntLiteralExpr(IntLiteral literal) => literal;
 
-    private TypedLiteral<double> FloatLiteralExpr(UntypedFloatLiteral literal) => new(literal.GetValue(), new Float(), literal.Line);
+    private FloatLiteral FloatLiteralExpr(FloatLiteral literal) => literal;
 
-    private TypedLiteral<string> StringLiteralExpr(UntypedStringLiteral literal) => new(literal.GetValue(), new AuraString(), literal.Line);
+    private StringLiteral StringLiteralExpr(StringLiteral literal) => literal;
 
-    private TypedLiteral<List<TypedAuraExpression>> ListLiteralExpr(UntypedListLiteral<UntypedAuraExpression> literal)
+    private ListLiteral ListLiteralExpr(ListLiteral literal)
     {
         return _enclosingExpressionStore.WithEnclosing(() =>
         {
-            var items = literal.GetValue();
-            var typedItem = Expression(items.First());
-            var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
-            return new TypedLiteral<List<TypedAuraExpression>>(typedItems, new List(typedItem.Typ), literal.Line);
+            var items = (List<IAuraAstNode>)literal.Value;
+            var typedItem = Expression((IUntypedAuraExpression)items.First());
+            var typedItems = items.Select(item => (IAuraAstNode)ExpressionAndConfirm((IUntypedAuraExpression)item, typedItem.Typ)).ToList();
+            return new ListLiteral(typedItems, new List(typedItem.Typ), literal.Line);
         }, literal);
     }
 
-    private TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>> MapLiteralExpr(UntypedMapLiteral literal)
+    private MapLiteral MapLiteralExpr(MapLiteral literal)
     {
         return _enclosingExpressionStore.WithEnclosing(() =>
         {
-            var m = literal.GetValue();
-            var typedKey = Expression(m.Keys.First());
-            var typedValue = Expression(m.Values.First());
+            var m = (Dictionary<IAuraAstNode, IAuraAstNode>)literal.Value;
+            var typedKey = Expression((IUntypedAuraExpression)m.Keys.First());
+            var typedValue = Expression((IUntypedAuraExpression)m.Values.First());
             var typedM = m.Select(pair =>
             {
-                var typedK = ExpressionAndConfirm(pair.Key, typedKey.Typ);
-                var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
-                return (typedK, typedV);
-            }).ToDictionary(pair => pair.typedK, pair => pair.typedV);
-            return new TypedLiteral<Dictionary<TypedAuraExpression, TypedAuraExpression>>(typedM, new Map(typedKey.Typ, typedValue.Typ), literal.Line);
+                var typedK = ExpressionAndConfirm((IUntypedAuraExpression)pair.Key, typedKey.Typ);
+                var typedV = ExpressionAndConfirm((IUntypedAuraExpression)pair.Value, typedValue.Typ);
+                return ((IAuraAstNode)typedK, (IAuraAstNode)typedV);
+            }).ToDictionary(pair => pair.Item1, pair => pair.Item2);
+            return new MapLiteral(typedM, typedKey.Typ, typedValue.Typ, literal.Line);
         }, literal);
     }
 
-    private TypedLiteral<bool> BoolLiteralExpr(UntypedBoolLiteral literal) => new(literal.GetValue(), new Bool(), literal.Line);
+    private BoolLiteral BoolLiteralExpr(BoolLiteral literal) => literal;
 
     private TypedNil NilExpr(UntypedNil literal) => new(literal.Line);
 
-    private TypedLiteral<char> CharLiteralExpr(UntypedCharLiteral literal) => new(literal.GetValue(), new AuraChar(), literal.Line);
+    private CharLiteral CharLiteralExpr(CharLiteral literal) => literal;
 
     /// <summary>
     /// Type checks a `this` expression
@@ -871,9 +871,9 @@ public class AuraTypeChecker
         _scope--;
     }
 
-    private List<TypedAuraStatement> NonReturnableBody(List<UntypedAuraStatement> body)
+    private List<ITypedAuraStatement> NonReturnableBody(List<IUntypedAuraStatement> body)
     {
-        var typedBody = new List<TypedAuraStatement>();
+        var typedBody = new List<ITypedAuraStatement>();
         foreach (var stmt in body)
         {
             var typedStmt = Statement(stmt);
@@ -882,7 +882,7 @@ public class AuraTypeChecker
         return typedBody;
     }
 
-    private T InNewScope<T>(Func<T> f) where T : TypedAuraAstNode
+    private T InNewScope<T>(Func<T> f) where T : ITypedAuraAstNode
     {
         _scope++;
         var typedNode = f();
@@ -905,19 +905,19 @@ public class AuraTypeChecker
         };
     }
 
-    private List<TypedParam> TypeCheckParams(List<UntypedParam> untypedParams)
+    private List<Param> TypeCheckParams(List<Param> untypedParams)
     {
         return untypedParams.Select(p =>
         {
             var typedDefaultValue = p.ParamType.DefaultValue is not null
-                ? Expression(p.ParamType.DefaultValue)
+                ? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
                 : null;
-            var paramTyp = TypeTokenToType(p.ParamType.Typ);
-            return new TypedParam(p.Name, new TypedParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+            var paramTyp = p.ParamType.Typ;
+            return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
         }).ToList();
     }
 
-    private List<TypedParamType> TypeCheckParamTypes(List<UntypedParam> untypedParams)
+    private List<ParamType> TypeCheckParamTypes(List<Param> untypedParams)
     {
         return TypeCheckParams(untypedParams)
             .Select(p => p.ParamType)
@@ -926,7 +926,7 @@ public class AuraTypeChecker
     
     private TypedCall TypeCheckPositionalParameters(UntypedCall call, ICallable declaration)
     {
-        var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+        var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
         // Ensure the function call has the correct number of arguments
         if (declaration.HasVariadicParam() && call.Arguments.Count < declaration.GetParams().Count)
             throw new IncorrectNumberOfArgumentsException(call.Line);
@@ -936,7 +936,7 @@ public class AuraTypeChecker
             .Select(pair => pair.Item2)
             .ToList();
 
-        var typedArgs = new List<TypedAuraExpression>();
+        var typedArgs = new List<ITypedAuraExpression>();
         var paramTypes = declaration.GetParamTypes();
         var i = 0;
         foreach (var arg in orderedArgs)
@@ -953,9 +953,9 @@ public class AuraTypeChecker
 
     private TypedCall TypeCheckNamedParameters(UntypedCall call, ICallable declaration)
     {
-        var typedCallee = Expression((UntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+        var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
         // Insert each named argument into its correct position
-        var orderedArgs = new List<UntypedAuraExpression>();
+        var orderedArgs = new List<IUntypedAuraExpression>();
         foreach (var arg in call.Arguments)
         {
             var index = declaration.GetParamIndex(arg.Item1!.Value.Value);
@@ -980,8 +980,8 @@ public class AuraTypeChecker
             var index = declaration.GetParamIndex(missingParam.Name.Value);
             var defaultValue = missingParam.ParamType.DefaultValue ??
                                throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line);
-            if (index >= orderedArgs.Count) typedArgs.Add(defaultValue);
-            else typedArgs.Insert(index, defaultValue);
+            if (index >= orderedArgs.Count) typedArgs.Add((ITypedAuraExpression)defaultValue);
+            else typedArgs.Insert(index, (ITypedAuraExpression)defaultValue);
         }
                 
         return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
