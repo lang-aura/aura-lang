@@ -286,6 +286,12 @@ public class ScannerTest
 		ArrangeAndAct_Invalid("'aa'", typeof(CharLengthGreaterThanOneException));
 	}
 
+	[Test]
+	public void TestScan_EmptyChar()
+	{
+		ArrangeAndAct_Invalid("''", typeof(EmptyCharException));
+	}
+
 	private static List<Tok> ArrangeAndAct(string source)
 	{
 		// Arrange

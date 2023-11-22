@@ -38,6 +38,14 @@ public class CharLengthGreaterThanOneException : ScannerException
 }
 
 /// <summary>
+/// Indicates that a char literal in the source code contains zero characters
+/// </summary>
+public class EmptyCharException : ScannerException
+{
+    public EmptyCharException(int line) : base("Empty char", line) { }
+}
+
+/// <summary>
 /// Indicates that an invalid character is present in the source code
 /// </summary>
 public class InvalidCharacterException : ScannerException
