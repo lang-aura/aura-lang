@@ -13,9 +13,9 @@ namespace AuraLang.AST;
 /// <param name="ReturnType">The partially typed function's return type</param>
 public record PartiallyTypedFunction(Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : ITypedAuraStatement, IUntypedFunction
 {
-    public AuraType Typ => ReturnType;
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
-    public List<Param> GetParams() => Params;
+	public AuraType Typ => ReturnType;
+	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+	public List<Param> GetParams() => Params;
 }
 
 /// <summary>
@@ -27,6 +27,6 @@ public record PartiallyTypedFunction(Tok Name, List<Param> Params, UntypedBlock 
 /// <param name="Public">Indicates if the partially typed class is public or not</param>
 public record PartiallyTypedClass(Tok Name, List<Param> Params, List<PartiallyTypedFunction> Methods, Visibility Public, AuraType Typ, int Line) : ITypedAuraStatement, IUntypedFunction
 {
-    public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
-    public List<Param> GetParams() => Params;
+	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+	public List<Param> GetParams() => Params;
 }

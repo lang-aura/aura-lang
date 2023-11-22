@@ -18,8 +18,8 @@ public interface IUntypedAuraStatement : IUntypedAuraAstNode { }
 
 public interface IUntypedAuraCallable
 {
-    string GetName();
-    string? GetModuleName();
+	string GetName();
+	string? GetModuleName();
 }
 
 /// <summary>
@@ -68,11 +68,11 @@ public record UntypedBlock(List<IUntypedAuraStatement> Statements, int Line) : I
 /// were defined. For example, the stdlib's <c>printf</c> function could be called with tags like so:
 /// <code>printf(a: 5, format: "%d\n")</code></param>
 public record UntypedCall
-    (IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, int Line) : IUntypedAuraExpression,
-        IUntypedAuraCallable
+	(IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, int Line) : IUntypedAuraExpression,
+		IUntypedAuraCallable
 {
-    public string GetName() => Callee.GetName();
-    public string? GetModuleName() => Callee.GetModuleName();
+	public string GetName() => Callee.GetName();
+	public string? GetModuleName() => Callee.GetModuleName();
 }
 
 /// <summary>
@@ -87,8 +87,8 @@ public record UntypedCall
 /// <param name="Name">The attribute being fetched</param>
 public record UntypedGet(IUntypedAuraExpression Obj, Tok Name, int Line) : IUntypedAuraExpression, IUntypedAuraCallable
 {
-    public string GetName() => Name.Value;
-    public string? GetModuleName() => "io"; // TODO
+	public string GetName() => Name.Value;
+	public string? GetModuleName() => "io"; // TODO
 }
 
 /// <summary>
@@ -187,8 +187,8 @@ public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right, int Line)
 /// <param name="Name">The variable's name</param>
 public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUntypedAuraCallable
 {
-    public string GetName() => Name.Value;
-    public string? GetModuleName() => null;
+	public string GetName() => Name.Value;
+	public string? GetModuleName() => null;
 }
 
 /// <summary>
@@ -244,8 +244,8 @@ public record UntypedForEach(Tok EachName, IUntypedAuraExpression Iterable, List
 /// <param name="Public">Indicates if the function is public or private</param>
 public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, Tok? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+	public List<Param> GetParams() => Params;
+	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -258,8 +258,8 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// /// been type checked yet.</param>
 public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, Tok? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+	public List<Param> GetParams() => Params;
+	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>
@@ -301,8 +301,8 @@ public record UntypedReturn(IUntypedAuraExpression? Value, int Line) : IUntypedA
 /// <param name="Public">Indicates if the class is public or not</param>
 public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
-    public List<Param> GetParams() => Params;
-    public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+	public List<Param> GetParams() => Params;
+	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }
 
 /// <summary>

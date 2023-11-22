@@ -1,4 +1,4 @@
-using AuraLang.AST;
+﻿using AuraLang.AST;
 
 namespace AuraLang.TypeChecker;
 
@@ -7,22 +7,22 @@ namespace AuraLang.TypeChecker;
 /// </summary>
 public interface ICurrentModuleStore
 {
-    /// <summary>
-    /// Gets the name of the current module
-    /// </summary>
-    /// <returns>The name of the current module</returns>
-    string? GetName();
-    /// <summary>
-    /// Sets the current module
-    /// </summary>
-    /// <param name="mod">The new current module</param>
-    void Set(TypedMod mod);
+	/// <summary>
+	/// Gets the name of the current module
+	/// </summary>
+	/// <returns>The name of the current module</returns>
+	string? GetName();
+	/// <summary>
+	/// Sets the current module
+	/// </summary>
+	/// <param name="mod">The new current module</param>
+	void Set(TypedMod mod);
 }
 
 public class CurrentModuleStore : ICurrentModuleStore
 {
-    private TypedMod? _currentModule;
+	private TypedMod? _currentModule;
 
-    public string? GetName() => _currentModule?.Value.Value;
-    public void Set(TypedMod mod) => _currentModule = mod;
+	public string? GetName() => _currentModule?.Value.Value;
+	public void Set(TypedMod mod) => _currentModule = mod;
 }

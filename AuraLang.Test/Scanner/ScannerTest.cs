@@ -113,9 +113,9 @@ public class ScannerTest
 	}
 
 	[Test]
-    public void TestScan_SlashEqual()
+	public void TestScan_SlashEqual()
 	{
-        var tokens = ArrangeAndAct("/=");
+		var tokens = ArrangeAndAct("/=");
 		MakeAssertions_Valid(tokens, 2, new Tok(TokType.SlashEqual, "/=", 1));
 	}
 
@@ -254,7 +254,7 @@ public class ScannerTest
 		var tokens = ArrangeAndAct("\t");
 		MakeAssertions_Valid(tokens, 1);
 	}
-	
+
 	[Test]
 	public void TestScan_Yield()
 	{

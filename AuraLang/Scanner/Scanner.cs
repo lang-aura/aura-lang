@@ -1,4 +1,4 @@
-using AuraLang.Exceptions.Scanner;
+﻿using AuraLang.Exceptions.Scanner;
 using AuraLang.Token;
 
 namespace AuraLang.Scanner;
@@ -76,125 +76,125 @@ public class AuraScanner
 
 	private void SkipWhitespace()
 	{
-        while (!IsAtEnd() && IsWhitespace())
-        {
-            var ch = Advance();
-            if (ch == '\n')
-            {
-                if (!_isLineBlank && _tokens[^1].Typ != TokType.LeftBrace) _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
-                _isLineBlank = true;
-                _line++;
-            }
-        }
-    }
+		while (!IsAtEnd() && IsWhitespace())
+		{
+			var ch = Advance();
+			if (ch == '\n')
+			{
+				if (!_isLineBlank && _tokens[^1].Typ != TokType.LeftBrace) _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
+				_isLineBlank = true;
+				_line++;
+			}
+		}
+	}
 
 	private Tok ScanToken(char c)
 	{
-        // If the token begins with an alphabetical character, its either a keyword token or an indentifier
-        if (IsAlpha(c))
-        {
+		// If the token begins with an alphabetical character, its either a keyword token or an indentifier
+		if (IsAlpha(c))
+		{
 			return CheckIdentifier(c);
-        }
-        if (IsDigit(c))
-        {
+		}
+		if (IsDigit(c))
+		{
 			return ParseNumber(c);
-        }
+		}
 
-        // If the token doesn't start with an alphabetical or numeric character, then we check if its a symbol
-        switch (c)
-        {
-            case '(':
+		// If the token doesn't start with an alphabetical or numeric character, then we check if its a symbol
+		switch (c)
+		{
+			case '(':
 				return MakeSingleCharToken(TokType.LeftParen, c);
-            case ')':
-                return MakeSingleCharToken(TokType.RightParen, c);
-            case '{':
+			case ')':
+				return MakeSingleCharToken(TokType.RightParen, c);
+			case '{':
 				return MakeSingleCharToken(TokType.LeftBrace, c);
-            case '}':
+			case '}':
 				return MakeSingleCharToken(TokType.RightBrace, c);
-            case '[':
+			case '[':
 				return MakeSingleCharToken(TokType.LeftBracket, c);
-            case ']':
+			case ']':
 				return MakeSingleCharToken(TokType.RightBracket, c);
-            case '=':
+			case '=':
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.EqualEqual, _start, _current);
 				return MakeSingleCharToken(TokType.Equal, c);
-            case '+':
+			case '+':
 				if (!IsAtEnd() && Peek() == '+') return MakeToken(TokType.PlusPlus, _start, _current);
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.PlusEqual, _start, _current);
 				return MakeSingleCharToken(TokType.Plus, c);
-            case '-':
+			case '-':
 				if (!IsAtEnd() && Peek() == '-') return MakeToken(TokType.MinusMinus, _start, _current);
 				if (!IsAtEnd() && Peek() == '>') return MakeToken(TokType.Arrow, _start, _current);
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.MinusEqual, _start, _current);
 				return MakeSingleCharToken(TokType.Minus, c);
-            case '/':
-                if (!IsAtEnd() && Peek() == '/')
-                {
-                    if (_tokens.Count > 0 && _tokens[^1].Line == _line) _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
+			case '/':
+				if (!IsAtEnd() && Peek() == '/')
+				{
+					if (_tokens.Count > 0 && _tokens[^1].Line == _line) _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 
-                    while (!IsAtEnd() && Peek() != '\n') Advance();
+					while (!IsAtEnd() && Peek() != '\n') Advance();
 					return MakeToken(TokType.Comment, _start, _current - 1);
-                    // Advance past the newline character
-                    /*if (!IsAtEnd())
+					// Advance past the newline character
+					/*if (!IsAtEnd())
                     {
                         Advance();
                         tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
                         _line++;
                         _isLineBlank = true;
                     }*/
-                }
-                if (!IsAtEnd() && Peek() == '*')
-                {
-                    Advance(); // Advance past the `*` character
-                    while (!IsAtEnd() && Peek() != '*' && PeekNext() != '/')
-                    {
-                        Advance();
-                        if (Peek() == '\n')
-                        {
-                            _tokens.Add(MakeToken(TokType.Comment, _start, _current - 1));
-                            _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
-                            Advance();
-                            _line++;
-                            _start = _current;
-                        }
-                    }
-                    Advance();
-                    Advance();
+				}
+				if (!IsAtEnd() && Peek() == '*')
+				{
+					Advance(); // Advance past the `*` character
+					while (!IsAtEnd() && Peek() != '*' && PeekNext() != '/')
+					{
+						Advance();
+						if (Peek() == '\n')
+						{
+							_tokens.Add(MakeToken(TokType.Comment, _start, _current - 1));
+							_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
+							Advance();
+							_line++;
+							_start = _current;
+						}
+					}
+					Advance();
+					Advance();
 					return MakeToken(TokType.Comment, _start, _current - 1);
-                }
-                if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.SlashEqual, _start, _current);
-	            return MakeSingleCharToken(TokType.Slash, c);
-            case '*':
-                if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.StarEqual, _start, _current);
-                return MakeSingleCharToken(TokType.Star, c);
-            case '>':
-                if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.GreaterEqual, _start, _current);
-                return MakeSingleCharToken(TokType.Greater, c);
-            case '<':
+				}
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.SlashEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Slash, c);
+			case '*':
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.StarEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Star, c);
+			case '>':
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.GreaterEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Greater, c);
+			case '<':
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.LessEqual, _start, _current);
-                return MakeSingleCharToken(TokType.Less, c);
-            case '!':
-                if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.BangEqual, _start, _current);
-                return MakeSingleCharToken(TokType.Bang, c);
-            case '"':
+				return MakeSingleCharToken(TokType.Less, c);
+			case '!':
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.BangEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Bang, c);
+			case '"':
 				return ParseString();
-            case '\'':
+			case '\'':
 				return ParseChar();
-            case ':':
-                if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.ColonEqual, _start, _current);
-                return MakeSingleCharToken(TokType.Colon, c);
-            case ';':
+			case ':':
+				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.ColonEqual, _start, _current);
+				return MakeSingleCharToken(TokType.Colon, c);
+			case ';':
 				return MakeSingleCharToken(TokType.Semicolon, c);
-            case '.':
+			case '.':
 				return MakeSingleCharToken(TokType.Dot, c);
-            case ',':
+			case ',':
 				return MakeSingleCharToken(TokType.Comma, c);
-            default:
-                // If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
-                // then it must be an invalid character
-                throw new InvalidCharacterException(_line);
-        }
-    }
+			default:
+				// If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
+				// then it must be an invalid character
+				throw new InvalidCharacterException(_line);
+		}
+	}
 
 	/// <summary>
 	/// Returns the current character in the scanner's source without advancing the <c>current</c> index
@@ -242,7 +242,7 @@ public class AuraScanner
 	/// <returns>A token encapsulating the supplied information</returns>
 	private Tok MakeToken(TokType tokType, int start, int end)
 	{
-		var s = _source[start..(end+1)];
+		var s = _source[start..(end + 1)];
 		_current = end + 1;
 		return new Tok(tokType, s, _line);
 	}

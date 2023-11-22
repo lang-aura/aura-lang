@@ -2,15 +2,15 @@
 
 public class ScannerExceptionContainer : AuraExceptionContainer
 {
-    public void Add(ScannerException ex)
-    {
-        Exs.Add(ex);
-    }
+	public void Add(ScannerException ex)
+	{
+		Exs.Add(ex);
+	}
 }
 
 public abstract class ScannerException : AuraException
 {
-    protected ScannerException(string message, int line) : base(message, line) {}
+	protected ScannerException(string message, int line) : base(message, line) { }
 }
 
 /// <summary>
@@ -18,7 +18,7 @@ public abstract class ScannerException : AuraException
 /// </summary>
 public class UnterminatedStringException : ScannerException
 {
-    public UnterminatedStringException(int line) : base("Unterminated string", line) { }
+	public UnterminatedStringException(int line) : base("Unterminated string", line) { }
 }
 
 /// <summary>
@@ -26,7 +26,7 @@ public class UnterminatedStringException : ScannerException
 /// </summary>
 public class UnterminatedCharException : ScannerException
 {
-    public UnterminatedCharException(int line) : base("Unterminated char", line) { }
+	public UnterminatedCharException(int line) : base("Unterminated char", line) { }
 }
 
 /// <summary>
@@ -34,7 +34,7 @@ public class UnterminatedCharException : ScannerException
 /// </summary>
 public class CharLengthGreaterThanOneException : ScannerException
 {
-    public CharLengthGreaterThanOneException(int line) : base("Char length greater than 1", line) { }
+	public CharLengthGreaterThanOneException(int line) : base("Char length greater than 1", line) { }
 }
 
 /// <summary>
@@ -42,7 +42,7 @@ public class CharLengthGreaterThanOneException : ScannerException
 /// </summary>
 public class EmptyCharException : ScannerException
 {
-    public EmptyCharException(int line) : base("Empty char", line) { }
+	public EmptyCharException(int line) : base("Empty char", line) { }
 }
 
 /// <summary>
@@ -50,5 +50,5 @@ public class EmptyCharException : ScannerException
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {
-    public InvalidCharacterException(int line) : base("Invalid character", line) { }
+	public InvalidCharacterException(int line) : base("Invalid character", line) { }
 }

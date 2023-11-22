@@ -1,10 +1,10 @@
-namespace AuraLang.Token;
+﻿namespace AuraLang.Token;
 
 public record struct Tok(TokType Typ, string Value, int Line);
 
 public enum TokType
 {
-    LeftParen, // (
+	LeftParen, // (
 	RightParen, // )
 	LeftBrace, // {
 	RightBrace, // }

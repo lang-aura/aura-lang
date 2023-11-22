@@ -2,7 +2,7 @@
 
 public enum FunctionType
 {
-    Function,
-    Method
+	Function,
+	Method
 }
 

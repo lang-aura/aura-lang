@@ -1,4 +1,4 @@
-using AuraLang.Compiler;
+﻿using AuraLang.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
@@ -8,39 +8,39 @@ namespace AuraLang.Stdlib;
 
 public class AuraStdlib
 {
-    private readonly Dictionary<string, Module> _modules = new()
-    {
-        { "aura/io", new Module("io", new List<NamedFunction>
-        {
-            new(
-                "println",
-                new Function(
-                    new List<Param>
-                    { 
-                        new(
-                            new Tok(TokType.Identifier, "s", 1),
-                            new ParamType(new AuraString(), false, null))
-                    },
-                    new Nil())
-                ),
-            new(
-                "printf",
-                new Function(
-                    new List<Param>
-                    {
-                        new(
-                            new Tok(TokType.Identifier, "format", 1),
-                            new ParamType(new AuraString(), false, null)),
-                        new(
-                            new Tok(TokType.Identifier, "a", 1),
-                            new ParamType(new Any(), true, null))
-                    },
-                    new Nil())
-                )
-        })}
-    };
+	private readonly Dictionary<string, Module> _modules = new()
+	{
+		{ "aura/io", new Module("io", new List<NamedFunction>
+		{
+			new(
+				"println",
+				new Function(
+					new List<Param>
+					{
+						new(
+							new Tok(TokType.Identifier, "s", 1),
+							new ParamType(new AuraString(), false, null))
+					},
+					new Nil())
+				),
+			new(
+				"printf",
+				new Function(
+					new List<Param>
+					{
+						new(
+							new Tok(TokType.Identifier, "format", 1),
+							new ParamType(new AuraString(), false, null)),
+						new(
+							new Tok(TokType.Identifier, "a", 1),
+							new ParamType(new Any(), true, null))
+					},
+					new Nil())
+				)
+		})}
+	};
 
-    public Dictionary<string, Module> GetAllModules() => _modules;
+	public Dictionary<string, Module> GetAllModules() => _modules;
 
-    public bool TryGetModule(string name, out Module mod) =>  _modules.TryGetValue(name, out mod);
+	public bool TryGetModule(string name, out Module mod) => _modules.TryGetValue(name, out mod);
 }
