@@ -14,11 +14,14 @@ fn main() {
     result := f(5)
     io.printf("%d\n", result)
     
-    f2(f)
+    // Here, we pass in an anonymous function to match the expected first parameter to the `f2` function
+    f2(fn(i: int) -> int {
+        return i * 2
+    })
 }
 
 // Functions can also be used as function parameters
-fn f2(func: fn(i: int) -> int) {
-    result := func(10)
+fn f2(fun: fn(i: int) -> int) {
+    result := fun(10)
     io.printf("%d\n", result)
 }

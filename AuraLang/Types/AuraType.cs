@@ -189,10 +189,9 @@ public class AnonymousFunction : AuraType, ICallable
 
     public override string ToString()
     {
-        var pt = Params
-            .Select(p => p.ToString())
-            .Aggregate("", (prev, curr) => $"{prev}, {curr}");
-        return $"fn({pt}) -> {ReturnType}";
+        var pt = string.Join(", ", Params
+            .Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+        return $"func({pt}) {ReturnType}";
     }
 
     public List<Param> GetParams() => Params;
