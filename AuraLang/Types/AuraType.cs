@@ -1,6 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Shared;
 using AuraLang.Token;
+using AuraLang.TypeChecker;
 
 namespace AuraLang.Types;
 

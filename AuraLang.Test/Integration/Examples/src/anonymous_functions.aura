@@ -3,7 +3,7 @@ mod main
 import aura/io
 
 fn main() {
-    // Anonymous variables are supported in Aura, and they are declared in basically the same way as named functions,
+    // Anonymous functions are supported in Aura, and they are declared in basically the same way as named functions,
     // just without the name. Since anonymous functions don't have a name, you must assign it to a variable in order to
     // call it later.
     f := fn(i: int) -> int {
@@ -12,5 +12,13 @@ fn main() {
     // The variable storing the anonymous function can then be called like normal, with a set of parentheses after the variable's
     // name containing any necessary arguments.
     result := f(5)
+    io.printf("%d\n", result)
+    
+    f2(f)
+}
+
+// Functions can also be used as function parameters
+fn f2(func: fn(i: int) -> int) {
+    result := func(10)
     io.printf("%d\n", result)
 }

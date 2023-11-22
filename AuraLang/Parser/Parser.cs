@@ -1021,7 +1021,7 @@ public class AuraParser
                 Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line)); // TODO don't add implicit semicolon after map items
                 d[key] = value;
             }
-
+            
             return new MapLiteral(d, keyType, valueType, line);
         }
         else
@@ -1038,6 +1038,18 @@ public class AuraParser
             BoolLiteral or CharLiteral or FloatLiteral or IntLiteral
                 or ListLiteral or MapLiteral or StringLiteral => true,
             _ => false
+        };
+    }
+
+    private AuraType ParseLiteralTypeToType(TokType ttype)
+    {
+        return ttype switch
+        {
+            TokType.StringLiteral => new AuraString(),
+            TokType.CharLiteral => new AuraChar(),
+            TokType.IntLiteral => new Int(),
+            TokType.FloatLiteral => new Float(),
+            TokType.True or TokType.False => new Bool()
         };
     }
 }
