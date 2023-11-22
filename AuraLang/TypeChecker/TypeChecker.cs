@@ -785,7 +785,7 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var m = (Dictionary<IAuraAstNode, IAuraAstNode>)literal.Value;
+			var m = literal.Value;
 			var typedKey = Expression((IUntypedAuraExpression)m.Keys.First());
 			var typedValue = Expression((IUntypedAuraExpression)m.Values.First());
 			var typedM = m.Select(pair =>
