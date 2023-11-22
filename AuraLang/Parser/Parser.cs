@@ -216,7 +216,7 @@ public class AuraParser
                 Consume(TokType.RightParen, new ExpectRightParenException(tok.Line));
                 Consume(TokType.Arrow, new ExpectArrowInFnSignatureException(tok.Line));
                 var returnType = TypeTokenToType(Advance());
-                return new AnonymousFunction(paramz, returnType);
+                return new Function(paramz, returnType);
             case TokType.Identifier:
                 return new Unknown(Previous().Value);
             case TokType.Map:

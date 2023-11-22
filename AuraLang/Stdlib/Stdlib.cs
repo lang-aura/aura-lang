@@ -10,11 +10,11 @@ public class AuraStdlib
 {
     private readonly Dictionary<string, Module> _modules = new()
     {
-        { "aura/io", new Module("io", new List<Function>
+        { "aura/io", new Module("io", new List<NamedFunction>
         {
             new(
                 "println",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>
                     { 
                         new(
@@ -25,7 +25,7 @@ public class AuraStdlib
                 ),
             new(
                 "printf",
-                new AnonymousFunction(
+                new Function(
                     new List<Param>
                     {
                         new(

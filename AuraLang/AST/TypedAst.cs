@@ -199,7 +199,7 @@ public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, 
 /// <param name="ReturnType">The anonymous function's return type</param>
 public record TypedAnonymousFunction(List<Param> Params, TypedBlock Body, AuraType ReturnType, int Line) : ITypedAuraExpression, ITypedFunction
 {
-    public AuraType Typ => new AnonymousFunction(Params, ReturnType);
+    public AuraType Typ => new Function(Params, ReturnType);
     public List<Param> GetParams() => Params;
     public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 }
