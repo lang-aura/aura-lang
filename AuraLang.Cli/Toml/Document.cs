@@ -1,4 +1,4 @@
-using Tomlet.Attributes;
+﻿using Tomlet.Attributes;
 
 namespace AuraLang.Cli.Toml;
 
@@ -7,6 +7,6 @@ namespace AuraLang.Cli.Toml;
 /// </summary>
 public record Document
 {
-    [TomlProperty("project")]
-    public Project Project { get; init; }
+	[TomlProperty("project")]
+	public Project Project { get; init; }
 }

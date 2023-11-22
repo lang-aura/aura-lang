@@ -1,4 +1,4 @@
-using AuraLang.Types;
+﻿using AuraLang.Types;
 using AuraChar = AuraLang.Types.Char;
 using AuraString = AuraLang.Types.String;
 
@@ -6,7 +6,7 @@ namespace AuraLang.AST;
 
 public interface ILiteral
 {
-    public object Value { get; }
+	public object Value { get; }
 }
 
 /// <summary>
@@ -15,8 +15,8 @@ public interface ILiteral
 /// <param name="I">The integer value</param>
 public record IntLiteral(long I, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new Int();
-    public object Value => I;
+	public AuraType Typ => new Int();
+	public object Value => I;
 }
 
 /// <summary>
@@ -25,8 +25,8 @@ public record IntLiteral(long I, int Line) : IUntypedAuraExpression, ITypedAuraE
 /// <param name="F">The float value</param>
 public record FloatLiteral(double F, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new Float();
-    public object Value => F;
+	public AuraType Typ => new Float();
+	public object Value => F;
 }
 
 /// <summary>
@@ -35,8 +35,8 @@ public record FloatLiteral(double F, int Line) : IUntypedAuraExpression, ITypedA
 /// <param name="S">The string value</param>
 public record StringLiteral(string S, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new AuraString();
-    public object Value => S;
+	public AuraType Typ => new AuraString();
+	public object Value => S;
 }
 
 /// <summary>
@@ -45,8 +45,8 @@ public record StringLiteral(string S, int Line) : IUntypedAuraExpression, ITyped
 /// <param name="L">The list value</param>
 public record ListLiteral(List<IAuraAstNode> L, AuraType Kind, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new List(Kind);
-    public object Value => L;
+	public AuraType Typ => new List(Kind);
+	public object Value => L;
 }
 
 /// <summary>
@@ -65,8 +65,8 @@ public record ListLiteral(List<IAuraAstNode> L, AuraType Kind, int Line) : IUnty
 /// <param name="M">The map value</param>
 public record MapLiteral(Dictionary<IAuraAstNode, IAuraAstNode> M, AuraType KeyType, AuraType ValueType, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new Map(KeyType, ValueType);
-    public object Value => M;
+	public AuraType Typ => new Map(KeyType, ValueType);
+	public object Value => M;
 }
 
 /// <summary>
@@ -75,8 +75,8 @@ public record MapLiteral(Dictionary<IAuraAstNode, IAuraAstNode> M, AuraType KeyT
 /// <param name="B">The boolean value</param>
 public record BoolLiteral(bool B, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new Bool();
-    public object Value => B;
+	public AuraType Typ => new Bool();
+	public object Value => B;
 }
 
 /// <summary>
@@ -85,6 +85,6 @@ public record BoolLiteral(bool B, int Line) : IUntypedAuraExpression, ITypedAura
 /// <param name="C">The char value</param>
 public record CharLiteral(char C, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral
 {
-    public AuraType Typ => new AuraChar();
-    public object Value => C;
+	public AuraType Typ => new AuraChar();
+	public object Value => C;
 }

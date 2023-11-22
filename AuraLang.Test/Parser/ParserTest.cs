@@ -313,7 +313,7 @@ public class ParserTest
 						new IntLiteral(2, 3)
 					}
 				},
-                new String(),
+				new String(),
 				new Int(),
 				1),
 			1));

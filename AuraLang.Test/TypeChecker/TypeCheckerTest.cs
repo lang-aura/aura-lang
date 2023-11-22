@@ -1,4 +1,4 @@
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
 using AuraLang.Token;
@@ -14,1302 +14,1302 @@ namespace AuraLang.Test.TypeChecker;
 
 public class TypeCheckerTest
 {
-    private readonly Mock<IVariableStore> _variableStore = new();
-    private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
-    private readonly Mock<ICurrentModuleStore> _currentModuleStore = new();
-    private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
-    private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
+	private readonly Mock<IVariableStore> _variableStore = new();
+	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
+	private readonly Mock<ICurrentModuleStore> _currentModuleStore = new();
+	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
+	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
 
-    [SetUp]
-    public void Setup()
-    {
-        _enclosingExprStore.CallBase = true;
-        _enclosingStmtStore.CallBase = true;
-    }
-    
-    [Test]
-    public void TestTypeCheck_Assignment()
-    {
-        _variableStore.Setup(v => v.Find("i", It.IsAny<string>())).Returns(new Local("i", new Int(), 1, "main"));
-        
-        var typedAst = ArrangeAndAct(
-            new List<IUntypedAuraStatement>
-            {
-                new UntypedExpressionStmt(
-                    new UntypedAssignment(
-                        new Tok(TokType.Identifier, "i", 1),
-                        new IntLiteral(6, 1),
-                        1),
-                    1)
-            });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedAssignment(
-                new Tok(TokType.Identifier, "i", 1),
-                new IntLiteral(6, 1),
-                new Int(),
-                1),
-            1));
-    }
+	[SetUp]
+	public void Setup()
+	{
+		_enclosingExprStore.CallBase = true;
+		_enclosingStmtStore.CallBase = true;
+	}
 
-    [Test]
-    public void TestTypeCheck_Binary()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedBinary(
-                    new BoolLiteral(true, 1),
-                    new Tok(TokType.And, "and", 1),
-                    new BoolLiteral(false, 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedBinary(
-                new BoolLiteral(true, 1),
-                new Tok(TokType.And, "and", 1),
-                new BoolLiteral(false, 1),
-                new Int(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Assignment()
+	{
+		_variableStore.Setup(v => v.Find("i", It.IsAny<string>())).Returns(new Local("i", new Int(), 1, "main"));
 
-    [Test]
-    public void TestTypeCheck_Block_EmptyBody()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedBlock(
-                    new List<IUntypedAuraStatement>(),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedBlock(
-                new List<ITypedAuraStatement>(),
-                new Nil(),
-                1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedAssignment(
+						new Tok(TokType.Identifier, "i", 1),
+						new IntLiteral(6, 1),
+						1),
+					1)
+			});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedAssignment(
+				new Tok(TokType.Identifier, "i", 1),
+				new IntLiteral(6, 1),
+				new Int(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Block()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedBlock(
-                    new List<IUntypedAuraStatement>
-                    {
-                        new UntypedLet(
-                            new Tok(TokType.Identifier, "i", 2),
-                            new Int(),
-                            false,
-                            new IntLiteral(5, 2),
-                            2)
-                    },
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedBlock(
-                new List<ITypedAuraStatement>
-                {
-                    new TypedLet(
-                        new Tok(TokType.Identifier, "i", 2),
-                        true,
-                        false,
-                        new IntLiteral(5, 2),
-                        2)
-                },
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Binary()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedBinary(
+					new BoolLiteral(true, 1),
+					new Tok(TokType.And, "and", 1),
+					new BoolLiteral(false, 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedBinary(
+				new BoolLiteral(true, 1),
+				new Tok(TokType.And, "and", 1),
+				new BoolLiteral(false, 1),
+				new Int(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Call_NoArgs()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
-            "f",
-            new NamedFunction(
-                "f",
-                new Function(
-                    new List<Param>(),
-                    new Nil())),
-            1,
-            "main"));
-        
-        var typedAst = ArrangeAndAct(
-            new List<IUntypedAuraStatement>
-            {
-                new UntypedExpressionStmt(
-                    new UntypedCall(
-                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                        new List<(Tok?, IUntypedAuraExpression)>(),
-                        1),
-                    1)
-            });
-        MakeAssertions(typedAst,  new TypedExpressionStmt(
-            new TypedCall(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "f", 1),
-                    new NamedFunction("f", new Function(new List<Param>(), new Nil())),
-                    1),
-                new List<ITypedAuraExpression>(),
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Block_EmptyBody()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedBlock(
+					new List<IUntypedAuraStatement>(),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedBlock(
+				new List<ITypedAuraStatement>(),
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_TwoArgs_WithTags()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
-            "f",
-            new NamedFunction(
-                "f",
-                new Function(
-                    new List<Param>
-                    {
-                        new(
-                            new Tok(TokType.Identifier, "i", 1),
-                            new ParamType(new Int(), false, null)),
-                        new(
-                            new Tok(TokType.Identifier, "s", 1),
-                            new ParamType(new AuraString(), false, null))
-                    },
-                    new Nil())),
-            1,
-            "main"));
-        
-        var typedAst = ArrangeAndAct(
-            new List<IUntypedAuraStatement>
-            {
-                new UntypedExpressionStmt(
-                    new UntypedCall(
-                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                        new List<(Tok?, IUntypedAuraExpression)>
-                        {
-                            (
-                                new Tok(TokType.Identifier, "s", 1),
-                                new StringLiteral("Hello world", 1)),
-                            (
-                                new Tok(TokType.Identifier, "i", 1),
-                                new IntLiteral(5, 1))
-                        },
-                        1),
-                    1)
-            });
-        MakeAssertions(typedAst,  new TypedExpressionStmt(
-            new TypedCall(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "f", 1),
-                    new NamedFunction("f", new Function(new List<Param>(), new Nil())),
-                    1),
-                new List<ITypedAuraExpression>
-                {
-                    new IntLiteral(5, 1),
-                    new StringLiteral("Hello world", 1)
-                },
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Block()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedBlock(
+					new List<IUntypedAuraStatement>
+					{
+						new UntypedLet(
+							new Tok(TokType.Identifier, "i", 2),
+							new Int(),
+							false,
+							new IntLiteral(5, 2),
+							2)
+					},
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedBlock(
+				new List<ITypedAuraStatement>
+				{
+					new TypedLet(
+						new Tok(TokType.Identifier, "i", 2),
+						true,
+						false,
+						new IntLiteral(5, 2),
+						2)
+				},
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Call_DefaultValues()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
-            "f",
-            new NamedFunction(
-                "f",
-                new Function(
-                    new List<Param>
-                    {
-                        new(
-                            new Tok(TokType.Identifier, "i", 1),
-                            new ParamType(new Int(), false, new IntLiteral(10, 1))),
-                        new(
-                            new Tok(TokType.Identifier, "s", 1),
-                            new ParamType(new AuraString(), false, null))
-                    },
-                    new Nil())),
-            1,
-            "main"));
-        
-        var typedAst = ArrangeAndAct(
-            new List<IUntypedAuraStatement>
-            {
-                new UntypedExpressionStmt(
-                    new UntypedCall(
-                        new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                        new List<(Tok?, IUntypedAuraExpression)>
-                        {
-                            (
-                                new Tok(TokType.Identifier, "s", 1),
-                                new StringLiteral("Hello world", 1))
-                        },
-                        1),
-                    1)
-            });
-        MakeAssertions(typedAst,  new TypedExpressionStmt(
-            new TypedCall(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "f", 1),
-                    new NamedFunction("f", new Function(new List<Param>(), new Nil())),
-                    1),
-                new List<ITypedAuraExpression>
-                {
-                    new IntLiteral(10, 1),
-                    new StringLiteral("Hello world", 1)
-                },
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Call_NoArgs()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+			"f",
+			new NamedFunction(
+				"f",
+				new Function(
+					new List<Param>(),
+					new Nil())),
+			1,
+			"main"));
 
-    [Test]
-    public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
-            "f",
-            new NamedFunction(
-                "f",
-                new Function(
-                    new List<Param>
-                    {
-                        new(
-                            new Tok(TokType.Identifier, "i", 1),
-                            new ParamType(new Int(), false, null)),
-                        new(
-                            new Tok(TokType.Identifier, "s", 1),
-                            new ParamType(new AuraString(), false, new StringLiteral("Hello world", 1)))
-                    },
-                    new Nil())),
-            1,
-            "main"));
-        
-        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedCall(
-                    new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1), 
-                    new List<(Tok?, IUntypedAuraExpression)> 
-                    { 
-                        (
-                            new Tok(TokType.Identifier, "s", 1), 
-                            new StringLiteral("Hello world", 1))
-                    }, 
-                    1), 
-                1)
-        }, typeof(MustSpecifyValueForArgumentWithoutDefaultValueException));
-    }
+		var typedAst = ArrangeAndAct(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+						new List<(Tok?, IUntypedAuraExpression)>(),
+						1),
+					1)
+			});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedCall(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "f", 1),
+					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					1),
+				new List<ITypedAuraExpression>(),
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
-            "f",
-            new NamedFunction(
-                "f",
-                new Function(
-                    new List<Param>
-                    {
-                        new(
-                            new Tok(TokType.Identifier, "i", 1),
-                            new ParamType(new Int(), false, null)),
-                        new(
-                            new Tok(TokType.Identifier, "s", 1),
-                            new ParamType(new AuraString(), false, null))
-                    },
-                    new Nil())),
-            1,
-            "main"));
+	[Test]
+	public void TestTypeCheck_TwoArgs_WithTags()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+			"f",
+			new NamedFunction(
+				"f",
+				new Function(
+					new List<Param>
+					{
+						new(
+							new Tok(TokType.Identifier, "i", 1),
+							new ParamType(new Int(), false, null)),
+						new(
+							new Tok(TokType.Identifier, "s", 1),
+							new ParamType(new AuraString(), false, null))
+					},
+					new Nil())),
+			1,
+			"main"));
 
-        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedCall(
-                    new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-                    new List<(Tok?, IUntypedAuraExpression)>
-                    {
-                        (
-                            new Tok(TokType.Identifier, "s", 1),
-                            new StringLiteral("Hello world", 1)),
-                        (
-                            null,
-                            new IntLiteral(5, 1))
-                    },
-                    1),
-                1)
-        }, typeof(CannotMixNamedAndUnnamedArgumentsException));
-    }
+		var typedAst = ArrangeAndAct(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+						new List<(Tok?, IUntypedAuraExpression)>
+						{
+							(
+								new Tok(TokType.Identifier, "s", 1),
+								new StringLiteral("Hello world", 1)),
+							(
+								new Tok(TokType.Identifier, "i", 1),
+								new IntLiteral(5, 1))
+						},
+						1),
+					1)
+			});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedCall(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "f", 1),
+					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					1),
+				new List<ITypedAuraExpression>
+				{
+					new IntLiteral(5, 1),
+					new StringLiteral("Hello world", 1)
+				},
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Get()
-    {
-        _variableStore.Setup(v => v.Find("greeter", "main")).Returns(
-            new Local(
-                "greeter",
-                new Class(
-                    "Greeter",
-                    new List<string>
-                    {
-                        "name"
-                    },
-                    new List<ParamType>
-                    {
-                        new(new AuraString(), false, null)
-                    },
-                    new List<NamedFunction>()),
-                1,
-                "main"));
-            
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedGet(
-                    new UntypedVariable(
-                        new Tok(TokType.Identifier, "greeter", 1),
-                        1),
-                    new Tok(TokType.Identifier, "name", 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedGet(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "greeter", 1),
-                    new Class(
-                        "Greeter",
-                        new List<string>
-                        {
-                            "name"
-                        },
-                        new List<ParamType>
-                        {
-                            new(new AuraString(), false, null)
-                        },
-                        new List<NamedFunction>()),
-                    1),
-                new Tok(TokType.Identifier, "name", 1),
-                new AuraString(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Call_DefaultValues()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+			"f",
+			new NamedFunction(
+				"f",
+				new Function(
+					new List<Param>
+					{
+						new(
+							new Tok(TokType.Identifier, "i", 1),
+							new ParamType(new Int(), false, new IntLiteral(10, 1))),
+						new(
+							new Tok(TokType.Identifier, "s", 1),
+							new ParamType(new AuraString(), false, null))
+					},
+					new Nil())),
+			1,
+			"main"));
 
-    [Test]
-    public void TestTypeCheck_GetIndex()
-    {
-        _variableStore.Setup(v => v.Find("names", "main"))
-            .Returns(new Local(
-                "names",
-                new AuraList(new AuraString()),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedGetIndex(
-                    new UntypedVariable(
-                        new Tok(TokType.Identifier, "names", 1),
-                        1),
-                    new IntLiteral(0, 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedGetIndex(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "names", 1),
-                    new AuraList(new AuraString()),
-                    1),
-                new IntLiteral(0, 1),
-                new AuraString(),
-                1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+						new List<(Tok?, IUntypedAuraExpression)>
+						{
+							(
+								new Tok(TokType.Identifier, "s", 1),
+								new StringLiteral("Hello world", 1))
+						},
+						1),
+					1)
+			});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedCall(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "f", 1),
+					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					1),
+				new List<ITypedAuraExpression>
+				{
+					new IntLiteral(10, 1),
+					new StringLiteral("Hello world", 1)
+				},
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_GetIndexRange()
-    {
-        _variableStore.Setup(v => v.Find("names", "main"))
-            .Returns(new Local(
-                "names",
-                new AuraList(new AuraString()),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedGetIndexRange(
-                    new UntypedVariable(
-                        new Tok(TokType.Identifier, "names", 1),
-                        1),
-                    new IntLiteral(0, 1),
-                    new IntLiteral(2, 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedGetIndexRange(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "names", 1),
-                    new AuraList(new AuraString()),
-                    1),
-                new IntLiteral(0, 1),
-                new IntLiteral(2, 1),
-                new AuraList(new AuraString()),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+			"f",
+			new NamedFunction(
+				"f",
+				new Function(
+					new List<Param>
+					{
+						new(
+							new Tok(TokType.Identifier, "i", 1),
+							new ParamType(new Int(), false, null)),
+						new(
+							new Tok(TokType.Identifier, "s", 1),
+							new ParamType(new AuraString(), false, new StringLiteral("Hello world", 1)))
+					},
+					new Nil())),
+			1,
+			"main"));
 
-    [Test]
-    public void TestTypeCheck_Grouping()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedGrouping(
-                    new StringLiteral("Hello world", 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedGrouping(
-                new StringLiteral("Hello world", 1),
-                new AuraString(),
-                1),
-            1));
-    }
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedCall(
+					new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+					new List<(Tok?, IUntypedAuraExpression)>
+					{
+						(
+							new Tok(TokType.Identifier, "s", 1),
+							new StringLiteral("Hello world", 1))
+					},
+					1),
+				1)
+		}, typeof(MustSpecifyValueForArgumentWithoutDefaultValueException));
+	}
 
-    [Test]
-    public void TestTypeCheck_If_EmptyThenBranch()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedIf(
-                    new BoolLiteral(true, 1),
-                    new UntypedBlock(
-                        new List<IUntypedAuraStatement>(),
-                        1),
-                    null,
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedIf(
-                new BoolLiteral(true, 1),
-                new TypedBlock(
-                    new List<ITypedAuraStatement>(),
-                    new Nil(),
-                    1),
-                null,
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+			"f",
+			new NamedFunction(
+				"f",
+				new Function(
+					new List<Param>
+					{
+						new(
+							new Tok(TokType.Identifier, "i", 1),
+							new ParamType(new Int(), false, null)),
+						new(
+							new Tok(TokType.Identifier, "s", 1),
+							new ParamType(new AuraString(), false, null))
+					},
+					new Nil())),
+			1,
+			"main"));
 
-    [Test]
-    public void TestTypeCheck_IntLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new IntLiteral(5, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new IntLiteral(5, 1),
-            1));
-    }
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedCall(
+					new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
+					new List<(Tok?, IUntypedAuraExpression)>
+					{
+						(
+							new Tok(TokType.Identifier, "s", 1),
+							new StringLiteral("Hello world", 1)),
+						(
+							null,
+							new IntLiteral(5, 1))
+					},
+					1),
+				1)
+		}, typeof(CannotMixNamedAndUnnamedArgumentsException));
+	}
 
-    [Test]
-    public void TestTypeCheck_FloatLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new FloatLiteral(5.1, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new FloatLiteral(5.1, 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Get()
+	{
+		_variableStore.Setup(v => v.Find("greeter", "main")).Returns(
+			new Local(
+				"greeter",
+				new Class(
+					"Greeter",
+					new List<string>
+					{
+						"name"
+					},
+					new List<ParamType>
+					{
+						new(new AuraString(), false, null)
+					},
+					new List<NamedFunction>()),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_StringLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new StringLiteral("Hello world", 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new StringLiteral("Hello world", 1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedGet(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "greeter", 1),
+						1),
+					new Tok(TokType.Identifier, "name", 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedGet(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "greeter", 1),
+					new Class(
+						"Greeter",
+						new List<string>
+						{
+							"name"
+						},
+						new List<ParamType>
+						{
+							new(new AuraString(), false, null)
+						},
+						new List<NamedFunction>()),
+					1),
+				new Tok(TokType.Identifier, "name", 1),
+				new AuraString(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_ListLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new ListLiteral(
-                    new List<IAuraAstNode>
-                    {
-                        new IntLiteral(1, 1)
-                    },
-                    new Int(),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new ListLiteral(
-                new List<IAuraAstNode>
-                {
-                    new IntLiteral(1, 1)
-                },
-                new Int(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_GetIndex()
+	{
+		_variableStore.Setup(v => v.Find("names", "main"))
+			.Returns(new Local(
+				"names",
+				new AuraList(new AuraString()),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_MapLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new MapLiteral(
-                    new Dictionary<IAuraAstNode, IAuraAstNode>
-                    {
-                        { new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
-                    },
-                    new AuraString(),
-                    new Int(),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new MapLiteral(
-                new Dictionary<IAuraAstNode, IAuraAstNode>
-                {
-                    {new StringLiteral("Hello", 1), new IntLiteral(1, 1)}
-                },
-                new AuraString(),
-                new Int(),
-                1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedGetIndex(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "names", 1),
+						1),
+					new IntLiteral(0, 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedGetIndex(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "names", 1),
+					new AuraList(new AuraString()),
+					1),
+				new IntLiteral(0, 1),
+				new AuraString(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_BoolLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new BoolLiteral(true, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new BoolLiteral(true, 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_GetIndexRange()
+	{
+		_variableStore.Setup(v => v.Find("names", "main"))
+			.Returns(new Local(
+				"names",
+				new AuraList(new AuraString()),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_NilLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedNil(1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedNil(1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedGetIndexRange(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "names", 1),
+						1),
+					new IntLiteral(0, 1),
+					new IntLiteral(2, 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedGetIndexRange(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "names", 1),
+					new AuraList(new AuraString()),
+					1),
+				new IntLiteral(0, 1),
+				new IntLiteral(2, 1),
+				new AuraList(new AuraString()),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_CharLiteral()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new CharLiteral('a', 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new CharLiteral('a', 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Grouping()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedGrouping(
+					new StringLiteral("Hello world", 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedGrouping(
+				new StringLiteral("Hello world", 1),
+				new AuraString(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Logical()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedLogical(
-                    new IntLiteral(5, 1),
-                    new Tok(TokType.Less, "<", 1),
-                    new IntLiteral(10, 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedLogical(
-                new IntLiteral(5, 1),
-                new Tok(TokType.Less, "<", 1),
-                new IntLiteral(10, 1),
-                new Bool(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_If_EmptyThenBranch()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedIf(
+					new BoolLiteral(true, 1),
+					new UntypedBlock(
+						new List<IUntypedAuraStatement>(),
+						1),
+					null,
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedIf(
+				new BoolLiteral(true, 1),
+				new TypedBlock(
+					new List<ITypedAuraStatement>(),
+					new Nil(),
+					1),
+				null,
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Set()
-    {
-        _variableStore.Setup(v => v.Find("greeter", "main"))
-            .Returns(new Local(
-                "greeter",
-                new Class(
-                    "Greeter",
-                    new List<string>
-                    {
-                        "name"
-                    },
-                    new List<ParamType>
-                    {
-                        new(new AuraString(), false, null)
-                    },
-                    new List<NamedFunction>()),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedSet(
-                    new UntypedVariable(
-                        new Tok(TokType.Identifier, "greeter", 1),
-                        1),
-                    new Tok(TokType.Identifier, "name", 1),
-                    new StringLiteral("Bob", 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedSet(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "greeter", 1),
-                    new Class(
-                        "Greeter",
-                        new List<string>
-                        {
-                            "name"
-                        },
-                        new List<ParamType>
-                        {
-                            new(new AuraString(), false, null)
-                        },
-                        new List<NamedFunction>()),
-                    1),
-                new Tok(TokType.Identifier, "name", 1),
-                new StringLiteral("Bob", 1),
-                new AuraString(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_IntLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new IntLiteral(5, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new IntLiteral(5, 1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_This()
-    {
-        _enclosingClassStore.Setup(ecs => ecs.Peek())
-            .Returns(new PartiallyTypedClass(
-                new Tok(TokType.Identifier, "Greeter", 1),
-                new List<Param>(),
-                new List<PartiallyTypedFunction>(),
-                Visibility.Public,
-                new Class(
-                    "Greeter",
-                    new List<string>(),
-                    new List<ParamType>(),
-                    new List<NamedFunction>()),
-                1));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedThis(
-                    new Tok(TokType.This, "this", 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedThis(
-                new Tok(TokType.This, "this", 1),
-                new Class(
-                    "Greeter",
-                    new List<string>(),
-                    new List<ParamType>(),
-                    new List<NamedFunction>()),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_FloatLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new FloatLiteral(5.1, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new FloatLiteral(5.1, 1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Unary_Bang()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedUnary(
-                    new Tok(TokType.Bang, "!", 1),
-                    new BoolLiteral(true, 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedUnary(
-                new Tok(TokType.Bang, "!", 1),
-                new BoolLiteral(true, 1),
-                new Bool(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_StringLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new StringLiteral("Hello world", 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new StringLiteral("Hello world", 1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Unary_Minus()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedUnary(
-                    new Tok(TokType.Minus, "-", 1),
-                    new IntLiteral(5, 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedUnary(
-                new Tok(TokType.Minus, "-", 1),
-                new IntLiteral(5, 1),
-                new Int(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_ListLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new ListLiteral(
+					new List<IAuraAstNode>
+					{
+						new IntLiteral(1, 1)
+					},
+					new Int(),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new ListLiteral(
+				new List<IAuraAstNode>
+				{
+					new IntLiteral(1, 1)
+				},
+				new Int(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Variable()
-    {
-        _variableStore.Setup(v => v.Find("name", "main"))
-            .Returns(new Local(
-                "name",
-                new AuraString(),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedVariable(
-                    new Tok(TokType.Identifier, "name", 1),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedVariable(
-                new Tok(TokType.Identifier, "name", 1),
-                new AuraString(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_MapLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new MapLiteral(
+					new Dictionary<IAuraAstNode, IAuraAstNode>
+					{
+						{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
+					},
+					new AuraString(),
+					new Int(),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new MapLiteral(
+				new Dictionary<IAuraAstNode, IAuraAstNode>
+				{
+					{new StringLiteral("Hello", 1), new IntLiteral(1, 1)}
+				},
+				new AuraString(),
+				new Int(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Defer()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("f", "main"))
-            .Returns(new Local(
-                "f",
-                new NamedFunction(
-                    "f",
-                    new Function(
-                        new List<Param>(),
-                        new Nil())),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedDefer(
-                new UntypedCall(
-                    new UntypedVariable(
-                        new Tok(TokType.Identifier, "f", 1),
-                        1),
-                    new List<(Tok?, IUntypedAuraExpression)>(),
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedDefer(
-            new TypedCall(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "f", 1),
-                    new NamedFunction(
-                        "f",
-                        new Function(
-                            new List<Param>(),
-                            new Nil())),
-                    1),
-                new List<ITypedAuraExpression>(),
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_BoolLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new BoolLiteral(true, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new BoolLiteral(true, 1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_For_EmptyBody()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("i", "main"))
-            .Returns(new Local(
-                "i",
-                new Int(),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedFor(
-                new UntypedLet(
-                    new Tok(TokType.Identifier, "i", 1),
-                    null,
-                    false,
-                    new IntLiteral(0, 1),
-                    1),
-                new UntypedLogical(
-                    new UntypedVariable(
-                        new Tok(TokType.Identifier, "i", 1),
-                        1),
-                    new Tok(TokType.Less, "<", 1),
-                    new IntLiteral(10, 1),
-                    1),
-                new List<IUntypedAuraStatement>(),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedFor(
-            new TypedLet(
-                new Tok(TokType.Identifier, "i", 1),
-                false,
-                false,
-                new IntLiteral(0, 1),
-                1),
-            new TypedLogical(
-                new TypedVariable(
-                    new Tok(TokType.Identifier, "i", 1),
-                    new Int(),
-                    1),
-                new Tok(TokType.Less, "<", 1),
-                new IntLiteral(10, 1),
-                new Bool(),
-                1),
-            new List<ITypedAuraStatement>(),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_NilLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedNil(1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedNil(1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_ForEach_EmptyBody()
-    {
-        _currentModuleStore.Setup(cms => cms.GetName())
-            .Returns("main");
-        _variableStore.Setup(v => v.Find("names", "main"))
-            .Returns(new Local(
-                "names",
-                new AuraList(new AuraString()),
-                1,
-                "main"));
-        
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedForEach(
-                new Tok(TokType.Identifier, "name", 1),
-                new UntypedVariable(
-                    new Tok(TokType.Identifier, "names", 1),
-                    1),
-                new List<IUntypedAuraStatement>(),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedForEach(
-            new Tok(TokType.Identifier, "name", 1),
-            new TypedVariable(
-                new Tok(TokType.Identifier, "names", 1),
-                new AuraList(new AuraString()),
-                1),
-            new List<ITypedAuraStatement>(),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_CharLiteral()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new CharLiteral('a', 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new CharLiteral('a', 1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_NamedFunction_NoParams_NoReturnType_NoBody()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedNamedFunction(
-                new Tok(TokType.Identifier, "f", 1),
-                new List<Param>(),
-                new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-                null,
-                Visibility.Public,
-                1)
-        });
-        MakeAssertions(typedAst, new TypedNamedFunction(
-            new Tok(TokType.Identifier, "f", 1),
-            new List<Param>(),
-            new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
-            new Nil(),
-            Visibility.Public,
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Logical()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedLogical(
+					new IntLiteral(5, 1),
+					new Tok(TokType.Less, "<", 1),
+					new IntLiteral(10, 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedLogical(
+				new IntLiteral(5, 1),
+				new Tok(TokType.Less, "<", 1),
+				new IntLiteral(10, 1),
+				new Bool(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_AnonymousFunction_NoParams_NoReturnType_NoBody()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedExpressionStmt(
-                new UntypedAnonymousFunction(
-                    new List<Param>(),
-                    new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-                    null,
-                    1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedExpressionStmt(
-            new TypedAnonymousFunction(
-                new List<Param>(),
-                new TypedBlock(
-                    new List<ITypedAuraStatement>(),
-                    new Nil(),
-                    1),
-                new Nil(),
-                1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Set()
+	{
+		_variableStore.Setup(v => v.Find("greeter", "main"))
+			.Returns(new Local(
+				"greeter",
+				new Class(
+					"Greeter",
+					new List<string>
+					{
+						"name"
+					},
+					new List<ParamType>
+					{
+						new(new AuraString(), false, null)
+					},
+					new List<NamedFunction>()),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_Let_Long()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedLet(
-                new Tok(TokType.Identifier, "i", 1),
-                new Int(),
-                false,
-                new IntLiteral(1, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedLet(
-            new Tok(TokType.Identifier, "i", 1),
-            true,
-            false,
-            new IntLiteral(1, 1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedSet(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "greeter", 1),
+						1),
+					new Tok(TokType.Identifier, "name", 1),
+					new StringLiteral("Bob", 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedSet(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "greeter", 1),
+					new Class(
+						"Greeter",
+						new List<string>
+						{
+							"name"
+						},
+						new List<ParamType>
+						{
+							new(new AuraString(), false, null)
+						},
+						new List<NamedFunction>()),
+					1),
+				new Tok(TokType.Identifier, "name", 1),
+				new StringLiteral("Bob", 1),
+				new AuraString(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Let_Uninitialized()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedLet(
-                new Tok(TokType.Identifier, "i", 1),
-                new Int(),
-                false,
-                null,
-                1)
-        });
-        MakeAssertions(typedAst, new TypedLet(
-            new Tok(TokType.Identifier, "i", 1),
-            true,
-            false,
-            new IntLiteral(0, 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_This()
+	{
+		_enclosingClassStore.Setup(ecs => ecs.Peek())
+			.Returns(new PartiallyTypedClass(
+				new Tok(TokType.Identifier, "Greeter", 1),
+				new List<Param>(),
+				new List<PartiallyTypedFunction>(),
+				Visibility.Public,
+				new Class(
+					"Greeter",
+					new List<string>(),
+					new List<ParamType>(),
+					new List<NamedFunction>()),
+				1));
 
-    [Test]
-    public void TestTypeCheck_Let_Uninitialized_NonDefaultable()
-    {
-        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-        {
-            new UntypedLet(
-                new Tok(TokType.Identifier, "c", 1),
-                new AuraChar(),
-                false,
-                null,
-                1)
-        }, typeof(MustSpecifyInitialValueForNonDefaultableTypeException));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedThis(
+					new Tok(TokType.This, "this", 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedThis(
+				new Tok(TokType.This, "this", 1),
+				new Class(
+					"Greeter",
+					new List<string>(),
+					new List<ParamType>(),
+					new List<NamedFunction>()),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Long_Short()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedLet(
-                new Tok(TokType.Identifier, "i", 1),
-                null,
-                false,
-                new IntLiteral(1, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedLet(
-            new Tok(TokType.Identifier, "i", 1),
-            false,
-            false,
-            new IntLiteral(1, 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Unary_Bang()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedUnary(
+					new Tok(TokType.Bang, "!", 1),
+					new BoolLiteral(true, 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedUnary(
+				new Tok(TokType.Bang, "!", 1),
+				new BoolLiteral(true, 1),
+				new Bool(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Return_NoValue()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedReturn(
-                null,
-                1)
-        });
-        MakeAssertions(typedAst, new TypedReturn(
-            null,
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Unary_Minus()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedUnary(
+					new Tok(TokType.Minus, "-", 1),
+					new IntLiteral(5, 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedUnary(
+				new Tok(TokType.Minus, "-", 1),
+				new IntLiteral(5, 1),
+				new Int(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Return()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedReturn(
-                new IntLiteral(5, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedReturn(
-            new IntLiteral(5, 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Variable()
+	{
+		_variableStore.Setup(v => v.Find("name", "main"))
+			.Returns(new Local(
+				"name",
+				new AuraString(),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_Class_NoParams_NoMethods()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedClass(
-                new Tok(TokType.Identifier, "Greeter", 1),
-                new List<Param>(),
-                new List<UntypedNamedFunction>(),
-                Visibility.Private,
-                1)
-        });
-        MakeAssertions(typedAst, new FullyTypedClass(
-            new Tok(TokType.Identifier, "Greeter", 1),
-            new List<Param>(),
-            new List<TypedNamedFunction>(),
-            Visibility.Private,
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedVariable(
+					new Tok(TokType.Identifier, "name", 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedVariable(
+				new Tok(TokType.Identifier, "name", 1),
+				new AuraString(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_While_EmptyBody()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedWhile(
-                new BoolLiteral(true, 1),
-                new List<IUntypedAuraStatement>(),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedWhile(
-            new BoolLiteral(true, 1),
-            new List<ITypedAuraStatement>(),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_Defer()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("f", "main"))
+			.Returns(new Local(
+				"f",
+				new NamedFunction(
+					"f",
+					new Function(
+						new List<Param>(),
+						new Nil())),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_Import_NoAlias()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedImport(
-                new Tok(TokType.Identifier, "test_pkg", 1),
-                null,
-                1)
-        });
-        MakeAssertions(typedAst, new TypedImport(
-            new Tok(TokType.Identifier, "test_pkg", 1),
-            null,
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedDefer(
+				new UntypedCall(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "f", 1),
+						1),
+					new List<(Tok?, IUntypedAuraExpression)>(),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedDefer(
+			new TypedCall(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "f", 1),
+					new NamedFunction(
+						"f",
+						new Function(
+							new List<Param>(),
+							new Nil())),
+					1),
+				new List<ITypedAuraExpression>(),
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Comment()
-    {
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedComment(
-                new Tok(TokType.Comment, "// this is a comment", 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedComment(
-            new Tok(TokType.Comment, "// this is a comment", 1),
-            1));
-    }
+	[Test]
+	public void TestTypeCheck_For_EmptyBody()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("i", "main"))
+			.Returns(new Local(
+				"i",
+				new Int(),
+				1,
+				"main"));
 
-    [Test]
-    public void TestTypeCheck_Yield()
-    {
-        _enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedBlock(new List<IUntypedAuraStatement>(), 1));
-                     
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedYield(
-                new IntLiteral(5, 1),
-                1)
-        });
-        MakeAssertions(typedAst, new TypedYield(
-            new IntLiteral(5, 1),
-            1));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedFor(
+				new UntypedLet(
+					new Tok(TokType.Identifier, "i", 1),
+					null,
+					false,
+					new IntLiteral(0, 1),
+					1),
+				new UntypedLogical(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "i", 1),
+						1),
+					new Tok(TokType.Less, "<", 1),
+					new IntLiteral(10, 1),
+					1),
+				new List<IUntypedAuraStatement>(),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedFor(
+			new TypedLet(
+				new Tok(TokType.Identifier, "i", 1),
+				false,
+				false,
+				new IntLiteral(0, 1),
+				1),
+			new TypedLogical(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "i", 1),
+					new Int(),
+					1),
+				new Tok(TokType.Less, "<", 1),
+				new IntLiteral(10, 1),
+				new Bool(),
+				1),
+			new List<ITypedAuraStatement>(),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Yield_Invalid()
-    {
-        _enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedNil(1));
+	[Test]
+	public void TestTypeCheck_ForEach_EmptyBody()
+	{
+		_currentModuleStore.Setup(cms => cms.GetName())
+			.Returns("main");
+		_variableStore.Setup(v => v.Find("names", "main"))
+			.Returns(new Local(
+				"names",
+				new AuraList(new AuraString()),
+				1,
+				"main"));
 
-        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-        {
-            new UntypedYield(new IntLiteral(5, 1), 1)
-        }, typeof(InvalidUseOfYieldKeywordException));
-    }
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedForEach(
+				new Tok(TokType.Identifier, "name", 1),
+				new UntypedVariable(
+					new Tok(TokType.Identifier, "names", 1),
+					1),
+				new List<IUntypedAuraStatement>(),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedForEach(
+			new Tok(TokType.Identifier, "name", 1),
+			new TypedVariable(
+				new Tok(TokType.Identifier, "names", 1),
+				new AuraList(new AuraString()),
+				1),
+			new List<ITypedAuraStatement>(),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Break()
-    {
-        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedWhile(
-            new BoolLiteral(true, 1),
-            new List<IUntypedAuraStatement>(),
-            1));
+	[Test]
+	public void TestTypeCheck_NamedFunction_NoParams_NoReturnType_NoBody()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedNamedFunction(
+				new Tok(TokType.Identifier, "f", 1),
+				new List<Param>(),
+				new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
+				null,
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedNamedFunction(
+			new Tok(TokType.Identifier, "f", 1),
+			new List<Param>(),
+			new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
+			new Nil(),
+			Visibility.Public,
+			1));
+	}
 
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedBreak(1)
-        });
-        MakeAssertions(typedAst, new TypedBreak(1));
-    }
+	[Test]
+	public void TestTypeCheck_AnonymousFunction_NoParams_NoReturnType_NoBody()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedAnonymousFunction(
+					new List<Param>(),
+					new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
+					null,
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedAnonymousFunction(
+				new List<Param>(),
+				new TypedBlock(
+					new List<ITypedAuraStatement>(),
+					new Nil(),
+					1),
+				new Nil(),
+				1),
+			1));
+	}
 
-    [Test]
-    public void TestTypeCheck_Break_Invalid()
-    {
-        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
+	[Test]
+	public void TestTypeCheck_Let_Long()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedLet(
+				new Tok(TokType.Identifier, "i", 1),
+				new Int(),
+				false,
+				new IntLiteral(1, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedLet(
+			new Tok(TokType.Identifier, "i", 1),
+			true,
+			false,
+			new IntLiteral(1, 1),
+			1));
+	}
 
-        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-        {
-            new UntypedBreak(1)
-        }, typeof(InvalidUseOfBreakKeywordException));
-    }
-    
-    [Test]
-    public void TestTypeCheck_Continue()
-    {
-        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedWhile(
-            new BoolLiteral(true, 1),
-            new List<IUntypedAuraStatement>(),
-            1));
+	[Test]
+	public void TestTypeCheck_Let_Uninitialized()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedLet(
+				new Tok(TokType.Identifier, "i", 1),
+				new Int(),
+				false,
+				null,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedLet(
+			new Tok(TokType.Identifier, "i", 1),
+			true,
+			false,
+			new IntLiteral(0, 1),
+			1));
+	}
 
-        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-        {
-            new UntypedContinue(1)
-        });
-        MakeAssertions(typedAst, new TypedContinue(1));
-    }
+	[Test]
+	public void TestTypeCheck_Let_Uninitialized_NonDefaultable()
+	{
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedLet(
+				new Tok(TokType.Identifier, "c", 1),
+				new AuraChar(),
+				false,
+				null,
+				1)
+		}, typeof(MustSpecifyInitialValueForNonDefaultableTypeException));
+	}
 
-    [Test]
-    public void TestTypeCheck_Continue_Invalid()
-    {
-        _enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
+	[Test]
+	public void TestTypeCheck_Long_Short()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedLet(
+				new Tok(TokType.Identifier, "i", 1),
+				null,
+				false,
+				new IntLiteral(1, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedLet(
+			new Tok(TokType.Identifier, "i", 1),
+			false,
+			false,
+			new IntLiteral(1, 1),
+			1));
+	}
 
-        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-        {
-            new UntypedContinue(1)
-        }, typeof(InvalidUseOfContinueKeywordException));
-    }
+	[Test]
+	public void TestTypeCheck_Return_NoValue()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedReturn(
+				null,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedReturn(
+			null,
+			1));
+	}
 
-    private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-        => new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
-            .CheckTypes(AddModStmtIfNecessary(untypedAst));
+	[Test]
+	public void TestTypeCheck_Return()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedReturn(
+				new IntLiteral(5, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedReturn(
+			new IntLiteral(5, 1),
+			1));
+	}
 
-    private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
-    {
-        try
-        {
-            new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
-                .CheckTypes(AddModStmtIfNecessary(untypedAst));
-            Assert.Fail();
-        }
-        catch (TypeCheckerExceptionContainer e)
-        {
-            Assert.That(e.Exs.First(), Is.TypeOf(expected));
-        }
-    }
+	[Test]
+	public void TestTypeCheck_Class_NoParams_NoMethods()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedClass(
+				new Tok(TokType.Identifier, "Greeter", 1),
+				new List<Param>(),
+				new List<UntypedNamedFunction>(),
+				Visibility.Private,
+				1)
+		});
+		MakeAssertions(typedAst, new FullyTypedClass(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<Param>(),
+			new List<TypedNamedFunction>(),
+			Visibility.Private,
+			1));
+	}
 
-    private List<IUntypedAuraStatement> AddModStmtIfNecessary(List<IUntypedAuraStatement> untypedAst)
-    {
-        if (untypedAst.Count > 0 && untypedAst[0] is not UntypedMod)
-        {
-            var untypedAstWithMod = new List<IUntypedAuraStatement>
-            {
-                new UntypedMod(
-                    new Tok(TokType.Identifier, "main", 1),
-                    1)
-            };
-            untypedAstWithMod.AddRange(untypedAst);
-            return untypedAstWithMod;
-        }
+	[Test]
+	public void TestTypeCheck_While_EmptyBody()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedWhile(
+				new BoolLiteral(true, 1),
+				new List<IUntypedAuraStatement>(),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedWhile(
+			new BoolLiteral(true, 1),
+			new List<ITypedAuraStatement>(),
+			1));
+	}
 
-        return untypedAst;
-    }
-    
-    private void MakeAssertions(List<ITypedAuraStatement> typedAst, ITypedAuraStatement expected)
-    {
-        Assert.Multiple(() =>
-        {
-            Assert.That(typedAst, Is.Not.Null);
-            Assert.That(typedAst, Has.Count.EqualTo(2));
+	[Test]
+	public void TestTypeCheck_Import_NoAlias()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedImport(
+				new Tok(TokType.Identifier, "test_pkg", 1),
+				null,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedImport(
+			new Tok(TokType.Identifier, "test_pkg", 1),
+			null,
+			1));
+	}
 
-            var expectedJson = JsonConvert.SerializeObject(expected);
-            var actualJson = JsonConvert.SerializeObject(typedAst[1]);
-            Assert.That(actualJson, Is.EqualTo(expectedJson));
-        });
-    }
+	[Test]
+	public void TestTypeCheck_Comment()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedComment(
+				new Tok(TokType.Comment, "// this is a comment", 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedComment(
+			new Tok(TokType.Comment, "// this is a comment", 1),
+			1));
+	}
+
+	[Test]
+	public void TestTypeCheck_Yield()
+	{
+		_enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedBlock(new List<IUntypedAuraStatement>(), 1));
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedYield(
+				new IntLiteral(5, 1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedYield(
+			new IntLiteral(5, 1),
+			1));
+	}
+
+	[Test]
+	public void TestTypeCheck_Yield_Invalid()
+	{
+		_enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedNil(1));
+
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedYield(new IntLiteral(5, 1), 1)
+		}, typeof(InvalidUseOfYieldKeywordException));
+	}
+
+	[Test]
+	public void TestTypeCheck_Break()
+	{
+		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedWhile(
+			new BoolLiteral(true, 1),
+			new List<IUntypedAuraStatement>(),
+			1));
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedBreak(1)
+		});
+		MakeAssertions(typedAst, new TypedBreak(1));
+	}
+
+	[Test]
+	public void TestTypeCheck_Break_Invalid()
+	{
+		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
+
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedBreak(1)
+		}, typeof(InvalidUseOfBreakKeywordException));
+	}
+
+	[Test]
+	public void TestTypeCheck_Continue()
+	{
+		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedWhile(
+			new BoolLiteral(true, 1),
+			new List<IUntypedAuraStatement>(),
+			1));
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedContinue(1)
+		});
+		MakeAssertions(typedAst, new TypedContinue(1));
+	}
+
+	[Test]
+	public void TestTypeCheck_Continue_Invalid()
+	{
+		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
+
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedContinue(1)
+		}, typeof(InvalidUseOfContinueKeywordException));
+	}
+
+	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
+		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+			.CheckTypes(AddModStmtIfNecessary(untypedAst));
+
+	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
+	{
+		try
+		{
+			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+				.CheckTypes(AddModStmtIfNecessary(untypedAst));
+			Assert.Fail();
+		}
+		catch (TypeCheckerExceptionContainer e)
+		{
+			Assert.That(e.Exs.First(), Is.TypeOf(expected));
+		}
+	}
+
+	private List<IUntypedAuraStatement> AddModStmtIfNecessary(List<IUntypedAuraStatement> untypedAst)
+	{
+		if (untypedAst.Count > 0 && untypedAst[0] is not UntypedMod)
+		{
+			var untypedAstWithMod = new List<IUntypedAuraStatement>
+			{
+				new UntypedMod(
+					new Tok(TokType.Identifier, "main", 1),
+					1)
+			};
+			untypedAstWithMod.AddRange(untypedAst);
+			return untypedAstWithMod;
+		}
+
+		return untypedAst;
+	}
+
+	private void MakeAssertions(List<ITypedAuraStatement> typedAst, ITypedAuraStatement expected)
+	{
+		Assert.Multiple(() =>
+		{
+			Assert.That(typedAst, Is.Not.Null);
+			Assert.That(typedAst, Has.Count.EqualTo(2));
+
+			var expectedJson = JsonConvert.SerializeObject(expected);
+			var actualJson = JsonConvert.SerializeObject(typedAst[1]);
+			Assert.That(actualJson, Is.EqualTo(expectedJson));
+		});
+	}
 }

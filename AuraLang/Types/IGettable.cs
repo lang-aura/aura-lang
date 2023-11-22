@@ -1,6 +1,6 @@
-namespace AuraLang.Types;
+﻿namespace AuraLang.Types;
 
 public interface IGettable
 {
-    AuraType? Get(string attribute);
+	AuraType? Get(string attribute);
 }

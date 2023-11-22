@@ -1,6 +1,6 @@
-namespace AuraLang.AST;
+﻿namespace AuraLang.AST;
 
 public interface IAuraAstNode
 {
-    public int Line { get; }
+	public int Line { get; }
 }

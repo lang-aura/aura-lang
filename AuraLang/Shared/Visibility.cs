@@ -2,6 +2,6 @@
 
 public enum Visibility
 {
-    Public,
-    Private
+	Public,
+	Private
 }

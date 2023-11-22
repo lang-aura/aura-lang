@@ -30,7 +30,7 @@ public class Run : AuraCommand
 		};
 		run.Start();
 		run.WaitForExit();
-		
+
 		return 0;
 	}
 }
