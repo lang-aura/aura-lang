@@ -356,11 +356,22 @@ public class AuraScanner
 					switch (tok[1])
 					{
 						case 'n':
-							return CheckKeywordToken(TokType.Int, tok, "int");
+							if (tok.Length == 3) return CheckKeywordToken(TokType.Int, tok, "int");
+							if (tok.Length > 3)
+							{
+								switch (tok[3])
+								{
+									case 'e':
+										return CheckKeywordToken(TokType.Interface, tok, "interface");
+								}
+							}
+
+							break;
 						case 'm':
 							return CheckKeywordToken(TokType.Import, tok, "import");
 					}
 				}
+
 				break;
 			case 'l':
 				return CheckKeywordToken(TokType.Let, tok, "let");
