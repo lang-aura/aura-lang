@@ -14,6 +14,7 @@ public class AuraStdlib
 		{
 			new(
 				"println",
+				Visibility.Public,
 				new Function(
 					new List<Param>
 					{
@@ -25,6 +26,7 @@ public class AuraStdlib
 				),
 			new(
 				"printf",
+				Visibility.Public,
 				new Function(
 					new List<Param>
 					{

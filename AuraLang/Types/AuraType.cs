@@ -1,7 +1,5 @@
 ﻿using AuraLang.AST;
 using AuraLang.Shared;
-using AuraLang.Token;
-using AuraLang.TypeChecker;
 
 namespace AuraLang.Types;
 
@@ -118,7 +116,7 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 	/// <summary>
 	/// The type of the elements in the list
 	/// </summary>
-	private AuraType Kind { get; init; }
+	private AuraType Kind { get; }
 
 	public List(AuraType kind)
 	{
@@ -145,12 +143,14 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 /// </summary>
 public class NamedFunction : AuraType, ICallable
 {
-	public string Name { get; init; }
-	private Function F { get; init; }
+	public string Name { get; }
+	public Visibility Public { get; }
+	private Function F { get; }
 
-	public NamedFunction(string name, Function f)
+	public NamedFunction(string name, Visibility pub, Function f)
 	{
 		Name = name;
+		Public = pub;
 		F = f;
 	}
 
@@ -159,7 +159,16 @@ public class NamedFunction : AuraType, ICallable
 		return other is NamedFunction;
 	}
 
-	public override string ToString() => "function";
+	public override string ToString()
+	{
+		var name = Public == Visibility.Public
+			? Name.ToUpper()
+			: Name.ToLower();
+		var pt = string.Join(", ", F.Params
+			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+		return $"func {name}({pt}) {F.ReturnType}";
+	}
+
 	public List<Param> GetParams() => F.Params;
 	public List<ParamType> GetParamTypes() => F.GetParamTypes();
 	public AuraType GetReturnType() => F.ReturnType;
@@ -201,6 +210,26 @@ public class Function : AuraType, ICallable
 	public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
 }
 
+public class Interface : AuraType
+{
+	public string Name { get; init; }
+	public List<NamedFunction> Functions { get; init; }
+
+	public Interface(string name, List<NamedFunction> functions)
+	{
+		Name = name;
+		Functions = functions;
+	}
+
+	public override bool IsSameType(AuraType other)
+	{
+		if (other is not Interface i) return false;
+		return Name == i.Name;
+	}
+
+	public override string ToString() => "interface";
+}
+
 /// <summary>
 /// Represents a class type in Aura. Classes have their own type signature as well as zero or more
 /// methods, each of which also have their own type.
@@ -208,9 +237,9 @@ public class Function : AuraType, ICallable
 public class Class : AuraType, IGettable
 {
 	public string Name { get; init; }
-	public List<string> ParamNames { get; init; }
-	public List<ParamType> ParamTypes { get; init; }
-	public List<NamedFunction> Methods { get; init; }
+	public List<string> ParamNames { get; }
+	public List<ParamType> ParamTypes { get; }
+	public List<NamedFunction> Methods { get; }
 
 	public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<NamedFunction> methods)
 	{
@@ -322,8 +351,8 @@ public class Char : AuraType
 /// </summary>
 public class Map : AuraType, IIndexable, IDefaultable
 {
-	public AuraType Key { get; init; }
-	public AuraType Value { get; init; }
+	public AuraType Key { get; }
+	public AuraType Value { get; }
 
 	public Map(AuraType key, AuraType value)
 	{

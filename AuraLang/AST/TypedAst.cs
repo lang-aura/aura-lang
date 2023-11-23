@@ -236,6 +236,18 @@ public record TypedReturn(ITypedAuraExpression? Value, int Line) : ITypedAuraSta
 }
 
 /// <summary>
+/// Represents a valid type-checked interface declaration
+/// </summary>
+/// <param name="Name">The interface's declaration</param>
+/// <param name="Methods">The interface's methods</param>
+/// <param name="Public">Indicates whether the class is declared as public</param>
+public record TypedInterface
+	(Tok Name, List<NamedFunction> Methods, Visibility Public, int Line) : ITypedAuraStatement
+{
+	public AuraType Typ => new None();
+}
+
+/// <summary>
 /// Represents a valid type-checked class declaration
 /// </summary>
 /// <param name="Name">The class's name</param>

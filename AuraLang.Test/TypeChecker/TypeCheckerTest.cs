@@ -137,6 +137,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>(),
 					new Nil())),
@@ -157,7 +158,7 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
 				new List<ITypedAuraExpression>(),
 				new Nil(),
@@ -174,6 +175,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -210,7 +212,7 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
 				new List<ITypedAuraExpression>
 				{
@@ -231,6 +233,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -264,7 +267,7 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
 				new List<ITypedAuraExpression>
 				{
@@ -285,6 +288,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -324,6 +328,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -855,6 +860,7 @@ public class TypeCheckerTest
 				"f",
 				new NamedFunction(
 					"f",
+					Visibility.Private,
 					new Function(
 						new List<Param>(),
 						new Nil())),
@@ -878,6 +884,7 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "f", 1),
 					new NamedFunction(
 						"f",
+						Visibility.Private,
 						new Function(
 							new List<Param>(),
 							new Nil())),
@@ -1263,6 +1270,74 @@ public class TypeCheckerTest
 		{
 			new UntypedContinue(1)
 		}, typeof(InvalidUseOfContinueKeywordException));
+	}
+
+	[Test]
+	public void TestTypeCheck_Interface_NoMethods()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedInterface(
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<NamedFunction>(),
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedInterface(
+			new Tok(TokType.Identifier, "IGreeter", 1),
+			new List<NamedFunction>(),
+			Visibility.Public,
+			1));
+	}
+
+	[Test]
+	public void TestTypeCheck_Interface_OneMethod()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedInterface(
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<NamedFunction>
+				{
+					new NamedFunction(
+						"say_hi",
+						Visibility.Private,
+						new Function(
+							new List<Param>
+							{
+								new Param(
+									new Tok(TokType.Identifier, "i", 1),
+									new ParamType(
+										new Int(),
+										false,
+										null))
+							},
+							new AuraString()))
+				},
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedInterface(
+			new Tok(TokType.Identifier, "IGreeter", 1),
+			new List<NamedFunction>
+			{
+				new NamedFunction(
+					"say_hi",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new Param(
+								new Tok(TokType.Identifier, "i", 1),
+								new ParamType(
+									new Int(),
+									false,
+									null))
+						},
+						new AuraString()))
+			},
+			Visibility.Public,
+			1));
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)

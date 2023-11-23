@@ -53,16 +53,6 @@ public class UnterminatedListLiteralException : ParserException
 	public UnterminatedListLiteralException(int line) : base("Unterminated list literal", line) { }
 }
 
-public class ExpectLeftParenAfterFnKeywordException : ParserException
-{
-	public ExpectLeftParenAfterFnKeywordException(int line) : base("Expect left paren after fn keyword", line) { }
-}
-
-public class ExpectArrowInFnSignatureException : ParserException
-{
-	public ExpectArrowInFnSignatureException(int line) : base("Expect arrow in fn signature", line) { }
-}
-
 public class ExpectLeftBracketAfterMapKeywordException : ParserException
 {
 	public ExpectLeftBracketAfterMapKeywordException(int line) : base("Expeect left bracket after map keyword", line) { }
@@ -196,4 +186,9 @@ public class InvalidIndexTypeException : ParserException
 public class PostfixIndexCannotBeEmptyException : ParserException
 {
 	public PostfixIndexCannotBeEmptyException(int line) : base("Postfix index cannot be empty", line) { }
+}
+
+public class ExpectFunctionSignatureException : ParserException
+{
+	public ExpectFunctionSignatureException(int line) : base("Expect function signature", line) { }
 }

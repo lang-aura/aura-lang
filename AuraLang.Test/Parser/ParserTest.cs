@@ -748,6 +748,96 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_Interface_NoMethods()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Interface, "interface", 1),
+			new(TokType.Identifier, "Greeter", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.RightBrace, "}", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedInterface(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<NamedFunction>(),
+			Visibility.Private,
+			1));
+	}
+
+	[Test]
+	public void TestParse_Interface_OneMethod_NoParams_NoReturnType()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Interface, "interface", 1),
+			new(TokType.Identifier, "Greeter", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.Fn, "fn", 2),
+			new(TokType.Identifier, "say_hi", 2),
+			new(TokType.LeftParen, "(", 2),
+			new(TokType.RightParen, ")", 2),
+			new(TokType.RightBrace, "}", 3),
+			new(TokType.Semicolon, ";", 3),
+			new(TokType.Eof, "eof", 3)
+		});
+		MakeAssertions(untypedAst, new UntypedInterface(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<NamedFunction>
+			{
+				new("say_hi", Visibility.Private, new Function(new List<Param>(), new Nil()))
+			},
+			Visibility.Private,
+			1));
+	}
+
+	[Test]
+	public void TestParse_Interface_OneMethod()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Interface, "interface", 1),
+			new(TokType.Identifier, "Greeter", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.Fn, "fn", 2),
+			new(TokType.Identifier, "say_hi", 2),
+			new(TokType.LeftParen, "(", 2),
+			new(TokType.Identifier, "i", 2),
+			new(TokType.Colon, ":", 1),
+			new(TokType.Int, "int", 1),
+			new(TokType.RightParen, ")", 2),
+			new(TokType.Arrow, "->", 1),
+			new(TokType.String, "string", 1),
+			new(TokType.RightBrace, "}", 3),
+			new(TokType.Semicolon, ";", 3),
+			new(TokType.Eof, "eof", 3)
+		});
+		MakeAssertions(untypedAst, new UntypedInterface(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<NamedFunction>
+			{
+				new(
+					"say_hi",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i", 2),
+								new ParamType(
+									new Int(),
+									false,
+									null))
+						},
+						new String())
+					)
+			},
+			Visibility.Private,
+			1));
+	}
+
+	[Test]
 	public void TestParse_Class_NoParams_NoMethods()
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>

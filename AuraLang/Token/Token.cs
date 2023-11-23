@@ -67,6 +67,7 @@ public enum TokType
 	Break, // break
 	Continue, // continue
 	Yield, // yield
+	Interface, // interface
 	Identifier,
 	StringLiteral,
 	CharLiteral,

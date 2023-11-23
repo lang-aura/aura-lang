@@ -98,6 +98,7 @@ public class CompilerTest
 								{
 									new(
 										"Println",
+										Visibility.Private,
 										new Function(
 											new List<Param>
 											{
@@ -111,6 +112,7 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "println", 1),
 						new NamedFunction(
 							"println",
+							Visibility.Private,
 							new Function(
 								new List<Param>
 								{
@@ -145,6 +147,7 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "f", 1),
 						new NamedFunction(
 							"f",
+							Visibility.Private,
 							new Function(
 								new List<Param>(),
 								new Nil())),
@@ -168,6 +171,7 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "f", 1),
 						new NamedFunction(
 							"f",
+							Visibility.Private,
 							new Function(
 								new List<Param>
 								{
@@ -199,6 +203,7 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "f", 1),
 						new NamedFunction(
 							"f",
+							Visibility.Private,
 							new Function(
 								new List<Param>
 								{
@@ -627,6 +632,7 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "f", 1),
 						new NamedFunction(
 							"f",
+							Visibility.Private,
 							new Function(
 								new List<Param>(),
 								new Nil())),
@@ -914,6 +920,50 @@ public class CompilerTest
 				1)
 		});
 		MakeAssertions(output, "// this is a comment");
+	}
+
+	[Test]
+	public void TestCompile_Interface_NoMethods()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedInterface(
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<NamedFunction>(),
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(output, "type IGREETER interface {}");
+	}
+
+	[Test]
+	public void TestCompile_Interface_OneMethod()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedInterface(
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<NamedFunction>
+				{
+					new NamedFunction(
+						"say_hi",
+						Visibility.Public,
+						new Function(
+							new List<Param>
+							{
+								new Param(
+									new Tok(TokType.Identifier, "i", 1),
+									new ParamType(
+										new Int(),
+										false,
+										null))
+							},
+							new AuraString()))
+				},
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(output, "type IGREETER interface {\nfunc SAY_HI(i int) string\n}");
 	}
 
 	private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)
