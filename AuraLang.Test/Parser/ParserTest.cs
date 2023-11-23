@@ -288,6 +288,48 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_MapLiteral_Get()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Map, "map", 1),
+			new(TokType.LeftBracket, "[", 1),
+			new(TokType.String, "string", 1),
+			new(TokType.Colon, ":", 1),
+			new(TokType.Int, "int", 1),
+			new(TokType.RightBracket, "]", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.StringLiteral, "Hello", 2),
+			new(TokType.Colon, ":", 2),
+			new(TokType.IntLiteral, "1", 2),
+			new(TokType.Comma, ",", 2),
+			new(TokType.Semicolon, ";", 2),
+			new(TokType.StringLiteral, "World", 3),
+			new(TokType.Colon, ":", 3),
+			new(TokType.IntLiteral, "2", 3),
+			new(TokType.Comma, ",", 3),
+			new(TokType.Semicolon, ";", 3),
+			new(TokType.RightBrace, "}", 4),
+			new(TokType.LeftBracket, "[", 4),
+			new(TokType.StringLiteral, "Hello", 4),
+			new(TokType.RightBracket, "]", 4),
+			new(TokType.Semicolon, ";", 4),
+			new(TokType.Eof, "eof", 4)
+		});
+		MakeAssertions(untypedAst, new UntypedExpressionStmt(
+			new UntypedGetIndex(new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+				new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
+				{
+					{ new StringLiteral("Hello", 2), new IntLiteral(1, 2) },
+					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
+				},
+				new String(),
+				new Int(),
+				1), new StringLiteral("Hello", 4), 1),
+			1));
+	}
+
+	[Test]
 	public void TestParse_MapLiteral()
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>
