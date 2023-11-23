@@ -45,10 +45,11 @@ public record StringLiteral(string S, int Line) : IUntypedAuraExpression, ITyped
 /// Represents a list literal
 /// </summary>
 /// <param name="L">The list value</param>
-public record ListLiteral(List<IAuraAstNode> L, AuraType Kind, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral<List<IAuraAstNode>>
+public record ListLiteral<T>(List<T> L, AuraType Kind, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral<List<T>>
+	where T : IAuraAstNode
 {
 	public AuraType Typ => new List(Kind);
-	public List<IAuraAstNode> Value => L;
+	public List<T> Value => L;
 }
 
 /// <summary>
@@ -65,10 +66,12 @@ public record ListLiteral(List<IAuraAstNode> L, AuraType Kind, int Line) : IUnty
 /// match their expected type.
 /// </summary>
 /// <param name="M">The map value</param>
-public record MapLiteral(Dictionary<IAuraAstNode, IAuraAstNode> M, AuraType KeyType, AuraType ValueType, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral<Dictionary<IAuraAstNode, IAuraAstNode>>
+public record MapLiteral<TK, TV>(Dictionary<TK, TV> M, AuraType KeyType, AuraType ValueType, int Line) : IUntypedAuraExpression, ITypedAuraExpression, ILiteral<Dictionary<TK, TV>>
+	where TK : IAuraAstNode
+	where TV : IAuraAstNode
 {
 	public AuraType Typ => new Map(KeyType, ValueType);
-	public Dictionary<IAuraAstNode, IAuraAstNode> Value => M;
+	public Dictionary<TK, TV> Value => M;
 }
 
 /// <summary>

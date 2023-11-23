@@ -573,8 +573,8 @@ public class TypeCheckerTest
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedExpressionStmt(
-				new ListLiteral(
-					new List<IAuraAstNode>
+				new ListLiteral<IUntypedAuraExpression>(
+					new List<IUntypedAuraExpression>
 					{
 						new IntLiteral(1, 1)
 					},
@@ -583,8 +583,8 @@ public class TypeCheckerTest
 				1)
 		});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
-			new ListLiteral(
-				new List<IAuraAstNode>
+			new ListLiteral<ITypedAuraExpression>(
+				new List<ITypedAuraExpression>
 				{
 					new IntLiteral(1, 1)
 				},
@@ -599,8 +599,8 @@ public class TypeCheckerTest
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedExpressionStmt(
-				new MapLiteral(
-					new Dictionary<IAuraAstNode, IAuraAstNode>
+				new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(
+					new Dictionary<IUntypedAuraExpression, IUntypedAuraExpression>
 					{
 						{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
 					},
@@ -610,8 +610,8 @@ public class TypeCheckerTest
 				1)
 		});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
-			new MapLiteral(
-				new Dictionary<IAuraAstNode, IAuraAstNode>
+			new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+				new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 				{
 					{new StringLiteral("Hello", 1), new IntLiteral(1, 1)}
 				},

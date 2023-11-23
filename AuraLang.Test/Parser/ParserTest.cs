@@ -263,8 +263,8 @@ public class ParserTest
 			new(TokType.Eof, "eof", 1)
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new ListLiteral(
-				new List<IAuraAstNode>
+			new ListLiteral<ITypedAuraExpression>(
+				new List<ITypedAuraExpression>
 				{
 					new IntLiteral(5, 1),
 					new IntLiteral(6, 1)
@@ -301,8 +301,8 @@ public class ParserTest
 			new(TokType.Eof, "eof", 4)
 		});
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new MapLiteral(
-				new Dictionary<IAuraAstNode, IAuraAstNode>
+			new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+				new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 				{
 					{
 						new StringLiteral("Hello", 2),

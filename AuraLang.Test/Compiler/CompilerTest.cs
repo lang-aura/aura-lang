@@ -418,8 +418,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new System.Collections.Generic.List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new ListLiteral(
-					new List<IAuraAstNode>
+				new ListLiteral<ITypedAuraExpression>(
+					new List<ITypedAuraExpression>
 					{
 						new IntLiteral(1, 1),
 						new IntLiteral(2, 1),
@@ -438,8 +438,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new MapLiteral(
-					new Dictionary<IAuraAstNode, IAuraAstNode>
+				new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+					new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 					{
 						{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
 					},
@@ -457,8 +457,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new MapLiteral(
-					new Dictionary<IAuraAstNode, IAuraAstNode>(),
+				new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+					new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(),
 					new AuraString(),
 					new Int(),
 					1),
