@@ -118,7 +118,7 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 	/// <summary>
 	/// The type of the elements in the list
 	/// </summary>
-	private AuraType Kind { get; init; }
+	private AuraType Kind { get; }
 
 	public List(AuraType kind)
 	{
@@ -145,8 +145,8 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 /// </summary>
 public class NamedFunction : AuraType, ICallable
 {
-	public string Name { get; init; }
-	private Function F { get; init; }
+	public string Name { get; }
+	private Function F { get; }
 
 	public NamedFunction(string name, Function f)
 	{
@@ -208,9 +208,9 @@ public class Function : AuraType, ICallable
 public class Class : AuraType, IGettable
 {
 	public string Name { get; init; }
-	public List<string> ParamNames { get; init; }
-	public List<ParamType> ParamTypes { get; init; }
-	public List<NamedFunction> Methods { get; init; }
+	public List<string> ParamNames { get; }
+	public List<ParamType> ParamTypes { get; }
+	public List<NamedFunction> Methods { get; }
 
 	public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<NamedFunction> methods)
 	{
@@ -322,8 +322,8 @@ public class Char : AuraType
 /// </summary>
 public class Map : AuraType, IIndexable, IDefaultable
 {
-	public AuraType Key { get; init; }
-	public AuraType Value { get; init; }
+	public AuraType Key { get; }
+	public AuraType Value { get; }
 
 	public Map(AuraType key, AuraType value)
 	{
