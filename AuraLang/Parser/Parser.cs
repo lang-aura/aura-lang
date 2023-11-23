@@ -867,24 +867,7 @@ public class AuraParser
 			}
 
 			if (Match(TokType.LeftBracket))
-			{
-				var i = 0;
-				if (Match(TokType.IntLiteral))
-				{
-					// Parse int literal's value
-					i = int.Parse(Previous().Value);
-				}
-				else if (Match(TokType.Minus))
-				{
-					var prev = Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-					// Parse int literal's value
-					i = int.Parse(prev.Value);
-					i = -i;
-				}
-
-				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-				return new UntypedGetIndex(new ListLiteral<IUntypedAuraExpression>(items, typ, line), new IntLiteral(i, line), line);
-			}
+				return ParseGetAccess(new ListLiteral<IUntypedAuraExpression>(items, typ, line));
 
 			return new ListLiteral<IUntypedAuraExpression>(items, typ, line);
 		}
@@ -922,10 +905,10 @@ public class AuraParser
 	private IUntypedAuraExpression ParseIdentifier(Tok iden)
 	{
 		if (!Match(TokType.LeftBracket)) return new UntypedVariable(iden, iden.Line);
-		return ParseGetAccess(iden);
+		return ParseGetAccess(new UntypedVariable(iden, iden.Line));
 	}
 
-	private IUntypedAuraExpression ParseGetAccess(Tok obj)
+	private IUntypedAuraExpression ParseGetAccess(IUntypedAuraExpression obj)
 	{
 		var line = obj.Line;
 
@@ -933,14 +916,14 @@ public class AuraParser
 		{
 			var upper = Match(TokType.RightBracket) ? new IntLiteral(-1, line) : ParseIndex();
 			Consume(TokType.RightBracket, new ExpectRightBracketException(obj.Line));
-			return new UntypedGetIndexRange(new UntypedVariable(obj, line), new IntLiteral(0, line), upper,
+			return new UntypedGetIndexRange(obj, new IntLiteral(0, line), upper,
 				line);
 		}
 
 		if (!Match(TokType.RightBracket))
 		{
 			var lower = ParseIndex();
-			if (Match(TokType.RightBracket)) return new UntypedGetIndex(new UntypedVariable(obj, line), lower, line);
+			if (Match(TokType.RightBracket)) return new UntypedGetIndex(obj, lower, line);
 			Consume(TokType.Colon, new ExpectColonException(line));
 
 			IUntypedAuraExpression upper;
@@ -950,7 +933,7 @@ public class AuraParser
 				upper = ParseIndex();
 				Consume(TokType.RightBracket, new ExpectRightBracketException(line));
 			}
-			return new UntypedGetIndexRange(new UntypedVariable(obj, line), lower, upper, line);
+			return new UntypedGetIndexRange(obj, lower, upper, line);
 		}
 
 		throw new PostfixIndexCannotBeEmptyException(line);
