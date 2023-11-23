@@ -133,6 +133,19 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_GetIndex_Empty()
+	{
+		ArrangeAndAct_Invalid(new List<Tok>
+		{
+			new(TokType.Identifier, "collection", 1),
+			new(TokType.LeftBracket, "[", 1),
+			new(TokType.RightBracket, "]", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		}, typeof(PostfixIndexCannotBeEmptyException));
+	}
+
+	[Test]
 	public void TestParse_GetIndexRange()
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>
