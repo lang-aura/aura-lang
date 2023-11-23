@@ -87,6 +87,7 @@ public class AuraTypeChecker
 			UntypedContinue continue_ => ContinueStmt(continue_),
 			UntypedBreak break_ => BreakStmt(break_),
 			UntypedYield yield => YieldStmt(yield),
+			UntypedInterface i => InterfaceStmt(i),
 			_ => throw new UnknownStatementTypeException(stmt.Line)
 		};
 	}
@@ -565,6 +566,13 @@ public class AuraTypeChecker
 		var value = Expression(y.Value);
 		return new TypedYield(value, y.Line);
 	}
+
+	/// <summary>
+	/// Type checks an interface declaration
+	/// </summary>
+	/// <param name="i">The interface declaration to type check</param>
+	/// <returns>A valid, type checked interface</returns>
+	private TypedInterface InterfaceStmt(UntypedInterface i) => new TypedInterface(i.Name, i.Methods, i.Public, i.Line);
 
 	/// <summary>
 	/// Type checks an assignment expression

@@ -1,7 +1,5 @@
 ﻿using AuraLang.AST;
 using AuraLang.Shared;
-using AuraLang.Token;
-using AuraLang.TypeChecker;
 
 namespace AuraLang.Types;
 
@@ -199,6 +197,26 @@ public class Function : AuraType, ICallable
 	public AuraType GetReturnType() => ReturnType;
 	public int GetParamIndex(string name) => Params.FindIndex(p => p.Name.Value == name);
 	public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
+}
+
+public class Interface : AuraType
+{
+	public string Name { get; init; }
+	public List<NamedFunction> Functions { get; init; }
+
+	public Interface(string name, List<NamedFunction> functions)
+	{
+		Name = name;
+		Functions = functions;
+	}
+
+	public override bool IsSameType(AuraType other)
+	{
+		if (other is not Interface i) return false;
+		return Name == i.Name;
+	}
+
+	public override string ToString() => "interface";
 }
 
 /// <summary>

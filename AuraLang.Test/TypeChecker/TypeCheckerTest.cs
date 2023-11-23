@@ -1265,6 +1265,72 @@ public class TypeCheckerTest
 		}, typeof(InvalidUseOfContinueKeywordException));
 	}
 
+	[Test]
+	public void TestTypeCheck_Interface_NoMethods()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedInterface(
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<NamedFunction>(),
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedInterface(
+			new Tok(TokType.Identifier, "IGreeter", 1),
+			new List<NamedFunction>(),
+			Visibility.Public,
+			1));
+	}
+
+	[Test]
+	public void TestTypeCheck_Interface_OneMethod()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedInterface(
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<NamedFunction>
+				{
+					new NamedFunction(
+						"say_hi",
+						new Function(
+							new List<Param>
+							{
+								new Param(
+									new Tok(TokType.Identifier, "i", 1),
+									new ParamType(
+										new Int(),
+										false,
+										null))
+							},
+							new AuraString()))
+				},
+				Visibility.Public,
+				1)
+		});
+		MakeAssertions(typedAst, new TypedInterface(
+			new Tok(TokType.Identifier, "IGreeter", 1),
+			new List<NamedFunction>
+			{
+				new NamedFunction(
+					"say_hi",
+					new Function(
+						new List<Param>
+						{
+							new Param(
+								new Tok(TokType.Identifier, "i", 1),
+								new ParamType(
+									new Int(),
+									false,
+									null))
+						},
+						new AuraString()))
+			},
+			Visibility.Public,
+			1));
+	}
+
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
 		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
