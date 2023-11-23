@@ -4,7 +4,7 @@ using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.AST;
 
-public interface ILiteral {}
+public interface ILiteral { }
 
 public interface ILiteral<out T> : ILiteral
 {
