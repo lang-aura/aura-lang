@@ -813,151 +813,42 @@ public class AuraParser
 		var line = Peek().Line;
 
 		if (Match(TokType.False)) return new BoolLiteral(false, line);
-		else if (Match(TokType.True)) return new BoolLiteral(true, line);
-		else if (Match(TokType.Nil)) return new UntypedNil(line);
-		else if (Match(TokType.StringLiteral)) return new StringLiteral(Previous().Value, line);
-		else if (Match(TokType.CharLiteral)) return new CharLiteral(Previous().Value[0], line);
-		else if (Match(TokType.IntLiteral))
+		if (Match(TokType.True)) return new BoolLiteral(true, line);
+		if (Match(TokType.Nil)) return new UntypedNil(line);
+		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous().Value, line);
+		if (Match(TokType.CharLiteral)) return new CharLiteral(Previous().Value[0], line);
+		if (Match(TokType.IntLiteral))
 		{
-			var i = int.Parse(Previous().Value);
-			return new IntLiteral(i, line);
+			return new IntLiteral(
+				int.Parse(Previous().Value),
+				line);
 		}
-		else if (Match(TokType.FloatLiteral))
+		if (Match(TokType.FloatLiteral))
 		{
-			var d = double.Parse(Previous().Value, CultureInfo.InvariantCulture);
-			return new FloatLiteral(d, line);
+			return new FloatLiteral(
+				double.Parse(Previous().Value, CultureInfo.InvariantCulture),
+				line);
 		}
-		else if (Match(TokType.This)) return new UntypedThis(Previous(), line);
-		else if (Match(TokType.Identifier))
+		if (Match(TokType.This)) return new UntypedThis(Previous(), line);
+		if (Match(TokType.Identifier))
 		{
-			var v = Previous();
-			if (Match(TokType.LeftBracket))
-			{
-				int i = 0;
-
-				if (Match(TokType.IntLiteral))
-				{
-					// Parse int literal's value
-					i = int.Parse(Previous().Value);
-					// Check for index range
-					if (Match(TokType.Colon))
-					{
-						if (Match(TokType.RightBracket))
-						{
-							return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(-1, line), line);
-						}
-						Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-						var upper = int.Parse(Previous().Value);
-						Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-						return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(upper, line), line);
-					}
-					else
-					{
-						Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-						return new UntypedGetIndex(new UntypedVariable(v, line), new IntLiteral(i, line), line);
-					}
-				}
-				else if (Match(TokType.Minus))
-				{
-					var intLiteral = Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-					// Parse int literal's value
-					i = int.Parse(intLiteral.Value);
-					i = -i;
-
-					if (Match(TokType.Colon))
-					{
-						if (Match(TokType.RightBracket))
-						{
-							return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(-1, line), line);
-						}
-						if (Match(TokType.Minus))
-						{
-							Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-							var upper_ = int.Parse(Previous().Value);
-							upper_ = -upper_;
-							Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-							return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(upper_, line), line);
-						}
-
-						Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-						var upper = int.Parse(Previous().Value);
-						return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(upper, line), line);
-					}
-				}
-				else if (Match(TokType.Colon))
-				{
-					i = 0;
-					if (Match(TokType.RightBracket))
-					{
-						var upper_ = -1;
-						return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(upper_, line), line);
-					}
-					if (Match(TokType.Minus))
-					{
-						Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-						var upper_ = int.Parse(Previous().Value);
-						Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-						return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(upper_, line), line);
-					}
-
-					// Parse upper bound
-					Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-					var upper = int.Parse(Previous().Value);
-					Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-					return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(i, line), line);
-				}
-				else if (Match(TokType.Identifier))
-				{
-					// Get variable's value
-					var var_ = Previous();
-					// Check for index
-					if (Match(TokType.Colon))
-					{
-						if (Match(TokType.RightBracket))
-						{
-							return new UntypedGetIndexRange(new UntypedVariable(v, line), new IntLiteral(i, line), new IntLiteral(-1, line), line);
-						}
-
-						Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Line));
-						var upper = int.Parse(Previous().Value);
-						Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-						return new UntypedGetIndexRange(new UntypedVariable(v, line), new UntypedVariable(var_, line), new IntLiteral(upper, line), line);
-					}
-					else
-					{
-						Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-						return new UntypedGetIndex(new UntypedVariable(v, line), new UntypedVariable(var_, line), line);
-					}
-				}
-				else if (Match(TokType.StringLiteral))
-				{
-					var lit = Previous();
-					Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-					return new UntypedGetIndex(new UntypedVariable(v, line), new StringLiteral(lit.Value, line), line);
-				}
-				else
-				{
-					throw new Exception(); // TODO
-				}
-			}
-
-			return new UntypedVariable(Previous(), line);
+			return ParseIdentifier(Previous());
 		}
-		else if (Match(TokType.If))
+		if (Match(TokType.If))
 		{
 			return IfExpr();
 		}
-		else if (Match(TokType.LeftParen))
+		if (Match(TokType.LeftParen))
 		{
 			var expression = Expression();
 			Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
 			return new UntypedGrouping(expression, line);
 		}
-		else if (Match(TokType.LeftBrace))
+		if (Match(TokType.LeftBrace))
 		{
 			return Block();
 		}
-		else if (Match(TokType.LeftBracket))
+		if (Match(TokType.LeftBracket))
 		{
 			// Parse list's type
 			var typ = TypeTokenToType(Advance());
@@ -997,11 +888,11 @@ public class AuraParser
 
 			return new ListLiteral<IUntypedAuraExpression>(items, typ, line);
 		}
-		else if (Match(TokType.Fn))
+		if (Match(TokType.Fn))
 		{
 			return AnonymousFunction();
 		}
-		else if (Match(TokType.Map))
+		if (Match(TokType.Map))
 		{
 			// Parse map's type signature
 			Consume(TokType.LeftBracket, new ExpectLeftBracketAfterMapKeywordException(Peek().Line));
@@ -1024,9 +915,73 @@ public class AuraParser
 
 			return new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(d, keyType, valueType, line);
 		}
-		else
+
+		throw new ExpectExpressionException(Peek().Line);
+	}
+
+	private IUntypedAuraExpression ParseIdentifier(Tok iden)
+	{
+		if (!Match(TokType.LeftBracket)) return new UntypedVariable(iden, iden.Line);
+		return ParseGetAccess(iden);
+	}
+
+	private IUntypedAuraExpression ParseGetAccess(Tok obj)
+	{
+		var line = obj.Line;
+
+		if (Match(TokType.Colon))
 		{
-			throw new ExpectExpressionException(Peek().Line);
+			var upper = Match(TokType.RightBracket) ? new IntLiteral(-1, line) : ParseIndex();
+			Consume(TokType.RightBracket, new ExpectRightBracketException(obj.Line));
+			return new UntypedGetIndexRange(new UntypedVariable(obj, line), new IntLiteral(0, line), upper,
+				line);
 		}
+
+		if (!Match(TokType.RightBracket))
+		{
+			var lower = ParseIndex();
+			if (Match(TokType.RightBracket)) return new UntypedGetIndex(new UntypedVariable(obj, line), lower, line);
+			Consume(TokType.Colon, new ExpectColonException(line));
+
+			IUntypedAuraExpression upper;
+			if (Match(TokType.RightBracket)) upper = new IntLiteral(-1, line);
+			else
+			{
+				upper = ParseIndex();
+				Consume(TokType.RightBracket, new ExpectRightBracketException(line));
+			}
+			return new UntypedGetIndexRange(new UntypedVariable(obj, line), lower, upper, line);
+		}
+
+		throw new PostfixIndexCannotBeEmptyException(line);
+	}
+
+	private IUntypedAuraExpression ParseIndex()
+	{
+		var line = Previous().Line;
+
+		if (Match(TokType.IntLiteral))
+		{
+			return new IntLiteral(int.Parse(Previous().Value), line);
+		}
+
+		if (Match(TokType.Minus))
+		{
+			var intLiteral = Consume(TokType.IntLiteral, new ExpectIntLiteralException(line));
+			var i = int.Parse(intLiteral.Value);
+			return new IntLiteral(-i, line);
+		}
+
+		if (Match(TokType.Identifier))
+		{
+			return new UntypedVariable(Previous(), line);
+		}
+
+		if (Match(TokType.StringLiteral))
+		{
+			return new StringLiteral(Previous().Value, line);
+		}
+
+		throw new InvalidIndexTypeException(line);
 	}
 }

@@ -187,3 +187,13 @@ public class ParameterDefaultValueMustBeALiteralException : ParserException
 {
 	public ParameterDefaultValueMustBeALiteralException(int line) : base("Parameter default value must be a literal", line) { }
 }
+
+public class InvalidIndexTypeException : ParserException
+{
+	public InvalidIndexTypeException(int line) : base("Invalid index type", line) { }
+}
+
+public class PostfixIndexCannotBeEmptyException : ParserException
+{
+	public PostfixIndexCannotBeEmptyException(int line) : base("Postfix index cannot be empty", line) { }
+}
