@@ -108,9 +108,9 @@ public class AuraCompiler
 			IntLiteral i => IntLiteralExpr(i),
 			FloatLiteral f => FloatLiteralExpr(f),
 			BoolLiteral b => BoolLiteralExpr(b),
-			ListLiteral l => ListLiteralExpr(l),
+			ListLiteral<ITypedAuraExpression> l => ListLiteralExpr(l),
 			TypedNil n => NilLiteralExpr(n),
-			MapLiteral m => MapLiteralExpr(m),
+			MapLiteral<ITypedAuraExpression, ITypedAuraExpression> m => MapLiteralExpr(m),
 			TypedLogical l => LogicalExpr(l),
 			TypedSet s => SetExpr(s),
 			TypedThis t => ThisExpr(t),
@@ -379,19 +379,18 @@ public class AuraCompiler
 
 	private string BoolLiteralExpr(BoolLiteral literal) => (bool)literal.Value ? "true" : "false";
 
-	private string ListLiteralExpr(ListLiteral literal)
+	private string ListLiteralExpr(ListLiteral<ITypedAuraExpression> literal)
 	{
-		var items = ((System.Collections.Generic.List<IAuraAstNode>)literal.Value)
+		var items = literal.Value
 			.Select(item => Expression((ITypedAuraExpression)item));
 		return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
 	}
 
 	private string NilLiteralExpr(TypedNil nil) => "nil";
 
-	private string MapLiteralExpr(MapLiteral literal)
+	private string MapLiteralExpr(MapLiteral<ITypedAuraExpression, ITypedAuraExpression> literal)
 	{
-		var items = ((System.Collections.Generic.Dictionary<IAuraAstNode, IAuraAstNode>)literal.Value)
-			.Select(pair =>
+		var items = literal.Value.Select(pair =>
 		{
 			var keyExpr = Expression((ITypedAuraExpression)pair.Key);
 			var valueExpr = Expression((ITypedAuraExpression)pair.Value);

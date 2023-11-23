@@ -107,8 +107,8 @@ public class AuraTypeChecker
 			IntLiteral i => IntLiteralExpr(i),
 			FloatLiteral f => FloatLiteralExpr(f),
 			StringLiteral s => StringLiteralExpr(s),
-			ListLiteral l => ListLiteralExpr(l),
-			MapLiteral m => MapLiteralExpr(m),
+			ListLiteral<IUntypedAuraExpression> l => ListLiteralExpr(l),
+			MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression> m => MapLiteralExpr(m),
 			BoolLiteral b => BoolLiteralExpr(b),
 			UntypedNil n => NilExpr(n),
 			CharLiteral c => CharLiteralExpr(c),
@@ -770,31 +770,31 @@ public class AuraTypeChecker
 
 	private StringLiteral StringLiteralExpr(StringLiteral literal) => literal;
 
-	private ListLiteral ListLiteralExpr(ListLiteral literal)
+	private ListLiteral<ITypedAuraExpression> ListLiteralExpr(ListLiteral<IUntypedAuraExpression> literal)
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var items = (List<IAuraAstNode>)literal.Value;
-			var typedItem = Expression((IUntypedAuraExpression)items.First());
-			var typedItems = items.Select(item => (IAuraAstNode)ExpressionAndConfirm((IUntypedAuraExpression)item, typedItem.Typ)).ToList();
-			return new ListLiteral(typedItems, new List(typedItem.Typ), literal.Line);
+			var items = literal.Value;
+			var typedItem = Expression(items.First());
+			var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
+			return new ListLiteral<ITypedAuraExpression>(typedItems, new List(typedItem.Typ), literal.Line);
 		}, literal);
 	}
 
-	private MapLiteral MapLiteralExpr(MapLiteral literal)
+	private MapLiteral<ITypedAuraExpression, ITypedAuraExpression> MapLiteralExpr(MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression> literal)
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var m = (Dictionary<IAuraAstNode, IAuraAstNode>)literal.Value;
-			var typedKey = Expression((IUntypedAuraExpression)m.Keys.First());
-			var typedValue = Expression((IUntypedAuraExpression)m.Values.First());
+			var m = literal.Value;
+			var typedKey = Expression(m.Keys.First());
+			var typedValue = Expression(m.Values.First());
 			var typedM = m.Select(pair =>
 			{
-				var typedK = ExpressionAndConfirm((IUntypedAuraExpression)pair.Key, typedKey.Typ);
-				var typedV = ExpressionAndConfirm((IUntypedAuraExpression)pair.Value, typedValue.Typ);
-				return ((IAuraAstNode)typedK, (IAuraAstNode)typedV);
+				var typedK = ExpressionAndConfirm(pair.Key, typedKey.Typ);
+				var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
+				return (typedK, typedV);
 			}).ToDictionary(pair => pair.Item1, pair => pair.Item2);
-			return new MapLiteral(typedM, typedKey.Typ, typedValue.Typ, literal.Line);
+			return new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(typedM, typedKey.Typ, typedValue.Typ, literal.Line);
 		}, literal);
 	}
 

@@ -137,7 +137,7 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 	public AuraType GetRangeIndexedType() => new List(Kind);
 
 	public ITypedAuraExpression Default(int line) =>
-		new ListLiteral(new List<IAuraAstNode>(), new List(Kind), line);
+		new ListLiteral<ITypedAuraExpression>(new List<ITypedAuraExpression>(), new List(Kind), line);
 }
 
 /// <summary>
@@ -337,6 +337,6 @@ public class Map : AuraType, IIndexable, IDefaultable
 	public AuraType GetIndexedType() => Value;
 
 	public ITypedAuraExpression Default(int line) =>
-		new MapLiteral(
-			new Dictionary<IAuraAstNode, IAuraAstNode>(), Key, Value, line);
+		new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
 }

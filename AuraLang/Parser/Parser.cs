@@ -247,8 +247,8 @@ public class AuraParser
 		// Parse default value
 		if (!Match(TokType.Equal)) return new ParamType(pt, variadic, null);
 		var defaultValue = Expression();
-		if (!IsLiteral(defaultValue)) throw new ParameterDefaultValueMustBeALiteralException(Peek().Line);
-		return new ParamType(pt, variadic, defaultValue as ILiteral);
+		if (defaultValue is not ILiteral lit) throw new ParameterDefaultValueMustBeALiteralException(Peek().Line);
+		return new ParamType(pt, variadic, lit);
 	}
 
 	private Param ParseParameter()
@@ -964,7 +964,7 @@ public class AuraParser
 			Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
 			Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 
-			var items = new List<IAuraAstNode>();
+			var items = new List<IUntypedAuraExpression>();
 			while (!Match(TokType.RightBrace))
 			{
 				var expr = Expression();
@@ -992,10 +992,10 @@ public class AuraParser
 				}
 
 				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
-				return new UntypedGetIndex(new ListLiteral(items, typ, line), new IntLiteral(i, line), line);
+				return new UntypedGetIndex(new ListLiteral<IUntypedAuraExpression>(items, typ, line), new IntLiteral(i, line), line);
 			}
 
-			return new ListLiteral(items, typ, line);
+			return new ListLiteral<IUntypedAuraExpression>(items, typ, line);
 		}
 		else if (Match(TokType.Fn))
 		{
@@ -1011,7 +1011,7 @@ public class AuraParser
 			Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Line));
 			Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 
-			var d = new Dictionary<IAuraAstNode, IAuraAstNode>();
+			var d = new Dictionary<IUntypedAuraExpression, IUntypedAuraExpression>();
 			while (!Match(TokType.RightBrace))
 			{
 				var key = Expression();
@@ -1022,34 +1022,11 @@ public class AuraParser
 				d[key] = value;
 			}
 
-			return new MapLiteral(d, keyType, valueType, line);
+			return new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(d, keyType, valueType, line);
 		}
 		else
 		{
 			throw new ExpectExpressionException(Peek().Line);
 		}
-	}
-
-	// TODO Probably don't need this method anymore
-	private bool IsLiteral(IUntypedAuraExpression expr)
-	{
-		return expr switch
-		{
-			BoolLiteral or CharLiteral or FloatLiteral or IntLiteral
-				or ListLiteral or MapLiteral or StringLiteral => true,
-			_ => false
-		};
-	}
-
-	private AuraType ParseLiteralTypeToType(TokType ttype)
-	{
-		return ttype switch
-		{
-			TokType.StringLiteral => new AuraString(),
-			TokType.CharLiteral => new AuraChar(),
-			TokType.IntLiteral => new Int(),
-			TokType.FloatLiteral => new Float(),
-			TokType.True or TokType.False => new Bool()
-		};
 	}
 }
