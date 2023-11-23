@@ -211,12 +211,19 @@ public class AuraParser
 			case TokType.Char:
 				return new AuraChar();
 			case TokType.Fn:
+				// Check if there is a name -- if not, we are parsing an anonymous function
+				Tok? name = Match(TokType.Identifier) ? Previous() : null;
+				// Parse parameters
 				Consume(TokType.LeftParen, new ExpectLeftParenException(tok.Line));
 				var paramz = ParseParameters();
 				Consume(TokType.RightParen, new ExpectRightParenException(tok.Line));
-				Consume(TokType.Arrow, new ExpectArrowInFnSignatureException(tok.Line));
-				var returnType = TypeTokenToType(Advance());
-				return new Function(paramz, returnType);
+				// Parse return type (if there is one)
+				var returnType = Match(TokType.Arrow)
+					? TypeTokenToType(Advance())
+					: new Nil();
+
+				var f = new Function(paramz, returnType);
+				return name is null ? f : new NamedFunction(name.Value.Value, f);
 			case TokType.Identifier:
 				return new Unknown(Previous().Value);
 			case TokType.Map:
@@ -265,35 +272,23 @@ public class AuraParser
 	{
 		if (Match(TokType.Pub))
 		{
-			if (Match(TokType.Class))
-			{
-				return ClassDeclaration(Visibility.Public);
-			}
-			if (Match(TokType.Fn))
-			{
-				return NamedFunction(FunctionType.Function, Visibility.Public);
-			}
+			if (Match(TokType.Class)) return ClassDeclaration(Visibility.Public);
+			if (Match(TokType.Fn)) return NamedFunction(FunctionType.Function, Visibility.Public);
+			if (Match(TokType.Interface)) return InterfaceDeclaration(Visibility.Public);
 
 			throw new InvalidTokenAfterPubKeywordException(Peek().Line);
 		}
-		if (Match(TokType.Class))
-		{
-			return ClassDeclaration(Visibility.Private);
-		}
+
+		if (Match(TokType.Interface)) return InterfaceDeclaration(Visibility.Private);
+		if (Match(TokType.Class)) return ClassDeclaration(Visibility.Private);
 		if (Check(TokType.Fn) && PeekNext().Typ == TokType.Identifier)
 		{
 			// Since we only check for the `fn` keyword, we need to advance past it here before entering the NamedFunction() call
 			Advance();
 			return NamedFunction(FunctionType.Function, Visibility.Private);
 		}
-		if (Match(TokType.Let))
-		{
-			return LetDeclaration();
-		}
-		if (Match(TokType.Mod))
-		{
-			return ModDeclaration();
-		}
+		if (Match(TokType.Let)) return LetDeclaration();
+		if (Match(TokType.Mod)) return ModDeclaration();
 		if (Match(TokType.Import))
 		{
 			var line = Previous().Line;
@@ -324,6 +319,27 @@ public class AuraParser
 		return Statement();
 	}
 
+	private IUntypedAuraStatement InterfaceDeclaration(Visibility pub)
+	{
+		var line = Previous().Line;
+		// Consume the interface name
+		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line));
+		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
+		// Parse the interface's methods
+		var methods = new List<NamedFunction>();
+		while (!IsAtEnd() && !Check(TokType.RightBrace))
+		{
+			var typ = TypeTokenToType(Advance());
+			if (typ is not NamedFunction f) throw new ExpectFunctionSignatureException(Peek().Line);
+			methods.Add(f);
+		}
+
+		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
+		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
+
+		return new UntypedInterface(name, methods, pub, line);
+	}
+
 	private IUntypedAuraStatement ClassDeclaration(Visibility pub)
 	{
 		var line = Previous().Line;
@@ -339,6 +355,7 @@ public class AuraParser
 		// Methods can be public or private, just like regular functions
 		if (Match(TokType.Pub))
 		{
+			// TODO refactor this - the then branch is basically the same as the else branch
 			Consume(TokType.Fn, new InvalidTokenAfterPubKeywordException(Peek().Line));
 			while (!IsAtEnd() && !Check(TokType.RightBrace))
 			{

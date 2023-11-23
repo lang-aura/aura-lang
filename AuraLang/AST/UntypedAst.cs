@@ -306,6 +306,16 @@ public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFuncti
 }
 
 /// <summary>
+/// Represents an interface declaration, which follows the syntax:
+/// <code>interface <c>interface_name</c> { ... } </code>
+/// </summary>
+/// <param name="Name">The interface's name</param>
+/// <param name="Methods">The interface's methods</param>
+/// <param name="Public">Indicates if the interface is public or not</param>
+public record UntypedInterface
+	(Tok Name, List<NamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement;
+
+/// <summary>
 /// Represents a <c>while</c> loop, which follows this syntax:
 /// <code>while true { ... }</code>
 /// where its body is executed until the loop's condition evaluates to false.
