@@ -223,7 +223,7 @@ public class AuraParser
 					: new Nil();
 
 				var f = new Function(paramz, returnType);
-				return name is null ? f : new NamedFunction(name.Value.Value, f);
+				return name is null ? f : new NamedFunction(name.Value.Value, Visibility.Private, f);
 			case TokType.Identifier:
 				return new Unknown(Previous().Value);
 			case TokType.Map:

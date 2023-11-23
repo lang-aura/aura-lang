@@ -137,6 +137,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>(),
 					new Nil())),
@@ -157,7 +158,7 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
 				new List<ITypedAuraExpression>(),
 				new Nil(),
@@ -174,6 +175,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -210,7 +212,7 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
 				new List<ITypedAuraExpression>
 				{
@@ -231,6 +233,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -264,7 +267,7 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", new Function(new List<Param>(), new Nil())),
+					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
 				new List<ITypedAuraExpression>
 				{
@@ -285,6 +288,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -324,6 +328,7 @@ public class TypeCheckerTest
 			"f",
 			new NamedFunction(
 				"f",
+				Visibility.Private,
 				new Function(
 					new List<Param>
 					{
@@ -855,6 +860,7 @@ public class TypeCheckerTest
 				"f",
 				new NamedFunction(
 					"f",
+					Visibility.Private,
 					new Function(
 						new List<Param>(),
 						new Nil())),
@@ -878,6 +884,7 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "f", 1),
 					new NamedFunction(
 						"f",
+						Visibility.Private,
 						new Function(
 							new List<Param>(),
 							new Nil())),
@@ -1294,6 +1301,7 @@ public class TypeCheckerTest
 				{
 					new NamedFunction(
 						"say_hi",
+						Visibility.Private,
 						new Function(
 							new List<Param>
 							{
@@ -1315,6 +1323,7 @@ public class TypeCheckerTest
 			{
 				new NamedFunction(
 					"say_hi",
+					Visibility.Private,
 					new Function(
 						new List<Param>
 						{

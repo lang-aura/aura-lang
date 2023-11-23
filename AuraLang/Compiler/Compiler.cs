@@ -86,6 +86,7 @@ public class AuraCompiler
 			TypedComment c => CommentStmt(c),
 			TypedContinue c => ContinueStmt(c),
 			TypedBreak b => BreakStmt(b),
+			TypedInterface i => InterfaceStmt(i),
 			_ => throw new UnknownStatementException(stmt.Line)
 		};
 	}
@@ -288,6 +289,19 @@ public class AuraCompiler
 	private string BreakStmt(TypedBreak b)
 	{
 		return "break";
+	}
+
+	private string InterfaceStmt(TypedInterface i)
+	{
+		return InNewEnclosingType(() =>
+		{
+			var interfaceName = i.Public == Visibility.Public ? i.Name.Value.ToUpper() : i.Name.Value.ToLower();
+			var methods = i.Methods.Select(m => m.ToString());
+
+			return methods.Any()
+				? $"type {interfaceName} interface {{\n{string.Join("\n\n", methods)}\n}}"
+				: $"type {interfaceName} interface {{}}";
+		}, i);
 	}
 
 	private string AssignmentExpr(TypedAssignment assign)

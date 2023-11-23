@@ -786,7 +786,7 @@ public class ParserTest
 			new Tok(TokType.Identifier, "Greeter", 1),
 			new List<NamedFunction>
 			{
-				new("say_hi", new Function(new List<Param>(), new Nil()))
+				new("say_hi", Visibility.Private, new Function(new List<Param>(), new Nil()))
 			},
 			Visibility.Private,
 			1));
@@ -817,16 +817,21 @@ public class ParserTest
 			new Tok(TokType.Identifier, "Greeter", 1),
 			new List<NamedFunction>
 			{
-				new("say_hi", new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "i", 2),
-							new ParamType(
-								new Int(),
-								false,
-								null))
-					}, new String()))
+				new(
+					"say_hi",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i", 2),
+								new ParamType(
+									new Int(),
+									false,
+									null))
+						},
+						new String())
+					)
 			},
 			Visibility.Private,
 			1));

@@ -240,6 +240,7 @@ public class AuraTypeChecker
 					f.Name.Value,
 					new NamedFunction(
 						f.Name.Value,
+						f.Public,
 						new Function(
 							TypeCheckParams(f.Params),
 							returnType)
@@ -292,7 +293,7 @@ public class AuraTypeChecker
 		// Add function as local
 		_variableStore.Add(new Local(
 			f.Name.Value,
-			new NamedFunction(f.Name.Value, new Function(typedParams, returnType)),
+			new NamedFunction(f.Name.Value, f.Public, new Function(typedParams, returnType)),
 			_scope,
 			_currentModule.GetName()!));
 
@@ -432,7 +433,9 @@ public class AuraTypeChecker
 						var methodParamType = p.ParamType.Typ;
 						return new Param(p.Name, new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
 					});
-					return new NamedFunction(method.Name.Value,
+					return new NamedFunction(
+						method.Name.Value,
+						method.Public,
 						new Function(typedMethodParams.ToList(), method.ReturnType));
 				})
 				.ToList();

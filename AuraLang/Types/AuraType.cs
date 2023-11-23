@@ -144,11 +144,13 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 public class NamedFunction : AuraType, ICallable
 {
 	public string Name { get; }
+	public Visibility Public { get; }
 	private Function F { get; }
 
-	public NamedFunction(string name, Function f)
+	public NamedFunction(string name, Visibility pub, Function f)
 	{
 		Name = name;
+		Public = pub;
 		F = f;
 	}
 
@@ -157,7 +159,16 @@ public class NamedFunction : AuraType, ICallable
 		return other is NamedFunction;
 	}
 
-	public override string ToString() => "function";
+	public override string ToString()
+	{
+		var name = Public == Visibility.Public
+			? Name.ToUpper()
+			: Name.ToLower();
+		var pt = string.Join(", ", F.Params
+			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+		return $"func {name}({pt}) {F.ReturnType}";
+	}
+
 	public List<Param> GetParams() => F.Params;
 	public List<ParamType> GetParamTypes() => F.GetParamTypes();
 	public AuraType GetReturnType() => F.ReturnType;
