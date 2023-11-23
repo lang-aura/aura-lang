@@ -866,10 +866,8 @@ public class AuraParser
 				}
 			}
 
-			if (Match(TokType.LeftBracket))
-				return ParseGetAccess(new ListLiteral<IUntypedAuraExpression>(items, typ, line));
-
-			return new ListLiteral<IUntypedAuraExpression>(items, typ, line);
+			var listExpr = new ListLiteral<IUntypedAuraExpression>(items, typ, line);
+			return Match(TokType.LeftBracket) ? ParseGetAccess(listExpr) : listExpr;
 		}
 		if (Match(TokType.Fn))
 		{
@@ -896,7 +894,8 @@ public class AuraParser
 				d[key] = value;
 			}
 
-			return new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(d, keyType, valueType, line);
+			var mapExpr = new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(d, keyType, valueType, line);
+			return Match(TokType.LeftBracket) ? ParseSingleGetAccess(mapExpr) : mapExpr;
 		}
 
 		throw new ExpectExpressionException(Peek().Line);
@@ -906,6 +905,14 @@ public class AuraParser
 	{
 		if (!Match(TokType.LeftBracket)) return new UntypedVariable(iden, iden.Line);
 		return ParseGetAccess(new UntypedVariable(iden, iden.Line));
+	}
+
+	private IUntypedAuraExpression ParseSingleGetAccess(IUntypedAuraExpression obj)
+	{
+		var line = obj.Line;
+		var index = ParseIndex();
+		Consume(TokType.RightBracket, new ExpectRightBracketException(line));
+		return new UntypedGetIndex(obj, index, line);
 	}
 
 	private IUntypedAuraExpression ParseGetAccess(IUntypedAuraExpression obj)
