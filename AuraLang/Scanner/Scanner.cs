@@ -349,6 +349,8 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.In, tok, "in");
 						case 'f':
 							return CheckKeywordToken(TokType.If, tok, "if");
+						case 's':
+							return CheckKeywordToken(TokType.Is, tok, "is");
 					}
 				}
 				else if (tok.Length > 2)
