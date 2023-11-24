@@ -467,8 +467,7 @@ public class AuraTypeChecker
 			Interface? interfaceTyp = null;
 			if (class_.Implements is not null)
 			{
-				// TODO Add FindAndConfirm method to _variableStore
-				var local = _variableStore.Find(class_.Implements.Value.Value, _currentModule.GetName()!) ?? throw new UnknownVariableException(class_.Line);
+				var local = _variableStore.FindAndConfirm(class_.Implements.Value.Value, _currentModule.GetName()!, new Interface(string.Empty, new List<NamedFunction>()), class_.Line);
 				interfaceTyp = local.Kind as Interface;
 				if (interfaceTyp is null) throw new CannotImplementNonInterfaceException(class_.Line);
 				var valid = interfaceTyp.Functions.Select(f =>

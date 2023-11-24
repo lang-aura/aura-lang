@@ -5,6 +5,7 @@ namespace AuraLang.Types;
 
 public abstract class AuraType
 {
+	public virtual bool IsEqual(AuraType other) => IsSameType(other);
 	public abstract bool IsSameType(AuraType other);
 	public virtual bool IsInheritingType(AuraType other) => false;
 	public bool IsSameOrInheritingType(AuraType other) => IsSameType(other) || IsInheritingType(other);
@@ -123,7 +124,9 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 		Kind = kind;
 	}
 
-	public override bool IsSameType(AuraType other) => other is List list && Kind.IsSameType(list.Kind);
+	public override bool IsEqual(AuraType other) => other is List list && Kind.IsSameType(list.Kind);
+
+	public override bool IsSameType(AuraType other) => other is List list;
 
 	public AuraType GetIterType() => Kind;
 	public override string ToString() => $"[]{Kind}";
@@ -151,7 +154,9 @@ public class NamedFunction : AuraType, ICallable
 		F = f;
 	}
 
-	public override bool IsSameType(AuraType other) => other is NamedFunction f && Name == f.Name && F.IsSameType(f.F);
+	public override bool IsEqual(AuraType other) => other is NamedFunction f && Name == f.Name && F.IsSameType(f.F);
+
+	public override bool IsSameType(AuraType other) => other is NamedFunction;
 
 	public override string ToString()
 	{
@@ -185,7 +190,9 @@ public class Function : AuraType, ICallable
 		ReturnType = returnType;
 	}
 
-	public override bool IsSameType(AuraType other) => other is Function f && CompareParamsForEquality(Params, f.Params) && ReturnType.IsSameType(f.ReturnType);
+	public override bool IsEqual(AuraType other) => other is Function f && CompareParamsForEquality(Params, f.Params) && ReturnType.IsSameType(f.ReturnType);
+
+	public override bool IsSameType(AuraType other) => other is Function;
 
 	public override string ToString()
 	{
@@ -212,7 +219,9 @@ public class Interface : AuraType
 		Functions = functions;
 	}
 
-	public override bool IsSameType(AuraType other) => other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
+	public override bool IsEqual(AuraType other) => other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
+
+	public override bool IsSameType(AuraType other) => other is Interface;
 
 	public override string ToString() => "interface";
 }
@@ -236,7 +245,9 @@ public class Class : AuraType, IGettable
 		Methods = methods;
 	}
 
-	public override bool IsSameType(AuraType other) => other is Class c && Name == c.Name && ParamTypes.SequenceEqual(c.ParamTypes) && Methods.SequenceEqual(c.Methods);
+	public override bool IsEqual(AuraType other) => other is Class c && Name == c.Name && ParamTypes.SequenceEqual(c.ParamTypes) && Methods.SequenceEqual(c.Methods);
+
+	public override bool IsSameType(AuraType other) => other is Class;
 
 	public override string ToString() => "class";
 
@@ -288,7 +299,9 @@ public class Module : AuraType, IGettable
 		PublicFunctions = publicFunctions;
 	}
 
-	public override bool IsSameType(AuraType other) => other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
+	public override bool IsEqual(AuraType other) => other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
+
+	public override bool IsSameType(AuraType other) => other is Module;
 
 	public override string ToString() => "module";
 
@@ -340,6 +353,8 @@ public class Map : AuraType, IIndexable, IDefaultable
 		Key = key;
 		Value = value;
 	}
+
+	public override bool IsEqual(AuraType other) => other is Map m && Key.IsSameOrInheritingType(m.Key) && Value.IsSameOrInheritingType(m.Value);
 
 	public override bool IsSameType(AuraType other) => other is Map;
 	public override string ToString() => $"map[{Key}]{Value}";
