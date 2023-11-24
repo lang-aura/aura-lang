@@ -961,6 +961,29 @@ public class CompilerTest
 	}
 
 	[Test]
+	public void TestCompile_Is_InLetStmt()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedLet(
+				new Tok(TokType.Identifier, "b", 1),
+				false,
+				false,
+				new TypedIs(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "v", 1),
+						new Int(),
+						1),
+					new Interface(
+						"IGreeter",
+						new List<NamedFunction>()),
+					1),
+				1)
+		});
+		MakeAssertions(output, "_, b := v.(IGreeter)");
+	}
+
+	[Test]
 	public void TestCompile_Interface_NoMethods()
 	{
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
