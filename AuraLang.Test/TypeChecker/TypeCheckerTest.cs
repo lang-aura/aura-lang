@@ -1345,7 +1345,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", "main"))
+		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", "main", It.IsAny<Interface>(), It.IsAny<int>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>()),
