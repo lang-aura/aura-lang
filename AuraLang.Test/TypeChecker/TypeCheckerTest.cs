@@ -1137,6 +1137,7 @@ public class TypeCheckerTest
 				new List<Param>(),
 				new List<UntypedNamedFunction>(),
 				Visibility.Private,
+				null,
 				1)
 		});
 		MakeAssertions(typedAst, new FullyTypedClass(
@@ -1144,6 +1145,7 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
+			null,
 			1));
 	}
 
@@ -1337,6 +1339,36 @@ public class TypeCheckerTest
 						new AuraString()))
 			},
 			Visibility.Public,
+			1));
+	}
+
+	[Test]
+	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
+	{
+		_variableStore.Setup(v => v.Find("IGreeter", "main"))
+			.Returns(new Local(
+				"IGreeter",
+				new Interface("IGreeter", new List<NamedFunction>()),
+				1,
+				"main"));
+		_currentModuleStore.Setup(m => m.GetName()).Returns("main");
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedClass(
+				new Tok(TokType.Identifier, "Greeter", 1),
+				new List<Param>(),
+				new List<UntypedNamedFunction>(),
+				Visibility.Private,
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				1)
+		});
+		MakeAssertions(typedAst, new FullyTypedClass(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<Param>(),
+			new List<TypedNamedFunction>(),
+			Visibility.Private,
+			new Interface("IGreeter", new List<NamedFunction>()),
 			1));
 	}
 

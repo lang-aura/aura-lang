@@ -349,8 +349,10 @@ public class AuraParser
 		// Parse parameters
 		var paramz = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
-		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
+		// Check if class implements an interface
+		Tok? interfaceName = Match(TokType.Colon) ? Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line)) : null;
 		// Parse the class's methods
+		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 		var methods = new List<UntypedNamedFunction>();
 		// Methods can be public or private, just like regular functions
 		if (Match(TokType.Pub))
@@ -375,7 +377,7 @@ public class AuraParser
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-		return new UntypedClass(name, paramz, methods, pub, line);
+		return new UntypedClass(name, paramz, methods, pub, interfaceName, line);
 	}
 
 	private IUntypedAuraStatement ModDeclaration()

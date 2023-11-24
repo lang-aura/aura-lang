@@ -307,6 +307,19 @@ public class ScannerTest
 		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Interface, "interface", 1));
 	}
 
+	[Test]
+	public void TestScan_ClassImplementingInterface()
+	{
+		var tokens = ArrangeAndAct("class Greeter() : IGreeter");
+		MakeAssertions_Valid(tokens, 7,
+			new Tok(TokType.Class, "class", 1),
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new Tok(TokType.LeftParen, "(", 1),
+			new Tok(TokType.RightParen, ")", 1),
+			new Tok(TokType.Colon, ":", 1),
+			new Tok(TokType.Identifier, "IGreeter", 1));
+	}
+
 	private static void ArrangeAndAct_Invalid(string source, Type expected)
 	{
 		// Arrange
