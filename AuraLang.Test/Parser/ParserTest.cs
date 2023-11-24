@@ -856,6 +856,7 @@ public class ParserTest
 			new List<Param>(),
 			new List<UntypedNamedFunction>(),
 			Visibility.Private,
+			null,
 			1));
 	}
 
@@ -936,6 +937,31 @@ public class ParserTest
 			new(TokType.Eof, "eof", 1)
 		});
 		MakeAssertions(untypedAst, new UntypedYield(new IntLiteral(5, 1), 1));
+	}
+
+	[Test]
+	public void TestParse_ClassImplementingInterface()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Class, "class", 1),
+			new(TokType.Identifier, "Greeter", 1),
+			new(TokType.LeftParen, "(", 1),
+			new(TokType.RightParen, ")", 1),
+			new(TokType.Colon, ":", 1),
+			new(TokType.Identifier, "IGreeter", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.RightBrace, "}", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedClass(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<Param>(),
+			new List<UntypedNamedFunction>(),
+			Visibility.Private,
+			new Tok(TokType.Identifier, "IGreeter", 1),
+			1));
 	}
 
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)

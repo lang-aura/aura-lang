@@ -186,9 +186,19 @@ public record TypedForEach
 public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
 	Visibility Public, int Line) : ITypedAuraStatement, ITypedFunction
 {
+	/// <summary>
+	/// The type of a named function declaration is None (i.e. it doesn't return a value)
+	/// </summary>
 	public AuraType Typ => new None();
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
+	/// <summary>
+	/// Gets the type of the declared function. This differs from the <c>Typ</c> field because this function
+	/// type is not returned by the declaration itself. Instead, this method returns the type of the function
+	/// that was declared.
+	/// </summary>
+	/// <returns>The type of the declared function</returns>
+	public AuraType GetFunctionType() => new NamedFunction(Name.Value, Public, new Function(Params, ReturnType));
 }
 
 /// <summary>
@@ -254,7 +264,7 @@ public record TypedInterface
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
-public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public,
+public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, Interface? Implements,
 	int Line) : ITypedAuraStatement, ITypedFunction
 {
 	public AuraType Typ => new None();

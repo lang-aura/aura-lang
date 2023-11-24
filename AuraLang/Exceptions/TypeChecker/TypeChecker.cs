@@ -97,3 +97,18 @@ public class MustSpecifyInitialValueForNonDefaultableTypeException : TypeChecker
 {
 	public MustSpecifyInitialValueForNonDefaultableTypeException(int line) : base("Must specify initial value for non-defaultable type exception", line) { }
 }
+
+public class UnknownVariableException : TypeCheckerException
+{
+	public UnknownVariableException(int line) : base("Unknown variable", line) { }
+}
+
+public class CannotImplementNonInterfaceException : TypeCheckerException
+{
+	public CannotImplementNonInterfaceException(int line) : base("Cannot implement non-interface", line) { }
+}
+
+public class MissingInterfaceMethodException : TypeCheckerException
+{
+	public MissingInterfaceMethodException(int line) : base("Missing interface method", line) { }
+}

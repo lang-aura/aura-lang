@@ -3,7 +3,6 @@ using AuraLang.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraChar = AuraLang.Types.Char;
 using AuraList = AuraLang.Types.List;
 using AuraString = AuraLang.Types.String;
 
@@ -844,6 +843,24 @@ public class CompilerTest
 	}
 
 	[Test]
+	public void TestCompile_Class_ImplementingInterface()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new FullyTypedClass(
+				new Tok(TokType.Identifier, "Greeter", 1),
+				new List<Param>(),
+				new List<TypedNamedFunction>(),
+				Visibility.Public,
+				new Interface("IGReeter", new List<NamedFunction>()),
+				1)
+		});
+		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
+		// for classes that implement an interface
+		MakeAssertions(output, "type GREETER struct {}");
+	}
+
+	[Test]
 	public void TestCompile_Class_NoParams_NoMethods()
 	{
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
@@ -853,6 +870,7 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
+				null,
 				1)
 		});
 		MakeAssertions(output, "type GREETER struct {}");

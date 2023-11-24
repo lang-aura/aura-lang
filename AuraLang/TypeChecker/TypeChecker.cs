@@ -427,6 +427,7 @@ public class AuraTypeChecker
 				{
 					var typedMethodParams = method.Params.Select(p =>
 					{
+						// TODO Can I have the ILiteral interface implement the IUntypedAuraExpression and avoid these casts?
 						var typedMethodDefaultValue = p.ParamType.DefaultValue is not null
 							? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
 							: null;
@@ -461,8 +462,26 @@ public class AuraTypeChecker
 			var typedMethods = partiallyTypedClass.Methods
 				.Select(FinishFunctionStmt)
 				.ToList();
+
+			// If the class implements any interfaces, ensure that it contains all required methods
+			Interface? interfaceTyp = null;
+			if (class_.Implements is not null)
+			{
+				// TODO Add FindAndConfirm method to _variableStore
+				var local = _variableStore.Find(class_.Implements.Value.Value, _currentModule.GetName()!) ?? throw new UnknownVariableException(class_.Line);
+				interfaceTyp = local.Kind as Interface;
+				if (interfaceTyp is null) throw new CannotImplementNonInterfaceException(class_.Line);
+				var valid = interfaceTyp.Functions.Select(f =>
+				{
+					return typedMethods
+						.Select(tm => tm.GetFunctionType())
+						.Contains(f);
+				})
+				.All(b => b);
+				if (!valid) throw new MissingInterfaceMethodException(class_.Line);
+			}
 			_enclosingClassStore.Pop();
-			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public, class_.Line);
+			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public, interfaceTyp, class_.Line);
 		}, class_);
 	}
 

@@ -299,7 +299,7 @@ public record UntypedReturn(IUntypedAuraExpression? Value, int Line) : IUntypedA
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, Tok? Implements, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
