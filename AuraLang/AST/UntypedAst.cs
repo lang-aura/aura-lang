@@ -192,6 +192,13 @@ public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUnt
 }
 
 /// <summary>
+/// Represents an <c>is</c> expression, which determines if the supplied expression matches the expected type
+/// </summary>
+/// <param name="expr">The expression whose type is being tested</param>
+/// <param name="expected">The expected type that the expression's type is compared against</param>
+public record UntypedIs(IUntypedAuraExpression expr, Tok expected, int Line) : IUntypedAuraExpression;
+
+/// <summary>
 /// Represents a <c>defer</c> statement that is responsible for deferring the supplied function call
 /// until the end of the enclosing function's execution.
 /// </summary>
