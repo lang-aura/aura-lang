@@ -1372,6 +1372,45 @@ public class TypeCheckerTest
 			1));
 	}
 
+	[Test]
+	public void TestTypeCheck_Is()
+	{
+		_variableStore.Setup(v => v.Find("v", "main"))
+			.Returns(new Local(
+				"v",
+				new Int(),
+				1,
+				"main"));
+		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", "main", It.IsAny<Interface>(), It.IsAny<int>()))
+			.Returns(new Local(
+				"IGreeter",
+				new Interface("IGreeter", new List<NamedFunction>()),
+				1,
+				"main"));
+		_currentModuleStore.Setup(m => m.GetName()).Returns("main");
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedExpressionStmt(
+				new UntypedIs(
+					new UntypedVariable(
+						new Tok(TokType.Identifier, "v", 1),
+						1),
+					new Tok(TokType.Identifier, "IGreeter", 1),
+					1),
+				1)
+		});
+		MakeAssertions(typedAst, new TypedExpressionStmt(
+			new TypedIs(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "v", 1),
+					new Int(),
+					1),
+				new Interface("IGreeter", new List<NamedFunction>()),
+				1),
+			1));
+	}
+
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
 		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));

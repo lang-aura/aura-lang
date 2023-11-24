@@ -119,6 +119,7 @@ public class AuraTypeChecker
 			UntypedUnary unary => UnaryExpr(unary),
 			UntypedVariable variable => VariableExpr(variable),
 			UntypedAnonymousFunction f => AnonymousFunctionExpr(f),
+			UntypedIs is_ => IsExpr(is_),
 			_ => throw new UnknownExpressionTypeException(expr.Line)
 		};
 	}
@@ -875,6 +876,15 @@ public class AuraTypeChecker
 	{
 		var localVar = _variableStore.Find(v.Name.Value, _currentModule.GetName()!);
 		return new TypedVariable(v.Name, localVar!.Value.Kind, v.Line);
+	}
+
+	private TypedIs IsExpr(UntypedIs is_)
+	{
+		var typedExpr = Expression(is_.Expr);
+		// Ensure the expected type is an interface
+		var local = _variableStore.FindAndConfirm(is_.Expected.Value, _currentModule.GetName()!, new Interface("", new List<NamedFunction>()), is_.Line);
+
+		return new TypedIs(typedExpr, local.Kind as Interface, is_.Line);
 	}
 
 	/// <summary>

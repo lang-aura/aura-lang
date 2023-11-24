@@ -964,6 +964,30 @@ public class ParserTest
 			1));
 	}
 
+	[Test]
+	public void TestParse_Is()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new Tok(TokType.Identifier, "v", 1),
+			new Tok(TokType.Is, "is", 1),
+			new Tok(TokType.Identifier, "IGreeter", 1),
+			new Tok(TokType.Semicolon, ";", 1),
+			new Tok(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedExpressionStmt(
+			new UntypedIs(
+				new UntypedVariable(
+					new Tok(
+						TokType.Identifier,
+						"v",
+						1),
+					1),
+				new Tok(TokType.Identifier, "IGreeter", 1),
+				1),
+			1));
+	}
+
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange

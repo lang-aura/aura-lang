@@ -5,7 +5,6 @@ using AuraLang.Exceptions.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Compiler;
 
@@ -118,6 +117,7 @@ public class AuraCompiler
 			TypedUnary u => UnaryExpr(u),
 			TypedVariable v => VariableExpr(v),
 			TypedAnonymousFunction f => AnonymousFunctionExpr(f),
+			TypedIs is_ => IsExpr(is_),
 			_ => throw new UnknownExpressionException(expr.Line)
 		};
 	}
@@ -439,6 +439,12 @@ public class AuraCompiler
 	}
 
 	private string VariableExpr(TypedVariable v) => v.Name.Value;
+
+	private string IsExpr(TypedIs is_)
+	{
+		var expr = Expression(is_.Expr);
+		return $"{expr}.({is_.Expected.Name})";
+	}
 
 	private string YieldStmt(TypedYield y, string decl) => $"{decl} = {y.Value}";
 

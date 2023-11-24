@@ -320,6 +320,13 @@ public class ScannerTest
 			new Tok(TokType.Identifier, "IGreeter", 1));
 	}
 
+	[Test]
+	public void TestScan_Is()
+	{
+		var tokens = ArrangeAndAct("is");
+		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Is, "is", 1));
+	}
+
 	private static void ArrangeAndAct_Invalid(string source, Type expected)
 	{
 		// Arrange

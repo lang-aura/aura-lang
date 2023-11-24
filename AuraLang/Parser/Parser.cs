@@ -611,7 +611,8 @@ public class AuraParser
 
 	private IUntypedAuraExpression Expression()
 	{
-		return Assignment();
+		var expr = Assignment();
+		return Match(TokType.Is) ? Is(expr) : expr;
 	}
 
 	private IUntypedAuraExpression Assignment()
@@ -825,6 +826,13 @@ public class AuraParser
 
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
 		return new UntypedCall(callee as IUntypedAuraCallable, arguments, line);
+	}
+
+	private UntypedIs Is(IUntypedAuraExpression expr)
+	{
+		// Parse the expected type's token
+		var expected = Advance();
+		return new UntypedIs(expr, expected, expr.Line);
 	}
 
 	private IUntypedAuraExpression Primary()
