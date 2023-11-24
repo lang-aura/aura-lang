@@ -25,6 +25,8 @@ public abstract class AuraType
 	}
 
 	private IEnumerable<(string, AuraType, bool)> FilterParams(List<Param> parameters) => parameters.Select(p => (p.Name.Value, p.ParamType.Typ, p.ParamType.Variadic));
+
+	public override int GetHashCode() => base.GetHashCode();
 }
 
 /// <summary>
