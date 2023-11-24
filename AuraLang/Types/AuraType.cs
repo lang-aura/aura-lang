@@ -9,6 +9,22 @@ public abstract class AuraType
 	public virtual bool IsInheritingType(AuraType other) => false;
 	public bool IsSameOrInheritingType(AuraType other) => IsSameType(other) || IsInheritingType(other);
 	public abstract override string ToString();
+
+	public override bool Equals(object? obj)
+	{
+		if (obj is null) return false;
+		if (obj is not AuraType typ) return false;
+		return IsSameType(typ);
+	}
+
+	protected bool CompareParamsForEquality(List<Param> left, List<Param> right)
+	{
+		var filteredLeft = FilterParams(left);
+		var filteredRight = FilterParams(right);
+		return filteredLeft.SequenceEqual(filteredRight);
+	}
+
+	private IEnumerable<(string, AuraType, bool)> FilterParams(List<Param> parameters) => parameters.Select(p => (p.Name.Value, p.ParamType.Typ, p.ParamType.Variadic));
 }
 
 /// <summary>
@@ -25,10 +41,7 @@ public class Unknown : AuraType
 		Name = name;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Unknown;
-	}
+	public override bool IsSameType(AuraType other) => other is Unknown;
 
 	public override string ToString() => "unknown";
 }
@@ -39,10 +52,7 @@ public class Unknown : AuraType
 /// </summary>
 public class None : AuraType
 {
-	public override bool IsSameType(AuraType other)
-	{
-		return other is None;
-	}
+	public override bool IsSameType(AuraType other) => other is None;
 
 	public override string ToString() => "none";
 }
@@ -52,10 +62,7 @@ public class None : AuraType
 /// </summary>
 public class Int : AuraType, IDefaultable
 {
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Int;
-	}
+	public override bool IsSameType(AuraType other) => other is Int;
 
 	public override string ToString() => "int";
 	public ITypedAuraExpression Default(int line) => new IntLiteral(0, line);
@@ -66,10 +73,7 @@ public class Int : AuraType, IDefaultable
 /// </summary>
 public class Float : AuraType, IDefaultable
 {
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Float;
-	}
+	public override bool IsSameType(AuraType other) => other is Float;
 
 	public override string ToString() => "float";
 	public ITypedAuraExpression Default(int line) => new FloatLiteral(0.0, line);
@@ -81,10 +85,7 @@ public class Float : AuraType, IDefaultable
 /// </summary>
 public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable
 {
-	public override bool IsSameType(AuraType other)
-	{
-		return other is String;
-	}
+	public override bool IsSameType(AuraType other) => other is String;
 
 	public AuraType GetIterType() => new Char();
 	public override string ToString() => "string";
@@ -99,10 +100,7 @@ public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefault
 /// </summary>
 public class Bool : AuraType, IDefaultable
 {
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Bool;
-	}
+	public override bool IsSameType(AuraType other) => other is Bool;
 
 	public override string ToString() => "bool";
 	public ITypedAuraExpression Default(int line) => new BoolLiteral(false, line);
@@ -123,10 +121,7 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 		Kind = kind;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		return other is List list && Kind.IsSameType(list.Kind);
-	}
+	public override bool IsSameType(AuraType other) => other is List list && Kind.IsSameType(list.Kind);
 
 	public AuraType GetIterType() => Kind;
 	public override string ToString() => $"[]{Kind}";
@@ -154,10 +149,7 @@ public class NamedFunction : AuraType, ICallable
 		F = f;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		return other is NamedFunction;
-	}
+	public override bool IsSameType(AuraType other) => other is NamedFunction f && Name == f.Name && F.IsSameType(f.F);
 
 	public override string ToString()
 	{
@@ -191,10 +183,7 @@ public class Function : AuraType, ICallable
 		ReturnType = returnType;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Function;
-	}
+	public override bool IsSameType(AuraType other) => other is Function f && CompareParamsForEquality(Params, f.Params) && ReturnType.IsSameType(f.ReturnType);
 
 	public override string ToString()
 	{
@@ -221,11 +210,7 @@ public class Interface : AuraType
 		Functions = functions;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		if (other is not Interface i) return false;
-		return Name == i.Name;
-	}
+	public override bool IsSameType(AuraType other) => other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
 
 	public override string ToString() => "interface";
 }
@@ -249,10 +234,7 @@ public class Class : AuraType, IGettable
 		Methods = methods;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Class;
-	}
+	public override bool IsSameType(AuraType other) => other is Class c && Name == c.Name && ParamTypes.SequenceEqual(c.ParamTypes) && Methods.SequenceEqual(c.Methods);
 
 	public override string ToString() => "class";
 
@@ -304,10 +286,7 @@ public class Module : AuraType, IGettable
 		PublicFunctions = publicFunctions;
 	}
 
-	public override bool IsSameType(AuraType other)
-	{
-		return other is Module;
-	}
+	public override bool IsSameType(AuraType other) => other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
 
 	public override string ToString() => "module";
 
