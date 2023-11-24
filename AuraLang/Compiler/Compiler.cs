@@ -383,7 +383,9 @@ public class AuraCompiler
 		var cond = Expression(if_.Condition);
 		var then = Expression(if_.Then);
 		var else_ = if_.Else is not null ? $" else {Expression(if_.Else)}" : string.Empty;
-		return $"if {cond} {then}{else_}";
+		return if_.Condition is TypedIs
+			? $"if _, ok := {cond}; ok {then}{else_}"
+			: $"if {cond} {then}{else_}";
 	}
 
 	private string StringLiteralExpr(StringLiteral literal) => $"\"{literal.Value}\"";
