@@ -199,6 +199,9 @@ public class AuraCompiler
 				// The `else` block can either be a block or another `if` expression
 				var else_ = if_.Else is TypedIf ? IfExpr(if_.Else as TypedIf) : ParseReturnableBody((if_.Else as TypedBlock).Statements, varName);
 				return $"{decl_}\nif {init} {{{then}\n}} else {{{else_}\n}}";
+			case TypedIs is_:
+				var typedIs = Expression(is_);
+				return $"_, {let.Name.Value} := {typedIs}";
 			default:
 				var value = Expression(let.Initializer);
 				// We check to see if we are inside a `for` loop because Aura and Go differ in whether a a long variable initialization is allowed
