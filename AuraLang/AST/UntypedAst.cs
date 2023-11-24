@@ -196,7 +196,7 @@ public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUnt
 /// </summary>
 /// <param name="expr">The expression whose type is being tested</param>
 /// <param name="expected">The expected type that the expression's type is compared against</param>
-public record UntypedIs(IUntypedAuraExpression expr, Tok expected, int Line) : IUntypedAuraExpression;
+public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected, int Line) : IUntypedAuraExpression;
 
 /// <summary>
 /// Represents a <c>defer</c> statement that is responsible for deferring the supplied function call

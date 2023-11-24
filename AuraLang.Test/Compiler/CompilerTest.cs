@@ -941,6 +941,26 @@ public class CompilerTest
 	}
 
 	[Test]
+	public void TestCompile_Is()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedExpressionStmt(
+				new TypedIs(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "v", 1),
+						new Int(),
+						1),
+					new Interface(
+						"IGreeter",
+						new List<NamedFunction>()),
+					1),
+				1)
+		});
+		MakeAssertions(output, "v.(IGreeter)");
+	}
+
+	[Test]
 	public void TestCompile_Interface_NoMethods()
 	{
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>

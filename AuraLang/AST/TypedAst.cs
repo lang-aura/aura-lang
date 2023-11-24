@@ -133,7 +133,7 @@ public record TypedVariable(Tok Name, AuraType Typ, int Line) : ITypedAuraExpres
 /// </summary>
 /// <param name="expr">The expression whose type will be checked against the expected type</param>
 /// <param name="expected">The expected type</param>
-public record TypedIs(ITypedAuraExpression expr, Interface expected, int Line) : ITypedAuraExpression
+public record TypedIs(ITypedAuraExpression Expr, Interface Expected, int Line) : ITypedAuraExpression
 {
 	/// <summary>
 	/// An <c>is</c> expression always returns a boolean indicating if the <c>expr</c> matches the <c>expected</c> type

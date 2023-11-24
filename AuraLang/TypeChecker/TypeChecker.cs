@@ -880,9 +880,9 @@ public class AuraTypeChecker
 
 	private TypedIs IsExpr(UntypedIs is_)
 	{
-		var typedExpr = Expression(is_.expr);
+		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
-		var local = _variableStore.FindAndConfirm(is_.expected.Value, _currentModule.GetName()!, new Interface("", new List<NamedFunction>()), is_.Line);
+		var local = _variableStore.FindAndConfirm(is_.Expected.Value, _currentModule.GetName()!, new Interface("", new List<NamedFunction>()), is_.Line);
 
 		return new TypedIs(typedExpr, local.Kind as Interface, is_.Line);
 	}
