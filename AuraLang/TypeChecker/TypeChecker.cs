@@ -471,6 +471,7 @@ public class AuraTypeChecker
 				var valid = interfaceTyp.Functions.Select(f =>
 				{
 					return typedMethods
+						.Where(m => m.Public == Visibility.Public)
 						.Select(tm => tm.GetFunctionType())
 						.Contains(f);
 				})

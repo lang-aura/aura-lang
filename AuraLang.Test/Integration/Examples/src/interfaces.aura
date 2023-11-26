@@ -18,11 +18,11 @@ interface IGreeter {
 class Greeter(name: string) : IGreeter {
 	// The class must define a function matching each of the interface's function signatures. The class's
 	// implementations of the interface's functions must be public.
-	fn say_hi() {
+	pub fn say_hi() {
 		io.println(this.build_greeting())
 	}
 
-	fn build_greeting() -> string {
+	pub fn build_greeting() -> string {
 		return "Hi, " + this.name + "!"
 	}
 }
