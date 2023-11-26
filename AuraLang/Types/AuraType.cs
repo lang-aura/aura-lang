@@ -165,7 +165,17 @@ public class NamedFunction : AuraType, ICallable
 			: Name.ToLower();
 		var pt = string.Join(", ", F.Params
 			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
-		return $"func {name}({pt}) {F.ReturnType}";
+		return $"func {name}({pt}){(F.ReturnType is not Nil ? F.ReturnType : "")}";
+	}
+
+	public string ToStringInterface()
+	{
+		var name = Public == Visibility.Public
+			? Name.ToUpper()
+			: Name.ToLower();
+		var pt = string.Join(", ", F.Params
+			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+		return $"{name}({pt}) {(F.ReturnType.IsSameType(new Nil()) ? string.Empty : F.ReturnType)}";
 	}
 
 	public List<Param> GetParams() => F.Params;
@@ -230,22 +240,22 @@ public class Interface : AuraType
 /// Represents a class type in Aura. Classes have their own type signature as well as zero or more
 /// methods, each of which also have their own type.
 /// </summary>
-public class Class : AuraType, IGettable
+public class Class : AuraType, IGettable, ICallable
 {
+	public Visibility Public { get; }
 	public string Name { get; init; }
-	public List<string> ParamNames { get; }
-	public List<ParamType> ParamTypes { get; }
+	public List<Param> Parameters { get; }
 	public List<NamedFunction> Methods { get; }
 
-	public Class(string name, List<string> paramNames, List<ParamType> paramTypes, List<NamedFunction> methods)
+	public Class(string name, List<Param> parameters, List<NamedFunction> methods, Visibility pub)
 	{
 		Name = name;
-		ParamNames = paramNames;
-		ParamTypes = paramTypes;
+		Parameters = parameters;
 		Methods = methods;
+		Public = pub;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Class c && Name == c.Name && ParamTypes.SequenceEqual(c.ParamTypes) && Methods.SequenceEqual(c.Methods);
+	public override bool IsEqual(AuraType other) => other is Class c && Name == c.Name && Parameters.SequenceEqual(c.Parameters) && Methods.SequenceEqual(c.Methods);
 
 	public override bool IsSameType(AuraType other) => other is Class;
 
@@ -261,10 +271,7 @@ public class Class : AuraType, IGettable
 		// Check if attribute is a param
 		try
 		{
-			return ParamNames
-				.Zip(ParamTypes)
-				.First(item => item.First == name)
-				.Second.Typ;
+			return Parameters.First(p => p.Name.Value == name).ParamType.Typ;
 		}
 		catch (InvalidOperationException)
 		{
@@ -280,6 +287,16 @@ public class Class : AuraType, IGettable
 			}
 		}
 	}
+
+	public List<Param> GetParams() => Parameters;
+
+	public List<ParamType> GetParamTypes() => Parameters.Select(p => p.ParamType).ToList();
+
+	public AuraType GetReturnType() => this;
+
+	public int GetParamIndex(string name) => Parameters.FindIndex(p => p.Name.Value == name);
+
+	public bool HasVariadicParam() => Parameters.Any(p => p.ParamType.Variadic);
 }
 
 /// <summary>

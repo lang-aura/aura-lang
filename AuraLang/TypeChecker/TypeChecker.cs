@@ -1,4 +1,5 @@
-﻿using AuraLang.AST;
+﻿using System.Xml.Linq;
+using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
@@ -15,16 +16,14 @@ public class AuraTypeChecker
 	private int _scope = 1;
 	private readonly IEnclosingClassStore _enclosingClassStore;
 	private readonly AuraStdlib _stdlib = new();
-	private readonly ICurrentModuleStore _currentModule;
 	private readonly TypeCheckerExceptionContainer _exContainer = new();
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
 
-	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, ICurrentModuleStore currentModuleStore, EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore)
+	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore)
 	{
 		_variableStore = variableStore;
 		_enclosingClassStore = enclosingClassStore;
-		_currentModule = currentModuleStore;
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
 	}
@@ -76,7 +75,7 @@ public class AuraTypeChecker
 			UntypedExpressionStmt expressionStmt => ExpressionStmt(expressionStmt),
 			UntypedFor for_ => ForStmt(for_),
 			UntypedForEach foreach_ => ForEachStmt(foreach_),
-			UntypedNamedFunction f => PartialFunctionStmt(f),
+			UntypedNamedFunction f => PartialFunctionStmt(f, null),
 			UntypedLet let => LetStmt(let),
 			UntypedMod mod => ModStmt(mod),
 			UntypedReturn return_ => ReturnStmt(return_),
@@ -199,7 +198,7 @@ public class AuraTypeChecker
 				var iter = Expression(forEachStmt.Iterable);
 				if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
 				// Add current element variable to list of local variables
-				_variableStore.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, _currentModule.GetName()));
+				_variableStore.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, null));
 				// Type check body
 				var typedBody = NonReturnableBody(forEachStmt.Body);
 				return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
@@ -229,7 +228,7 @@ public class AuraTypeChecker
 						param.Name.Value,
 						param.ParamType.Typ,
 						_scope,
-						modName));
+						null));
 				}
 
 				var typedBody = BlockExpr(f.Body);
@@ -247,7 +246,7 @@ public class AuraTypeChecker
 							returnType)
 						),
 					_scope,
-					modName));
+					null));
 				return new TypedNamedFunction(f.Name, typedParams.ToList(), typedBody, returnType, f.Public, f.Line);
 			});
 		}, f);
@@ -274,7 +273,7 @@ public class AuraTypeChecker
 						param.Name.Value,
 						param.ParamType.Typ,
 						_scope,
-						_currentModule.GetName()!));
+						null));
 				}
 
 				var typedBody = BlockExpr(f.Body);
@@ -287,7 +286,7 @@ public class AuraTypeChecker
 		}, f);
 	}
 
-	private PartiallyTypedFunction PartialFunctionStmt(UntypedNamedFunction f)
+	private PartiallyTypedFunction PartialFunctionStmt(UntypedNamedFunction f, string? modName)
 	{
 		var typedParams = TypeCheckParams(f.Params);
 		var returnType = TypeCheckReturnTypeTok(f.ReturnType);
@@ -296,7 +295,7 @@ public class AuraTypeChecker
 			f.Name.Value,
 			new NamedFunction(f.Name.Value, f.Public, new Function(typedParams, returnType)),
 			_scope,
-			_currentModule.GetName()!));
+			null));
 
 		return new PartiallyTypedFunction(
 			f.Name,
@@ -319,7 +318,7 @@ public class AuraTypeChecker
 				param.Name.Value,
 				paramTyp,
 				_scope + 1,
-				_currentModule.GetName()!));
+				null));
 		}
 
 		var typedBody = BlockExpr(f.Body);
@@ -350,7 +349,7 @@ public class AuraTypeChecker
 				let.Name.Value,
 				typedInit?.Typ ?? new Nil(),
 				_scope,
-				_currentModule.GetName()!));
+				null));
 
 			return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
 		}, let);
@@ -372,7 +371,7 @@ public class AuraTypeChecker
 				let.Name.Value,
 				typedInit?.Typ ?? new Nil(),
 				_scope,
-				_currentModule.GetName()!));
+				null));
 
 			return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
 		}, let);
@@ -386,7 +385,6 @@ public class AuraTypeChecker
 	private TypedMod ModStmt(UntypedMod mod)
 	{
 		var m = new TypedMod(mod.Value, mod.Line);
-		_currentModule.Set(m);
 		return m;
 	}
 
@@ -422,7 +420,7 @@ public class AuraTypeChecker
 				return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 			});
 
-			var partiallyTypedMethods = class_.Methods.Select(PartialFunctionStmt).ToList();
+			var partiallyTypedMethods = class_.Methods.Select(m => PartialFunctionStmt(m, "main")).ToList();
 			var methodTypes = partiallyTypedMethods
 				.Select(method =>
 				{
@@ -441,14 +439,13 @@ public class AuraTypeChecker
 						new Function(typedMethodParams.ToList(), method.ReturnType));
 				})
 				.ToList();
-			var paramNames = class_.Params.Select(p => p.Name.Value).ToList();
 
 			// Add typed class to list of locals
 			_variableStore.Add(new Local(
 				class_.Name.Value,
-				new Class(class_.Name.Value, paramNames, typedParams.Select(p => p.ParamType).ToList(), methodTypes),
+				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, class_.Public),
 				_scope,
-				_currentModule.GetName()!));
+				null));
 
 			// Store the partially typed class as the current enclosing class
 			var partiallyTypedClass = new PartiallyTypedClass(
@@ -456,7 +453,7 @@ public class AuraTypeChecker
 				class_.Params,
 				partiallyTypedMethods,
 				class_.Public,
-				new Class(class_.Name.Value, new List<string>(), typedParams.Select(p => p.ParamType).ToList(), methodTypes),
+				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, class_.Public),
 				class_.Line);
 			_enclosingClassStore.Push(partiallyTypedClass);
 			// Finish type checking the class's methods
@@ -468,7 +465,7 @@ public class AuraTypeChecker
 			Interface? interfaceTyp = null;
 			if (class_.Implements is not null)
 			{
-				var local = _variableStore.FindAndConfirm(class_.Implements.Value.Value, _currentModule.GetName()!, new Interface(string.Empty, new List<NamedFunction>()), class_.Line);
+				var local = _variableStore.FindAndConfirm(class_.Implements.Value.Value, null, new Interface(string.Empty, new List<NamedFunction>()), class_.Line);
 				interfaceTyp = local.Kind as Interface;
 				if (interfaceTyp is null) throw new CannotImplementNonInterfaceException(class_.Line);
 				var valid = interfaceTyp.Functions.Select(f =>
@@ -520,7 +517,7 @@ public class AuraTypeChecker
 				"io",
 				module,
 				_scope,
-				_currentModule.GetName()!));
+				null));
 			// Add local module's public functions to current scope
 			foreach (var f in module.PublicFunctions)
 			{
@@ -528,7 +525,7 @@ public class AuraTypeChecker
 					f.Name,
 					f,
 					_scope,
-					module.Name));
+					null));
 			}
 
 			return new TypedImport(import_.Package, import_.Alias, import_.Line);
@@ -594,7 +591,22 @@ public class AuraTypeChecker
 	/// </summary>
 	/// <param name="i">The interface declaration to type check</param>
 	/// <returns>A valid, type checked interface</returns>
-	private TypedInterface InterfaceStmt(UntypedInterface i) => new TypedInterface(i.Name, i.Methods, i.Public, i.Line);
+	private TypedInterface InterfaceStmt(UntypedInterface i)
+	{
+		return _enclosingStatementStore.WithEnclosing(() =>
+		{
+			// Add interface to list of local variables
+			_variableStore.Add(new Local(
+				i.Name.Value,
+				new Interface(
+					i.Name.Value,
+					i.Methods),
+				_scope,
+				null));
+
+			return new TypedInterface(i.Name, i.Methods, i.Public, i.Line);
+		}, i);
+	}
 
 	/// <summary>
 	/// Type checks an assignment expression
@@ -606,9 +618,9 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			// Fetch the variable being assigned to
-			var v = _variableStore.Find(assignment.Name.Value, _currentModule.GetName()!);
+			var v = _variableStore.Find(assignment.Name.Value, null, assignment.Line);
 			// Ensure that the new value and the variable have the same type
-			var typedExpr = ExpressionAndConfirm(assignment.Value, v!.Value.Kind);
+			var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
 			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
 		}, assignment);
 	}
@@ -640,7 +652,11 @@ public class AuraTypeChecker
 		{
 			return InNewScope(() =>
 			{
-				var typedStmts = block.Statements.Select(Statement);
+				var typedStmts = new List<ITypedAuraStatement>();
+				foreach (var stmt in block.Statements)
+				{
+					typedStmts.Add(Statement(stmt));
+				}
 				// The block's type is the type of its last statement
 				AuraType blockTyp = new Nil();
 				if (typedStmts.Any())
@@ -669,14 +685,36 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var funcDeclaration = _variableStore.Find(call.Callee.GetName(), call.Callee.GetModuleName() ?? _currentModule.GetName()!)!.Value.Kind as ICallable;
+			var funcDeclaration = _variableStore.Find(call.Callee.GetName(), null, call.Line).Kind as ICallable;
 			// Type check arguments
-			var named = call.Arguments.All(arg => arg.Item1 is not null);
-			var positional = call.Arguments.All(arg => arg.Item1 is null);
+			if (call.Arguments.Any())
+			{
+				var named = call.Arguments.All(arg => arg.Item1 is not null);
+				var positional = call.Arguments.All(arg => arg.Item1 is null);
 
-			if (named) return TypeCheckNamedParameters(call, funcDeclaration!);
-			if (positional) return TypeCheckPositionalParameters(call, funcDeclaration!);
-			throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
+				if (named) return TypeCheckNamedParameters(call, funcDeclaration!);
+				if (positional) return TypeCheckPositionalParameters(call, funcDeclaration!);
+				throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
+			}
+			var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+			if (!funcDeclaration!.GetParams().Any())
+			{
+				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), funcDeclaration!.GetReturnType(), call.Line);
+			}
+			else
+			{
+				// Add default values, if any
+				var typedArgs = new List<ITypedAuraExpression>();
+				foreach (var arg in funcDeclaration!.GetParams())
+				{
+					var index = funcDeclaration.GetParamIndex(arg.Name.Value);
+					var defaultValue = arg.ParamType.DefaultValue ??
+									   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line);
+					if (index >= typedArgs.Count) typedArgs.Add((ITypedAuraExpression)defaultValue);
+					else typedArgs.Insert(index, (ITypedAuraExpression)defaultValue);
+				}
+				return new TypedCall(typedCallee!, typedArgs, funcDeclaration!.GetReturnType(), call.Line);
+			}
 		}, call);
 	}
 
@@ -874,15 +912,15 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked variable expression</returns>
 	private TypedVariable VariableExpr(UntypedVariable v)
 	{
-		var localVar = _variableStore.Find(v.Name.Value, _currentModule.GetName()!);
-		return new TypedVariable(v.Name, localVar!.Value.Kind, v.Line);
+		var localVar = _variableStore.Find(v.Name.Value, null, v.Line);
+		return new TypedVariable(v.Name, localVar.Kind, v.Line);
 	}
 
 	private TypedIs IsExpr(UntypedIs is_)
 	{
 		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
-		var local = _variableStore.FindAndConfirm(is_.Expected.Value, _currentModule.GetName()!, new Interface("", new List<NamedFunction>()), is_.Line);
+		var local = _variableStore.FindAndConfirm(is_.Expected.Value, null, new Interface("", new List<NamedFunction>()), is_.Line);
 
 		return new TypedIs(typedExpr, local.Kind as Interface, is_.Line);
 	}
@@ -905,7 +943,7 @@ public class AuraTypeChecker
 	private void ExitScope()
 	{
 		// Before exiting block, remove any variables created in this scope
-		_variableStore.ExitScope(_scope);
+		//_variableStore.ExitScope(_scope);
 		_scope--;
 	}
 
@@ -924,7 +962,7 @@ public class AuraTypeChecker
 	{
 		_scope++;
 		var typedNode = f();
-		ExitScope();
+		//ExitScope();
 		return typedNode;
 	}
 

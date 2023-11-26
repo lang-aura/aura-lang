@@ -238,15 +238,14 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "greeter", 1),
 						new Class(
 							"Greeter",
-							new List<string>
+							new List<Param>
 							{
-								"name"
+								new Param(
+									new Tok(TokType.Identifier, "name", 1),
+									new ParamType(new AuraString(), false, null))
 							},
-							new List<ParamType>
-							{
-								new ParamType(new AuraString(), false, null)
-							},
-							new List<NamedFunction>()),
+							new List<NamedFunction>(),
+							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
 					new AuraString(),
@@ -535,15 +534,14 @@ public class CompilerTest
 						new Tok(TokType.Identifier, "greeter", 1),
 						new Class(
 							"Greeter",
-							new List<string>
+							new List<Param>
 							{
-								"name"
+								new Param(
+									new Tok(TokType.Identifier, "name", 1),
+									new ParamType(new AuraString(), false, null))
 							},
-							new List<ParamType>
-							{
-								new ParamType(new AuraString(), false, null)
-							},
-							new List<NamedFunction>()),
+							new List<NamedFunction>(),
+							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
 					new StringLiteral("Bob", 1),
@@ -564,9 +562,9 @@ public class CompilerTest
 					new Tok(TokType.This, "this", 1),
 					new Class(
 						"Greeter",
-						new List<string>(),
-						new List<ParamType>(),
-						new List<NamedFunction>()),
+						new List<Param>(),
+						new List<NamedFunction>(),
+						Visibility.Private),
 					1),
 				1)
 		});
@@ -1052,7 +1050,7 @@ public class CompilerTest
 				Visibility.Public,
 				1)
 		});
-		MakeAssertions(output, "type IGREETER interface {\nfunc SAY_HI(i int) string\n}");
+		MakeAssertions(output, "type IGREETER interface {\nSAY_HI(i int) string\n}");
 	}
 
 	private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)

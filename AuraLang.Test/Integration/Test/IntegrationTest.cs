@@ -40,6 +40,13 @@ public class IntegrationTest
 		MakeAssertions(output, "10\n20\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_Interfaces()
+	{
+		var output = await ArrangeAndAct($"{BasePath}/src/interfaces.aura");
+		MakeAssertions(output, "Hi, Bob!\n");
+	}
+
 	private string ReadFile(string path) => File.ReadAllText(path);
 
 	private async Task<string> ArrangeAndAct(string path)
@@ -54,7 +61,7 @@ public class IntegrationTest
 			// Parse tokens
 			var untypedAst = new AuraParser(tokens).Parse();
 			// Type check AST
-			var typedAst = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(), new CurrentModuleStore(), new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>())
+			var typedAst = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(), new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>())
 				.CheckTypes(untypedAst);
 			// Compile typed AST
 			var output = new AuraCompiler(typedAst, "Examples").Compile();
@@ -81,15 +88,17 @@ public class IntegrationTest
 					FileName = "go",
 					Arguments = $"run {fileName}.go",
 					RedirectStandardOutput = true,
+					RedirectStandardError = true,
 					UseShellExecute = false,
 					WorkingDirectory = $"{BasePath}/build/pkg"
 				}
 			};
 			run.Start();
 			var actual = await run.StandardOutput.ReadToEndAsync();
+			var error = await run.StandardError.ReadToEndAsync();
 			await run.WaitForExitAsync();
 
-			return actual;
+			return actual != string.Empty ? actual : error;
 		}
 		catch (AuraExceptionContainer ex)
 		{

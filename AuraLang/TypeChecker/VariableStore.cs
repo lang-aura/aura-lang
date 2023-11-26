@@ -19,7 +19,7 @@ public interface IVariableStore
 	/// <param name="varName">The name of the variable</param>
 	/// <param name="modName">The name of the module where the variable was originally defined</param>
 	/// <returns>The existing local variable, if it exists, else null</returns>
-	Local? Find(string varName, string modName);
+	Local Find(string varName, string? modName, int line);
 	/// <summary>
 	/// Find an existing local variable, if it exists, and confirm it matches the expected type
 	/// </summary>
@@ -30,7 +30,7 @@ public interface IVariableStore
 	/// <exception cref="UnknownVariableException">Thrown if the local variable doesn't exist</exception>
 	/// <exception cref="UnexpectedTypeException">Thrown if the local variable doesn't match the expected type</exception>
 	/// <returns>The local variable, if it exists and matches the expected type</returns>
-	Local FindAndConfirm(string varName, string modName, AuraType expected, int line);
+	Local FindAndConfirm(string varName, string? modName, AuraType expected, int line);
 	/// <summary>
 	/// Clears all local variables that were defined in the specified scope
 	/// </summary>
@@ -44,11 +44,21 @@ public class VariableStore : IVariableStore
 
 	public void Add(Local local) => _variables.Add(local);
 
-	public Local? Find(string varName, string modName) => _variables.Find(v => v.Name == varName && v.Module == modName);
-
-	public Local FindAndConfirm(string varName, string modName, AuraType expected, int line)
+	public Local Find(string varName, string? modName, int line)
 	{
-		var local = Find(varName, modName) ?? throw new UnknownVariableException(line);
+		var local = _variables.Find(v =>
+		{
+			return v.Name == varName &&
+			(v.Defining is null && modName is null ||
+			v.Defining == modName);
+		});
+		if (local.Equals(default)) throw new UnknownVariableException(line);
+		return local;
+	}
+
+	public Local FindAndConfirm(string varName, string? modName, AuraType expected, int line)
+	{
+		var local = Find(varName, modName, line);
 		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(line);
 		return local;
 	}

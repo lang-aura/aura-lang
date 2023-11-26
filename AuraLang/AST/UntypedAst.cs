@@ -19,7 +19,6 @@ public interface IUntypedAuraStatement : IUntypedAuraAstNode { }
 public interface IUntypedAuraCallable
 {
 	string GetName();
-	string? GetModuleName();
 }
 
 /// <summary>
@@ -72,7 +71,6 @@ public record UntypedCall
 		IUntypedAuraCallable
 {
 	public string GetName() => Callee.GetName();
-	public string? GetModuleName() => Callee.GetModuleName();
 }
 
 /// <summary>
@@ -88,7 +86,6 @@ public record UntypedCall
 public record UntypedGet(IUntypedAuraExpression Obj, Tok Name, int Line) : IUntypedAuraExpression, IUntypedAuraCallable
 {
 	public string GetName() => Name.Value;
-	public string? GetModuleName() => "io"; // TODO
 }
 
 /// <summary>
@@ -188,7 +185,6 @@ public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right, int Line)
 public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUntypedAuraCallable
 {
 	public string GetName() => Name.Value;
-	public string? GetModuleName() => null;
 }
 
 /// <summary>
