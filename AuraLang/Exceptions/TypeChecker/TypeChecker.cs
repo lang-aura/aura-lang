@@ -112,3 +112,8 @@ public class MissingInterfaceMethodException : TypeCheckerException
 {
 	public MissingInterfaceMethodException(int line) : base("Missing interface method", line) { }
 }
+
+public class CannotSetOnNonClassException : TypeCheckerException
+{
+	public CannotSetOnNonClassException(int line) : base("Cannot set on non-class", line) { }
+}

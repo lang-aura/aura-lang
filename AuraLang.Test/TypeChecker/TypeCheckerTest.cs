@@ -1351,6 +1351,32 @@ public class TypeCheckerTest
 	}
 
 	[Test]
+	public void TestTypeCheck_Set_Invalid()
+	{
+		_variableStore.Setup(v => v.Find("v", null, 1))
+			.Returns(new Local(
+				"v",
+				new Int(),
+				1,
+				null));
+
+		ArrangeAndAct_Invalid(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedSet(
+						new UntypedVariable(
+							new Tok(TokType.Identifier, "v", 1),
+							1),
+						new Tok(TokType.Identifier, "name", 1),
+						new StringLiteral("Bob", 1),
+						1),
+					1)
+			},
+			typeof(CannotSetOnNonClassException));
+	}
+
+	[Test]
 	public void TestTypeCheck_Is()
 	{
 		_variableStore.Setup(v => v.Find("v", null, 1))

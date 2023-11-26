@@ -743,7 +743,7 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			var typedObj = Expression(set.Obj);
-			// TODO Make sure the typed object is a class
+			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(set.Line);
 			var typedValue = Expression(set.Value);
 			return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ, set.Line);
 		}, set);
