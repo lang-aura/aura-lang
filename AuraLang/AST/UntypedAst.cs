@@ -300,12 +300,16 @@ public record UntypedReturn(IUntypedAuraExpression? Value, int Line) : IUntypedA
 /// </summary>
 /// <param name="Name">The class's name</param>
 /// <param name="Params">The class's parameters</param>
-/// <param name="Methods">The class's methods</param>
+/// <param name="Body">The class's body</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Name, List<Param> Params, List<UntypedNamedFunction> Methods, Visibility Public, Tok? Implements, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedClass(Tok Name, List<Param> Params, List<IUntypedAuraStatement> Body, Visibility Public, Tok? Implements, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+	public List<UntypedNamedFunction> Methods => Body
+		.Where(item => item is not UntypedComment)
+		.Select(m => (UntypedNamedFunction)m)
+		.ToList();
 }
 
 /// <summary>
