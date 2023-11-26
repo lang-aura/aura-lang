@@ -355,38 +355,34 @@ public class AuraParser
 		Tok? interfaceName = Match(TokType.Colon) ? Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line)) : null;
 		// Parse the class's methods
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
-		var methods = new List<UntypedNamedFunction>();
-		// Advance past comment, if necessary
-		while (Match(TokType.Comment)) Advance();
-		// Methods can be public or private, just like regular functions
-		if (Match(TokType.Pub))
-		{
-			// TODO refactor this - the then branch is basically the same as the else branch
-			Consume(TokType.Fn, new InvalidTokenAfterPubKeywordException(Peek().Line));
-			while (!IsAtEnd() && !Check(TokType.RightBrace))
-			{
-				var f = NamedFunction(FunctionType.Method, Visibility.Public);
-				methods.Add(f);
-				if (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
-				Match(TokType.Pub);
-				Match(TokType.Fn);
-			}
-		}
-		else if (Match(TokType.Fn))
-		{
-			while (!IsAtEnd() && !Check(TokType.RightBrace))
-			{
-				var f = NamedFunction(FunctionType.Method, Visibility.Private);
-				methods.Add(f);
-				if (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
-				Match(TokType.Fn);
-			}
-		}
+		var methods = ParseClassMethods();
 
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
 		return new UntypedClass(name, paramz, methods, pub, interfaceName, line);
+	}
+
+	private List<UntypedNamedFunction> ParseClassMethods()
+	{
+		var methods = new List<UntypedNamedFunction>();
+		while (!IsAtEnd() && !Check(TokType.RightBrace))
+		{
+			// Advance past comments, if necessary
+			while (Match(TokType.Comment)) Advance();
+			// Methods can be public or private, just like regular functions
+			var pub = Match(TokType.Pub) ? Visibility.Public : Visibility.Private;
+
+			var f = ParseClassMethod(pub);
+			methods.Add(f);
+		}
+		return methods;
+	}
+
+	private UntypedNamedFunction ParseClassMethod(Visibility pub)
+	{
+		Consume(TokType.Fn, new InvalidTokenAfterPubKeywordException(Peek().Line));
+		return NamedFunction(FunctionType.Method, pub);
 	}
 
 	private IUntypedAuraStatement ModDeclaration()
