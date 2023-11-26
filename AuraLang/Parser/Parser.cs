@@ -329,6 +329,7 @@ public class AuraParser
 		var methods = new List<NamedFunction>();
 		while (!IsAtEnd() && !Check(TokType.RightBrace))
 		{
+			if (Match(TokType.Comment)) Advance(); // Check for comment and advance past semicolon, if necessary
 			var typ = TypeTokenToType(Advance());
 			if (typ is not NamedFunction f) throw new ExpectFunctionSignatureException(Peek().Line);
 			methods.Add(f);
@@ -355,6 +356,7 @@ public class AuraParser
 		// Parse the class's methods
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 		var methods = new List<UntypedNamedFunction>();
+		while (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
 		// Methods can be public or private, just like regular functions
 		if (Match(TokType.Pub))
 		{
@@ -364,6 +366,7 @@ public class AuraParser
 			{
 				var f = NamedFunction(FunctionType.Method, Visibility.Public);
 				methods.Add(f);
+				if (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
 				Match(TokType.Fn);
 			}
 		}
@@ -373,6 +376,7 @@ public class AuraParser
 			{
 				var f = NamedFunction(FunctionType.Method, Visibility.Private);
 				methods.Add(f);
+				if (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
 				Match(TokType.Fn);
 			}
 		}
