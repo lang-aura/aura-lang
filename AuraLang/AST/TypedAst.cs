@@ -278,12 +278,12 @@ public record TypedInterface
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, Interface? Implements,
-	int Line) : ITypedAuraStatement, ITypedFunction
+	int Line) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
 {
 	public AuraType Typ => new None();
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
-
+	public string GetName() => Name.Value;
 }
 
 /// <summary>

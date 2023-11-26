@@ -778,6 +778,7 @@ public class ParserTest
 			new(TokType.Identifier, "say_hi", 2),
 			new(TokType.LeftParen, "(", 2),
 			new(TokType.RightParen, ")", 2),
+			new(TokType.Semicolon, ";", 2),
 			new(TokType.RightBrace, "}", 3),
 			new(TokType.Semicolon, ";", 3),
 			new(TokType.Eof, "eof", 3)
@@ -807,8 +808,9 @@ public class ParserTest
 			new(TokType.Colon, ":", 1),
 			new(TokType.Int, "int", 1),
 			new(TokType.RightParen, ")", 2),
-			new(TokType.Arrow, "->", 1),
-			new(TokType.String, "string", 1),
+			new(TokType.Arrow, "->", 2),
+			new(TokType.String, "string", 2),
+			new(TokType.Semicolon, ";", 2),
 			new(TokType.RightBrace, "}", 3),
 			new(TokType.Semicolon, ";", 3),
 			new(TokType.Eof, "eof", 3)

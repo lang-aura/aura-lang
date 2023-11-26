@@ -332,6 +332,7 @@ public class AuraParser
 			var typ = TypeTokenToType(Advance());
 			if (typ is not NamedFunction f) throw new ExpectFunctionSignatureException(Peek().Line);
 			methods.Add(f);
+			Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 		}
 
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
@@ -363,6 +364,7 @@ public class AuraParser
 			{
 				var f = NamedFunction(FunctionType.Method, Visibility.Public);
 				methods.Add(f);
+				Match(TokType.Fn);
 			}
 		}
 		else if (Match(TokType.Fn))
@@ -371,6 +373,7 @@ public class AuraParser
 			{
 				var f = NamedFunction(FunctionType.Method, Visibility.Private);
 				methods.Add(f);
+				Match(TokType.Fn);
 			}
 		}
 
@@ -493,7 +496,6 @@ public class AuraParser
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
 		// Parse trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
-
 		return new UntypedWhile(condition, body, line);
 	}
 

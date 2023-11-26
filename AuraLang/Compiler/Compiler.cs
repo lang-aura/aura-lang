@@ -279,30 +279,21 @@ public class AuraCompiler
 			: $"import {i.Alias.Value.Value} \"{i.Package.Value}\"";
 	}
 
-	private string CommentStmt(TypedComment com)
-	{
-		return com.Text.Value;
-	}
+	private string CommentStmt(TypedComment com) => com.Text.Value;
 
-	private string ContinueStmt(TypedContinue con)
-	{
-		return "continue";
-	}
+	private string ContinueStmt(TypedContinue _) => "continue";
 
-	private string BreakStmt(TypedBreak b)
-	{
-		return "break";
-	}
+	private string BreakStmt(TypedBreak _) => "break";
 
 	private string InterfaceStmt(TypedInterface i)
 	{
 		return InNewEnclosingType(() =>
 		{
 			var interfaceName = i.Public == Visibility.Public ? i.Name.Value.ToUpper() : i.Name.Value.ToLower();
-			var methods = i.Methods.Select(m => m.ToString());
+			var methods = i.Methods.Select(m => m.ToStringInterface());
 
 			return methods.Any()
-				? $"type {interfaceName} interface {{\n{string.Join("\n\n", methods)}\n}}"
+				? $"type {interfaceName} interface {{\n{string.Join("\n", methods)}\n}}"
 				: $"type {interfaceName} interface {{}}";
 		}, i);
 	}
@@ -334,9 +325,21 @@ public class AuraCompiler
 	private string CallExpr(TypedCall c)
 	{
 		if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
+		if (c.Callee is TypedVariable v && v.Typ is Class) return CallExpr_Class(c);
 		var callee = Expression((ITypedAuraExpression)c.Callee);
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
+	}
+
+	private string CallExpr_Class(TypedCall c)
+	{
+		var v = c.Callee as TypedVariable;
+		var class_ = v!.Typ as Class;
+
+		var params_ = string.Join("\n", class_!.GetParams()
+			.Zip(c.Arguments)
+			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
+		return $"{(class_.Public is Visibility.Public ? class_.Name.ToUpper() : class_.Name.ToLower())}{{\n{params_}\n}}";
 	}
 
 	private string CallExpr_GetCallee(TypedCall c)

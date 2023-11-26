@@ -11,7 +11,7 @@ public interface ICurrentModuleStore
 	/// Gets the name of the current module
 	/// </summary>
 	/// <returns>The name of the current module</returns>
-	string? GetName();
+	string GetName();
 	/// <summary>
 	/// Sets the current module
 	/// </summary>
@@ -23,6 +23,6 @@ public class CurrentModuleStore : ICurrentModuleStore
 {
 	private TypedMod? _currentModule;
 
-	public string? GetName() => _currentModule?.Value.Value;
+	public string GetName() => _currentModule!.Value.Value;
 	public void Set(TypedMod mod) => _currentModule = mod;
 }

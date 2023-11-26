@@ -16,7 +16,6 @@ public class TypeCheckerTest
 {
 	private readonly Mock<IVariableStore> _variableStore = new();
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
-	private readonly Mock<ICurrentModuleStore> _currentModuleStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
 
@@ -30,7 +29,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_variableStore.Setup(v => v.Find("i", It.IsAny<string>())).Returns(new Local("i", new Int(), 1, "main"));
+		_variableStore.Setup(v => v.Find("i", It.IsAny<string>(), It.IsAny<int>())).Returns(new Local("i", new Int(), 1, null));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -131,9 +130,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoArgs()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -142,7 +139,7 @@ public class TypeCheckerTest
 					new List<Param>(),
 					new Nil())),
 			1,
-			"main"));
+			null));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -169,9 +166,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_TwoArgs_WithTags()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -188,7 +183,7 @@ public class TypeCheckerTest
 					},
 					new Nil())),
 			1,
-			"main"));
+			null));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -227,9 +222,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_DefaultValues()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -246,7 +239,7 @@ public class TypeCheckerTest
 					},
 					new Nil())),
 			1,
-			"main"));
+			null));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -282,9 +275,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -301,7 +292,7 @@ public class TypeCheckerTest
 					},
 					new Nil())),
 			1,
-			"main"));
+			null));
 
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
@@ -322,9 +313,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("f", "main")).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -341,7 +330,7 @@ public class TypeCheckerTest
 					},
 					new Nil())),
 			1,
-			"main"));
+			null));
 
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
@@ -365,22 +354,21 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Get()
 	{
-		_variableStore.Setup(v => v.Find("greeter", "main")).Returns(
+		_variableStore.Setup(v => v.Find("greeter", null, 1)).Returns(
 			new Local(
 				"greeter",
 				new Class(
 					"Greeter",
-					new List<string>
+					new List<Param>
 					{
-						"name"
+						new Param(
+							new Tok(TokType.Identifier, "name", 1),
+							new ParamType(new AuraString(), false, null))
 					},
-					new List<ParamType>
-					{
-						new(new AuraString(), false, null)
-					},
-					new List<NamedFunction>()),
+					new List<NamedFunction>(),
+					Visibility.Private),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -399,15 +387,14 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "greeter", 1),
 					new Class(
 						"Greeter",
-						new List<string>
+						new List<Param>
 						{
-							"name"
+							new Param(
+								new Tok(TokType.Identifier, "name", 1),
+								new ParamType(new AuraString(), false, null))
 						},
-						new List<ParamType>
-						{
-							new(new AuraString(), false, null)
-						},
-						new List<NamedFunction>()),
+						new List<NamedFunction>(),
+						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
 				new AuraString(),
@@ -418,12 +405,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndex()
 	{
-		_variableStore.Setup(v => v.Find("names", "main"))
+		_variableStore.Setup(v => v.Find("names", null, 1))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -451,12 +438,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndexRange()
 	{
-		_variableStore.Setup(v => v.Find("names", "main"))
+		_variableStore.Setup(v => v.Find("names", null, 1))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -694,22 +681,21 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set()
 	{
-		_variableStore.Setup(v => v.Find("greeter", "main"))
+		_variableStore.Setup(v => v.Find("greeter", null, 1))
 			.Returns(new Local(
 				"greeter",
 				new Class(
 					"Greeter",
-					new List<string>
+					new List<Param>
 					{
-						"name"
+						new Param(
+							new Tok(TokType.Identifier, "name", 1),
+							new ParamType(new AuraString(), false, null))
 					},
-					new List<ParamType>
-					{
-						new(new AuraString(), false, null)
-					},
-					new List<NamedFunction>()),
+					new List<NamedFunction>(),
+					Visibility.Private),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -729,15 +715,14 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "greeter", 1),
 					new Class(
 						"Greeter",
-						new List<string>
+						new List<Param>
 						{
-							"name"
+							new Param(
+								new Tok(TokType.Identifier, "name", 1),
+								new ParamType(new AuraString(), false, null))
 						},
-						new List<ParamType>
-						{
-							new(new AuraString(), false, null)
-						},
-						new List<NamedFunction>()),
+						new List<NamedFunction>(),
+						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
 				new StringLiteral("Bob", 1),
@@ -757,9 +742,9 @@ public class TypeCheckerTest
 				Visibility.Public,
 				new Class(
 					"Greeter",
-					new List<string>(),
-					new List<ParamType>(),
-					new List<NamedFunction>()),
+					new List<Param>(),
+					new List<NamedFunction>(),
+					Visibility.Private),
 				1));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
@@ -775,9 +760,9 @@ public class TypeCheckerTest
 				new Tok(TokType.This, "this", 1),
 				new Class(
 					"Greeter",
-					new List<string>(),
-					new List<ParamType>(),
-					new List<NamedFunction>()),
+					new List<Param>(),
+					new List<NamedFunction>(),
+					Visibility.Private),
 				1),
 			1));
 	}
@@ -827,12 +812,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Variable()
 	{
-		_variableStore.Setup(v => v.Find("name", "main"))
+		_variableStore.Setup(v => v.Find("name", null, 1))
 			.Returns(new Local(
 				"name",
 				new AuraString(),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -853,9 +838,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Defer()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("f", "main"))
+		_variableStore.Setup(v => v.Find("f", null, 1))
 			.Returns(new Local(
 				"f",
 				new NamedFunction(
@@ -865,7 +848,7 @@ public class TypeCheckerTest
 						new List<Param>(),
 						new Nil())),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -898,14 +881,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_For_EmptyBody()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("i", "main"))
+		_variableStore.Setup(v => v.Find("i", null, 1))
 			.Returns(new Local(
 				"i",
 				new Int(),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -949,14 +930,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ForEach_EmptyBody()
 	{
-		_currentModuleStore.Setup(cms => cms.GetName())
-			.Returns("main");
-		_variableStore.Setup(v => v.Find("names", "main"))
+		_variableStore.Setup(v => v.Find("names", null, 1))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
 				1,
-				"main"));
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1345,13 +1324,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", "main", It.IsAny<Interface>(), It.IsAny<int>()))
+		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>()),
 				1,
-				"main"));
-		_currentModuleStore.Setup(m => m.GetName()).Returns("main");
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1375,19 +1353,18 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Is()
 	{
-		_variableStore.Setup(v => v.Find("v", "main"))
+		_variableStore.Setup(v => v.Find("v", null, 1))
 			.Returns(new Local(
 				"v",
 				new Int(),
 				1,
-				"main"));
-		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", "main", It.IsAny<Interface>(), It.IsAny<int>()))
+				null));
+		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>()),
 				1,
-				"main"));
-		_currentModuleStore.Setup(m => m.GetName()).Returns("main");
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1412,14 +1389,14 @@ public class TypeCheckerTest
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
 	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
 	{
 		try
 		{
-			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _currentModuleStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();
 		}
@@ -1436,7 +1413,7 @@ public class TypeCheckerTest
 			var untypedAstWithMod = new List<IUntypedAuraStatement>
 			{
 				new UntypedMod(
-					new Tok(TokType.Identifier, "main", 1),
+					new Tok(TokType.Identifier, null, 1),
 					1)
 			};
 			untypedAstWithMod.AddRange(untypedAst);
