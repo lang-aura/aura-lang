@@ -943,7 +943,7 @@ public class AuraTypeChecker
 	private void ExitScope()
 	{
 		// Before exiting block, remove any variables created in this scope
-		//_variableStore.ExitScope(_scope);
+		_variableStore.ExitScope(_scope);
 		_scope--;
 	}
 
@@ -962,7 +962,7 @@ public class AuraTypeChecker
 	{
 		_scope++;
 		var typedNode = f();
-		//ExitScope();
+		ExitScope();
 		return typedNode;
 	}
 
