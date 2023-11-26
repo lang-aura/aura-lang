@@ -1114,7 +1114,7 @@ public class TypeCheckerTest
 			new UntypedClass(
 				new Tok(TokType.Identifier, "Greeter", 1),
 				new List<Param>(),
-				new List<UntypedNamedFunction>(),
+				new List<IUntypedAuraStatement>(),
 				Visibility.Private,
 				null,
 				1)
@@ -1336,7 +1336,7 @@ public class TypeCheckerTest
 			new UntypedClass(
 				new Tok(TokType.Identifier, "Greeter", 1),
 				new List<Param>(),
-				new List<UntypedNamedFunction>(),
+				new List<IUntypedAuraStatement>(),
 				Visibility.Private,
 				new Tok(TokType.Identifier, "IGreeter", 1),
 				1)

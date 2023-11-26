@@ -355,28 +355,31 @@ public class AuraParser
 		Tok? interfaceName = Match(TokType.Colon) ? Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line)) : null;
 		// Parse the class's methods
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
-		var methods = ParseClassMethods();
+		var body = ParseClassBody();
 
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-		return new UntypedClass(name, paramz, methods, pub, interfaceName, line);
+		return new UntypedClass(name, paramz, body, pub, interfaceName, line);
 	}
 
-	private List<UntypedNamedFunction> ParseClassMethods()
+	private List<IUntypedAuraStatement> ParseClassBody()
 	{
-		var methods = new List<UntypedNamedFunction>();
+		var body = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd() && !Check(TokType.RightBrace))
 		{
-			// Advance past comments, if necessary
-			while (Match(TokType.Comment)) Advance();
+			// Parse comments, if necessary
+			while (Match(TokType.Comment))
+			{
+				body.Add(Comment());
+			}
 			// Methods can be public or private, just like regular functions
 			var pub = Match(TokType.Pub) ? Visibility.Public : Visibility.Private;
 
 			var f = ParseClassMethod(pub);
-			methods.Add(f);
+			body.Add(f);
 		}
-		return methods;
+		return body;
 	}
 
 	private UntypedNamedFunction ParseClassMethod(Visibility pub)

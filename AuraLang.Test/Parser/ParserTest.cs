@@ -856,7 +856,7 @@ public class ParserTest
 		MakeAssertions(untypedAst, new UntypedClass(
 			new Tok(TokType.Identifier, "c", 1),
 			new List<Param>(),
-			new List<UntypedNamedFunction>(),
+			new List<IUntypedAuraStatement>(),
 			Visibility.Private,
 			null,
 			1));
@@ -960,7 +960,7 @@ public class ParserTest
 		MakeAssertions(untypedAst, new UntypedClass(
 			new Tok(TokType.Identifier, "Greeter", 1),
 			new List<Param>(),
-			new List<UntypedNamedFunction>(),
+			new List<IUntypedAuraStatement>(),
 			Visibility.Private,
 			new Tok(TokType.Identifier, "IGreeter", 1),
 			1));
