@@ -7,12 +7,17 @@ fn main() {
 	greeter_.say_hi()
 }
 
+// Interfaces are defined in Aura with the `interface` keyword followed by the interface's name, like so:
 interface IGreeter {
+	// An interface's body may only define function signatures
 	fn say_hi()
 	fn build_greeting() -> string
 }
 
+// Classes must explicitly implement an interface, like so:
 class Greeter(name: string) : IGreeter {
+	// The class must define a function matching each of the interface's function signatures. The class's
+	// implementations of the interface's functions must be public.
 	fn say_hi() {
 		io.println(this.build_greeting())
 	}
