@@ -356,7 +356,8 @@ public class AuraParser
 		// Parse the class's methods
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 		var methods = new List<UntypedNamedFunction>();
-		while (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
+		// Advance past comment, if necessary
+		while (Match(TokType.Comment)) Advance();
 		// Methods can be public or private, just like regular functions
 		if (Match(TokType.Pub))
 		{
