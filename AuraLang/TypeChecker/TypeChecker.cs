@@ -414,7 +414,7 @@ public class AuraTypeChecker
 			var typedParams = class_.Params.Select(p =>
 			{
 				var typedDefaultValue = p.ParamType.DefaultValue is not null
-					? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
+					? (ILiteral)Expression(p.ParamType.DefaultValue)
 					: null;
 				var paramTyp = p.ParamType.Typ;
 				return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
@@ -426,9 +426,8 @@ public class AuraTypeChecker
 				{
 					var typedMethodParams = method.Params.Select(p =>
 					{
-						// TODO Can I have the ILiteral interface implement the IUntypedAuraExpression and avoid these casts?
 						var typedMethodDefaultValue = p.ParamType.DefaultValue is not null
-							? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
+							? (ILiteral)Expression(p.ParamType.DefaultValue)
 							: null;
 						var methodParamType = p.ParamType.Typ;
 						return new Param(p.Name, new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
