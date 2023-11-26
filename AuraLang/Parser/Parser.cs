@@ -368,6 +368,7 @@ public class AuraParser
 				var f = NamedFunction(FunctionType.Method, Visibility.Public);
 				methods.Add(f);
 				if (Match(TokType.Comment)) Advance(); // Advance past comment, if necessary
+				Match(TokType.Pub);
 				Match(TokType.Fn);
 			}
 		}
