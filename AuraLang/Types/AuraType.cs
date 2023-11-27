@@ -238,7 +238,7 @@ public class Interface : AuraType, IGettable
 	public override bool IsInheritingType(AuraType other)
 	{
 		if (other is not Class c) return false;
-		return c.Implementing == this;
+		return c.Implementing.Contains(this);
 	}
 
 	public override string ToString() => Public == Visibility.Public ? Name.ToUpper() : Name.ToLower();
@@ -268,9 +268,9 @@ public class Class : AuraType, IGettable, ICallable
 	public string Name { get; init; }
 	public List<Param> Parameters { get; }
 	public List<NamedFunction> Methods { get; }
-	public Interface? Implementing { get; }
+	public List<Interface> Implementing { get; }
 
-	public Class(string name, List<Param> parameters, List<NamedFunction> methods, Interface? implementing, Visibility pub)
+	public Class(string name, List<Param> parameters, List<NamedFunction> methods, List<Interface> implementing, Visibility pub)
 	{
 		Name = name;
 		Parameters = parameters;

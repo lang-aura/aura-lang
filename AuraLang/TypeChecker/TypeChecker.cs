@@ -440,14 +440,14 @@ public class AuraTypeChecker
 				.ToList();
 
 			// Get type of implementing interface
-			var implements = class_.Implements is not null
-				? _variableStore.Find(class_.Implements.Value.Value, null, class_.Line).Kind as Interface
-				: null;
+			var implements = class_.Implementing.Any()
+				? class_.Implementing.Select(impl => (_variableStore.Find(impl.Value, null, class_.Line).Kind as Interface) ?? throw new CannotImplementNonInterfaceException(class_.Line))
+				: new List<Interface>();
 
 			// Add typed class to list of locals
 			_variableStore.Add(new Local(
 				class_.Name.Value,
-				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements, class_.Public),
+				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), class_.Public),
 				_scope,
 				null));
 
@@ -457,7 +457,7 @@ public class AuraTypeChecker
 				class_.Params,
 				partiallyTypedMethods,
 				class_.Public,
-				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements, class_.Public),
+				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), class_.Public),
 				class_.Line);
 			_enclosingClassStore.Push(partiallyTypedClass);
 			// Finish type checking the class's methods
@@ -466,24 +466,24 @@ public class AuraTypeChecker
 				.ToList();
 
 			// If the class implements any interfaces, ensure that it contains all required methods
-			Interface? interfaceTyp = null;
-			if (class_.Implements is not null)
+			if (implements.Any())
 			{
-				var local = _variableStore.FindAndConfirm(class_.Implements.Value.Value, null, new Interface(string.Empty, new List<NamedFunction>(), Visibility.Private), class_.Line);
-				interfaceTyp = local.Kind as Interface;
-				if (interfaceTyp is null) throw new CannotImplementNonInterfaceException(class_.Line);
-				var valid = interfaceTyp.Functions.Select(f =>
+				var valid = implements.Select(impl =>
 				{
-					return typedMethods
+					return impl.Functions.Select(f =>
+					{
+						return typedMethods
 						.Where(m => m.Public == Visibility.Public)
 						.Select(tm => tm.GetFunctionType())
 						.Contains(f);
+					})
+					.All(b => b);
 				})
 				.All(b => b);
 				if (!valid) throw new MissingInterfaceMethodException(class_.Line);
 			}
 			_enclosingClassStore.Pop();
-			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public, interfaceTyp, class_.Line);
+			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public, implements.ToList(), class_.Line);
 		}, class_);
 	}
 

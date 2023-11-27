@@ -853,7 +853,10 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new Interface("IGReeter", new List<NamedFunction>(), Visibility.Private),
+				new List<Interface>
+				{
+					new("IGreeter", new List<NamedFunction>(), Visibility.Private)
+				},
 				1)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling

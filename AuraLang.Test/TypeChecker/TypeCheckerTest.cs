@@ -1122,7 +1122,7 @@ public class TypeCheckerTest
 				new List<Param>(),
 				new List<IUntypedAuraStatement>(),
 				Visibility.Private,
-				null,
+				new List<Tok>(),
 				1)
 		});
 		MakeAssertions(typedAst, new FullyTypedClass(
@@ -1130,7 +1130,7 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			null,
+			new List<Interface>(),
 			1));
 	}
 
@@ -1330,7 +1330,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>()))
+		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
@@ -1344,7 +1344,10 @@ public class TypeCheckerTest
 				new List<Param>(),
 				new List<IUntypedAuraStatement>(),
 				Visibility.Private,
-				new Tok(TokType.Identifier, "IGreeter", 1),
+				new List<Tok>
+				{
+					new(TokType.Identifier, "IGreeter", 1)
+				},
 				1)
 		});
 		MakeAssertions(typedAst, new FullyTypedClass(
@@ -1352,7 +1355,10 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
+			new List<Interface>
+			{
+				new("IGreeter", new List<NamedFunction>(), Visibility.Private)
+			},
 			1));
 	}
 
