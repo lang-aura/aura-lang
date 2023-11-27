@@ -366,6 +366,7 @@ public class TypeCheckerTest
 							new ParamType(new AuraString(), false, null))
 					},
 					new List<NamedFunction>(),
+					null,
 					Visibility.Private),
 				1,
 				null));
@@ -394,6 +395,7 @@ public class TypeCheckerTest
 								new ParamType(new AuraString(), false, null))
 						},
 						new List<NamedFunction>(),
+						null,
 						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
@@ -693,6 +695,7 @@ public class TypeCheckerTest
 							new ParamType(new AuraString(), false, null))
 					},
 					new List<NamedFunction>(),
+					null,
 					Visibility.Private),
 				1,
 				null));
@@ -722,6 +725,7 @@ public class TypeCheckerTest
 								new ParamType(new AuraString(), false, null))
 						},
 						new List<NamedFunction>(),
+						null,
 						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
@@ -744,6 +748,7 @@ public class TypeCheckerTest
 					"Greeter",
 					new List<Param>(),
 					new List<NamedFunction>(),
+					null,
 					Visibility.Private),
 				1));
 
@@ -762,6 +767,7 @@ public class TypeCheckerTest
 					"Greeter",
 					new List<Param>(),
 					new List<NamedFunction>(),
+					null,
 					Visibility.Private),
 				1),
 			1));
@@ -1327,7 +1333,7 @@ public class TypeCheckerTest
 		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>()))
 			.Returns(new Local(
 				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>()),
+				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1,
 				null));
 
@@ -1346,7 +1352,7 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			new Interface("IGreeter", new List<NamedFunction>()),
+			new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 			1));
 	}
 
@@ -1388,7 +1394,7 @@ public class TypeCheckerTest
 		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>()))
 			.Returns(new Local(
 				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>()),
+				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1,
 				null));
 
@@ -1409,7 +1415,7 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "v", 1),
 					new Int(),
 					1),
-				new Interface("IGreeter", new List<NamedFunction>()),
+				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1),
 			1));
 	}

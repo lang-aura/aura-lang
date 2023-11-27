@@ -218,22 +218,44 @@ public class Function : AuraType, ICallable
 	public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
 }
 
-public class Interface : AuraType
+public class Interface : AuraType, IGettable
 {
+	public Visibility Public { get; }
 	public string Name { get; init; }
 	public List<NamedFunction> Functions { get; init; }
 
-	public Interface(string name, List<NamedFunction> functions)
+	public Interface(string name, List<NamedFunction> functions, Visibility pub)
 	{
 		Name = name;
 		Functions = functions;
+		Public = pub;
 	}
 
 	public override bool IsEqual(AuraType other) => other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
 
 	public override bool IsSameType(AuraType other) => other is Interface;
 
-	public override string ToString() => "interface";
+	public override bool IsInheritingType(AuraType other)
+	{
+		if (other is not Class c) return false;
+		return c.Implementing == this;
+	}
+
+	public override string ToString() => Public == Visibility.Public ? Name.ToUpper() : Name.ToLower();
+	public override bool Equals(object? obj)
+	{
+		if (obj is null) return false;
+		if (obj is not Interface i) return false;
+		return Name == i.Name &&
+			Functions == i.Functions;
+	}
+
+	public AuraType? Get(string attribute)
+	{
+		return Functions.First(f => f.Name == attribute);
+	}
+
+	public override int GetHashCode() => base.GetHashCode();
 }
 
 /// <summary>
@@ -246,12 +268,14 @@ public class Class : AuraType, IGettable, ICallable
 	public string Name { get; init; }
 	public List<Param> Parameters { get; }
 	public List<NamedFunction> Methods { get; }
+	public Interface? Implementing { get; }
 
-	public Class(string name, List<Param> parameters, List<NamedFunction> methods, Visibility pub)
+	public Class(string name, List<Param> parameters, List<NamedFunction> methods, Interface? implementing, Visibility pub)
 	{
 		Name = name;
 		Parameters = parameters;
 		Methods = methods;
+		Implementing = implementing;
 		Public = pub;
 	}
 
