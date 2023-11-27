@@ -844,6 +844,28 @@ public class CompilerTest
 	}
 
 	[Test]
+	public void TestCompile_Class_ImplementingTwoInterfaces()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new FullyTypedClass(
+				new Tok(TokType.Identifier, "Greeter", 1),
+				new List<Param>(),
+				new List<TypedNamedFunction>(),
+				Visibility.Public,
+				new List<Interface>
+				{
+					new("IGreeter", new List<NamedFunction>(), Visibility.Private),
+					new("IGreeter2", new List<NamedFunction>(), Visibility.Private)
+				},
+				1)
+		});
+		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
+		// for classes that implement an interface
+		MakeAssertions(output, "type GREETER struct {}");
+	}
+
+	[Test]
 	public void TestCompile_Class_ImplementingInterface()
 	{
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
@@ -853,7 +875,10 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new Interface("IGReeter", new List<NamedFunction>(), Visibility.Private),
+				new List<Interface>
+				{
+					new("IGreeter", new List<NamedFunction>(), Visibility.Private)
+				},
 				1)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling

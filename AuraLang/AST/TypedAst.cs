@@ -277,7 +277,7 @@ public record TypedInterface
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
-public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, Interface? Implements,
+public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<Interface> Implementing,
 	int Line) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
 {
 	public AuraType Typ => new None();

@@ -352,7 +352,7 @@ public class AuraParser
 		var paramz = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Line));
 		// Check if class implements an interface
-		Tok? interfaceName = Match(TokType.Colon) ? Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line)) : null;
+		var interfaceNames = Match(TokType.Colon) ? ParseImplementingInterfaces() : new List<Tok>();
 		// Parse the class's methods
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Line));
 		var body = ParseClassBody();
@@ -360,7 +360,20 @@ public class AuraParser
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Line));
 
-		return new UntypedClass(name, paramz, body, pub, interfaceName, line);
+		return new UntypedClass(name, paramz, body, pub, interfaceNames, line);
+	}
+
+	private List<Tok> ParseImplementingInterfaces()
+	{
+		var interfaces = new List<Tok>();
+		while (!Check(TokType.LeftBrace))
+		{
+			var interfaceName = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Line));
+			if (!Check(TokType.LeftBrace)) Consume(TokType.Comma, new ExpectCommaException(Peek().Line));
+			interfaces.Add(interfaceName);
+		}
+
+		return interfaces;
 	}
 
 	private List<IUntypedAuraStatement> ParseClassBody()

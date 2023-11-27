@@ -7,6 +7,9 @@ fn main() {
 	greeter_.say_hi()
 
 	f(greeter_)
+
+	second_greeter := SecondGreeter("Bob")
+	second_greeter.chit_chat("overcast")
 }
 
 // Interfaces are defined in Aura with the `interface` keyword followed by the interface's name, like so:
@@ -14,6 +17,10 @@ interface IGreeter {
 	// An interface's body may only define function signatures
 	fn say_hi()
 	fn build_greeting() -> string
+}
+
+interface ISmallTalker {
+	fn chit_chat(weather: string)
 }
 
 // Classes must explicitly implement an interface, like so:
@@ -26,6 +33,21 @@ class Greeter(name: string) : IGreeter {
 
 	pub fn build_greeting() -> string {
 		return "Hi, " + this.name + "!"
+	}
+}
+
+// A class can implement more than one interface. In that case, the implemented interfaces should be separated by a comma
+class SecondGreeter(name: string) : IGreeter, ISmallTalker {
+	pub fn say_hi() {
+		io.println(this.build_greeting())
+	}
+
+	pub fn build_greeting() -> string {
+		return "Hello!"
+	}
+
+	pub fn chit_chat(weather: string) {
+		io.println("How about this " + weather + " weather, huh?")
 	}
 }
 
