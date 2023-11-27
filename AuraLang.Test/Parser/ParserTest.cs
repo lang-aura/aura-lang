@@ -840,6 +840,37 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_Class_ImplementingTwoInterfaces()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Class, "class", 1),
+			new(TokType.Identifier, "c", 1),
+			new(TokType.LeftParen, "(", 1),
+			new(TokType.RightParen, ")", 1),
+			new(TokType.Colon, ":", 1),
+			new(TokType.Identifier, "IClass", 1),
+			new(TokType.Comma, ",", 1),
+			new(TokType.Identifier, "IClass2", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.RightBrace, "}", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedClass(
+			new Tok(TokType.Identifier, "c", 1),
+			new List<Param>(),
+			new List<IUntypedAuraStatement>(),
+			Visibility.Private,
+			new List<Tok>
+			{
+				new(TokType.Identifier, "IClass", 1),
+				new(TokType.Identifier, "IClass2", 1)
+			},
+			1));
+	}
+
+	[Test]
 	public void TestParse_Class_ImplementingOneInterface()
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>

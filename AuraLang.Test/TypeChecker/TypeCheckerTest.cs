@@ -1328,6 +1328,49 @@ public class TypeCheckerTest
 	}
 
 	[Test]
+	public void TestTypeCheck_ClassImplementingTwoInterfaces_NoMethods()
+	{
+		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>()))
+			.Returns(new Local(
+				"IGreeter",
+				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
+				1,
+				null));
+		_variableStore.Setup(v => v.Find("IGreeter2", null, It.IsAny<int>()))
+			.Returns(new Local(
+				"IGreeter2",
+				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private),
+				1,
+				null));
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedClass(
+				new Tok(TokType.Identifier, "Greeter", 1),
+				new List<Param>(),
+				new List<IUntypedAuraStatement>(),
+				Visibility.Private,
+				new List<Tok>
+				{
+					new(TokType.Identifier, "IGreeter", 1),
+					new(TokType.Identifier, "IGreeter2", 1)
+				},
+				1)
+		});
+		MakeAssertions(typedAst, new FullyTypedClass(
+			new Tok(TokType.Identifier, "Greeter", 1),
+			new List<Param>(),
+			new List<TypedNamedFunction>(),
+			Visibility.Private,
+			new List<Interface>
+			{
+				new("IGreeter", new List<NamedFunction>(), Visibility.Private),
+				new("IGreeter2", new List<NamedFunction>(), Visibility.Private)
+			},
+			1));
+	}
+
+	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
 		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>()))
