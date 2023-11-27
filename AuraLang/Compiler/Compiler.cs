@@ -134,8 +134,8 @@ public class AuraCompiler
 	{
 		return InNewEnclosingType(() =>
 		{
-			var init = Statement(for_.Initializer);
-			var cond = Expression(for_.Condition);
+			var init = for_.Initializer is not null ? Statement(for_.Initializer) : string.Empty;
+			var cond = for_.Condition is not null ? Expression(for_.Condition) : string.Empty;
 			var body = CompileLoopBody(for_.Body);
 			// The compiler will always compile an Aura `for` loop to a Go `for` loop without the increment part of the `for` loop's signature. The increment is instead
 			// added to the end of the loop's body. The loop's execution will remain the same, so it doesn't seem worth it to extract it from the body and put it back
@@ -197,13 +197,18 @@ public class AuraCompiler
 				var init = Expression(if_.Condition);
 				var then = ParseReturnableBody(if_.Then.Statements, varName);
 				// The `else` block can either be a block or another `if` expression
-				var else_ = if_.Else is TypedIf ? IfExpr(if_.Else as TypedIf) : ParseReturnableBody((if_.Else as TypedBlock).Statements, varName);
+				var else_ = if_.Else switch
+				{
+					TypedIf @if => IfExpr(@if),
+					TypedBlock b => ParseReturnableBody(b.Statements, varName),
+					_ => string.Empty
+				};
 				return $"{decl_}\nif {init} {{{then}\n}} else {{{else_}\n}}";
 			case TypedIs is_:
 				var typedIs = Expression(is_);
 				return $"_, {let.Name.Value} := {typedIs}";
 			default:
-				var value = Expression(let.Initializer);
+				var value = let.Initializer is not null ? Expression(let.Initializer) : string.Empty;
 				// We check to see if we are inside a `for` loop because Aura and Go differ in whether a a long variable initialization is allowed
 				// as the initializer of a `for` loop. Go only allows the short syntax (i.e. `x := 0`), whereas Aura allows both styles of variable
 				// declaration. Therefore, if the user has entered the full `let`-style syntax (i.e. `let x: int = 0`) inside the signature of a `for`
@@ -213,7 +218,7 @@ public class AuraCompiler
 					var b = _enclosingType.TryPeek(out var for_);
 					if (!b || for_ is not TypedFor)
 					{
-						return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer.Typ)} = {value}";
+						return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}
 				}
 				return $"{let.Name.Value} := {value}";

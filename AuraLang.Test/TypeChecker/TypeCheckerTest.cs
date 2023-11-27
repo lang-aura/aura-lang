@@ -366,7 +366,7 @@ public class TypeCheckerTest
 							new ParamType(new AuraString(), false, null))
 					},
 					new List<NamedFunction>(),
-					null,
+					new List<Interface>(),
 					Visibility.Private),
 				1,
 				null));
@@ -395,7 +395,7 @@ public class TypeCheckerTest
 								new ParamType(new AuraString(), false, null))
 						},
 						new List<NamedFunction>(),
-						null,
+						new List<Interface>(),
 						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
@@ -695,7 +695,7 @@ public class TypeCheckerTest
 							new ParamType(new AuraString(), false, null))
 					},
 					new List<NamedFunction>(),
-					null,
+					new List<Interface>(),
 					Visibility.Private),
 				1,
 				null));
@@ -725,7 +725,7 @@ public class TypeCheckerTest
 								new ParamType(new AuraString(), false, null))
 						},
 						new List<NamedFunction>(),
-						null,
+						new List<Interface>(),
 						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
@@ -748,7 +748,7 @@ public class TypeCheckerTest
 					"Greeter",
 					new List<Param>(),
 					new List<NamedFunction>(),
-					null,
+					new List<Interface>(),
 					Visibility.Private),
 				1));
 
@@ -767,7 +767,7 @@ public class TypeCheckerTest
 					"Greeter",
 					new List<Param>(),
 					new List<NamedFunction>(),
-					null,
+					new List<Interface>(),
 					Visibility.Private),
 				1),
 			1));
@@ -1494,7 +1494,7 @@ public class TypeCheckerTest
 			var untypedAstWithMod = new List<IUntypedAuraStatement>
 			{
 				new UntypedMod(
-					new Tok(TokType.Identifier, null, 1),
+					new Tok(TokType.Identifier, "main", 1),
 					1)
 			};
 			untypedAstWithMod.AddRange(untypedAst);
