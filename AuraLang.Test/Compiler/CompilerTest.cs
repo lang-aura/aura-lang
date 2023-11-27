@@ -245,7 +245,7 @@ public class CompilerTest
 									new ParamType(new AuraString(), false, null))
 							},
 							new List<NamedFunction>(),
-							null,
+							new List<Interface>(),
 							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
@@ -542,7 +542,7 @@ public class CompilerTest
 									new ParamType(new AuraString(), false, null))
 							},
 							new List<NamedFunction>(),
-							null,
+							new List<Interface>(),
 							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
@@ -566,7 +566,7 @@ public class CompilerTest
 						"Greeter",
 						new List<Param>(),
 						new List<NamedFunction>(),
-						null,
+						new List<Interface>(),
 						Visibility.Private),
 					1),
 				1)
@@ -896,7 +896,7 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				null,
+				new List<Interface>(),
 				1)
 		});
 		MakeAssertions(output, "type GREETER struct {}");

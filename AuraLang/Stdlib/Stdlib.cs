@@ -44,5 +44,5 @@ public class AuraStdlib
 
 	public Dictionary<string, Module> GetAllModules() => _modules;
 
-	public bool TryGetModule(string name, out Module mod) => _modules.TryGetValue(name, out mod);
+	public bool TryGetModule(string name, out Module? mod) => _modules.TryGetValue(name, out mod);
 }
