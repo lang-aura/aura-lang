@@ -5,6 +5,8 @@ import aura/io
 fn main() {
 	greeter_ := Greeter("Bob")
 	greeter_.say_hi()
+
+	f(greeter_)
 }
 
 // Interfaces are defined in Aura with the `interface` keyword followed by the interface's name, like so:
@@ -25,4 +27,10 @@ class Greeter(name: string) : IGreeter {
 	pub fn build_greeting() -> string {
 		return "Hi, " + this.name + "!"
 	}
+}
+
+// Functions can accept parameters whose type is an interface. In this case, any class that implements the
+// interface can be passed in as an argument when calling this function.
+fn f(g: IGreeter) {
+	g.say_hi()
 }

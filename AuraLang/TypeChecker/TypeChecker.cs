@@ -439,10 +439,15 @@ public class AuraTypeChecker
 				})
 				.ToList();
 
+			// Get type of implementing interface
+			var implements = class_.Implements is not null
+				? _variableStore.Find(class_.Implements.Value.Value, null, class_.Line).Kind as Interface
+				: null;
+
 			// Add typed class to list of locals
 			_variableStore.Add(new Local(
 				class_.Name.Value,
-				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, class_.Public),
+				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements, class_.Public),
 				_scope,
 				null));
 
@@ -452,7 +457,7 @@ public class AuraTypeChecker
 				class_.Params,
 				partiallyTypedMethods,
 				class_.Public,
-				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, class_.Public),
+				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements, class_.Public),
 				class_.Line);
 			_enclosingClassStore.Push(partiallyTypedClass);
 			// Finish type checking the class's methods
@@ -464,7 +469,7 @@ public class AuraTypeChecker
 			Interface? interfaceTyp = null;
 			if (class_.Implements is not null)
 			{
-				var local = _variableStore.FindAndConfirm(class_.Implements.Value.Value, null, new Interface(string.Empty, new List<NamedFunction>()), class_.Line);
+				var local = _variableStore.FindAndConfirm(class_.Implements.Value.Value, null, new Interface(string.Empty, new List<NamedFunction>(), Visibility.Private), class_.Line);
 				interfaceTyp = local.Kind as Interface;
 				if (interfaceTyp is null) throw new CannotImplementNonInterfaceException(class_.Line);
 				var valid = interfaceTyp.Functions.Select(f =>
@@ -600,7 +605,8 @@ public class AuraTypeChecker
 				i.Name.Value,
 				new Interface(
 					i.Name.Value,
-					i.Methods),
+					i.Methods,
+					i.Public),
 				_scope,
 				null));
 
@@ -913,14 +919,17 @@ public class AuraTypeChecker
 	private TypedVariable VariableExpr(UntypedVariable v)
 	{
 		var localVar = _variableStore.Find(v.Name.Value, null, v.Line);
-		return new TypedVariable(v.Name, localVar.Kind, v.Line);
+		var kind = !localVar.Kind.IsSameType(new Unknown(string.Empty))
+			? localVar.Kind
+			: _variableStore.Find((localVar.Kind as Unknown).Name, null, v.Line).Kind;
+		return new TypedVariable(v.Name, kind, v.Line);
 	}
 
 	private TypedIs IsExpr(UntypedIs is_)
 	{
 		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
-		var local = _variableStore.FindAndConfirm(is_.Expected.Value, null, new Interface("", new List<NamedFunction>()), is_.Line);
+		var local = _variableStore.FindAndConfirm(is_.Expected.Value, null, new Interface("", new List<NamedFunction>(), Visibility.Private), is_.Line);
 
 		return new TypedIs(typedExpr, local.Kind as Interface, is_.Line);
 	}
@@ -986,9 +995,11 @@ public class AuraTypeChecker
 		return untypedParams.Select(p =>
 		{
 			var typedDefaultValue = p.ParamType.DefaultValue is not null
-				? (ILiteral)Expression((IUntypedAuraExpression)p.ParamType.DefaultValue)
+				? (ILiteral)Expression(p.ParamType.DefaultValue)
 				: null;
-			var paramTyp = p.ParamType.Typ;
+			var paramTyp = p.ParamType.Typ is not Unknown u
+				? p.ParamType.Typ
+				: _variableStore.Find(u.Name, null, 1).Kind;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 		}).ToList();
 	}

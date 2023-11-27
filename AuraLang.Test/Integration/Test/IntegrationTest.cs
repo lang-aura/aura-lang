@@ -44,7 +44,7 @@ public class IntegrationTest
 	public async Task TestIntegration_Interfaces()
 	{
 		var output = await ArrangeAndAct($"{BasePath}/src/interfaces.aura");
-		MakeAssertions(output, "Hi, Bob!\n");
+		MakeAssertions(output, "Hi, Bob!\nHi, Bob!\n");
 	}
 
 	private string ReadFile(string path) => File.ReadAllText(path);

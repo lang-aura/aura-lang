@@ -245,6 +245,7 @@ public class CompilerTest
 									new ParamType(new AuraString(), false, null))
 							},
 							new List<NamedFunction>(),
+							null,
 							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
@@ -541,6 +542,7 @@ public class CompilerTest
 									new ParamType(new AuraString(), false, null))
 							},
 							new List<NamedFunction>(),
+							null,
 							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
@@ -564,6 +566,7 @@ public class CompilerTest
 						"Greeter",
 						new List<Param>(),
 						new List<NamedFunction>(),
+						null,
 						Visibility.Private),
 					1),
 				1)
@@ -850,7 +853,7 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new Interface("IGReeter", new List<NamedFunction>()),
+				new Interface("IGReeter", new List<NamedFunction>(), Visibility.Private),
 				1)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
@@ -951,7 +954,8 @@ public class CompilerTest
 						1),
 					new Interface(
 						"IGreeter",
-						new List<NamedFunction>()),
+						new List<NamedFunction>(),
+						Visibility.Private),
 					1),
 				1)
 		});
@@ -974,7 +978,8 @@ public class CompilerTest
 						1),
 					new Interface(
 						"IGreeter",
-						new List<NamedFunction>()),
+						new List<NamedFunction>(),
+						Visibility.Private),
 					1),
 				1)
 		});
@@ -995,7 +1000,8 @@ public class CompilerTest
 						1),
 					new Interface(
 						"IGreeter",
-						new List<NamedFunction>()),
+						new List<NamedFunction>(),
+						Visibility.Private),
 					1),
 					new TypedBlock(
 						new List<ITypedAuraStatement>(),
