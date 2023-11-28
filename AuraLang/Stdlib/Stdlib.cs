@@ -1,5 +1,4 @@
-﻿using AuraLang.Compiler;
-using AuraLang.Shared;
+﻿using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
@@ -10,36 +9,38 @@ public class AuraStdlib
 {
 	private readonly Dictionary<string, Module> _modules = new()
 	{
-		{ "aura/io", new Module("io", new List<NamedFunction>
-		{
-			new(
-				"println",
-				Visibility.Public,
-				new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "s", 1),
-							new ParamType(new AuraString(), false, null))
-					},
-					new Nil())
-				),
-			new(
-				"printf",
-				Visibility.Public,
-				new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "format", 1),
-							new ParamType(new AuraString(), false, null)),
-						new(
-							new Tok(TokType.Identifier, "a", 1),
-							new ParamType(new Any(), true, null))
-					},
-					new Nil())
-				)
-		})}
+		{ "aura/io", new Module("io",
+			new List<NamedFunction>
+			{
+				new(
+					"println",
+					Visibility.Public,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "s", 1),
+								new ParamType(new AuraString(), false, null))
+						},
+						new Nil())
+					),
+				new(
+					"printf",
+					Visibility.Public,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "format", 1),
+								new ParamType(new AuraString(), false, null)),
+							new(
+								new Tok(TokType.Identifier, "a", 1),
+								new ParamType(new Any(), true, null))
+						},
+						new Nil())
+					)
+			},
+			new List<Class>())}
 	};
 
 	public Dictionary<string, Module> GetAllModules() => _modules;

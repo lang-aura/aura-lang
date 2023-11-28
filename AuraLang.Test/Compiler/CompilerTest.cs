@@ -106,7 +106,8 @@ public class CompilerTest
 													new ParamType(new AuraString(), false, null))
 											},
 											new Nil()))
-								}),
+								},
+								new List<Class>()),
 							1),
 						new Tok(TokType.Identifier, "println", 1),
 						new NamedFunction(
