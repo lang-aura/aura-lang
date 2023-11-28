@@ -333,11 +333,13 @@ public class Module : AuraType, IGettable
 {
 	public string Name { get; init; }
 	public List<NamedFunction> PublicFunctions { get; init; }
+	public List<Class> PublicClasses { get; init; }
 
-	public Module(string name, List<NamedFunction> publicFunctions)
+	public Module(string name, List<NamedFunction> publicFunctions, List<Class> publicClasses)
 	{
 		Name = name;
 		PublicFunctions = publicFunctions;
+		PublicClasses = publicClasses;
 	}
 
 	public override bool IsEqual(AuraType other) => other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
@@ -346,7 +348,26 @@ public class Module : AuraType, IGettable
 
 	public override string ToString() => "module";
 
-	public AuraType? Get(string attribute) => PublicFunctions.First(f => f.Name == attribute);
+	public AuraType? Get(string attribute)
+	{
+		try
+		{
+			// Check if attribute is a function
+			return PublicFunctions.First(f => f.Name == attribute);
+		}
+		catch (InvalidOperationException)
+		{
+			try
+			{
+				// Check if attribute is a class
+				return PublicClasses.First(c => c.Name == attribute);
+			}
+			catch (InvalidOperationException)
+			{
+				return null;
+			}
+		}
+	}
 }
 
 /// <summary>

@@ -1,5 +1,4 @@
-﻿using System.Xml.Linq;
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
