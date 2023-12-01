@@ -334,12 +334,14 @@ public class Module : AuraType, IGettable
 	public string Name { get; init; }
 	public List<NamedFunction> PublicFunctions { get; init; }
 	public List<Class> PublicClasses { get; init; }
+	public Dictionary<string, ITypedAuraExpression> PublicVariables { get; init; }
 
-	public Module(string name, List<NamedFunction> publicFunctions, List<Class> publicClasses)
+	public Module(string name, List<NamedFunction> publicFunctions, List<Class> publicClasses, Dictionary<string, ITypedAuraExpression> publicVariables)
 	{
 		Name = name;
 		PublicFunctions = publicFunctions;
 		PublicClasses = publicClasses;
+		PublicVariables = publicVariables;
 	}
 
 	public override bool IsEqual(AuraType other) => other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
@@ -364,7 +366,15 @@ public class Module : AuraType, IGettable
 			}
 			catch (InvalidOperationException)
 			{
-				return null;
+				try
+				{
+					// Check if attribute is a variable
+					return PublicVariables.First(v => v.Key == attribute).Value.Typ;
+				}
+				catch (InvalidOperationException)
+				{
+					return null;
+				}
 			}
 		}
 	}

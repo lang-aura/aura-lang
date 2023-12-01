@@ -1,4 +1,5 @@
-﻿using AuraLang.Shared;
+﻿using AuraLang.AST;
+using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
@@ -124,7 +125,8 @@ public class AuraStdlib
 						},
 						new Nil()))
 			},
-			new List<Class>())
+			new List<Class>(),
+			new Dictionary<string, ITypedAuraExpression>())
 		},
 		{
 			"aura/strings", new Module("strings",
@@ -233,7 +235,8 @@ public class AuraStdlib
 						new Bool())
 					),
 			},
-			new List<Class>())
+			new List<Class>(),
+			new Dictionary<string, ITypedAuraExpression>())
 		},
 		{
 			"aura/lists", new Module("lists",
@@ -477,7 +480,8 @@ public class AuraStdlib
 						new Int())
 					),
 				},
-				new List<Class>())
+				new List<Class>(),
+				new Dictionary<string, ITypedAuraExpression>())
 		}
 	};
 
