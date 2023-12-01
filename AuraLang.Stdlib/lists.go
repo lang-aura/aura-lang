@@ -38,7 +38,7 @@ func Map_[T, U any](a []T, b func(t T) U) []U {
 }
 
 // Filter returns a list containing every element of `a` whose  output when passed into `f` is true
-func Filter[T any](a []T, f func(T) bool) []T {
+func Filter[T any](a []T, f func(t T) bool) []T {
 	filtered := make([]T, 0)
 
 	for _, elem := range a {
@@ -54,7 +54,7 @@ func Filter[T any](a []T, f func(T) bool) []T {
 // the elements in `a`. The supplied function should accept two parameters -- the first parameter is the result of applying
 // the function to the previous element in `a`, and the second parameter is the current item in `a`. On the first item in `a`,
 // the first parameter is populated by the `t` parameter.
-func Reduce[T any](a []T, f func(T, T) T, t T) T {
+func Reduce[T any](a []T, f func(t1 T, t2 T) T, t T) T {
 	var reduced T
 
 	for i, elem := range a {
