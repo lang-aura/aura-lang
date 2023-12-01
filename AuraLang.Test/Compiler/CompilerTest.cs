@@ -107,7 +107,8 @@ public class CompilerTest
 											},
 											new Nil()))
 								},
-								new List<Class>()),
+								new List<Class>(),
+								new Dictionary<string, ITypedAuraExpression>()),
 							1),
 						new Tok(TokType.Identifier, "println", 1),
 						new NamedFunction(
