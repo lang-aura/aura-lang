@@ -119,8 +119,8 @@ public class AuraStdlib
 							new(
 								new Tok(TokType.Identifier, "content", 1),
 								new ParamType(new AuraString(), false, null))
-							
-							
+
+
 						},
 						new Nil()))
 			},
