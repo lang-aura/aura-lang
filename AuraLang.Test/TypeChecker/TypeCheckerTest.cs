@@ -18,6 +18,7 @@ public class TypeCheckerTest
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
+	private readonly Mock<LocalModuleReader> _localModuleReader = new();
 
 	[SetUp]
 	public void Setup()
@@ -1153,6 +1154,9 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Import_NoAlias()
 	{
+		_localModuleReader.Setup(m => m.GetModuleSourcePaths(It.IsAny<string>())).Returns(new string[] {"test_pkg"});
+		_localModuleReader.Setup(m => m.Read(It.IsAny<string>())).Returns(string.Empty);
+
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedImport(
@@ -1470,14 +1474,14 @@ public class TypeCheckerTest
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object, _localModuleReader.Object)
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
 	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
 	{
 		try
 		{
-			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object)
+			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object, _localModuleReader.Object)
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();
 		}

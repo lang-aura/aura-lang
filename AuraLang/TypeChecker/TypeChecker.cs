@@ -1,5 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
+using AuraLang.Parser;
+using AuraLang.Scanner;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
 using AuraLang.Token;
@@ -18,13 +20,15 @@ public class AuraTypeChecker
 	private readonly TypeCheckerExceptionContainer _exContainer = new();
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
+	private readonly LocalModuleReader _localModuleReader;
 
-	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore)
+	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore, LocalModuleReader localModuleReader)
 	{
 		_variableStore = variableStore;
 		_enclosingClassStore = enclosingClassStore;
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
+		_localModuleReader = localModuleReader;
 	}
 
 	public List<ITypedAuraStatement> CheckTypes(List<IUntypedAuraStatement> untypedAst)
@@ -509,9 +513,69 @@ public class AuraTypeChecker
 		// First, check if the module being imported is built-in
 		if (!_stdlib.TryGetModule(import_.Package.Value, out var module))
 		{
-			// TODO Read file at import path and type check it
-			// TODO Add module to list of local variables
-			// TODO Add local module's public functions to current scope
+			// Read all Aura source files in the specified directory
+			var exportedTypes = _localModuleReader.GetModuleSourcePaths(import_.Package.Value)
+				.Select(f =>
+				{
+					// Read the file's contents
+					var contents = _localModuleReader.Read(f);
+					// Scan file
+					var tokens = new AuraScanner(contents).ScanTokens();
+					// Parse file
+					var untypedAst = new AuraParser(tokens).Parse();
+					// Type check file
+					var typedAst = CheckTypes(untypedAst);
+					// Extract public methods and classes
+					var methods = typedAst
+						.Where(node => node.Typ is NamedFunction)
+						.Select(node => (node.Typ as NamedFunction)!);
+					var classes = typedAst
+						.Where(node => node.Typ is Class)
+						.Select(node => (node.Typ as Class)!);
+					var variables = typedAst
+						.Where(node => node is TypedLet)
+						.Select(node => (node as TypedLet)!);
+					return (methods, classes, variables);
+				})
+				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes), a.variables.Concat(b.variables)));
+			var importedModule = new Module(
+				import_.Package.Value,
+				exportedTypes.methods.ToList(),
+				exportedTypes.classes.ToList(),
+				exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
+				);
+			// Add module to list of local variables
+			_variableStore.Add(new Local(
+				import_.Package.Value,
+				importedModule,
+				_scope,
+				null
+				));
+			// Add local module's exported types to current scope
+			foreach (var f in importedModule.PublicFunctions)
+			{
+				_variableStore.Add(new Local(
+					f.Name,
+					f,
+					_scope,
+					import_.Package.Value));
+			}
+			foreach (var c in importedModule.PublicClasses)
+			{
+				_variableStore.Add(new Local(
+					c.Name,
+					c,
+					_scope,
+					import_.Package.Value));
+			}
+			foreach (var v in importedModule.PublicVariables)
+			{
+				_variableStore.Add(new Local(
+					v.Key,
+					v.Value.Typ,
+					_scope,
+					import_.Package.Value));
+			}
 			return new TypedImport(import_.Package, import_.Alias, import_.Line);
 		}
 		else

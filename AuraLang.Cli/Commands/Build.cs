@@ -60,7 +60,8 @@ public class Build : AuraCommand
 			new EnclosingClassStore(),
 			//new CurrentModuleStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
-			new EnclosingNodeStore<IUntypedAuraStatement>()).CheckTypes(untypedAst);
+			new EnclosingNodeStore<IUntypedAuraStatement>(),
+			new LocalModuleReader()).CheckTypes(untypedAst);
 		// Compile
 		var toml = new AuraToml();
 		var output = new AuraCompiler(typedAst, toml.GetProjectName()).Compile();

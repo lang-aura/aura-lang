@@ -61,7 +61,7 @@ public class IntegrationTest
 			// Parse tokens
 			var untypedAst = new AuraParser(tokens).Parse();
 			// Type check AST
-			var typedAst = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(), new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>())
+			var typedAst = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(), new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(), new LocalModuleReader())
 				.CheckTypes(untypedAst);
 			// Compile typed AST
 			var output = new AuraCompiler(typedAst, "Examples").Compile();
