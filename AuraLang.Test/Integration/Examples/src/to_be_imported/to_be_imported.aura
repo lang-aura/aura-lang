@@ -1,0 +1,5 @@
+﻿mod to_be_imported
+
+pub fn do_stuff(s: string) -> string {
+	return s + s
+}

@@ -21,10 +21,12 @@
   <ItemGroup>
     <None Remove="Scanner\" />
     <None Remove="Parser\" />
+    <None Remove="Integration\Examples\src\to_be_imported\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Scanner\" />
     <Folder Include="Parser\" />
+    <Folder Include="Integration\Examples\src\to_be_imported\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AuraLang.Cli\AuraLang.Cli.csproj" />

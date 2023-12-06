@@ -1,0 +1,9 @@
+﻿mod main
+
+import aura/io
+import to_be_imported
+
+fn main() {
+	s := to_be_imported.do_stuff("Hello")
+	io.println(s)
+}

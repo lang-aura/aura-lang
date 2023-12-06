@@ -514,7 +514,7 @@ public class AuraTypeChecker
 		if (!_stdlib.TryGetModule(import_.Package.Value, out var module))
 		{
 			// Read all Aura source files in the specified directory
-			var exportedTypes = _localModuleReader.GetModuleSourcePaths(import_.Package.Value)
+			var exportedTypes = _localModuleReader.GetModuleSourcePaths($"src/{import_.Package.Value}")
 				.Select(f =>
 				{
 					// Read the file's contents
