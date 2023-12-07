@@ -545,7 +545,9 @@ public class AuraTypeChecker
 				exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
 				);
 			// Add module to list of local variables
-			var modName = import_.Package.Value.Split("/")[^1];
+			var modName = import_.Alias is not null
+				? import_.Alias.Value.Value
+				: import_.Package.Value.Split("/")[^1];
 			_variableStore.Add(new Local(
 				modName,
 				importedModule,

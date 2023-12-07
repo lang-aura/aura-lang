@@ -63,7 +63,7 @@ public class IntegrationTest
 	public async Task TestIntegration_LocalImport()
 	{
 		var output = await ArrangeAndAct("src/local_imports.aura");
-		MakeAssertions(output, "HelloHello\n10\n");
+		MakeAssertions(output, "HelloHello\n10\ntrue\n");
 	}
 
 	private string ReadFile(string path) => File.ReadAllText(path);
