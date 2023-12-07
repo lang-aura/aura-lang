@@ -299,10 +299,12 @@ public class AuraCompiler
 				new EnclosingNodeStore<IUntypedAuraExpression>(),
 				new EnclosingNodeStore<IUntypedAuraStatement>(),
 				new LocalModuleReader()).CheckTypes(untypedAst);
+			// Compile file
 			var output = new AuraCompiler(typedAst, ProjectName).Compile();
-			// TODO don't hardcode path
-			Directory.CreateDirectory("build/pkg/to_be_imported");
-			File.WriteAllText("build/pkg/to_be_imported/to_be_imported.go", output);
+			// Write output to `build` directory
+			var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
+			Directory.CreateDirectory($"build/pkg/{dirName}");
+			File.WriteAllText($"build/pkg/{dirName}/{Path.GetFileNameWithoutExtension(source)}.go", output);
 		}
 
 		return i.Alias is null

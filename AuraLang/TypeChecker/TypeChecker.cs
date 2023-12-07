@@ -545,8 +545,9 @@ public class AuraTypeChecker
 				exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
 				);
 			// Add module to list of local variables
+			var modName = import_.Package.Value.Split("/")[^1];
 			_variableStore.Add(new Local(
-				import_.Package.Value,
+				modName,
 				importedModule,
 				_scope,
 				null
@@ -558,7 +559,7 @@ public class AuraTypeChecker
 					f.Name,
 					f,
 					_scope,
-					import_.Package.Value));
+					modName));
 			}
 			foreach (var c in importedModule.PublicClasses)
 			{
@@ -566,7 +567,7 @@ public class AuraTypeChecker
 					c.Name,
 					c,
 					_scope,
-					import_.Package.Value));
+					modName));
 			}
 			foreach (var v in importedModule.PublicVariables)
 			{
@@ -574,7 +575,7 @@ public class AuraTypeChecker
 					v.Key,
 					v.Value.Typ,
 					_scope,
-					import_.Package.Value));
+					modName));
 			}
 			return new TypedImport(import_.Package, import_.Alias, import_.Line);
 		}
