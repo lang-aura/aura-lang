@@ -6,8 +6,8 @@ clean:
 test:
 	cd AuraLang.Test && dotnet test
 	
-publish:
-	./scripts/publish.sh
+install:
+	./scripts/install.sh
 
 format:
 	dotnet format
