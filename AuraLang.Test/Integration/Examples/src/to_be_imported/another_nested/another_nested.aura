@@ -1,0 +1,5 @@
+﻿mod another_nested
+
+pub fn do_more_nested_stuff(i: int) -> bool {
+	return i > 10
+}

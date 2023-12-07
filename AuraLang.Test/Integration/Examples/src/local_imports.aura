@@ -7,6 +7,7 @@ import aura/io
 // directory
 import to_be_imported
 import to_be_imported/nested
+import to_be_imported/another_nested as n
 
 fn main() {
 	s := to_be_imported.do_stuff("Hello")
@@ -17,4 +18,7 @@ fn main() {
 	// via the path `to_be_imported/nested`.
 	i := nested.do_nested_stuff(5)
 	io.printf("%d\n", i)
+
+	b := n.do_more_nested_stuff(11)
+	io.printf("%v\n", b)
 }
