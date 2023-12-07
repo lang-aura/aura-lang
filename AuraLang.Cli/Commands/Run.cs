@@ -5,13 +5,12 @@ namespace AuraLang.Cli.Commands;
 
 public class Run : AuraCommand
 {
-	private Build Build { get; init; }
+	private Build Build { get; }
 
 	public Run(RunOptions opts) : base(opts)
 	{
 		var buildOpts = new BuildOptions
 		{
-			Path = opts.Path,
 			Verbose = opts.Verbose ?? false
 		};
 

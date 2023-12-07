@@ -16,19 +16,14 @@ public class Build : AuraCommand
 
 	public override int Execute()
 	{
-		// Build all Aura files in project
-		var auraFiles = GetAllAuraFiles("./src");
-		foreach (var af in auraFiles)
+		try
 		{
-			try
-			{
-				BuildFile(af);
-			}
-			catch (AuraExceptionContainer ex)
-			{
-				ex.Report();
-				return 1;
-			}
+			BuildProject();
+		}
+		catch (AuraExceptionContainer ex)
+		{
+			ex.Report();
+			return 1;
 		}
 		// Build Go binary executable
 		Directory.SetCurrentDirectory("./build/pkg");
@@ -44,6 +39,26 @@ public class Build : AuraCommand
 		build.WaitForExit();
 
 		return 0;
+	}
+
+	private void BuildProject()
+	{
+		BuildDirectory("./src");
+	}
+
+	private void BuildDirectory(string path)
+	{
+		var paths = Directory.GetFiles(path);
+		foreach (var p in paths)
+		{
+			BuildFile(p);
+		}
+
+		var dirs = Directory.GetDirectories(path);
+		foreach (var dir in dirs)
+		{
+			BuildDirectory(dir);
+		}
 	}
 
 	private void BuildFile(string path)
@@ -66,9 +81,9 @@ public class Build : AuraCommand
 		var toml = new AuraToml();
 		var output = new AuraCompiler(typedAst, toml.GetProjectName(), new LocalModuleReader(), new CompiledOutputWriter()).Compile();
 		// Create Go output file
-		var fileName = Path.ChangeExtension(Path.GetFileName(FilePath), "aura");
+		var fileName = Path.ChangeExtension(Path.GetFileName(path), "go");
 		var goPath = $"./build/pkg/{fileName}";
-		File.AppendAllText(goPath, output);
+		File.WriteAllText(goPath, output);
 		FormatGoOutputFile(goPath);
 	}
 
