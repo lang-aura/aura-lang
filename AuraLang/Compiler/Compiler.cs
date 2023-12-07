@@ -2,8 +2,11 @@
 using System.Text;
 using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
+using AuraLang.Parser;
+using AuraLang.Scanner;
 using AuraLang.Shared;
 using AuraLang.Token;
+using AuraLang.TypeChecker;
 using AuraLang.Types;
 
 namespace AuraLang.Compiler;
@@ -40,12 +43,16 @@ public class AuraCompiler
 	/// </summary>
 	private readonly CompilerExceptionContainer _exContainer = new();
 	private string ProjectName { get; }
+	private readonly LocalModuleReader _localModuleReader;
+	private readonly CompiledOutputWriter _outputWriter;
 
-	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName)
+	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName, LocalModuleReader localmoduleReader, CompiledOutputWriter outputWriter)
 	{
 		_typedAst = typedAst;
 		_line = 1;
 		ProjectName = projectName;
+		_localModuleReader = localmoduleReader;
+		_outputWriter = outputWriter;
 	}
 
 	public string Compile()
@@ -279,9 +286,33 @@ public class AuraCompiler
 			return BuildStdlibPkgImportStmt(name);
 		}
 
+		// Read all Aura source files in the specified directory
+		foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{i.Package.Value}"))
+		{
+			// Read the file's contents
+			var contents = _localModuleReader.Read(source);
+			// Scan file
+			var tokens = new AuraScanner(contents).ScanTokens();
+			// Parse file
+			var untypedAst = new AuraParser(tokens).Parse();
+			// Type check file
+			var typedAst = new AuraTypeChecker(
+				new VariableStore(),
+				new EnclosingClassStore(),
+				new EnclosingNodeStore<IUntypedAuraExpression>(),
+				new EnclosingNodeStore<IUntypedAuraStatement>(),
+				new LocalModuleReader()).CheckTypes(untypedAst);
+			// Compile file
+			var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter()).Compile();
+			// Write output to `build` directory
+			var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
+			_outputWriter.CreateDirectory(dirName);
+			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
+		}
+
 		return i.Alias is null
-			? $"import \"{i.Package.Value}\""
-			: $"import {i.Alias.Value.Value} \"{i.Package.Value}\"";
+			? $"import \"{ProjectName}/{i.Package.Value}\""
+			: $"import {i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
 	}
 
 	private string CommentStmt(TypedComment com) => com.Text.Value;
@@ -354,7 +385,9 @@ public class AuraCompiler
 
 		var callee = IsStdlibPkg(obj)
 			? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
-			: $"{obj}.{get.Name.Value}";
+			: get!.Obj.Typ is Module m
+				? $"{obj}.{get.Name.Value.ToUpper()}"
+				: $"{obj}.{get.Name.Value}";
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
 	}

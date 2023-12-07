@@ -199,10 +199,7 @@ public record TypedForEach
 public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
 	Visibility Public, int Line) : ITypedAuraStatement, ITypedFunction
 {
-	/// <summary>
-	/// The type of a named function declaration is None (i.e. it doesn't return a value)
-	/// </summary>
-	public AuraType Typ => new None();
+	public AuraType Typ => new NamedFunction(Name.Value, Public, new Function(Params, ReturnType));
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 	/// <summary>
