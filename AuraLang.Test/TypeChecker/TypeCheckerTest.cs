@@ -1154,7 +1154,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Import_NoAlias()
 	{
-		_localModuleReader.Setup(m => m.GetModuleSourcePaths(It.IsAny<string>())).Returns(new string[] {"test_pkg"});
+		_localModuleReader.Setup(m => m.GetModuleSourcePaths(It.IsAny<string>())).Returns(new string[] { "test_pkg" });
 		_localModuleReader.Setup(m => m.Read(It.IsAny<string>())).Returns(string.Empty);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>

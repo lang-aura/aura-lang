@@ -1,6 +1,10 @@
 ﻿mod main
 
 import aura/io
+// Local modules are imported via the path from (but not including) `src` to the source
+// file's parent directory. Since all source files in the same directory must belong
+// to the same module, there is no need to specify the source file's name, just the parent
+// directory
 import to_be_imported
 import to_be_imported/nested
 
@@ -8,6 +12,9 @@ fn main() {
 	s := to_be_imported.do_stuff("Hello")
 	io.println(s)
 
+	// When calling methods from the imported module, the final part of the module's import
+	// path is used as the module name. In this case, `nested` refers to the module imported
+	// via the path `to_be_imported/nested`.
 	i := nested.do_nested_stuff(5)
 	io.printf("%d\n", i)
 }
