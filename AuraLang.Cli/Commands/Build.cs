@@ -64,7 +64,7 @@ public class Build : AuraCommand
 			new LocalModuleReader()).CheckTypes(untypedAst);
 		// Compile
 		var toml = new AuraToml();
-		var output = new AuraCompiler(typedAst, toml.GetProjectName()).Compile();
+		var output = new AuraCompiler(typedAst, toml.GetProjectName(), new LocalModuleReader(), new CompiledOutputWriter()).Compile();
 		// Create Go output file
 		var fileName = Path.ChangeExtension(Path.GetFileName(FilePath), "aura");
 		var goPath = $"./build/pkg/{fileName}";

@@ -12,6 +12,18 @@ public class IntegrationTest
 {
 	private const string BasePath = "../../../Integration/Examples";
 
+	[SetUp]
+	public void Setup()
+	{
+		Directory.SetCurrentDirectory(BasePath);
+	}
+
+	[TearDown]
+	public void Teardown()
+	{
+		Directory.SetCurrentDirectory("../../obj/Debug/net7.0");
+	}
+
 	[Test]
 	public async Task TestIntegration_HelloWorld()
 	{
@@ -58,7 +70,6 @@ public class IntegrationTest
 
 	private async Task<string> ArrangeAndAct(string path)
 	{
-		Directory.SetCurrentDirectory(BasePath);
 		var fileName = Path.GetFileNameWithoutExtension(path);
 
 		var contents = ReadFile(path);
@@ -72,7 +83,7 @@ public class IntegrationTest
 			var typedAst = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(), new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(), new LocalModuleReader())
 				.CheckTypes(untypedAst);
 			// Compile typed AST
-			var output = new AuraCompiler(typedAst, "Examples").Compile();
+			var output = new AuraCompiler(typedAst, "Examples", new LocalModuleReader(), new CompiledOutputWriter()).Compile();
 			// Create Go output file
 			await File.WriteAllTextAsync($"build/pkg/{fileName}.go", output);
 			// Format Go output file

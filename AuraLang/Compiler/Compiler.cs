@@ -43,13 +43,16 @@ public class AuraCompiler
 	/// </summary>
 	private readonly CompilerExceptionContainer _exContainer = new();
 	private string ProjectName { get; }
-	private readonly LocalModuleReader _localModuleReader = new();
+	private readonly LocalModuleReader _localModuleReader;
+	private readonly CompiledOutputWriter _outputWriter;
 
-	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName)
+	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName, LocalModuleReader localmoduleReader, CompiledOutputWriter outputWriter)
 	{
 		_typedAst = typedAst;
 		_line = 1;
 		ProjectName = projectName;
+		_localModuleReader = localmoduleReader;
+		_outputWriter = outputWriter;
 	}
 
 	public string Compile()
@@ -300,11 +303,11 @@ public class AuraCompiler
 				new EnclosingNodeStore<IUntypedAuraStatement>(),
 				new LocalModuleReader()).CheckTypes(untypedAst);
 			// Compile file
-			var output = new AuraCompiler(typedAst, ProjectName).Compile();
+			var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter()).Compile();
 			// Write output to `build` directory
 			var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
-			Directory.CreateDirectory($"build/pkg/{dirName}");
-			File.WriteAllText($"build/pkg/{dirName}/{Path.GetFileNameWithoutExtension(source)}.go", output);
+			_outputWriter.CreateDirectory(dirName);
+			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
 		}
 
 		return i.Alias is null

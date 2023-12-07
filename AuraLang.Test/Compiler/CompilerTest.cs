@@ -2,7 +2,9 @@
 using AuraLang.Compiler;
 using AuraLang.Shared;
 using AuraLang.Token;
+using AuraLang.TypeChecker;
 using AuraLang.Types;
+using Moq;
 using AuraList = AuraLang.Types.List;
 using AuraString = AuraLang.Types.String;
 
@@ -10,6 +12,9 @@ namespace AuraLang.Test.Compiler;
 
 public class CompilerTest
 {
+	private readonly Mock<CompiledOutputWriter> _outputWriter = new();
+	private readonly Mock<LocalModuleReader> _localModuleReader = new();
+
 	[Test]
 	public void TestCompile_Assignment()
 	{
@@ -927,12 +932,14 @@ public class CompilerTest
 				null,
 				1)
 		});
-		MakeAssertions(output, "import \"test_pkg\"");
+		MakeAssertions(output, "import \"test/test_pkg\"");
 	}
 
 	[Test]
 	public void TestCompile_Import_Alias()
 	{
+		_localModuleReader.Setup(lmr => lmr.GetModuleSourcePaths(It.IsAny<string>())).Returns(Array.Empty<string>());
+
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedImport(
@@ -940,7 +947,7 @@ public class CompilerTest
 				new Tok(TokType.Identifier, "tp", 1),
 				1)
 		});
-		MakeAssertions(output, "import tp \"test_pkg\"");
+		MakeAssertions(output, "import tp \"test/test_pkg\"");
 	}
 
 	[Test]
@@ -1088,8 +1095,10 @@ public class CompilerTest
 
 	private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)
 	{
+		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
+		_outputWriter.Setup(ow => ow.WriteOutput(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 		// Arrange
-		var compiler = new AuraCompiler(typedAst, "test");
+		var compiler = new AuraCompiler(typedAst, "test", _localModuleReader.Object, _outputWriter.Object);
 		// Act
 		return compiler.Compile();
 	}
