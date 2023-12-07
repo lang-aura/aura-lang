@@ -15,7 +15,7 @@ public class New : AuraCommand
 
 	public override int Execute()
 	{
-		var projPath = $"{FilePath}/{Name}";
+		var projPath = $"{"./src"}/{Name}";
 		Directory.CreateDirectory(projPath);
 		Directory.CreateDirectory($"{projPath}/src");
 		File.WriteAllText($"{projPath}/src/{Name}.aura", "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world!\")\n}\n");

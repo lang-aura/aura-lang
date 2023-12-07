@@ -4,12 +4,10 @@ namespace AuraLang.Cli.Commands;
 
 public abstract class AuraCommand
 {
-	protected string FilePath { get; }
 	protected bool Verbose { get; init; }
 
 	protected AuraCommand(AuraOptions opts)
 	{
-		FilePath = opts.Path;
 		Verbose = opts.Verbose ?? false;
 	}
 	public abstract int Execute();
