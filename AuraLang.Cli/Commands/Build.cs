@@ -16,6 +16,10 @@ public class Build : AuraCommand
 
 	public override int Execute()
 	{
+		// Before building the project, clear out all Go files from the `build` directory. This will prevent issues arising
+		// from, for example, old Go files previously built from Aura source files that have since been deleted.
+		ResetBuildDirectory();
+
 		try
 		{
 			BuildProject();
@@ -94,5 +98,14 @@ public class Build : AuraCommand
 		cmd.StartInfo.Arguments = $"fmt {goPath}";
 		cmd.Start();
 		cmd.WaitForExit();
+	}
+
+	private void ResetBuildDirectory()
+	{
+		var paths = Directory.GetFiles("./build/pkg", "*.go");
+		foreach (var path in paths)
+		{
+			File.Delete(path);
+		}
 	}
 }
