@@ -7,7 +7,10 @@ namespace AuraLang.Cli.Commands;
 public class Run : AuraCommand
 {
 	private Build Build { get; }
-	private AuraToml toml = new();
+	/// <summary>
+	/// Used to read the TOML config file located at the project's root
+	/// </summary>
+	private readonly AuraToml _toml = new();
 
 	public Run(RunOptions opts) : base(opts)
 	{
@@ -19,11 +22,16 @@ public class Run : AuraCommand
 		Build = new Build(buildOpts);
 	}
 
+	/// <summary>
+	/// Runs the Aura project
+	/// </summary>
+	/// <returns>An integer status indicating if the process succeeded</returns>
 	public override int Execute()
 	{
 		Build.Execute();
+		// After build is finished executing, the current directory will be the `build/pkg` directory, so we return to the project's root directory here
 		Directory.SetCurrentDirectory("../..");
-		var projName = toml.GetProjectName();
+		var projName = _toml.GetProjectName();
 		var run = new Process
 		{
 			StartInfo = new ProcessStartInfo

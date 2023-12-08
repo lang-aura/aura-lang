@@ -6,6 +6,9 @@ namespace AuraLang.Cli.Commands;
 
 public class New : AuraCommand
 {
+	/// <summary>
+	/// The project's name. Provided as an argument to `aura new`
+	/// </summary>
 	private string Name { get; }
 
 	public New(NewOptions opts) : base(opts)
@@ -13,9 +16,13 @@ public class New : AuraCommand
 		Name = opts.Name;
 	}
 
+	/// <summary>
+	/// Creates a new Aura project
+	/// </summary>
+	/// <returns>An integer status indicating if the process succeeded</returns>
 	public override int Execute()
 	{
-		var projPath = $"{"./src"}/{Name}";
+		var projPath = $"./{Name}";
 		Directory.CreateDirectory(projPath);
 		Directory.CreateDirectory($"{projPath}/src");
 		File.WriteAllText($"{projPath}/src/{Name}.aura", "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world!\")\n}\n");

@@ -4,6 +4,9 @@ namespace AuraLang.Cli.Toml;
 
 public class AuraToml
 {
+	/// <summary>
+	/// The path to the TOML config file
+	/// </summary>
 	private readonly string _path;
 
 	public AuraToml(string path)
@@ -16,6 +19,10 @@ public class AuraToml
 		_path = ".";
 	}
 
+	/// <summary>
+	/// Initializes the project's TOML config file with default values
+	/// </summary>
+	/// <param name="name">The project's name</param>
 	public void InitProject(string name)
 	{
 		var doc = new Document
@@ -29,17 +36,23 @@ public class AuraToml
 		};
 
 		var tomlDoc = TomletMain.TomlStringFrom(doc);
-		using var writer = File.CreateText($"{_path}/aura.toml");
-		writer.Write(tomlDoc);
-		writer.Flush();
+		File.WriteAllText($"{_path}/aura.toml", tomlDoc);
 	}
 
+	/// <summary>
+	/// Parses the project's TOML config file
+	/// </summary>
+	/// <returns>A <c>Document</c> representing the TOML config file</returns>
 	public Document Parse()
 	{
 		var s = File.ReadAllText($"{_path}/aura.toml");
 		return TomletMain.To<Document>(s);
 	}
 
+	/// <summary>
+	/// Fetches the project's name from the TOML config file
+	/// </summary>
+	/// <returns>The project's name</returns>
 	public string GetProjectName()
 	{
 		var doc = Parse();

@@ -13,8 +13,15 @@ namespace AuraLang.Cli.Commands;
 public class Build : AuraCommand
 {
 	public Build(BuildOptions opts) : base(opts) { }
-	private AuraToml _toml = new();
+	/// <summary>
+	/// Used to read the TOML config file located in the project's root
+	/// </summary>
+	private readonly AuraToml _toml = new();
 
+	/// <summary>
+	/// Builds the entire Aura project
+	/// </summary>
+	/// <returns>An integer status indicating if the process succeeded</returns>
 	public override int Execute()
 	{
 		// Before building the project, clear out all Go files from the `build` directory. This will prevent issues arising
@@ -23,7 +30,7 @@ public class Build : AuraCommand
 
 		try
 		{
-			BuildProject();
+			TraverseProject(BuildFile);
 		}
 		catch (AuraExceptionContainer ex)
 		{
@@ -46,11 +53,10 @@ public class Build : AuraCommand
 		return 0;
 	}
 
-	private void BuildProject()
-	{
-		TraverseProject(BuildFile);
-	}
-
+	/// <summary>
+	/// Builds an individual Aura source file, compiling it to the equivalent Go file and placing it at the correct path in the `build` directory
+	/// </summary>
+	/// <param name="path">The path of the Aura source file</param>
 	private void BuildFile(string path)
 	{
 		// Read source file's contents
@@ -77,15 +83,28 @@ public class Build : AuraCommand
 		FormatGoOutputFile(goPath);
 	}
 
-	private void FormatGoOutputFile(string goPath)
+	/// <summary>
+	/// Formats a compiled Go file with the `go fmt` tool
+	/// </summary>
+	/// <param name="path">The path of the Go file</param>
+	private void FormatGoOutputFile(string path)
 	{
-		var cmd = new Process();
-		cmd.StartInfo.FileName = "go";
-		cmd.StartInfo.Arguments = $"fmt {goPath}";
+		var cmd = new Process
+		{
+			StartInfo = new ProcessStartInfo
+			{
+				FileName = "go",
+				Arguments = $"fmt {path}",
+			}
+		};
 		cmd.Start();
 		cmd.WaitForExit();
 	}
 
+	/// <summary>
+	/// Resets the project's `build` directory by deleting any Go source files and the binary executable, if it exists. This is done first by `aura build` to start each build with a clean
+	/// `build` directory, which can avoid issues where, for example, old Go files remain in the `build` directory after their corresponding Aura source file has been deleted.
+	/// </summary>
 	private void ResetBuildDirectory()
 	{
 		// Delete all Go files in `build` directory
