@@ -12,14 +12,23 @@ public abstract class AuraCommand
 	}
 	public abstract int Execute();
 
-	protected List<string> GetAllAuraFiles(string path)
+	protected void TraverseProject(Action<string> a)
 	{
-		var files = Directory.GetFiles(path).ToList();
-		var dirFiles = Directory.GetDirectories(path).Select(GetAllAuraFiles);
-		return dirFiles.Aggregate(files, (prev, curr) =>
+		TraverseProjectRecur("./src", a);
+	}
+
+	private void TraverseProjectRecur(string path, Action<string> a)
+	{
+		var paths = Directory.GetFiles(path);
+		foreach (var p in paths)
 		{
-			prev.AddRange(curr);
-			return prev;
-		});
+			a(p);
+		}
+
+		var dirs = Directory.GetDirectories(path);
+		foreach (var dir in dirs)
+		{
+			TraverseProjectRecur(dir, a);
+		}
 	}
 }

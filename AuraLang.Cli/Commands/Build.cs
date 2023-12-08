@@ -47,22 +47,7 @@ public class Build : AuraCommand
 
 	private void BuildProject()
 	{
-		BuildDirectory("./src");
-	}
-
-	private void BuildDirectory(string path)
-	{
-		var paths = Directory.GetFiles(path);
-		foreach (var p in paths)
-		{
-			BuildFile(p);
-		}
-
-		var dirs = Directory.GetDirectories(path);
-		foreach (var dir in dirs)
-		{
-			BuildDirectory(dir);
-		}
+		TraverseProject(BuildFile);
 	}
 
 	private void BuildFile(string path)
