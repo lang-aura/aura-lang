@@ -1,13 +1,16 @@
-.PHONY: clean test publish format
+.PHONY: clean test publish format build
 
 clean:
 	rm -rf ./AuraLang.Test/Integration/Examples/build/pkg/*.go
 
-test:
+test: build
 	cd AuraLang.Test && dotnet test
 	
-install:
+install: build
 	./scripts/install.sh
 
 format:
 	dotnet format
+
+build:
+	dotnet build
