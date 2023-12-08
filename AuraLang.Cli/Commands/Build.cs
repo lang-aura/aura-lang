@@ -13,6 +13,7 @@ namespace AuraLang.Cli.Commands;
 public class Build : AuraCommand
 {
 	public Build(BuildOptions opts) : base(opts) { }
+	private AuraToml _toml = new();
 
 	public override int Execute()
 	{
@@ -87,10 +88,20 @@ public class Build : AuraCommand
 
 	private void ResetBuildDirectory()
 	{
+		// Delete all Go files in `build` directory
 		var paths = Directory.GetFiles("./build/pkg", "*.go");
 		foreach (var path in paths)
 		{
 			File.Delete(path);
 		}
+		// Delete any sub-directories containing Go source files
+		var dirs = Directory.GetDirectories("./build/pkg").Where(p => p.Split("/")[^1] != "stdlib");
+		foreach (var dir in dirs)
+		{
+			Directory.Delete(dir);
+		}
+		// Delete executable file
+		var projName = _toml.GetProjectName();
+		File.Delete($"./build/pkg/{projName}");
 	}
 }
