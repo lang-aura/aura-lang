@@ -1,4 +1,4 @@
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.FileCompiler;
 using AuraLang.TypeChecker;
 

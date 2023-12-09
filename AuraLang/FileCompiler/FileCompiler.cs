@@ -1,4 +1,4 @@
-using AuraLang.Compiler;
+﻿using AuraLang.Compiler;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.TypeChecker;

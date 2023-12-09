@@ -1,4 +1,4 @@
-using AuraLang.ModuleCompiler;
+﻿using AuraLang.ModuleCompiler;
 
 namespace AuraLang.ProjectCompiler;
 
