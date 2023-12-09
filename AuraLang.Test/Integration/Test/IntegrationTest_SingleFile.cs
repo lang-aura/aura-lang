@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics;
 using AuraLang.AST;
-using AuraLang.Compiler;
 using AuraLang.Exceptions;
-using AuraLang.Parser;
-using AuraLang.Scanner;
+using AuraLang.FileCompiler;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.Test.Integration.Test;
@@ -42,7 +40,8 @@ public class IntegrationTest
 	public async Task TestIntegration_Functions()
 	{
 		var output = await ArrangeAndAct("src/functions.aura");
-		MakeAssertions(output, "Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\nThe value of i is 10\nThe value of i is 5\n");
+		MakeAssertions(output,
+			"Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\nThe value of i is 10\nThe value of i is 5\n");
 	}
 
 	[Test]
@@ -66,24 +65,17 @@ public class IntegrationTest
 		MakeAssertions(output, "HelloHello\n10\ntrue\n");
 	}
 
-	private string ReadFile(string path) => File.ReadAllText(path);
-
 	private async Task<string> ArrangeAndAct(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
+		var typeChecker = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(),
+			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
+			new LocalModuleReader());
+		var compiler = new AuraFileCompiler(path, "Examples", typeChecker);
 
-		var contents = ReadFile(path);
 		try
 		{
-			// Scan tokens
-			var tokens = new AuraScanner(contents).ScanTokens();
-			// Parse tokens
-			var untypedAst = new AuraParser(tokens).Parse();
-			// Type check AST
-			var typedAst = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(), new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(), new LocalModuleReader())
-				.CheckTypes(untypedAst);
-			// Compile typed AST
-			var output = new AuraCompiler(typedAst, "Examples", new LocalModuleReader(), new CompiledOutputWriter()).Compile();
+			var output = compiler.CompileFile();
 			// Create Go output file
 			await File.WriteAllTextAsync($"build/pkg/{fileName}.go", output);
 			// Format Go output file
