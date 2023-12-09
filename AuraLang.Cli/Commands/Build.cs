@@ -42,6 +42,7 @@ public class Build : AuraCommand
 
 		// Build Go binary executable
 		Directory.SetCurrentDirectory("./build/pkg");
+		FormatGoProject();
 		var build = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = "build" } };
 		build.Start();
 		build.WaitForExit();
@@ -54,16 +55,14 @@ public class Build : AuraCommand
 		var goPath = auraPath.Replace("src/", string.Empty);
 		goPath = Path.ChangeExtension(goPath, "go");
 		File.WriteAllText($"./build/pkg/{goPath}", content);
-		FormatGoOutputFile(goPath);
 	}
 
 	/// <summary>
-	/// Formats a compiled Go file with the `go fmt` tool
+	/// Formats the compiled Go project with the `go fmt` tool
 	/// </summary>
-	/// <param name="path">The path of the Go file</param>
-	private void FormatGoOutputFile(string path)
+	private void FormatGoProject()
 	{
-		var cmd = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = $"fmt {path}" } };
+		var cmd = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = "fmt" } };
 		cmd.Start();
 		cmd.WaitForExit();
 	}
