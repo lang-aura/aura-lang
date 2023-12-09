@@ -11,11 +11,11 @@ public class AuraProjectCompiler
 		ProjectName = projectName;
 	}
 
-	public List<string> CompileProject()
+	public List<(string, string)> CompileProject()
 	{
 		return GetAllProjectDirectories()
 			.Select(dir => new AuraModuleCompiler(dir, ProjectName).CompileModule())
-			.Aggregate(new List<string>(), (acc, item) =>
+			.Aggregate(new List<(string, string)>(), (acc, item) =>
 			{
 				acc.AddRange(item);
 				return acc;

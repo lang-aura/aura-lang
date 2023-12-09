@@ -1,18 +1,15 @@
 ﻿using System.Diagnostics;
-using AuraLang.AST;
 using AuraLang.Cli.Options;
 using AuraLang.Cli.Toml;
-using AuraLang.Compiler;
 using AuraLang.Exceptions;
-using AuraLang.Parser;
-using AuraLang.Scanner;
-using AuraLang.TypeChecker;
+using AuraLang.ProjectCompiler;
 
 namespace AuraLang.Cli.Commands;
 
 public class Build : AuraCommand
 {
 	public Build(BuildOptions opts) : base(opts) { }
+
 	/// <summary>
 	/// Used to read the TOML config file located in the project's root
 	/// </summary>
@@ -30,56 +27,33 @@ public class Build : AuraCommand
 
 		try
 		{
-			TraverseProject(BuildFile);
+			var projCompiler = new AuraProjectCompiler(_toml.GetProjectName());
+			var compiledOutput = projCompiler.CompileProject();
+			foreach (var output in compiledOutput)
+			{
+				WriteGoOutputFile(output.Item1, output.Item2);
+			}
 		}
 		catch (AuraExceptionContainer ex)
 		{
 			ex.Report();
 			return 1;
 		}
+
 		// Build Go binary executable
 		Directory.SetCurrentDirectory("./build/pkg");
-		var build = new Process
-		{
-			StartInfo = new ProcessStartInfo
-			{
-				FileName = "go",
-				Arguments = "build"
-			}
-		};
+		var build = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = "build" } };
 		build.Start();
 		build.WaitForExit();
 
 		return 0;
 	}
 
-	/// <summary>
-	/// Builds an individual Aura source file, compiling it to the equivalent Go file and placing it at the correct path in the `build` directory
-	/// </summary>
-	/// <param name="path">The path of the Aura source file</param>
-	private void BuildFile(string path)
+	private void WriteGoOutputFile(string auraPath, string content)
 	{
-		// Read source file's contents
-		var contents = File.ReadAllText(path);
-		// Scan tokens
-		var tokens = new AuraScanner(contents).ScanTokens();
-		// Parse tokens
-		var untypedAst = new AuraParser(tokens).Parse();
-		// Type check AST
-		var typedAst = new AuraTypeChecker(
-			new VariableStore(),
-			new EnclosingClassStore(),
-			//new CurrentModuleStore(),
-			new EnclosingNodeStore<IUntypedAuraExpression>(),
-			new EnclosingNodeStore<IUntypedAuraStatement>(),
-			new LocalModuleReader()).CheckTypes(untypedAst);
-		// Compile
-		var toml = new AuraToml();
-		var output = new AuraCompiler(typedAst, toml.GetProjectName(), new LocalModuleReader(), new CompiledOutputWriter()).Compile();
-		// Create Go output file
-		var fileName = Path.ChangeExtension(Path.GetFileName(path), "go");
-		var goPath = $"./build/pkg/{fileName}";
-		File.WriteAllText(goPath, output);
+		var goPath = auraPath.Replace("src/", string.Empty);
+		goPath = Path.ChangeExtension(goPath, "go");
+		File.WriteAllText($"./build/pkg/{goPath}", content);
 		FormatGoOutputFile(goPath);
 	}
 
@@ -89,14 +63,7 @@ public class Build : AuraCommand
 	/// <param name="path">The path of the Go file</param>
 	private void FormatGoOutputFile(string path)
 	{
-		var cmd = new Process
-		{
-			StartInfo = new ProcessStartInfo
-			{
-				FileName = "go",
-				Arguments = $"fmt {path}",
-			}
-		};
+		var cmd = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = $"fmt {path}" } };
 		cmd.Start();
 		cmd.WaitForExit();
 	}
@@ -113,12 +80,14 @@ public class Build : AuraCommand
 		{
 			File.Delete(path);
 		}
+
 		// Delete any sub-directories containing Go source files
 		var dirs = Directory.GetDirectories("./build/pkg").Where(p => p.Split("/")[^1] != "stdlib");
 		foreach (var dir in dirs)
 		{
 			Directory.Delete(dir);
 		}
+
 		// Delete executable file
 		var projName = _toml.GetProjectName();
 		File.Delete($"./build/pkg/{projName}");

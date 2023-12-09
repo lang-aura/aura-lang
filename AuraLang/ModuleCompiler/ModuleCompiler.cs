@@ -30,10 +30,14 @@ public class AuraModuleCompiler
 			new LocalModuleReader());
 	}
 
-	public List<string> CompileModule()
+	public List<(string, string)> CompileModule()
 	{
 		return Directory.GetFiles(Path, "*.aura")
-			.Select(p => new AuraFileCompiler(p, ProjectName, TypeChecker).CompileFile())
+			.Select(p =>
+			{
+				var compiledOutput = new AuraFileCompiler(p, ProjectName, TypeChecker).CompileFile();
+				return (p, compiledOutput);
+			})
 			.ToList();
 	}
 }
