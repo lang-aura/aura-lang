@@ -1,7 +1,7 @@
 .PHONY: clean test publish format build
 
 clean:
-	rm -rf ./AuraLang.Test/Integration/Examples/build/pkg/*.go
+	python3 ./scripts/clean.py
 
 test: build
 	cd AuraLang.Test && dotnet test
