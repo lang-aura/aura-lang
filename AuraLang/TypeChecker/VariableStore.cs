@@ -20,19 +20,7 @@ public interface IVariableStore
 	/// <param name="varName">The name of the variable</param>
 	/// <param name="modName">The name of the module where the variable was originally defined</param>
 	/// <returns>The existing local variable, if it exists, else null</returns>
-	Local Find(string varName, string? modName, int line, string filePath);
-
-	/// <summary>
-	/// Find an existing local variable, if it exists, and confirm it matches the expected type
-	/// </summary>
-	/// <param name="varName">The name of the variable</param>
-	/// <param name="modName">The name of the module where the variable was originally defined</param>
-	/// <param name="expected">The expected type of the variable</param>
-	/// <param name="line">The line where the variable is being fetched from. Used in the exceptions, if any are thrown.</param>
-	/// <exception cref="UnknownVariableException">Thrown if the local variable doesn't exist</exception>
-	/// <exception cref="UnexpectedTypeException">Thrown if the local variable doesn't match the expected type</exception>
-	/// <returns>The local variable, if it exists and matches the expected type</returns>
-	Local FindAndConfirm(string varName, string? modName, AuraType expected, int line, string filePath);
+	Local? Find(string varName, string? modName);
 
 	/// <summary>
 	/// Clears all local variables that were defined in the specified scope
@@ -47,22 +35,12 @@ public class VariableStore : IVariableStore
 
 	public void Add(Local local) => _variables.Add(local);
 
-	public Local Find(string varName, string? modName, int line, string filePath)
+	public Local? Find(string varName, string? modName)
 	{
-		var local = _variables.Find(v =>
-		{
-			return v.Name == varName &&
-				   (v.Defining is null && modName is null ||
-					v.Defining == modName);
-		});
-		if (local.Equals(default)) throw new UnknownVariableException(filePath, line);
-		return local;
-	}
-
-	public Local FindAndConfirm(string varName, string? modName, AuraType expected, int line, string filePath)
-	{
-		var local = Find(varName, modName, line, filePath);
-		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(filePath, line);
+		var local = _variables.Find(v => v.Name == varName &&
+										 (v.Defining is null && modName is null ||
+										  v.Defining == modName));
+		if (local.Equals(default)) return null;
 		return local;
 	}
 
