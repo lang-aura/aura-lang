@@ -6,5 +6,5 @@ namespace AuraLang.Cli.Options;
 public class NewOptions : AuraOptions
 {
 	[Value(0, Required = true, HelpText = "The name of the new Aura project")]
-	public string Name { get; set; }
+	public string? Name { get; set; }
 }

@@ -629,11 +629,11 @@ public class AuraTypeChecker
 			// Add module to list of local variables
 			_variableStore.Add(new Local(
 				"io",
-				module,
+				module!,
 				_scope,
 				null));
 			// Add local module's public functions to current scope
-			foreach (var f in module.PublicFunctions)
+			foreach (var f in module!.PublicFunctions)
 			{
 				_variableStore.Add(new Local(
 					f.Name,

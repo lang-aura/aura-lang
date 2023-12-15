@@ -56,6 +56,6 @@ public class AuraToml
 	public string GetProjectName()
 	{
 		var doc = Parse();
-		return doc.Project.Name;
+		return doc.Project!.Name!;
 	}
 }

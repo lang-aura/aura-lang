@@ -865,7 +865,7 @@ public class AuraParser
 		}
 
 		Consume(TokType.RightParen, new ExpectRightParenException(FilePath, Peek().Line));
-		return new UntypedCall(callee as IUntypedAuraCallable, arguments, line);
+		return new UntypedCall((IUntypedAuraCallable)callee, arguments, line);
 	}
 
 	private UntypedIs Is(IUntypedAuraExpression expr)
