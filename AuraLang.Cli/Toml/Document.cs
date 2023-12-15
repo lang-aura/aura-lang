@@ -8,5 +8,5 @@ namespace AuraLang.Cli.Toml;
 public record Document
 {
 	[TomlProperty("project")]
-	public Project Project { get; init; }
+	public Project? Project { get; init; }
 }

@@ -39,11 +39,6 @@ public class AuraCompiler
 	private readonly GoDocument _goDocument = new();
 
 	/// <summary>
-	/// Tracks the current line in the output file
-	/// </summary>
-	private int _line;
-
-	/// <summary>
 	/// Contains all exceptions thrown during the compilation process. 
 	/// </summary>
 	private readonly CompilerExceptionContainer _exContainer = new();
@@ -57,7 +52,6 @@ public class AuraCompiler
 		CompiledOutputWriter outputWriter, string filePath)
 	{
 		_typedAst = typedAst;
-		_line = 1;
 		ProjectName = projectName;
 		_localModuleReader = localmoduleReader;
 		_outputWriter = outputWriter;

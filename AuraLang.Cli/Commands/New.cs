@@ -13,7 +13,7 @@ public class New : AuraCommand
 
 	public New(NewOptions opts) : base(opts)
 	{
-		Name = opts.Name;
+		Name = opts.Name!;
 	}
 
 	/// <summary>
