@@ -30,7 +30,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_variableStore.Setup(v => v.Find("i", It.IsAny<string>(), It.IsAny<int>())).Returns(new Local("i", new Int(), 1, null));
+		_variableStore.Setup(v => v.Find("i", It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+			.Returns(new Local("i", new Int(), 1, null));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -131,7 +132,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoArgs()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -167,7 +168,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_TwoArgs_WithTags()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -210,11 +211,7 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "f", 1),
 					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
-				new List<ITypedAuraExpression>
-				{
-					new IntLiteral(5, 1),
-					new StringLiteral("Hello world", 1)
-				},
+				new List<ITypedAuraExpression> { new IntLiteral(5, 1), new StringLiteral("Hello world", 1) },
 				new Nil(),
 				1),
 			1));
@@ -223,7 +220,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_DefaultValues()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -263,11 +260,7 @@ public class TypeCheckerTest
 					new Tok(TokType.Identifier, "f", 1),
 					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
 					1),
-				new List<ITypedAuraExpression>
-				{
-					new IntLiteral(10, 1),
-					new StringLiteral("Hello world", 1)
-				},
+				new List<ITypedAuraExpression> { new IntLiteral(10, 1), new StringLiteral("Hello world", 1) },
 				new Nil(),
 				1),
 			1));
@@ -276,7 +269,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -314,7 +307,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1)).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -355,7 +348,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Get()
 	{
-		_variableStore.Setup(v => v.Find("greeter", null, 1)).Returns(
+		_variableStore.Setup(v => v.Find("greeter", null, 1, It.IsAny<string>())).Returns(
 			new Local(
 				"greeter",
 				new Class(
@@ -408,7 +401,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndex()
 	{
-		_variableStore.Setup(v => v.Find("names", null, 1))
+		_variableStore.Setup(v => v.Find("names", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -441,7 +434,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndexRange()
 	{
-		_variableStore.Setup(v => v.Find("names", null, 1))
+		_variableStore.Setup(v => v.Find("names", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -569,20 +562,14 @@ public class TypeCheckerTest
 		{
 			new UntypedExpressionStmt(
 				new ListLiteral<IUntypedAuraExpression>(
-					new List<IUntypedAuraExpression>
-					{
-						new IntLiteral(1, 1)
-					},
+					new List<IUntypedAuraExpression> { new IntLiteral(1, 1) },
 					new Int(),
 					1),
 				1)
 		});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new ListLiteral<ITypedAuraExpression>(
-				new List<ITypedAuraExpression>
-				{
-					new IntLiteral(1, 1)
-				},
+				new List<ITypedAuraExpression> { new IntLiteral(1, 1) },
 				new Int(),
 				1),
 			1));
@@ -608,7 +595,7 @@ public class TypeCheckerTest
 			new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 				new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 				{
-					{new StringLiteral("Hello", 1), new IntLiteral(1, 1)}
+					{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
 				},
 				new AuraString(),
 				new Int(),
@@ -684,7 +671,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set()
 	{
-		_variableStore.Setup(v => v.Find("greeter", null, 1))
+		_variableStore.Setup(v => v.Find("greeter", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"greeter",
 				new Class(
@@ -819,7 +806,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Variable()
 	{
-		_variableStore.Setup(v => v.Find("name", null, 1))
+		_variableStore.Setup(v => v.Find("name", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"name",
 				new AuraString(),
@@ -845,7 +832,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Defer()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1))
+		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"f",
 				new NamedFunction(
@@ -888,7 +875,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_For_EmptyBody()
 	{
-		_variableStore.Setup(v => v.Find("i", null, 1))
+		_variableStore.Setup(v => v.Find("i", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"i",
 				new Int(),
@@ -937,7 +924,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ForEach_EmptyBody()
 	{
-		_variableStore.Setup(v => v.Find("names", null, 1))
+		_variableStore.Setup(v => v.Find("names", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -1205,10 +1192,8 @@ public class TypeCheckerTest
 	{
 		_enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedNil(1));
 
-		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-		{
-			new UntypedYield(new IntLiteral(5, 1), 1)
-		}, typeof(InvalidUseOfYieldKeywordException));
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement> { new UntypedYield(new IntLiteral(5, 1), 1) },
+			typeof(InvalidUseOfYieldKeywordException));
 	}
 
 	[Test]
@@ -1219,10 +1204,7 @@ public class TypeCheckerTest
 			new List<IUntypedAuraStatement>(),
 			1));
 
-		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-		{
-			new UntypedBreak(1)
-		});
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement> { new UntypedBreak(1) });
 		MakeAssertions(typedAst, new TypedBreak(1));
 	}
 
@@ -1231,10 +1213,8 @@ public class TypeCheckerTest
 	{
 		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
 
-		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-		{
-			new UntypedBreak(1)
-		}, typeof(InvalidUseOfBreakKeywordException));
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement> { new UntypedBreak(1) },
+			typeof(InvalidUseOfBreakKeywordException));
 	}
 
 	[Test]
@@ -1245,10 +1225,7 @@ public class TypeCheckerTest
 			new List<IUntypedAuraStatement>(),
 			1));
 
-		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-		{
-			new UntypedContinue(1)
-		});
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement> { new UntypedContinue(1) });
 		MakeAssertions(typedAst, new TypedContinue(1));
 	}
 
@@ -1257,10 +1234,8 @@ public class TypeCheckerTest
 	{
 		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(new UntypedExpressionStmt(new UntypedNil(1), 1));
 
-		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
-		{
-			new UntypedContinue(1)
-		}, typeof(InvalidUseOfContinueKeywordException));
+		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement> { new UntypedContinue(1) },
+			typeof(InvalidUseOfContinueKeywordException));
 	}
 
 	[Test]
@@ -1334,13 +1309,13 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingTwoInterfaces_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>()))
+		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>(), It.IsAny<string>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1,
 				null));
-		_variableStore.Setup(v => v.Find("IGreeter2", null, It.IsAny<int>()))
+		_variableStore.Setup(v => v.Find("IGreeter2", null, It.IsAny<int>(), It.IsAny<string>()))
 			.Returns(new Local(
 				"IGreeter2",
 				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private),
@@ -1354,11 +1329,7 @@ public class TypeCheckerTest
 				new List<Param>(),
 				new List<IUntypedAuraStatement>(),
 				Visibility.Private,
-				new List<Tok>
-				{
-					new(TokType.Identifier, "IGreeter", 1),
-					new(TokType.Identifier, "IGreeter2", 1)
-				},
+				new List<Tok> { new(TokType.Identifier, "IGreeter", 1), new(TokType.Identifier, "IGreeter2", 1) },
 				1)
 		});
 		MakeAssertions(typedAst, new FullyTypedClass(
@@ -1377,7 +1348,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>()))
+		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>(), It.IsAny<string>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
@@ -1391,10 +1362,7 @@ public class TypeCheckerTest
 				new List<Param>(),
 				new List<IUntypedAuraStatement>(),
 				Visibility.Private,
-				new List<Tok>
-				{
-					new(TokType.Identifier, "IGreeter", 1)
-				},
+				new List<Tok> { new(TokType.Identifier, "IGreeter", 1) },
 				1)
 		});
 		MakeAssertions(typedAst, new FullyTypedClass(
@@ -1402,17 +1370,14 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			new List<Interface>
-			{
-				new("IGreeter", new List<NamedFunction>(), Visibility.Private)
-			},
+			new List<Interface> { new("IGreeter", new List<NamedFunction>(), Visibility.Private) },
 			1));
 	}
 
 	[Test]
 	public void TestTypeCheck_Set_Invalid()
 	{
-		_variableStore.Setup(v => v.Find("v", null, 1))
+		_variableStore.Setup(v => v.Find("v", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"v",
 				new Int(),
@@ -1438,13 +1403,14 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Is()
 	{
-		_variableStore.Setup(v => v.Find("v", null, 1))
+		_variableStore.Setup(v => v.Find("v", null, 1, It.IsAny<string>()))
 			.Returns(new Local(
 				"v",
 				new Int(),
 				1,
 				null));
-		_variableStore.Setup(v => v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>()))
+		_variableStore.Setup(v =>
+				v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>(), It.IsAny<string>()))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
@@ -1474,14 +1440,16 @@ public class TypeCheckerTest
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object, _localModuleReader.Object)
+		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+				_enclosingStmtStore.Object, _localModuleReader.Object, "Test")
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
 	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
 	{
 		try
 		{
-			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object, _enclosingStmtStore.Object, _localModuleReader.Object)
+			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+					_enclosingStmtStore.Object, _localModuleReader.Object, "Test")
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();
 		}

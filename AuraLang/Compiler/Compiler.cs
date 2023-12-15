@@ -17,12 +17,14 @@ public class AuraCompiler
 	/// The typed Aura AST that will be compiled to Go
 	/// </summary>
 	private readonly List<ITypedAuraStatement> _typedAst;
+
 	/// <summary>
 	/// Aura allows implicit returns in certain situations, and the behavior of the return statement differs depending on the situaiton and whether its implicit
 	/// or explicit. Because of that, the compiler keeps track of any enclosing types, which it refers to when compiling a return statement. The enclosing types
 	/// that the compiler is interested in are `if` expressions, blocks, functions, and classes.
 	/// </summary>
 	private readonly Stack<ITypedAuraAstNode> _enclosingType = new();
+
 	/// <summary>
 	/// The compiler keeps track of variables declared in the Aura typed AST, but it doesn't need to keep track of all available information about these variables.
 	/// Instead, it needs to know if the variables were declared as public or not. This is because public functions, classes, etc. in Aura are declared with the
@@ -30,29 +32,36 @@ public class AuraCompiler
 	/// should be in title case in the outputted Go file.
 	/// </summary>
 	private Dictionary<string, Visibility> _declaredVariables = new();
+
 	/// <summary>
 	/// Is used by the compiler as a buffer to organize the Go output file before producing the final Go string
 	/// </summary>
 	private readonly GoDocument _goDocument = new();
+
 	/// <summary>
 	/// Tracks the current line in the output file
 	/// </summary>
 	private int _line;
+
 	/// <summary>
 	/// Contains all exceptions thrown during the compilation process. 
 	/// </summary>
 	private readonly CompilerExceptionContainer _exContainer = new();
+
 	private string ProjectName { get; }
 	private readonly LocalModuleReader _localModuleReader;
 	private readonly CompiledOutputWriter _outputWriter;
+	private string FilePath { get; }
 
-	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName, LocalModuleReader localmoduleReader, CompiledOutputWriter outputWriter)
+	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName, LocalModuleReader localmoduleReader,
+		CompiledOutputWriter outputWriter, string filePath)
 	{
 		_typedAst = typedAst;
 		_line = 1;
 		ProjectName = projectName;
 		_localModuleReader = localmoduleReader;
 		_outputWriter = outputWriter;
+		FilePath = filePath;
 	}
 
 	public string Compile()
@@ -93,7 +102,7 @@ public class AuraCompiler
 			TypedContinue c => ContinueStmt(c),
 			TypedBreak b => BreakStmt(b),
 			TypedInterface i => InterfaceStmt(i),
-			_ => throw new UnknownStatementException(stmt.Line)
+			_ => throw new UnknownStatementException(FilePath, stmt.Line)
 		};
 	}
 
@@ -125,7 +134,7 @@ public class AuraCompiler
 			TypedVariable v => VariableExpr(v),
 			TypedAnonymousFunction f => AnonymousFunctionExpr(f),
 			TypedIs is_ => IsExpr(is_),
-			_ => throw new UnknownExpressionException(expr.Line)
+			_ => throw new UnknownExpressionException(FilePath, expr.Line)
 		};
 	}
 
@@ -228,6 +237,7 @@ public class AuraCompiler
 						return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}
 				}
+
 				return $"{let.Name.Value} := {value}";
 		}
 	}
@@ -254,14 +264,14 @@ public class AuraCompiler
 			var compiledParams = CompileParams(c.Params, "\n");
 
 			var compiledMethods = c.Methods.Select(m =>
-			{
-				var params_ = CompileParams(m.Params, ",");
-				var body = Expression(m.Body);
-				var returnType = m.ReturnType is Nil ? string.Empty : $" {AuraTypeToGoType(m.ReturnType)}";
-				// To make the handling of `this` expressions a little easier for the compiler, all method receivers in the outputted Go code have an identifier of `this`
-				return $"func (this {className}) {m.Name.Value}({params_}){returnType} {body}";
-			})
-			.Aggregate(string.Empty, (prev, curr) => $"{prev}\n\n{curr}");
+				{
+					var params_ = CompileParams(m.Params, ",");
+					var body = Expression(m.Body);
+					var returnType = m.ReturnType is Nil ? string.Empty : $" {AuraTypeToGoType(m.ReturnType)}";
+					// To make the handling of `this` expressions a little easier for the compiler, all method receivers in the outputted Go code have an identifier of `this`
+					return $"func (this {className}) {m.Name.Value}({params_}){returnType} {body}";
+				})
+				.Aggregate(string.Empty, (prev, curr) => $"{prev}\n\n{curr}");
 
 			return compiledParams != string.Empty
 				? $"type {className} struct {{\n{compiledParams}\n}}\n\n{compiledMethods}"
@@ -292,18 +302,21 @@ public class AuraCompiler
 			// Read the file's contents
 			var contents = _localModuleReader.Read(source);
 			// Scan file
-			var tokens = new AuraScanner(contents).ScanTokens();
+			var tokens = new AuraScanner(contents, FilePath).ScanTokens();
 			// Parse file
-			var untypedAst = new AuraParser(tokens).Parse();
+			var untypedAst = new AuraParser(tokens, FilePath).Parse();
 			// Type check file
 			var typedAst = new AuraTypeChecker(
 				new VariableStore(),
 				new EnclosingClassStore(),
 				new EnclosingNodeStore<IUntypedAuraExpression>(),
 				new EnclosingNodeStore<IUntypedAuraStatement>(),
-				new LocalModuleReader()).CheckTypes(untypedAst);
+				new LocalModuleReader(),
+				FilePath).CheckTypes(untypedAst);
 			// Compile file
-			var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter()).Compile();
+			var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(),
+					source)
+				.Compile();
 			// Write output to `build` directory
 			var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
 			_outputWriter.CreateDirectory(dirName);
@@ -355,6 +368,7 @@ public class AuraCompiler
 			var s = Statement(stmt);
 			compiledStmts.WriteString(s, stmt.Line, stmt);
 		}
+
 		return compiledStmts.String() == string.Empty ? "{}" : $"{{\n{compiledStmts.String()}\n}}";
 	}
 
@@ -375,7 +389,8 @@ public class AuraCompiler
 		var params_ = string.Join("\n", class_!.GetParams()
 			.Zip(c.Arguments)
 			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
-		return $"{(class_.Public is Visibility.Public ? class_.Name.ToUpper() : class_.Name.ToLower())}{{\n{params_}\n}}";
+		return
+			$"{(class_.Public is Visibility.Public ? class_.Name.ToUpper() : class_.Name.ToLower())}{{\n{params_}\n}}";
 	}
 
 	private string CallExpr_GetCallee(TypedCall c)
@@ -435,7 +450,8 @@ public class AuraCompiler
 
 	private string IntLiteralExpr(IntLiteral literal) => $"{literal.Value}";
 
-	private string FloatLiteralExpr(FloatLiteral literal) => string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
+	private string FloatLiteralExpr(FloatLiteral literal) =>
+		string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
 
 	private string BoolLiteralExpr(BoolLiteral literal) => (bool)literal.Value ? "true" : "false";
 
@@ -456,7 +472,9 @@ public class AuraCompiler
 			var valueExpr = Expression((ITypedAuraExpression)pair.Value);
 			return $"{keyExpr}: {valueExpr}";
 		});
-		return items.Any() ? $"{AuraTypeToGoType(literal.Typ)}{{\n{string.Join(", ", items)}\n}}" : $"{AuraTypeToGoType(literal.Typ)}{{}}";
+		return items.Any()
+			? $"{AuraTypeToGoType(literal.Typ)}{{\n{string.Join(", ", items)}\n}}"
+			: $"{AuraTypeToGoType(literal.Typ)}{{}}";
 	}
 
 	private string LogicalExpr(TypedLogical logical)
@@ -500,8 +518,8 @@ public class AuraCompiler
 	{
 		return body.Any()
 			? body
-			   .Select(Statement)
-			   .Aggregate(string.Empty, (prev, curr) => $"{prev}\n{curr}")
+				.Select(Statement)
+				.Aggregate(string.Empty, (prev, curr) => $"{prev}\n{curr}")
 			: string.Empty;
 	}
 
@@ -594,6 +612,7 @@ public class AuraCompiler
 				camelCase.Append(char.ToUpper(s[0]));
 				continue;
 			}
+
 			if (s[i] == '_' && i < s.Length - 1)
 			{
 				camelCase.Append(char.ToUpper(s[i + 1]));

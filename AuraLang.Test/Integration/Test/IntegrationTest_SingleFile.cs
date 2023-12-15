@@ -70,7 +70,7 @@ public class IntegrationTest
 		var fileName = Path.GetFileNameWithoutExtension(path);
 		var typeChecker = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
-			new LocalModuleReader());
+			new LocalModuleReader(), "Test");
 		var compiler = new AuraFileCompiler(path, "Examples", typeChecker);
 
 		try

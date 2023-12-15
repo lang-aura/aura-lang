@@ -10,15 +10,15 @@ public class CompilerExceptionContainer : AuraExceptionContainer
 
 public abstract class CompilerException : AuraException
 {
-	protected CompilerException(string message, int line) : base(message, line) { }
+	protected CompilerException(string message, string filePath, int line) : base(message, filePath, line) { }
 }
 
 public class UnknownStatementException : CompilerException
 {
-	public UnknownStatementException(int line) : base("Unknown statement", line) { }
+	public UnknownStatementException(string filePath, int line) : base("Unknown statement", filePath, line) { }
 }
 
 public class UnknownExpressionException : CompilerException
 {
-	public UnknownExpressionException(int line) : base("Unknown expression", line) { }
+	public UnknownExpressionException(string filePath, int line) : base("Unknown expression", filePath, line) { }
 }

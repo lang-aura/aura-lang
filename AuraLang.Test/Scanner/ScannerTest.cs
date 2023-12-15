@@ -295,7 +295,7 @@ public class ScannerTest
 	private static List<Tok> ArrangeAndAct(string source)
 	{
 		// Arrange
-		var scanner = new AuraScanner(source);
+		var scanner = new AuraScanner(source, "Test");
 		// Act
 		return scanner.ScanTokens();
 	}
@@ -330,7 +330,7 @@ public class ScannerTest
 	private static void ArrangeAndAct_Invalid(string source, Type expected)
 	{
 		// Arrange
-		var scanner = new AuraScanner(source);
+		var scanner = new AuraScanner(source, "Test");
 		try
 		{
 			scanner.ScanTokens();

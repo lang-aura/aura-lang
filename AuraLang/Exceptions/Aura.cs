@@ -16,13 +16,15 @@ public abstract class AuraExceptionContainer : Exception
 
 public abstract class AuraException : Exception
 {
+	public string FilePath { get; }
 	public int Line { get; }
 
-	protected AuraException(string message, int line) : base(message)
+	protected AuraException(string message, string filePath, int line) : base(message)
 	{
+		FilePath = filePath;
 		Line = line;
 	}
 
-	public string Error() => $"[{Line}] {Message}";
+	public string Error() => $"[{FilePath} line {Line}] {Message}";
 }
 

@@ -21,14 +21,19 @@ public class AuraTypeChecker
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
 	private readonly LocalModuleReader _localModuleReader;
+	private string FilePath { get; }
 
-	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore, EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore, EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore, LocalModuleReader localModuleReader)
+	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore,
+		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
+		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore, LocalModuleReader localModuleReader,
+		string filePath)
 	{
 		_variableStore = variableStore;
 		_enclosingClassStore = enclosingClassStore;
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
 		_localModuleReader = localModuleReader;
+		FilePath = filePath;
 	}
 
 	public List<ITypedAuraStatement> CheckTypes(List<IUntypedAuraStatement> untypedAst)
@@ -47,6 +52,7 @@ public class AuraTypeChecker
 				_exContainer.Add(ex);
 			}
 		}
+
 		// On the first pass of the Type Checker, some nodes are only partially type checked. On this second pass,
 		// the type checking process is finished for those partially typed nodes.
 		for (var i = 0; i < typedAst.Count; i++)
@@ -90,7 +96,7 @@ public class AuraTypeChecker
 			UntypedBreak break_ => BreakStmt(break_),
 			UntypedYield yield => YieldStmt(yield),
 			UntypedInterface i => InterfaceStmt(i),
-			_ => throw new UnknownStatementTypeException(stmt.Line)
+			_ => throw new UnknownStatementTypeException(FilePath, stmt.Line)
 		};
 	}
 
@@ -122,7 +128,7 @@ public class AuraTypeChecker
 			UntypedVariable variable => VariableExpr(variable),
 			UntypedAnonymousFunction f => AnonymousFunctionExpr(f),
 			UntypedIs is_ => IsExpr(is_),
-			_ => throw new UnknownExpressionTypeException(expr.Line)
+			_ => throw new UnknownExpressionTypeException(FilePath, expr.Line)
 		};
 	}
 
@@ -137,7 +143,7 @@ public class AuraTypeChecker
 	private ITypedAuraExpression ExpressionAndConfirm(IUntypedAuraExpression expr, AuraType expected)
 	{
 		var typedExpr = Expression(expr);
-		if (!expected.IsSameOrInheritingType(typedExpr.Typ)) throw new UnexpectedTypeException(expr.Line);
+		if (!expected.IsSameOrInheritingType(typedExpr.Typ)) throw new UnexpectedTypeException(FilePath, expr.Line);
 		return typedExpr;
 	}
 
@@ -199,7 +205,7 @@ public class AuraTypeChecker
 			{
 				// Type check iterable
 				var iter = Expression(forEachStmt.Iterable);
-				if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
+				if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(FilePath, forEachStmt.Line);
 				// Add current element variable to list of local variables
 				_variableStore.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, null));
 				// Type check body
@@ -237,7 +243,8 @@ public class AuraTypeChecker
 				var typedBody = BlockExpr(f.Body);
 				// Ensure the function's body returns the type specified in its signature
 				var returnType = TypeCheckReturnTypeTok(f.ReturnType);
-				if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
+				if (!returnType.IsSameOrInheritingType(typedBody.Typ))
+					throw new TypeMismatchException(FilePath, f.Line);
 				// Add function as local variable
 				_variableStore.Add(new Local(
 					f.Name.Value,
@@ -247,7 +254,7 @@ public class AuraTypeChecker
 						new Function(
 							TypeCheckParams(f.Params),
 							returnType)
-						),
+					),
 					_scope,
 					null));
 				return new TypedNamedFunction(f.Name, typedParams.ToList(), typedBody, returnType, f.Public, f.Line);
@@ -282,7 +289,8 @@ public class AuraTypeChecker
 				var typedBody = BlockExpr(f.Body);
 				// Ensure the function's body returns the type specified in its signature
 				var returnType = TypeCheckReturnTypeTok(f.ReturnType);
-				if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
+				if (!returnType.IsSameOrInheritingType(typedBody.Typ))
+					throw new TypeMismatchException(FilePath, f.Line);
 
 				return new TypedAnonymousFunction(typedParams, typedBody, returnType, f.Line);
 			});
@@ -326,7 +334,7 @@ public class AuraTypeChecker
 
 		var typedBody = BlockExpr(f.Body);
 		// Ensure the function's body returns the same type specified in its signature
-		if (!f.ReturnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
+		if (!f.ReturnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(FilePath, f.Line);
 
 		return new TypedNamedFunction(f.Name, typedParams, typedBody, f.ReturnType, f.Public, f.Line);
 	}
@@ -345,8 +353,10 @@ public class AuraTypeChecker
 			// Type check initializer
 			var defaultable = nameTyp as IDefaultable;
 			if (let.Initializer is null && defaultable is null)
-				throw new MustSpecifyInitialValueForNonDefaultableTypeException(let.Line);
-			var typedInit = let.Initializer is not null ? ExpressionAndConfirm(let.Initializer, nameTyp) : defaultable!.Default(let.Line);
+				throw new MustSpecifyInitialValueForNonDefaultableTypeException(FilePath, let.Line);
+			var typedInit = let.Initializer is not null
+				? ExpressionAndConfirm(let.Initializer, nameTyp)
+				: defaultable!.Default(let.Line);
 			// Add new variable to list of locals
 			_variableStore.Add(new Local(
 				let.Name.Value,
@@ -433,7 +443,8 @@ public class AuraTypeChecker
 							? (ILiteral)Expression(p.ParamType.DefaultValue)
 							: null;
 						var methodParamType = p.ParamType.Typ;
-						return new Param(p.Name, new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
+						return new Param(p.Name,
+							new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
 					});
 					return new NamedFunction(
 						method.Name.Value,
@@ -444,7 +455,9 @@ public class AuraTypeChecker
 
 			// Get type of implementing interface
 			var implements = class_.Implementing.Any()
-				? class_.Implementing.Select(impl => (_variableStore.Find(impl.Value, null, class_.Line).Kind as Interface) ?? throw new CannotImplementNonInterfaceException(class_.Line))
+				? class_.Implementing.Select(impl =>
+					(_variableStore.Find(impl.Value, null, class_.Line, FilePath).Kind as Interface) ??
+					throw new CannotImplementNonInterfaceException(FilePath, class_.Line))
 				: new List<Interface>();
 
 			// Add typed class to list of locals
@@ -472,21 +485,23 @@ public class AuraTypeChecker
 			if (implements.Any())
 			{
 				var valid = implements.Select(impl =>
-				{
-					return impl.Functions.Select(f =>
 					{
-						return typedMethods
-						.Where(m => m.Public == Visibility.Public)
-						.Select(tm => tm.GetFunctionType())
-						.Contains(f);
+						return impl.Functions.Select(f =>
+							{
+								return typedMethods
+									.Where(m => m.Public == Visibility.Public)
+									.Select(tm => tm.GetFunctionType())
+									.Contains(f);
+							})
+							.All(b => b);
 					})
 					.All(b => b);
-				})
-				.All(b => b);
-				if (!valid) throw new MissingInterfaceMethodException(class_.Line);
+				if (!valid) throw new MissingInterfaceMethodException(FilePath, class_.Line);
 			}
+
 			_enclosingClassStore.Pop();
-			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public, implements.ToList(), class_.Line);
+			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public,
+				implements.ToList(), class_.Line);
 		}, class_);
 	}
 
@@ -520,9 +535,9 @@ public class AuraTypeChecker
 					// Read the file's contents
 					var contents = _localModuleReader.Read(f);
 					// Scan file
-					var tokens = new AuraScanner(contents).ScanTokens();
+					var tokens = new AuraScanner(contents, FilePath).ScanTokens();
 					// Parse file
-					var untypedAst = new AuraParser(tokens).Parse();
+					var untypedAst = new AuraParser(tokens, FilePath).Parse();
 					// Type check file
 					var typedAst = CheckTypes(untypedAst);
 					// Extract public methods and classes
@@ -537,13 +552,14 @@ public class AuraTypeChecker
 						.Select(node => (node as TypedLet)!);
 					return (methods, classes, variables);
 				})
-				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes), a.variables.Concat(b.variables)));
+				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes),
+					a.variables.Concat(b.variables)));
 			var importedModule = new Module(
 				import_.Package.Value,
 				exportedTypes.methods.ToList(),
 				exportedTypes.classes.ToList(),
 				exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
-				);
+			);
 			// Add module to list of local variables
 			var modName = import_.Alias is not null
 				? import_.Alias.Value.Value
@@ -553,7 +569,7 @@ public class AuraTypeChecker
 				importedModule,
 				_scope,
 				null
-				));
+			));
 			// Add local module's exported types to current scope
 			foreach (var f in importedModule.PublicFunctions)
 			{
@@ -563,6 +579,7 @@ public class AuraTypeChecker
 					_scope,
 					modName));
 			}
+
 			foreach (var c in importedModule.PublicClasses)
 			{
 				_variableStore.Add(new Local(
@@ -571,6 +588,7 @@ public class AuraTypeChecker
 					_scope,
 					modName));
 			}
+
 			foreach (var v in importedModule.PublicVariables)
 			{
 				_variableStore.Add(new Local(
@@ -579,6 +597,7 @@ public class AuraTypeChecker
 					_scope,
 					modName));
 			}
+
 			return new TypedImport(import_.Package, import_.Alias, import_.Line);
 		}
 		else
@@ -621,7 +640,7 @@ public class AuraTypeChecker
 	{
 		var enclosingStmt = _enclosingStatementStore.Peek();
 		if (enclosingStmt is not UntypedWhile && enclosingStmt is not UntypedFor && enclosingStmt is not UntypedForEach)
-			throw new InvalidUseOfContinueKeywordException(continue_.Line);
+			throw new InvalidUseOfContinueKeywordException(FilePath, continue_.Line);
 		return new TypedContinue(continue_.Line);
 	}
 
@@ -635,7 +654,7 @@ public class AuraTypeChecker
 	{
 		var enclosingStmt = _enclosingStatementStore.Peek();
 		if (enclosingStmt is not UntypedWhile && enclosingStmt is not UntypedFor && enclosingStmt is not UntypedForEach)
-			throw new InvalidUseOfBreakKeywordException(b.Line);
+			throw new InvalidUseOfBreakKeywordException(FilePath, b.Line);
 		return new TypedBreak(b.Line);
 	}
 
@@ -651,7 +670,7 @@ public class AuraTypeChecker
 	{
 		var enclosingExpr = _enclosingExpressionStore.Peek();
 		if (enclosingExpr is not UntypedIf && enclosingExpr is not UntypedBlock)
-			throw new InvalidUseOfYieldKeywordException(y.Line);
+			throw new InvalidUseOfYieldKeywordException(FilePath, y.Line);
 
 		var value = Expression(y.Value);
 		return new TypedYield(value, y.Line);
@@ -690,7 +709,7 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			// Fetch the variable being assigned to
-			var v = _variableStore.Find(assignment.Name.Value, null, assignment.Line);
+			var v = _variableStore.Find(assignment.Name.Value, null, assignment.Line, FilePath);
 			// Ensure that the new value and the variable have the same type
 			var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
 			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
@@ -729,6 +748,7 @@ public class AuraTypeChecker
 				{
 					typedStmts.Add(Statement(stmt));
 				}
+
 				// The block's type is the type of its last statement
 				AuraType blockTyp = new Nil();
 				if (typedStmts.Any())
@@ -741,6 +761,7 @@ public class AuraTypeChecker
 						_ => lastStmt.Typ is not None ? lastStmt.Typ : new Nil()
 					};
 				}
+
 				return new TypedBlock(typedStmts.ToList(), blockTyp, block.Line);
 			});
 		}, block);
@@ -757,7 +778,8 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var funcDeclaration = _variableStore.Find(call.Callee.GetName(), null, call.Line).Kind as ICallable;
+			var funcDeclaration =
+				_variableStore.Find(call.Callee.GetName(), null, call.Line, FilePath).Kind as ICallable;
 			// Type check arguments
 			if (call.Arguments.Any())
 			{
@@ -766,12 +788,14 @@ public class AuraTypeChecker
 
 				if (named) return TypeCheckNamedParameters(call, funcDeclaration!);
 				if (positional) return TypeCheckPositionalParameters(call, funcDeclaration!);
-				throw new CannotMixNamedAndUnnamedArgumentsException(call.Line);
+				throw new CannotMixNamedAndUnnamedArgumentsException(FilePath, call.Line);
 			}
+
 			var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
 			if (!funcDeclaration!.GetParams().Any())
 			{
-				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), funcDeclaration!.GetReturnType(), call.Line);
+				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), funcDeclaration!.GetReturnType(),
+					call.Line);
 			}
 			else
 			{
@@ -781,10 +805,12 @@ public class AuraTypeChecker
 				{
 					var index = funcDeclaration.GetParamIndex(arg.Name.Value);
 					var defaultValue = arg.ParamType.DefaultValue ??
-									   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line);
-					if (index >= typedArgs.Count) typedArgs.Add((ITypedAuraExpression)defaultValue);
-					else typedArgs.Insert(index, (ITypedAuraExpression)defaultValue);
+									   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(FilePath,
+										   call.Line);
+					if (index >= typedArgs.Count) typedArgs.Add(defaultValue);
+					else typedArgs.Insert(index, defaultValue);
 				}
+
 				return new TypedCall(typedCallee!, typedArgs, funcDeclaration!.GetReturnType(), call.Line);
 			}
 		}, call);
@@ -801,10 +827,10 @@ public class AuraTypeChecker
 		{
 			// Type check object, which must be gettable
 			var objExpr = Expression(get.Obj);
-			if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(get.Line);
+			if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(FilePath, get.Line);
 			// Fetch the gettable's attribute
 			var attrTyp = g.Get(get.Name.Value);
-			if (attrTyp is null) throw new ClassAttributeDoesNotExistException(get.Line);
+			if (attrTyp is null) throw new ClassAttributeDoesNotExistException(FilePath, get.Line);
 
 			return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
 		}, get);
@@ -815,7 +841,7 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			var typedObj = Expression(set.Obj);
-			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(set.Line);
+			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(FilePath, set.Line);
 			var typedValue = Expression(set.Value);
 			return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ, set.Line);
 		}, set);
@@ -837,8 +863,9 @@ public class AuraTypeChecker
 			var expr = Expression(getIndex.Obj);
 			var indexExpr = Expression(getIndex.Index);
 			// Ensure that the object is indexable
-			if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(getIndex.Line);
-			if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ)) throw new TypeMismatchException(getIndex.Line);
+			if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(FilePath, getIndex.Line);
+			if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ))
+				throw new TypeMismatchException(FilePath, getIndex.Line);
 
 			return new TypedGetIndex(expr, indexExpr, indexableExpr.GetIndexedType(), getIndex.Line);
 		}, getIndex);
@@ -861,9 +888,12 @@ public class AuraTypeChecker
 			var lower = Expression(getIndexRange.Lower);
 			var upper = Expression(getIndexRange.Upper);
 			// Ensure that the object is range indexable
-			if (expr.Typ is not IRangeIndexable rangeIndexableExpr) throw new ExpectRangeIndexableException(getIndexRange.Line);
-			if (!rangeIndexableExpr.IndexingType().IsSameType(lower.Typ)) throw new TypeMismatchException(getIndexRange.Line);
-			if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ)) throw new TypeMismatchException(getIndexRange.Line);
+			if (expr.Typ is not IRangeIndexable rangeIndexableExpr)
+				throw new ExpectRangeIndexableException(FilePath, getIndexRange.Line);
+			if (!rangeIndexableExpr.IndexingType().IsSameType(lower.Typ))
+				throw new TypeMismatchException(FilePath, getIndexRange.Line);
+			if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ))
+				throw new TypeMismatchException(FilePath, getIndexRange.Line);
 
 			return new TypedGetIndexRange(expr, lower, upper, expr.Typ, getIndexRange.Line);
 		}, getIndexRange);
@@ -900,6 +930,7 @@ public class AuraTypeChecker
 			{
 				typedElse = ExpressionAndConfirm(if_.Else, typedThen.Typ);
 			}
+
 			return new TypedIf(typedCond, typedThen, typedElse, typedThen.Typ, if_.Line);
 		}, if_);
 	}
@@ -921,7 +952,8 @@ public class AuraTypeChecker
 		}, literal);
 	}
 
-	private MapLiteral<ITypedAuraExpression, ITypedAuraExpression> MapLiteralExpr(MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression> literal)
+	private MapLiteral<ITypedAuraExpression, ITypedAuraExpression> MapLiteralExpr(
+		MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression> literal)
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
@@ -934,7 +966,8 @@ public class AuraTypeChecker
 				var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
 				return (typedK, typedV);
 			}).ToDictionary(pair => pair.Item1, pair => pair.Item2);
-			return new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(typedM, typedKey.Typ, typedValue.Typ, literal.Line);
+			return new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(typedM, typedKey.Typ, typedValue.Typ,
+				literal.Line);
 		}, literal);
 	}
 
@@ -966,11 +999,13 @@ public class AuraTypeChecker
 			// Ensure that operand is a valid type and the operand can be used with it
 			if (unary.Operator.Typ is TokType.Minus)
 			{
-				if (typedRight.Typ is not Int && typedRight.Typ is not Float) throw new MismatchedUnaryOperatorAndOperandException(unary.Line);
+				if (typedRight.Typ is not Int && typedRight.Typ is not Float)
+					throw new MismatchedUnaryOperatorAndOperandException(FilePath, unary.Line);
 			}
 			else if (unary.Operator.Typ is TokType.Minus)
 			{
-				if (typedRight.Typ is not Bool) throw new MismatchedUnaryOperatorAndOperandException(unary.Line);
+				if (typedRight.Typ is not Bool)
+					throw new MismatchedUnaryOperatorAndOperandException(FilePath, unary.Line);
 			}
 
 			return new TypedUnary(unary.Operator, typedRight, typedRight.Typ, unary.Line);
@@ -984,10 +1019,10 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked variable expression</returns>
 	private TypedVariable VariableExpr(UntypedVariable v)
 	{
-		var localVar = _variableStore.Find(v.Name.Value, null, v.Line);
+		var localVar = _variableStore.Find(v.Name.Value, null, v.Line, FilePath);
 		var kind = !localVar.Kind.IsSameType(new Unknown(string.Empty))
 			? localVar.Kind
-			: _variableStore.Find((localVar.Kind as Unknown).Name, null, v.Line).Kind;
+			: _variableStore.Find((localVar.Kind as Unknown).Name, null, v.Line, FilePath).Kind;
 		return new TypedVariable(v.Name, kind, v.Line);
 	}
 
@@ -995,7 +1030,8 @@ public class AuraTypeChecker
 	{
 		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
-		var local = _variableStore.FindAndConfirm(is_.Expected.Value, null, new Interface("", new List<NamedFunction>(), Visibility.Private), is_.Line);
+		var local = _variableStore.FindAndConfirm(is_.Expected.Value, null,
+			new Interface("", new List<NamedFunction>(), Visibility.Private), is_.Line, FilePath);
 
 		return new TypedIs(typedExpr, local.Kind as Interface, is_.Line);
 	}
@@ -1030,6 +1066,7 @@ public class AuraTypeChecker
 			var typedStmt = Statement(stmt);
 			typedBody.Add(typedStmt);
 		}
+
 		return typedBody;
 	}
 
@@ -1052,7 +1089,7 @@ public class AuraTypeChecker
 			TokType.Bool => new Bool(),
 			TokType.Any => new Any(),
 			TokType.Char => new AuraChar(),
-			_ => throw new UnexpectedTypeException(tok.Line)
+			_ => throw new UnexpectedTypeException(FilePath, tok.Line)
 		};
 	}
 
@@ -1065,7 +1102,7 @@ public class AuraTypeChecker
 				: null;
 			var paramTyp = p.ParamType.Typ is not Unknown u
 				? p.ParamType.Typ
-				: _variableStore.Find(u.Name, null, 1).Kind;
+				: _variableStore.Find(u.Name, null, 1, FilePath).Kind;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 		}).ToList();
 	}
@@ -1082,8 +1119,9 @@ public class AuraTypeChecker
 		var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
 		// Ensure the function call has the correct number of arguments
 		if (declaration.HasVariadicParam() && call.Arguments.Count < declaration.GetParams().Count)
-			throw new IncorrectNumberOfArgumentsException(call.Line);
-		if (!declaration.HasVariadicParam() && declaration.GetParamTypes().Count != call.Arguments.Count) throw new IncorrectNumberOfArgumentsException(call.Line);
+			throw new IncorrectNumberOfArgumentsException(FilePath, call.Line);
+		if (!declaration.HasVariadicParam() && declaration.GetParamTypes().Count != call.Arguments.Count)
+			throw new IncorrectNumberOfArgumentsException(FilePath, call.Line);
 		// The arguments are already in order when using positional arguments, so just extract the arguments
 		var orderedArgs = call.Arguments
 			.Select(pair => pair.Item2)
@@ -1115,6 +1153,7 @@ public class AuraTypeChecker
 			if (index >= orderedArgs.Count) orderedArgs.Add(arg.Item2);
 			else orderedArgs.Insert(index, arg.Item2);
 		}
+
 		// Filter out the parameters that aren't included in the argument list. We will ensure that the omitted parameters have
 		// a default value later. However, if they have a default value, they were already type checked when the function was
 		// first declared, so they don't need to be type checked again here.
@@ -1127,12 +1166,13 @@ public class AuraTypeChecker
 			.ToList();
 		// With named arguments, you may omit arguments if they have been declared with a default value.
 		// Check for any missing parameters and fill in their default value, if they have one
-		var missingParams = declaration.GetParams().Where(p => call.Arguments.All(arg => arg.Item1!.Value.Value != p.Name.Value));
+		var missingParams = declaration.GetParams()
+			.Where(p => call.Arguments.All(arg => arg.Item1!.Value.Value != p.Name.Value));
 		foreach (var missingParam in missingParams)
 		{
 			var index = declaration.GetParamIndex(missingParam.Name.Value);
 			var defaultValue = missingParam.ParamType.DefaultValue ??
-							   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.Line);
+							   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(FilePath, call.Line);
 			if (index >= orderedArgs.Count) typedArgs.Add((ITypedAuraExpression)defaultValue);
 			else typedArgs.Insert(index, (ITypedAuraExpression)defaultValue);
 		}
@@ -1140,5 +1180,6 @@ public class AuraTypeChecker
 		return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
 	}
 
-	private AuraType TypeCheckReturnTypeTok(Tok? returnTok) => returnTok is not null ? TypeTokenToType(returnTok.Value) : new Nil();
+	private AuraType TypeCheckReturnTypeTok(Tok? returnTok) =>
+		returnTok is not null ? TypeTokenToType(returnTok.Value) : new Nil();
 }
