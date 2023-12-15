@@ -30,7 +30,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_variableStore.Setup(v => v.Find("i", It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("i", It.IsAny<string>()))
 			.Returns(new Local("i", new Int(), 1, null));
 
 		var typedAst = ArrangeAndAct(
@@ -132,7 +132,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoArgs()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -168,7 +168,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_TwoArgs_WithTags()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -220,7 +220,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_DefaultValues()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -269,7 +269,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -307,7 +307,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>())).Returns(new Local(
+		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -348,7 +348,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Get()
 	{
-		_variableStore.Setup(v => v.Find("greeter", null, 1, It.IsAny<string>())).Returns(
+		_variableStore.Setup(v => v.Find("greeter", null)).Returns(
 			new Local(
 				"greeter",
 				new Class(
@@ -401,7 +401,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndex()
 	{
-		_variableStore.Setup(v => v.Find("names", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("names", null))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -434,7 +434,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndexRange()
 	{
-		_variableStore.Setup(v => v.Find("names", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("names", null))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -671,7 +671,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set()
 	{
-		_variableStore.Setup(v => v.Find("greeter", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("greeter", null))
 			.Returns(new Local(
 				"greeter",
 				new Class(
@@ -806,7 +806,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Variable()
 	{
-		_variableStore.Setup(v => v.Find("name", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("name", null))
 			.Returns(new Local(
 				"name",
 				new AuraString(),
@@ -832,7 +832,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Defer()
 	{
-		_variableStore.Setup(v => v.Find("f", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("f", null))
 			.Returns(new Local(
 				"f",
 				new NamedFunction(
@@ -875,7 +875,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_For_EmptyBody()
 	{
-		_variableStore.Setup(v => v.Find("i", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("i", null))
 			.Returns(new Local(
 				"i",
 				new Int(),
@@ -924,7 +924,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ForEach_EmptyBody()
 	{
-		_variableStore.Setup(v => v.Find("names", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("names", null))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -1309,13 +1309,13 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingTwoInterfaces_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>(), It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1,
 				null));
-		_variableStore.Setup(v => v.Find("IGreeter2", null, It.IsAny<int>(), It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("IGreeter2", null))
 			.Returns(new Local(
 				"IGreeter2",
 				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private),
@@ -1348,7 +1348,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null, It.IsAny<int>(), It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
@@ -1377,7 +1377,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set_Invalid()
 	{
-		_variableStore.Setup(v => v.Find("v", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("v", null))
 			.Returns(new Local(
 				"v",
 				new Int(),
@@ -1403,17 +1403,10 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Is()
 	{
-		_variableStore.Setup(v => v.Find("v", null, 1, It.IsAny<string>()))
+		_variableStore.Setup(v => v.Find("v", null))
 			.Returns(new Local(
 				"v",
 				new Int(),
-				1,
-				null));
-		_variableStore.Setup(v =>
-				v.FindAndConfirm("IGreeter", null, It.IsAny<Interface>(), It.IsAny<int>(), It.IsAny<string>()))
-			.Returns(new Local(
-				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1,
 				null));
 
