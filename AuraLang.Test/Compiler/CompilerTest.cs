@@ -131,10 +131,7 @@ public class CompilerTest
 								},
 								new Nil())),
 						1),
-					new List<ITypedAuraExpression>
-					{
-						new StringLiteral("Hello world", 1)
-					},
+					new List<ITypedAuraExpression> { new StringLiteral("Hello world", 1) },
 					new Nil(),
 					1),
 				1)
@@ -187,10 +184,7 @@ public class CompilerTest
 								},
 								new Nil())),
 						1),
-					new List<ITypedAuraExpression>
-					{
-						new IntLiteral(5, 1)
-					},
+					new List<ITypedAuraExpression> { new IntLiteral(5, 1) },
 					new Nil(),
 					1),
 				1)
@@ -222,11 +216,7 @@ public class CompilerTest
 								},
 								new Nil())),
 						1),
-					new List<ITypedAuraExpression>
-					{
-						new IntLiteral(5, 1),
-						new StringLiteral("Hello world", 1)
-					},
+					new List<ITypedAuraExpression> { new IntLiteral(5, 1), new StringLiteral("Hello world", 1) },
 					new Nil(),
 					1),
 				1)
@@ -430,12 +420,7 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new ListLiteral<ITypedAuraExpression>(
-					new List<ITypedAuraExpression>
-					{
-						new IntLiteral(1, 1),
-						new IntLiteral(2, 1),
-						new IntLiteral(3, 1)
-					},
+					new List<ITypedAuraExpression> { new IntLiteral(1, 1), new IntLiteral(2, 1), new IntLiteral(3, 1) },
 					new Int(),
 					1),
 				1)
@@ -833,20 +818,14 @@ public class CompilerTest
 	[Test]
 	public void TestCompile_Return_NoValue()
 	{
-		var output = ArrangeAndAct(new List<ITypedAuraStatement>
-		{
-			new TypedReturn(null, 1)
-		});
+		var output = ArrangeAndAct(new List<ITypedAuraStatement> { new TypedReturn(null, 1) });
 		MakeAssertions(output, "return");
 	}
 
 	[Test]
 	public void TestCompile_Return()
 	{
-		var output = ArrangeAndAct(new List<ITypedAuraStatement>
-		{
-			new TypedReturn(new IntLiteral(5, 1), 1)
-		});
+		var output = ArrangeAndAct(new List<ITypedAuraStatement> { new TypedReturn(new IntLiteral(5, 1), 1) });
 		MakeAssertions(output, "return 5");
 	}
 
@@ -882,10 +861,7 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new List<Interface>
-				{
-					new("IGreeter", new List<NamedFunction>(), Visibility.Private)
-				},
+				new List<Interface> { new("IGreeter", new List<NamedFunction>(), Visibility.Private) },
 				1)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
@@ -1028,15 +1004,15 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedIf(
 					new TypedIs(
-					new TypedVariable(
-						new Tok(TokType.Identifier, "v", 1),
-						new Int(),
+						new TypedVariable(
+							new Tok(TokType.Identifier, "v", 1),
+							new Int(),
+							1),
+						new Interface(
+							"IGreeter",
+							new List<NamedFunction>(),
+							Visibility.Private),
 						1),
-					new Interface(
-						"IGreeter",
-						new List<NamedFunction>(),
-						Visibility.Private),
-					1),
 					new TypedBlock(
 						new List<ITypedAuraStatement>(),
 						new Nil(),
@@ -1098,7 +1074,7 @@ public class CompilerTest
 		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
 		_outputWriter.Setup(ow => ow.WriteOutput(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 		// Arrange
-		var compiler = new AuraCompiler(typedAst, "test", _localModuleReader.Object, _outputWriter.Object);
+		var compiler = new AuraCompiler(typedAst, "test", _localModuleReader.Object, _outputWriter.Object, "Test");
 		// Act
 		return compiler.Compile();
 	}

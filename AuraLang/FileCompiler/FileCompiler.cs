@@ -31,9 +31,10 @@ public class AuraFileCompiler
 	public string CompileFile()
 	{
 		var contents = File.ReadAllText(Path);
-		var tokens = new AuraScanner(contents).ScanTokens();
-		var untypedAst = new AuraParser(tokens).Parse();
+		var tokens = new AuraScanner(contents, Path).ScanTokens();
+		var untypedAst = new AuraParser(tokens, Path).Parse();
 		var typedAst = TypeChecker.CheckTypes(untypedAst);
-		return new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter()).Compile();
+		return new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(), Path)
+			.Compile();
 	}
 }

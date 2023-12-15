@@ -12,27 +12,33 @@ public class AuraScanner
 	/// The Aura source code
 	/// </summary>
 	private readonly string _source;
+
 	/// <summary>
 	/// The starting index of the token currently being scanned
 	/// </summary>
 	private int _start;
+
 	/// <summary>
 	/// The current index in the source code
 	/// </summary>
 	private int _current;
+
 	/// <summary>
 	/// The current line in the Aura source code
 	/// </summary>
 	private int _line;
+
 	/// <summary>
 	/// Helps determine if an implicit semicolon should be added at the end of the current line. No semicolons
 	/// are added at the end of a blank line.
 	/// </summary>
 	private bool _isLineBlank;
+
 	private readonly List<Tok> _tokens;
 	private readonly ScannerExceptionContainer _exContainer = new();
+	private string FilePath { get; }
 
-	public AuraScanner(string source)
+	public AuraScanner(string source, string filePath)
 	{
 		_source = source;
 		_start = 0;
@@ -40,6 +46,7 @@ public class AuraScanner
 		_line = 1;
 		_isLineBlank = true;
 		_tokens = new List<Tok>();
+		FilePath = filePath;
 	}
 
 	public List<Tok> ScanTokens()
@@ -81,7 +88,8 @@ public class AuraScanner
 			var ch = Advance();
 			if (ch == '\n')
 			{
-				if (!_isLineBlank && _tokens[^1].Typ != TokType.LeftBrace) _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
+				if (!_isLineBlank && _tokens[^1].Typ != TokType.LeftBrace)
+					_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 				_isLineBlank = true;
 				_line++;
 			}
@@ -95,6 +103,7 @@ public class AuraScanner
 		{
 			return CheckIdentifier(c);
 		}
+
 		if (IsDigit(c))
 		{
 			return ParseNumber(c);
@@ -130,7 +139,8 @@ public class AuraScanner
 			case '/':
 				if (!IsAtEnd() && Peek() == '/')
 				{
-					if (_tokens.Count > 0 && _tokens[^1].Line == _line) _tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
+					if (_tokens.Count > 0 && _tokens[^1].Line == _line)
+						_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 
 					while (!IsAtEnd() && Peek() != '\n') Advance();
 					return MakeToken(TokType.Comment, _start, _current - 1);
@@ -143,6 +153,7 @@ public class AuraScanner
                         _isLineBlank = true;
                     }*/
 				}
+
 				if (!IsAtEnd() && Peek() == '*')
 				{
 					Advance(); // Advance past the `*` character
@@ -158,10 +169,12 @@ public class AuraScanner
 							_start = _current;
 						}
 					}
+
 					Advance();
 					Advance();
 					return MakeToken(TokType.Comment, _start, _current - 1);
 				}
+
 				if (!IsAtEnd() && Peek() == '=') return MakeToken(TokType.SlashEqual, _start, _current);
 				return MakeSingleCharToken(TokType.Slash, c);
 			case '*':
@@ -192,7 +205,7 @@ public class AuraScanner
 			default:
 				// If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
 				// then it must be an invalid character
-				throw new InvalidCharacterException(_line);
+				throw new InvalidCharacterException(FilePath, _line);
 		}
 	}
 
@@ -288,9 +301,11 @@ public class AuraScanner
 										return CheckKeywordToken(TokType.And, tok, "and");
 								}
 							}
+
 							break;
 					}
 				}
+
 				break;
 			case 'b':
 				if (tok.Length >= 2)
@@ -303,6 +318,7 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.Break, tok, "break");
 					}
 				}
+
 				break;
 			case 'c':
 				if (tok.Length >= 2)
@@ -317,6 +333,7 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.Continue, tok, "continue");
 					}
 				}
+
 				break;
 			case 'd':
 				return CheckKeywordToken(TokType.Defer, tok, "defer");
@@ -339,6 +356,7 @@ public class AuraScanner
 							break;
 					}
 				}
+
 				break;
 			case 'i':
 				if (tok.Length == 2)
@@ -390,6 +408,7 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.Mut, tok, "mut");
 					}
 				}
+
 				break;
 			case 'n':
 				return CheckKeywordToken(TokType.Nil, tok, "nil");
@@ -412,6 +431,7 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.This, tok, "this");
 					}
 				}
+
 				break;
 			case 'w':
 				return CheckKeywordToken(TokType.While, tok, "while");
@@ -432,7 +452,7 @@ public class AuraScanner
 		// Scan the entire token, up until the closing double quote
 		while (!IsAtEnd() && Peek() != '"') s += Advance();
 		// If we've reached the end of the file without encountering the closing ", we throw an exception
-		if (IsAtEnd()) throw new UnterminatedStringException(_line);
+		if (IsAtEnd()) throw new UnterminatedStringException(FilePath, _line);
 		// Advance past the closing "
 		Advance();
 
@@ -445,12 +465,12 @@ public class AuraScanner
 		// Scan the entire token, up until the closing single quote
 		while (!IsAtEnd() && Peek() != '\'') s += Advance();
 		// If we've reached the end of the file without encountering the closing ', we throw an exception
-		if (IsAtEnd()) throw new UnterminatedCharException(_line);
+		if (IsAtEnd()) throw new UnterminatedCharException(FilePath, _line);
 		// Advance past the closing '
 		Advance();
 		// Ensure that the char is a single character
-		if (s.Length == 0) throw new EmptyCharException(_line);
-		if (s.Length > 1) throw new CharLengthGreaterThanOneException(_line);
+		if (s.Length == 0) throw new EmptyCharException(FilePath, _line);
+		if (s.Length > 1) throw new CharLengthGreaterThanOneException(FilePath, _line);
 
 		return new Tok(TokType.CharLiteral, s, _line);
 	}

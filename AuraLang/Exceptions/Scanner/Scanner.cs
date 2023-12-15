@@ -10,7 +10,7 @@ public class ScannerExceptionContainer : AuraExceptionContainer
 
 public abstract class ScannerException : AuraException
 {
-	protected ScannerException(string message, int line) : base(message, line) { }
+	protected ScannerException(string message, string filePath, int line) : base(message, filePath, line) { }
 }
 
 /// <summary>
@@ -18,7 +18,7 @@ public abstract class ScannerException : AuraException
 /// </summary>
 public class UnterminatedStringException : ScannerException
 {
-	public UnterminatedStringException(int line) : base("Unterminated string", line) { }
+	public UnterminatedStringException(string filePath, int line) : base("Unterminated string", filePath, line) { }
 }
 
 /// <summary>
@@ -26,7 +26,7 @@ public class UnterminatedStringException : ScannerException
 /// </summary>
 public class UnterminatedCharException : ScannerException
 {
-	public UnterminatedCharException(int line) : base("Unterminated char", line) { }
+	public UnterminatedCharException(string filePath, int line) : base("Unterminated char", filePath, line) { }
 }
 
 /// <summary>
@@ -34,7 +34,10 @@ public class UnterminatedCharException : ScannerException
 /// </summary>
 public class CharLengthGreaterThanOneException : ScannerException
 {
-	public CharLengthGreaterThanOneException(int line) : base("Char length greater than 1", line) { }
+	public CharLengthGreaterThanOneException(string filePath, int line) : base("Char length greater than 1", filePath,
+		line)
+	{
+	}
 }
 
 /// <summary>
@@ -42,7 +45,7 @@ public class CharLengthGreaterThanOneException : ScannerException
 /// </summary>
 public class EmptyCharException : ScannerException
 {
-	public EmptyCharException(int line) : base("Empty char", line) { }
+	public EmptyCharException(string filePath, int line) : base("Empty char", filePath, line) { }
 }
 
 /// <summary>
@@ -50,5 +53,5 @@ public class EmptyCharException : ScannerException
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {
-	public InvalidCharacterException(int line) : base("Invalid character", line) { }
+	public InvalidCharacterException(string filePath, int line) : base("Invalid character", filePath, line) { }
 }
