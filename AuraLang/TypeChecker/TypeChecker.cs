@@ -473,9 +473,9 @@ public class AuraTypeChecker
 				? class_.Implementing.Select(impl =>
 				{
 					var local = _variableStore.Find(impl.Value, null) ??
-					            throw new UnknownVariableException(FilePath, class_.Line);
+								throw new UnknownVariableException(FilePath, class_.Line);
 					var i = local.Kind as Interface ??
-					        throw new CannotImplementNonInterfaceException(FilePath, class_.Line);
+							throw new CannotImplementNonInterfaceException(FilePath, class_.Line);
 					return i;
 				})
 				: new List<Interface>();
@@ -730,7 +730,7 @@ public class AuraTypeChecker
 		{
 			// Fetch the variable being assigned to
 			var v = _variableStore.Find(assignment.Name.Value, null) ??
-			        throw new UnknownVariableException(FilePath, assignment.Line);
+					throw new UnknownVariableException(FilePath, assignment.Line);
 			// Ensure that the new value and the variable have the same type
 			var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
 			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
@@ -800,7 +800,7 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			var f = _variableStore.Find(call.Callee.GetName(), null) ??
-			        throw new UnknownVariableException(FilePath, call.Line);
+					throw new UnknownVariableException(FilePath, call.Line);
 			var funcDeclaration = f.Kind as ICallable;
 			// Type check arguments
 			if (call.Arguments.Any())
@@ -827,8 +827,8 @@ public class AuraTypeChecker
 				{
 					var index = funcDeclaration.GetParamIndex(arg.Name.Value);
 					var defaultValue = arg.ParamType.DefaultValue ??
-					                   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(FilePath,
-						                   call.Line);
+									   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(FilePath,
+										   call.Line);
 					if (index >= typedArgs.Count) typedArgs.Add(defaultValue);
 					else typedArgs.Insert(index, defaultValue);
 				}
@@ -1194,7 +1194,7 @@ public class AuraTypeChecker
 		{
 			var index = declaration.GetParamIndex(missingParam.Name.Value);
 			var defaultValue = missingParam.ParamType.DefaultValue ??
-			                   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(FilePath, call.Line);
+							   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(FilePath, call.Line);
 			if (index >= orderedArgs.Count) typedArgs.Add((ITypedAuraExpression)defaultValue);
 			else typedArgs.Insert(index, (ITypedAuraExpression)defaultValue);
 		}

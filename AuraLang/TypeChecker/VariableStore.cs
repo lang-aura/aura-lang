@@ -38,8 +38,8 @@ public class VariableStore : IVariableStore
 	public Local? Find(string varName, string? modName)
 	{
 		var local = _variables.Find(v => v.Name == varName &&
-		                                 (v.Defining is null && modName is null ||
-		                                  v.Defining == modName));
+										 (v.Defining is null && modName is null ||
+										  v.Defining == modName));
 		if (local.Equals(default)) return null;
 		return local;
 	}
