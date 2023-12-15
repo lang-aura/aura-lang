@@ -25,9 +25,10 @@ public abstract class AuraType
 		return filteredLeft.SequenceEqual(filteredRight);
 	}
 
-	private IEnumerable<(string, AuraType, bool)> FilterParams(List<Param> parameters) => parameters.Select(p => (p.Name.Value, p.ParamType.Typ, p.ParamType.Variadic));
+	private IEnumerable<(string, AuraType, bool)> FilterParams(List<Param> parameters) =>
+		parameters.Select(p => (p.Name.Value, p.ParamType.Typ, p.ParamType.Variadic));
 
-	public override int GetHashCode() => base.GetHashCode();
+	public override int GetHashCode() => ToString().GetHashCode();
 }
 
 /// <summary>
@@ -81,7 +82,6 @@ public class Float : AuraType, IDefaultable
 	public override string ToString() => "float";
 	public ITypedAuraExpression Default(int line) => new FloatLiteral(0.0, line);
 }
-
 
 /// <summary>
 /// Represents a string value
@@ -200,7 +200,8 @@ public class Function : AuraType, ICallable
 		ReturnType = returnType;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Function f && CompareParamsForEquality(Params, f.Params) && ReturnType.IsSameType(f.ReturnType);
+	public override bool IsEqual(AuraType other) => other is Function f && CompareParamsForEquality(Params, f.Params) &&
+													ReturnType.IsSameType(f.ReturnType);
 
 	public override bool IsSameType(AuraType other) => other is Function;
 
@@ -231,7 +232,8 @@ public class Interface : AuraType, IGettable
 		Public = pub;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
+	public override bool IsEqual(AuraType other) =>
+		other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
 
 	public override bool IsSameType(AuraType other) => other is Interface;
 
@@ -242,12 +244,13 @@ public class Interface : AuraType, IGettable
 	}
 
 	public override string ToString() => Public == Visibility.Public ? Name.ToUpper() : Name.ToLower();
+
 	public override bool Equals(object? obj)
 	{
 		if (obj is null) return false;
 		if (obj is not Interface i) return false;
 		return Name == i.Name &&
-			Functions == i.Functions;
+			   Functions == i.Functions;
 	}
 
 	public AuraType? Get(string attribute)
@@ -270,7 +273,8 @@ public class Class : AuraType, IGettable, ICallable
 	public List<NamedFunction> Methods { get; }
 	public List<Interface> Implementing { get; }
 
-	public Class(string name, List<Param> parameters, List<NamedFunction> methods, List<Interface> implementing, Visibility pub)
+	public Class(string name, List<Param> parameters, List<NamedFunction> methods, List<Interface> implementing,
+		Visibility pub)
 	{
 		Name = name;
 		Parameters = parameters;
@@ -279,7 +283,9 @@ public class Class : AuraType, IGettable, ICallable
 		Public = pub;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Class c && Name == c.Name && Parameters.SequenceEqual(c.Parameters) && Methods.SequenceEqual(c.Methods);
+	public override bool IsEqual(AuraType other) => other is Class c && Name == c.Name &&
+													Parameters.SequenceEqual(c.Parameters) &&
+													Methods.SequenceEqual(c.Methods);
 
 	public override bool IsSameType(AuraType other) => other is Class;
 
@@ -336,7 +342,8 @@ public class Module : AuraType, IGettable
 	public List<Class> PublicClasses { get; init; }
 	public Dictionary<string, ITypedAuraExpression> PublicVariables { get; init; }
 
-	public Module(string name, List<NamedFunction> publicFunctions, List<Class> publicClasses, Dictionary<string, ITypedAuraExpression> publicVariables)
+	public Module(string name, List<NamedFunction> publicFunctions, List<Class> publicClasses,
+		Dictionary<string, ITypedAuraExpression> publicVariables)
 	{
 		Name = name;
 		PublicFunctions = publicFunctions;
@@ -344,7 +351,8 @@ public class Module : AuraType, IGettable
 		PublicVariables = publicVariables;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
+	public override bool IsEqual(AuraType other) =>
+		other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
 
 	public override bool IsSameType(AuraType other) => other is Module;
 
@@ -426,7 +434,8 @@ public class Map : AuraType, IIndexable, IDefaultable
 		Value = value;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Map m && Key.IsSameOrInheritingType(m.Key) && Value.IsSameOrInheritingType(m.Value);
+	public override bool IsEqual(AuraType other) => other is Map m && Key.IsSameOrInheritingType(m.Key) &&
+													Value.IsSameOrInheritingType(m.Value);
 
 	public override bool IsSameType(AuraType other) => other is Map;
 	public override string ToString() => $"map[{Key}]{Value}";

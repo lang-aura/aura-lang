@@ -154,12 +154,17 @@ public class AuraTypeChecker
 	/// <param name="modName">The name of the variable's defining scope</param>
 	/// <param name="expected">The variable's expected type</param>
 	/// <param name="line">The line in the Aura source file where the variable usage appears</param>
-	private Local FindAndConfirm<T>(string varName, string? modName, T expected, int line) where T : AuraType
+	private T FindAndConfirm<T>(string varName, string? modName, T expected, int line) where T : AuraType
 	{
 		var local = _variableStore.Find(varName, modName) ?? throw new UnknownVariableException(FilePath, line);
 		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(FilePath, line);
-		local.Kind = (T)local.Kind;
-		return local;
+		return (T)local.Kind;
+	}
+
+	private Local FindOrThrow(string varName, string? modName, int line)
+	{
+		var local = _variableStore.Find(varName, modName) ?? throw new UnknownVariableException(FilePath, line);
+		return local!;
 	}
 
 	/// <summary>
@@ -472,8 +477,7 @@ public class AuraTypeChecker
 			var implements = class_.Implementing.Any()
 				? class_.Implementing.Select(impl =>
 				{
-					var local = _variableStore.Find(impl.Value, null) ??
-								throw new UnknownVariableException(FilePath, class_.Line);
+					var local = FindOrThrow(impl.Value, null, class_.Line);
 					var i = local.Kind as Interface ??
 							throw new CannotImplementNonInterfaceException(FilePath, class_.Line);
 					return i;
@@ -729,8 +733,7 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			// Fetch the variable being assigned to
-			var v = _variableStore.Find(assignment.Name.Value, null) ??
-					throw new UnknownVariableException(FilePath, assignment.Line);
+			var v = FindOrThrow(assignment.Name.Value, null, assignment.Line);
 			// Ensure that the new value and the variable have the same type
 			var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
 			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
@@ -799,8 +802,7 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var f = _variableStore.Find(call.Callee.GetName(), null) ??
-					throw new UnknownVariableException(FilePath, call.Line);
+			var f = FindOrThrow(call.Callee.GetName(), null, call.Line);
 			var funcDeclaration = f.Kind as ICallable;
 			// Type check arguments
 			if (call.Arguments.Any())
@@ -1041,10 +1043,10 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked variable expression</returns>
 	private TypedVariable VariableExpr(UntypedVariable v)
 	{
-		var localVar = _variableStore.Find(v.Name.Value, null) ?? throw new UnknownVariableException(FilePath, v.Line);
+		var localVar = FindOrThrow(v.Name.Value, null, v.Line);
 		var kind = !localVar.Kind.IsSameType(new Unknown(string.Empty))
 			? localVar.Kind
-			: _variableStore.Find((localVar.Kind as Unknown).Name, null).Value.Kind;
+			: FindOrThrow(((Unknown)localVar.Kind).Name, null, v.Line).Kind;
 		return new TypedVariable(v.Name, kind, v.Line);
 	}
 
@@ -1052,10 +1054,10 @@ public class AuraTypeChecker
 	{
 		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
-		var local = FindAndConfirm(is_.Expected.Value, null,
-			new Interface("", new List<NamedFunction>(), Visibility.Private), is_.Line);
+		var i = FindAndConfirm(is_.Expected.Value, null,
+			new Interface(string.Empty, new List<NamedFunction>(), Visibility.Private), is_.Line);
 
-		return new TypedIs(typedExpr, (Interface)local.Kind, is_.Line);
+		return new TypedIs(typedExpr, i, is_.Line);
 	}
 
 	/// <summary>
@@ -1124,7 +1126,7 @@ public class AuraTypeChecker
 				: null;
 			var paramTyp = p.ParamType.Typ is not Unknown u
 				? p.ParamType.Typ
-				: _variableStore.Find(u.Name, null).Value.Kind;
+				: FindOrThrow(u.Name, null, p.Name.Line).Kind;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 		}).ToList();
 	}
