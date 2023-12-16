@@ -1,4 +1,6 @@
-﻿using AuraLang.AST;
+﻿using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
 using AuraLang.Token;
@@ -6,6 +8,7 @@ using AuraLang.TypeChecker;
 using AuraLang.Types;
 using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using AuraChar = AuraLang.Types.Char;
 using AuraList = AuraLang.Types.List;
 using AuraString = AuraLang.Types.String;
@@ -1344,6 +1347,260 @@ public class TypeCheckerTest
 			},
 			1));
 	}
+
+    [Test]
+    public void TestTypeCheck_ClassImplementingInterface_OneMethod_MissingImplementation()
+    {
+        _variableStore.Setup(v => v.Find("IGreeter", null))
+			.Returns(new Local(
+				"IGreeter",
+				new Interface("IGreeter",
+                new List<NamedFunction>
+                {
+                    new(
+                        "f",
+                        Visibility.Public,
+                        new Function(
+                            new List<Param>
+                            {
+                                new(
+                                    new Tok(TokType.Identifier, "i", 1),
+                                    new ParamType(
+                                        new Int(),
+                                        false,
+                                        null
+                                    )
+                                )
+                            },
+                            new Int()
+                        )
+                    )
+                },
+                Visibility.Private),
+				1,
+				null));
+
+        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedClass(
+				Name: new Tok(TokType.Identifier, "Greeter", 1),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>{},
+				Public: Visibility.Private,
+				Implementing: new List<Tok> { new(TokType.Identifier, "IGreeter", 1) },
+				Line: 1)
+		},
+        typeof(MissingInterfaceMethodException));
+    }
+
+    [Test]
+    public void TestTypeCheck_ClassImplementingInterface_OneMethod_ImplementationNotPublic()
+    {
+        _variableStore.Setup(v => v.Find("IGreeter", null))
+			.Returns(new Local(
+				"IGreeter",
+				new Interface("IGreeter",
+                new List<NamedFunction>
+                {
+                    new(
+                        "f",
+                        Visibility.Public,
+                        new Function(
+                            new List<Param>
+                            {
+                                new(
+                                    new Tok(TokType.Identifier, "i", 1),
+                                    new ParamType(
+                                        new Int(),
+                                        false,
+                                        null
+                                    )
+                                )
+                            },
+                            new Int()
+                        )
+                    )
+                },
+                Visibility.Private),
+				1,
+				null));
+
+        ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
+		{
+			new UntypedClass(
+				Name: new Tok(TokType.Identifier, "Greeter", 1),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>
+                {
+                    new UntypedNamedFunction(
+                        Name: new Tok(TokType.Identifier, "f", 1),
+                        Params: new List<Param>
+                        {
+                            new(
+                                Name: new Tok(TokType.Identifier, "i", 1),
+                                ParamType: new ParamType(
+                                    new Int(),
+                                    false,
+                                    null
+                                )
+                            )
+                        },
+                        Body: new UntypedBlock(
+                            Statements: new List<IUntypedAuraStatement>
+                            {
+                                new UntypedReturn(
+                                    Value: new IntLiteral(I: 5, Line: 1),
+                                    Line: 1
+                                )
+                            },
+                            Line: 1
+                        ),
+                        ReturnType: new Tok(TokType.Int, "int", 1),
+                        Public: Visibility.Private,
+                        Line: 1
+                    )
+                },
+				Public: Visibility.Private,
+				Implementing: new List<Tok> { new(TokType.Identifier, "IGreeter", 1) },
+				Line: 1)
+		},
+        typeof(MissingInterfaceMethodException));
+    }
+
+    [Test]
+    public void TestTypeCheck_ClassImplementingInterface_OneMethod()
+    {
+        _variableStore.Setup(v => v.Find("IGreeter", null))
+			.Returns(new Local(
+				"IGreeter",
+				new Interface("IGreeter",
+                new List<NamedFunction>
+                {
+                    new(
+                        "f",
+                        Visibility.Public,
+                        new Function(
+                            new List<Param>
+                            {
+                                new(
+                                    new Tok(TokType.Identifier, "i", 1),
+                                    new ParamType(
+                                        new Int(),
+                                        false,
+                                        null
+                                    )
+                                )
+                            },
+                            new Int()
+                        )
+                    )
+                },
+                Visibility.Private),
+				1,
+				null));
+
+        var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedClass(
+				Name: new Tok(TokType.Identifier, "Greeter", 1),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>
+                {
+                    new UntypedNamedFunction(
+                        Name: new Tok(TokType.Identifier, "f", 1),
+                        Params: new List<Param>
+                        {
+                            new(
+                                Name: new Tok(TokType.Identifier, "i", 1),
+                                ParamType: new ParamType(
+                                    new Int(),
+                                    false,
+                                    null
+                                )
+                            )
+                        },
+                        Body: new UntypedBlock(
+                            Statements: new List<IUntypedAuraStatement>
+                            {
+                                new UntypedReturn(
+                                    Value: new IntLiteral(I: 5, Line: 1),
+                                    Line: 1
+                                )
+                            },
+                            Line: 1
+                        ),
+                        ReturnType: new Tok(TokType.Int, "int", 1),
+                        Public: Visibility.Public,
+                        Line: 1
+                    )
+                },
+				Public: Visibility.Private,
+				Implementing: new List<Tok> { new(TokType.Identifier, "IGreeter", 1) },
+				Line: 1)
+		});
+		MakeAssertions(typedAst, new FullyTypedClass(
+			Name: new Tok(TokType.Identifier, "Greeter", 1),
+			Params: new List<Param>(),
+			Methods: new List<TypedNamedFunction>
+            {
+                new TypedNamedFunction(
+                        Name: new Tok(TokType.Identifier, "f", 1),
+                        Params: new List<Param>
+                        {
+                            new(
+                                Name: new Tok(TokType.Identifier, "i", 1),
+                                ParamType: new ParamType(
+                                    new Int(),
+                                    false,
+                                    null
+                                )
+                            )
+                        },
+                        Body: new TypedBlock(
+                            Statements: new List<ITypedAuraStatement>
+                            {
+                                new TypedReturn(
+                                    Value: new IntLiteral(I: 5, Line: 1),
+                                    Line: 1
+                                )
+                            },
+                            Typ: new Int(),
+                            Line: 1
+                        ),
+                        ReturnType: new Int(),
+                        Public: Visibility.Public,
+                        Line: 1
+                    )
+            },
+			Public: Visibility.Private,
+			Implementing: new List<Interface>
+            { 
+                new(
+                    name: "IGreeter",
+                    functions: new List<NamedFunction>
+                    {
+                        new(
+                            "f",
+                            Visibility.Public,
+                            new Function(
+                                new List<Param>
+                                {
+                                    new(
+                                        new Tok(TokType.Identifier, "i", 1),
+                                        new ParamType(
+                                            new Int(),
+                                            false,
+                                            null
+                                        )
+                                    )
+                                },
+                                new Int()
+                            )
+                        )
+                    },
+                    pub: Visibility.Private) },
+			Line: 1));
+    }
 
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
