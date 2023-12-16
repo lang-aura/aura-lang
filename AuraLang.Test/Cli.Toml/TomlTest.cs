@@ -22,7 +22,7 @@ public class TomlTest
 		{
 			Assert.That(doc, Is.Not.Null);
 			Assert.That(doc.Project, Is.Not.Null);
-			Assert.That(doc.Project.Name, Is.EqualTo("test"));
+			Assert.That(doc.Project!.Name, Is.EqualTo("test"));
 			Assert.That(doc.Project.Version, Is.EqualTo("0.0.1"));
 			Assert.That(doc.Project.Description, Is.EqualTo(string.Empty));
 		});
