@@ -263,6 +263,13 @@ public class ScannerTest
 	}
 
 	[Test]
+	public void TestScan_Newline()
+	{
+		var tokens = ArrangeAndAct("\n");
+		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Newline, "\n", 1));
+	}
+
+	[Test]
 	public void TestScan_InvalidCharacter()
 	{
 		ArrangeAndAct_Invalid("?", typeof(InvalidCharacterException));

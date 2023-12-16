@@ -1,6 +1,7 @@
 ﻿using AuraLang.Compiler;
 using AuraLang.Parser;
 using AuraLang.Scanner;
+using AuraLang.Token;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.FileCompiler;
@@ -31,7 +32,12 @@ public class AuraFileCompiler
 	public string CompileFile()
 	{
 		var contents = File.ReadAllText(Path);
-		var tokens = new AuraScanner(contents, Path).ScanTokens();
+		var tokens = new AuraScanner(contents, Path)
+						.ScanTokens()
+						// Newline characters are retained by the scanner for use by `aura fmt` -- they are not
+						// relevant for the compilation process so we filter them out here before the parsing stage.
+						.Where(tok => tok.Typ is not TokType.Newline)
+						.ToList();
 		var untypedAst = new AuraParser(tokens, Path).Parse();
 		var typedAst = TypeChecker.CheckTypes(untypedAst);
 		return new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(), Path)

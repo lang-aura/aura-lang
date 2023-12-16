@@ -559,7 +559,7 @@ public class AuraTypeChecker
 					// Read the file's contents
 					var contents = _localModuleReader.Read(f);
 					// Scan file
-					var tokens = new AuraScanner(contents, FilePath).ScanTokens();
+					var tokens = new AuraScanner(contents, FilePath).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
 					// Parse file
 					var untypedAst = new AuraParser(tokens, FilePath).Parse();
 					// Type check file

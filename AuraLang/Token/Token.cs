@@ -35,6 +35,7 @@ public enum TokType
 	SlashEqual, // /=
 	MinusMinus, // --
 	Arrow, // ->
+	Newline, // \n
 	Mod, // mod
 	Fn, // fn
 	String, // string

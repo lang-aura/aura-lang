@@ -90,6 +90,7 @@ public class AuraScanner
 			{
 				if (!_isLineBlank && _tokens[^1].Typ != TokType.LeftBrace)
 					_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
+				_tokens.Add(MakeSingleCharToken(TokType.Newline, '\n'));
 				_isLineBlank = true;
 				_line++;
 			}
