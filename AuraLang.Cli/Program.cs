@@ -7,5 +7,5 @@ return Parser.Default.ParseArguments<NewOptions, BuildOptions, RunOptions, FmtOp
 			(NewOptions opts) => new New(opts).Execute(),
 			(BuildOptions opts) => new Build(opts).Execute(),
 			(RunOptions opts) => new Run(opts).Execute(),
-			(FmtOptions opts) => new Fmt(opts).Execute(),
+			(FmtOptions opts) => new AuraFmt(opts).Execute(),
 			errs => 1);

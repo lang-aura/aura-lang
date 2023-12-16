@@ -2,9 +2,9 @@
 
 namespace AuraLang.Cli.Commands;
 
-public class Fmt : AuraCommand
+public class AuraFmt : AuraCommand
 {
-	public Fmt(FmtOptions opts) : base(opts) { }
+	public AuraFmt(FmtOptions opts) : base(opts) { }
 
 	/// <summary>
 	/// Formats the entire Aura project
@@ -22,8 +22,13 @@ public class Fmt : AuraCommand
 	/// <param name="path">The path of the Aura source file</param>
 	public void FormatFile(string path)
 	{
-		var contents = File.ReadAllText(path);
-		if (contents[^1] is not '\n') contents += '\n';
+		var contents = FormatAuraSourceCode(File.ReadAllText(path));
 		File.WriteAllText(path, contents);
+	}
+
+	public string FormatAuraSourceCode(string source)
+	{
+		if (source[^1] is not '\n') source += '\n';
+		return source;
 	}
 }
