@@ -12,7 +12,7 @@ public class FmtTest
 		var source = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}\n";
 		var fmt = new AuraFmt(new FmtOptions());
 		// Act
-		var formatted = fmt.FormatAuraSourceCode(source);
+		var formatted = fmt.FormatAuraSourceCode(source, "test.aura");
 		// Assert
 		Assert.That(formatted, Is.EqualTo(source));
 	}
@@ -25,7 +25,7 @@ public class FmtTest
 		var source = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}";
 		var fmt = new AuraFmt(new FmtOptions());
 		// Act
-		var formatted = fmt.FormatAuraSourceCode(source);
+		var formatted = fmt.FormatAuraSourceCode(source, "test.aura");
 		// Assert
 		Assert.That(formatted, Is.EqualTo(expected));
 	}

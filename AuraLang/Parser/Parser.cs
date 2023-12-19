@@ -434,6 +434,7 @@ public class AuraParser
 		if (Match(TokType.Continue)) return new UntypedContinue(Previous().Line);
 		if (Match(TokType.Break)) return new UntypedBreak(Previous().Line);
 		if (Match(TokType.Yield)) return Yield();
+        if (Match(TokType.Newline)) return new UntypedNewLine(Peek().Line);
 
 		var line = Peek().Line;
 		// If the statement doesn't begin with any of the Aura statement identifiers, parse it as an expression and

@@ -16,6 +16,7 @@ public interface IUntypedAuraExpression : IUntypedAuraAstNode { }
 /// </summary>
 public interface IUntypedAuraStatement : IUntypedAuraAstNode { }
 
+// TODO Should this inherit from IUntypedAuraExpression?
 public interface IUntypedAuraCallable
 {
 	string GetName();
@@ -366,3 +367,5 @@ public record UntypedBreak(int Line) : IUntypedAuraStatement;
 /// </summary>
 /// <param name="Value">The value to be yielded from the enclosing scope</param>
 public record UntypedYield(IUntypedAuraExpression Value, int Line) : IUntypedAuraStatement;
+
+public record UntypedNewLine(int Line) : IUntypedAuraStatement;
