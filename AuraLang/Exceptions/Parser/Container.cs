@@ -1,4 +1,4 @@
-namespace AuraLang.Exceptions.Parser;
+﻿namespace AuraLang.Exceptions.Parser;
 
 public class ParserExceptionContainer : AuraExceptionContainer
 {

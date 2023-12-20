@@ -1,4 +1,4 @@
-namespace AuraLang.Exceptions.TypeChecker;
+﻿namespace AuraLang.Exceptions.TypeChecker;
 
 public class TypeCheckerExceptionContainer : AuraExceptionContainer
 {

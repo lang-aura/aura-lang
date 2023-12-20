@@ -1,4 +1,4 @@
-namespace AuraLang.Exceptions.Compiler;
+﻿namespace AuraLang.Exceptions.Compiler;
 
 public class CompilerExceptionContainer : AuraExceptionContainer
 {

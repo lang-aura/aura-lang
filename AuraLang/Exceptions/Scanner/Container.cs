@@ -1,4 +1,4 @@
-namespace AuraLang.Exceptions.Scanner;
+﻿namespace AuraLang.Exceptions.Scanner;
 
 public class ScannerExceptionContainer : AuraExceptionContainer
 {
