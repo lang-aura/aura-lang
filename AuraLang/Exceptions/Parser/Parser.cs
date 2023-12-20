@@ -7,17 +7,17 @@ public abstract class ParserException : AuraException
 
 public class TooManyParametersException : ParserException
 {
-	public TooManyParametersException(int line) : base("Too many parameters", line) { }
+	public TooManyParametersException(int limit, int line) : base($"Cannot have more than {limit} parameters", line) { }
 }
 
 public class ExpectParameterNameException : ParserException
 {
-	public ExpectParameterNameException(int line) : base("Expect parameter name", line) { }
+	public ExpectParameterNameException(int line) : base("Expected parameter name", line) { }
 }
 
 public class ExpectColonAfterParameterName : ParserException
 {
-	public ExpectColonAfterParameterName(int line) : base("Expect colon after parameter name", line) { }
+	public ExpectColonAfterParameterName(string found, int line) : base($"Expected `:` after parameter name, but found `{found}` instead", line) { }
 }
 
 public class VariadicSignifierMustHaveThreeDots : ParserException
@@ -27,17 +27,13 @@ public class VariadicSignifierMustHaveThreeDots : ParserException
 
 public class ExpectEitherRightParenOrCommaAfterParam : ParserException
 {
-	public ExpectEitherRightParenOrCommaAfterParam(int line) : base("Expect either right paren or comma after param", line) { }
+	public ExpectEitherRightParenOrCommaAfterParam(string found, int line)
+		: base($"Expected either right paren or comma after param, but found `{found}` instead", line) { }
 }
 
 public class ExpectParameterTypeException : ParserException
 {
-	public ExpectParameterTypeException(int line) : base("Expect parameter type", line) { }
-}
-
-public class ExpectVariableTypeException : ParserException
-{
-	public ExpectVariableTypeException(int line) : base("Expect variable type", line) { }
+	public ExpectParameterTypeException(string found, int line) : base($"Expected parameter type, but found `{found}` instead", line) { }
 }
 
 public class UnterminatedListLiteralException : ParserException
@@ -47,12 +43,14 @@ public class UnterminatedListLiteralException : ParserException
 
 public class ExpectLeftBracketAfterMapKeywordException : ParserException
 {
-	public ExpectLeftBracketAfterMapKeywordException(int line) : base("Expeect left bracket after map keyword", line) { }
+	public ExpectLeftBracketAfterMapKeywordException(string found, int line)
+		: base($"Expected `[` after map keyword, but found `{found}` instead", line) { }
 }
 
 public class ExpectColonBetweenMapTypesException : ParserException
 {
-	public ExpectColonBetweenMapTypesException(int line) : base("Expect colon between map types", line) { }
+	public ExpectColonBetweenMapTypesException(string found, int line)
+		: base($"Expected colon between map types, but found `{found}` instead", line) { }
 }
 
 public class UnterminatedMapTypeSignatureException : ParserException
@@ -60,59 +58,56 @@ public class UnterminatedMapTypeSignatureException : ParserException
 	public UnterminatedMapTypeSignatureException(int line) : base("Unterminated map type signature", line) { }
 }
 
-public class ExpectLeftBracketAfterTupKeywordException : ParserException
-{
-	public ExpectLeftBracketAfterTupKeywordException(int line) : base("Expect left bracket after tup keyword", line) { }
-}
-
 public class UnexpectedTypeException : ParserException
 {
-	public UnexpectedTypeException(int line) : base("Unexpected type", line) { }
+	public UnexpectedTypeException(string found, int line) : base($"Type `{found}` was unexpected", line) { }
 }
 
 public class InvalidTokenAfterPubKeywordException : ParserException
 {
-	public InvalidTokenAfterPubKeywordException(int line) : base("Invalid token after pub keyword", line) { }
+	public InvalidTokenAfterPubKeywordException(string found, int line)
+		: base($"Token `{found}` may not come directly after `pub` keyword", line) { }
 }
 
 public class ExpectIdentifierException : ParserException
 {
-	public ExpectIdentifierException(int line) : base("Expect identifier", line) { }
+	public ExpectIdentifierException(string found, int line) : base($"Expected identifier, but found `{found}` instead", line) { }
 }
 
 public class ExpectSemicolonException : ParserException
 {
-	public ExpectSemicolonException(int line) : base("Expect semicolon", line) { }
+	public ExpectSemicolonException(string found, int line) : base($"Expected semicolon, but found `{found}` instead", line) { }
 }
 
 public class InvalidTokenAfterMutKeywordException : ParserException
 {
-	public InvalidTokenAfterMutKeywordException(int line) : base("Invalid token after mut keyword", line) { }
+	public InvalidTokenAfterMutKeywordException(string found, int line)
+		: base($"Token `{found}` may not come directly after mut keyword", line) { }
 }
 
 public class ExpectLeftParenException : ParserException
 {
-	public ExpectLeftParenException(int line) : base("Expect left paren", line) { }
+	public ExpectLeftParenException(string found, int line) : base($"Expected left paren, but found `{found}` instead", line) { }
 }
 
 public class ExpectRightParenException : ParserException
 {
-	public ExpectRightParenException(int line) : base("Expect right paren", line) { }
+	public ExpectRightParenException(string found, int line) : base($"Expected right paren, but found `{found}` instead", line) { }
 }
 
 public class ExpectLeftBraceException : ParserException
 {
-	public ExpectLeftBraceException(int line) : base("Expect left brace", line) { }
+	public ExpectLeftBraceException(string found, int line) : base($"Expected left brace, but found `{found}` instead", line) { }
 }
 
 public class ExpectRightBraceException : ParserException
 {
-	public ExpectRightBraceException(int line) : base("Expect right brace", line) { }
+	public ExpectRightBraceException(string found, int line) : base($"Expected right brace, but found `{found}`", line) { }
 }
 
 public class ExpectInKeywordException : ParserException
 {
-	public ExpectInKeywordException(int line) : base("Expect in keyword", line) { }
+	public ExpectInKeywordException(string found, int line) : base($"Expected `in` keyword, but found `{found}` instead", line) { }
 }
 
 public class CanOnlyDeferFunctionCallException : ParserException
@@ -122,12 +117,12 @@ public class CanOnlyDeferFunctionCallException : ParserException
 
 public class ExpectColonException : ParserException
 {
-	public ExpectColonException(int line) : base("Expect colon", line) { }
+	public ExpectColonException(string found, int line) : base($"Expected `:`, but found `{found}` instead", line) { }
 }
 
 public class ExpectColonEqualException : ParserException
 {
-	public ExpectColonEqualException(int line) : base("Expect `:=`", line) { }
+	public ExpectColonEqualException(string found, int line) : base($"Expected `:=`, but found `{found}` instead", line) { }
 }
 
 public class InvalidAssignmentTargetException : ParserException
@@ -142,27 +137,27 @@ public class UnreachableCodeException : ParserException
 
 public class ExpectPropertyNameException : ParserException
 {
-	public ExpectPropertyNameException(int line) : base("Expect property name", line) { }
+	public ExpectPropertyNameException(string found, int line) : base($"Expected property name, but found `{found}` instead", line) { }
 }
 
 public class ExpectIntLiteralException : ParserException
 {
-	public ExpectIntLiteralException(int line) : base("Expect int literal", line) { }
+	public ExpectIntLiteralException(string found, int line) : base($"Expected int literal, but found `{found}` instead", line) { }
 }
 
 public class ExpectRightBracketException : ParserException
 {
-	public ExpectRightBracketException(int line) : base("Expect right bracket", line) { }
+	public ExpectRightBracketException(string found, int line) : base($"Expected `]`, but found `{found}` instead", line) { }
 }
 
 public class ExpectCommaException : ParserException
 {
-	public ExpectCommaException(int line) : base("Expect comma", line) { }
+	public ExpectCommaException(string found, int line) : base($"Expected `,`, but found `{found}` instead", line) { }
 }
 
 public class ExpectExpressionException : ParserException
 {
-	public ExpectExpressionException(int line) : base("Expect expression", line) { }
+	public ExpectExpressionException(int line) : base("Expected expression", line) { }
 }
 
 public class ParameterDefaultValueMustBeALiteralException : ParserException
@@ -182,5 +177,5 @@ public class PostfixIndexCannotBeEmptyException : ParserException
 
 public class ExpectFunctionSignatureException : ParserException
 {
-	public ExpectFunctionSignatureException(int line) : base("Expect function signature", line) { }
+	public ExpectFunctionSignatureException(int line) : base("Expected function signature", line) { }
 }
