@@ -97,7 +97,7 @@ public class AuraCompiler
 			TypedContinue c => ContinueStmt(c),
 			TypedBreak b => BreakStmt(b),
 			TypedInterface i => InterfaceStmt(i),
-			_ => throw new UnknownStatementException(stmt.Line)
+			_ => throw new UnknownStatementException(stmt, stmt.Line)
 		};
 	}
 
@@ -129,7 +129,7 @@ public class AuraCompiler
 			TypedVariable v => VariableExpr(v),
 			TypedAnonymousFunction f => AnonymousFunctionExpr(f),
 			TypedIs is_ => IsExpr(is_),
-			_ => throw new UnknownExpressionException(expr.Line)
+			_ => throw new UnknownExpressionException(expr, expr.Line)
 		};
 	}
 

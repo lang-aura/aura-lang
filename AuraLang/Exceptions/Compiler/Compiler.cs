@@ -1,4 +1,6 @@
-﻿namespace AuraLang.Exceptions.Compiler;
+﻿using AuraLang.AST;
+
+namespace AuraLang.Exceptions.Compiler;
 
 public abstract class CompilerException : AuraException
 {
@@ -7,10 +9,12 @@ public abstract class CompilerException : AuraException
 
 public class UnknownStatementException : CompilerException
 {
-	public UnknownStatementException(int line) : base("Unknown statement", line) { }
+	public UnknownStatementException(ITypedAuraStatement stmt, int line)
+		: base($"Unknown statement: {stmt}", line) { }
 }
 
 public class UnknownExpressionException : CompilerException
 {
-	public UnknownExpressionException(int line) : base("Unknown expression", line) { }
+	public UnknownExpressionException(ITypedAuraExpression expr, int line)
+		: base($"Unknown expression: {expr}", line) { }
 }
