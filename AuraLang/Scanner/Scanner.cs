@@ -207,7 +207,7 @@ public class AuraScanner
 			default:
 				// If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
 				// then it must be an invalid character
-				throw new InvalidCharacterException(_line);
+				throw new InvalidCharacterException(c, _line);
 		}
 	}
 

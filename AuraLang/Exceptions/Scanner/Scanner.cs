@@ -42,5 +42,5 @@ public class EmptyCharException : ScannerException
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {
-	public InvalidCharacterException(int line) : base("Invalid character", line) { }
+	public InvalidCharacterException(char found, int line) : base($"Invalid character: `{found}`", line) { }
 }
