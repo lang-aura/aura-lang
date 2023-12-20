@@ -1,24 +1,20 @@
-﻿namespace AuraLang.Exceptions.Compiler;
+﻿using AuraLang.AST;
 
-public class CompilerExceptionContainer : AuraExceptionContainer
-{
-	public void Add(CompilerException ex)
-	{
-		Exs.Add(ex);
-	}
-}
+namespace AuraLang.Exceptions.Compiler;
 
 public abstract class CompilerException : AuraException
 {
-	protected CompilerException(string message, string filePath, int line) : base(message, filePath, line) { }
+	protected CompilerException(string message, int line) : base(message, line) { }
 }
 
 public class UnknownStatementException : CompilerException
 {
-	public UnknownStatementException(string filePath, int line) : base("Unknown statement", filePath, line) { }
+	public UnknownStatementException(ITypedAuraStatement stmt, int line)
+		: base($"Unknown statement: {stmt}", line) { }
 }
 
 public class UnknownExpressionException : CompilerException
 {
-	public UnknownExpressionException(string filePath, int line) : base("Unknown expression", filePath, line) { }
+	public UnknownExpressionException(ITypedAuraExpression expr, int line)
+		: base($"Unknown expression: {expr}", line) { }
 }

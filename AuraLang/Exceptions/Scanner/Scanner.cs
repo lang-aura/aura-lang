@@ -1,16 +1,8 @@
 ﻿namespace AuraLang.Exceptions.Scanner;
 
-public class ScannerExceptionContainer : AuraExceptionContainer
-{
-	public void Add(ScannerException ex)
-	{
-		Exs.Add(ex);
-	}
-}
-
 public abstract class ScannerException : AuraException
 {
-	protected ScannerException(string message, string filePath, int line) : base(message, filePath, line) { }
+	protected ScannerException(string message, int line) : base(message, line) { }
 }
 
 /// <summary>
@@ -18,7 +10,7 @@ public abstract class ScannerException : AuraException
 /// </summary>
 public class UnterminatedStringException : ScannerException
 {
-	public UnterminatedStringException(string filePath, int line) : base("Unterminated string", filePath, line) { }
+	public UnterminatedStringException(int line) : base("Unterminated string", line) { }
 }
 
 /// <summary>
@@ -26,7 +18,7 @@ public class UnterminatedStringException : ScannerException
 /// </summary>
 public class UnterminatedCharException : ScannerException
 {
-	public UnterminatedCharException(string filePath, int line) : base("Unterminated char", filePath, line) { }
+	public UnterminatedCharException(int line) : base("Unterminated char", line) { }
 }
 
 /// <summary>
@@ -34,10 +26,7 @@ public class UnterminatedCharException : ScannerException
 /// </summary>
 public class CharLengthGreaterThanOneException : ScannerException
 {
-	public CharLengthGreaterThanOneException(string filePath, int line) : base("Char length greater than 1", filePath,
-		line)
-	{
-	}
+	public CharLengthGreaterThanOneException(int line) : base("Char length greater than 1", line) { }
 }
 
 /// <summary>
@@ -45,7 +34,7 @@ public class CharLengthGreaterThanOneException : ScannerException
 /// </summary>
 public class EmptyCharException : ScannerException
 {
-	public EmptyCharException(string filePath, int line) : base("Empty char", filePath, line) { }
+	public EmptyCharException(int line) : base("Empty char", line) { }
 }
 
 /// <summary>
@@ -53,5 +42,5 @@ public class EmptyCharException : ScannerException
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {
-	public InvalidCharacterException(string filePath, int line) : base("Invalid character", filePath, line) { }
+	public InvalidCharacterException(char found, int line) : base($"Invalid character: `{found}`", line) { }
 }
