@@ -1,15 +1,5 @@
 ﻿namespace AuraLang.Exceptions.Scanner;
 
-public class ScannerExceptionContainer : AuraExceptionContainer
-{
-	public ScannerExceptionContainer(string filePath) : base(filePath) { }
-
-	public void Add(ScannerException ex)
-	{
-		Exs.Add(ex);
-	}
-}
-
 public abstract class ScannerException : AuraException
 {
 	protected ScannerException(string message, int line) : base(message, line) { }

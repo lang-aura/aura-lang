@@ -2,16 +2,6 @@
 
 namespace AuraLang.Exceptions.TypeChecker;
 
-public class TypeCheckerExceptionContainer : AuraExceptionContainer
-{
-	public TypeCheckerExceptionContainer(string filePath) : base(filePath) { }
-
-	public void Add(TypeCheckerException ex)
-	{
-		Exs.Add(ex);
-	}
-}
-
 public abstract class TypeCheckerException : AuraException
 {
 	protected TypeCheckerException(string message, int line) : base(message, line) { }
