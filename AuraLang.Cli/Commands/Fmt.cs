@@ -1,13 +1,8 @@
-﻿using System.Linq.Expressions;
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Cli.Options;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Shared;
-using AuraLang.Types;
-using Microsoft.VisualBasic;
-using AuraInt = AuraLang.Types.Int;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Cli.Commands;
 
@@ -144,11 +139,24 @@ public class AuraFmt : AuraCommand
     {
         var mut = let.Mutable ? "mut " : string.Empty;
         var init = let.Initializer is not null
-            ? $" = {Expression(let.Initializer)}"
+            ? Expression(let.Initializer)
             : string.Empty;
-        return let.NameTyp is not null
-            ? $"{mut}{let.Name.Value} := {init}"
-            : $"let {mut}{let.Name.Value}: {let.NameTyp!}{init}";
+		
+		if (let.NameTyp is not null)
+		{
+			if (let.Initializer is not null)
+			{
+				return $"let {mut}{let.Name.Value}: {let.NameTyp!} = {init}";
+			}
+			else
+			{
+				return $"let {mut}{let.Name.Value}: {let.NameTyp!}";
+			}
+		}
+		else
+		{
+			return $"{mut}{let.Name.Value} := {init}";
+		}
     }
 
     private string ModStmt(UntypedMod mod) => $"mod {mod.Value.Value}";
@@ -209,7 +217,12 @@ public class AuraFmt : AuraCommand
 
     private string BlockExpr(UntypedBlock block)
     {
-        var stmts = string.Join("\n", block.Statements.Select(Statement));
+        var stmts = string.Join(
+			"\n",
+			block.Statements
+			.Where(stmt => stmt is not UntypedNewLine)
+			.Select(Statement)
+		);
         return $"{{\n{stmts}\n}}";
     }
 
