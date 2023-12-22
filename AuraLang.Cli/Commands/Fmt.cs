@@ -8,6 +8,13 @@ namespace AuraLang.Cli.Commands;
 
 public class AuraFmt : AuraCommand
 {
+	/// <summary>
+	/// The number of tabs to precede the current line in the source file with. For top-level declarations, this will be 0. It is a const
+	/// because its value is never directly updated - instead, it will be incremented by the methods that need to use it (i.e. <c>BlockExpr</c>
+	/// will add `Tabs + 1` tabs in front of all statements contained inside the block.)
+	/// </summary>
+	private const int Tabs = 0;
+
 	public AuraFmt(FmtOptions opts) : base(opts) { }
 
 	/// <summary>
@@ -118,13 +125,13 @@ public class AuraFmt : AuraCommand
 		var cond = for_.Condition is not null
 			? Expression(for_.Condition)
 			: string.Empty;
-		var body = string.Join('\n', for_.Body.Select(Statement));
+		var body = string.Join('\n', for_.Body.Select(stmt => $"{RepeatTab(Tabs + 1)}{Statement(stmt)}"));
 		return $"for {init}; {cond}; {{\n{body}\n}}";
 	}
 
 	private string ForEachStmt(UntypedForEach foreach_)
 	{
-		var body = string.Join('\n', foreach_.Body.Select(Statement));
+		var body = string.Join('\n', foreach_.Body.Select(stmt => $"{RepeatTab(Tabs + 1)}{Statement}"));
 		return $"foreach {foreach_.EachName.Value} in {Expression(foreach_.Iterable)} {{\n{body}\n}}";
 	}
 
@@ -175,7 +182,7 @@ public class AuraFmt : AuraCommand
 			? "pub "
 			: string.Empty;
 		var paramz = string.Join(", ", c.Params.Select(p => $"{p.Name}: {p.ParamType.Typ}"));
-		var methods = string.Join("\n\n", c.Body.Select(Statement));
+		var methods = string.Join("\n\n", c.Body.Select(method => $"{RepeatTab(Tabs + 1)}{Statement(method)}"));
 		return $"{pub}class ({paramz}) {{\n{methods}\n}}";
 	}
 
@@ -221,7 +228,7 @@ public class AuraFmt : AuraCommand
 			"\n",
 			block.Statements
 			.Where(stmt => stmt is not UntypedNewLine)
-			.Select(Statement)
+			.Select(stmt => $"{RepeatTab(Tabs + 1)}{Statement(stmt)}")
 		);
 		return $"{{\n{stmts}\n}}";
 	}
@@ -302,4 +309,6 @@ public class AuraFmt : AuraCommand
 	}
 
 	private string IsExpr(UntypedIs iss) => "is";
+
+	private string RepeatTab(int n) => new('\t', n);
 }
