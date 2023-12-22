@@ -54,7 +54,9 @@ public class New : AuraCommand
 			StartInfo = new ProcessStartInfo
 			{
 				FileName = "go",
-				Arguments = $"mod init {Name}"
+				Arguments = $"mod init {Name}",
+				RedirectStandardOutput = true,
+				RedirectStandardError = true,
 			}
 		};
 		modInit.Start();
