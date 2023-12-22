@@ -61,6 +61,14 @@ public class New : AuraCommand
 		};
 		modInit.Start();
 		modInit.WaitForExit();
+		if (modInit.ExitCode > 0)
+		{
+			Console.WriteLine(modInit.StandardError.ReadToEnd());
+		}
+		else
+		{
+			Console.WriteLine($"New Aura project `{Name}` successfully created!");
+		}
 
 		return 0;
 	}
