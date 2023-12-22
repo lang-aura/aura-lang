@@ -8,7 +8,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_HelloWorld_NoChange()
 	{
-		var source = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}\n";
+		var source = "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world\")\n}\n";
 		var formatted = ArrangeAndAct(source);
 		MakeAssertions(formatted, source);
 	}
@@ -113,7 +113,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_NoChange()
 	{
-		var source = "{\nio.println(\"Hello world\")\n}\n";
+		var source = "{\n\tio.println(\"Hello world\")\n}\n";
 		var formatted = ArrangeAndAct(source);
 		MakeAssertions(formatted, source);
 	}
@@ -121,8 +121,17 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_RemoveDoubleNewlines()
 	{
-		var expected = "{\ns := \"Hello world\"\nio.println(s)\n}\n";
+		var expected = "{\n\ts := \"Hello world\"\n\tio.println(s)\n}\n";
 		var source = "{\ns := \"Hello world\"\n\nio.println(s)\n}\n";
+		var formatted = ArrangeAndAct(source);
+		MakeAssertions(formatted, expected);
+	}
+
+	[Test]
+	public void TestFmt_Block_CorrectIndentation()
+	{
+		var expected = "{\n\tlet i: int = 5\n\tx := 5 * 2\n}\n";
+		var source = "{\nlet i: int = 5\nx := 5 * 2\n}\n";
 		var formatted = ArrangeAndAct(source);
 		MakeAssertions(formatted, expected);
 	}
