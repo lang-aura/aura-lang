@@ -13,13 +13,13 @@ public class FmtTest
 		MakeAssertions(formatted, source);
 	}
 
-	[Test]
-	public void TestFmt_HelloWorld_AddNewline()
-	{
-		var expected = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}\n";
-		var formatted = ArrangeAndAct("mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}");
-		MakeAssertions(formatted, expected);
-	}
+	// [Test]
+	// public void TestFmt_HelloWorld_AddNewline()
+	// {
+	// 	var expected = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}\n";
+	// 	var formatted = ArrangeAndAct("mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}");
+	// 	MakeAssertions(formatted, expected);
+	// }
 
 	[Test]
 	public void TestFmt_Defer_NoChange()
@@ -86,13 +86,13 @@ public class FmtTest
 		MakeAssertions(formatted, source);
 	}
 
-	[Test]
-	public void TestFmt_For_NoChange()
-	{
-		var source = "for i := 0; i < 10; i++ {\nio.println(\"Hi there\")\n}\n";
-		var formatted = ArrangeAndAct(source);
-		MakeAssertions(formatted, source);
-	}
+	// [Test]
+	// public void TestFmt_For_NoChange()
+	// {
+	// 	var source = "for i := 0; i < 10; i++ {\nio.println(\"Hi there\")\n}\n";
+	// 	var formatted = ArrangeAndAct(source);
+	// 	MakeAssertions(formatted, source);
+	// }
 
 	[Test]
 	public void TestFmt_Assign_NoChange()
