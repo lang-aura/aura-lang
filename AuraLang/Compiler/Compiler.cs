@@ -147,11 +147,12 @@ public class AuraCompiler
 		{
 			var init = for_.Initializer is not null ? Statement(for_.Initializer) : string.Empty;
 			var cond = for_.Condition is not null ? Expression(for_.Condition) : string.Empty;
+			var inc = for_.Increment is not null ? $"{Expression(for_.Increment)} " : string.Empty;
 			var body = CompileLoopBody(for_.Body);
 			// The compiler will always compile an Aura `for` loop to a Go `for` loop without the increment part of the `for` loop's signature. The increment is instead
 			// added to the end of the loop's body. The loop's execution will remain the same, so it doesn't seem worth it to extract it from the body and put it back
 			// into the loop's signature.
-			return body != string.Empty ? $"for {init}; {cond}; {{{body}\n}}" : $"for {init}; {cond}; {{}}";
+			return body != string.Empty ? $"for {init}; {cond}; {inc}{{{body}\n}}" : $"for {init}; {cond}; {{}}";
 		}, for_);
 	}
 

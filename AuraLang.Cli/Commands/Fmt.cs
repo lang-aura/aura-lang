@@ -125,8 +125,11 @@ public class AuraFmt : AuraCommand
 		var cond = for_.Condition is not null
 			? Expression(for_.Condition)
 			: string.Empty;
-		var body = string.Join('\n', for_.Body.Select(Statement));
-		return $"for {init}; {cond}; {{\n{body}\n}}";
+		var inc = for_.Increment is not null
+			? Expression(for_.Increment)
+			: string.Empty;
+		var body = string.Join($"\n{AddTabs(Tabs + 1)}", for_.Body.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
+		return $"for {init}; {cond}; {inc} {{\n{body}\n}}";
 	}
 
 	private string ForEachStmt(UntypedForEach foreach_)

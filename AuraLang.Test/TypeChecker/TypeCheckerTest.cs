@@ -901,6 +901,7 @@ public class TypeCheckerTest
 					new Tok(TokType.Less, "<", 1),
 					new IntLiteral(10, 1),
 					1),
+				null,
 				new List<IUntypedAuraStatement>(),
 				1)
 		});
@@ -920,6 +921,7 @@ public class TypeCheckerTest
 				new IntLiteral(10, 1),
 				new Bool(),
 				1),
+			null,
 			new List<ITypedAuraStatement>(),
 			1));
 	}

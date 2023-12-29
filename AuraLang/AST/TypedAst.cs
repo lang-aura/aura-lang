@@ -171,7 +171,7 @@ public record TypedExpressionStmt(ITypedAuraExpression Expression, int Line) : I
 /// <param name="Initializer">The loop's initializer. The variable initialized here will be available inside the loop's body.</param>
 /// <param name="Condition">The loop's condition. The loop will exit when the condition evaluates to false.</param>
 /// <param name="Body">Collection of statements that will be executed once per iteration.</param>
-public record TypedFor(ITypedAuraStatement? Initializer, ITypedAuraExpression? Condition,
+public record TypedFor(ITypedAuraStatement? Initializer, ITypedAuraExpression? Condition, ITypedAuraExpression? Increment,
 	List<ITypedAuraStatement> Body, int Line) : ITypedAuraStatement
 {
 	public AuraType Typ => new None();

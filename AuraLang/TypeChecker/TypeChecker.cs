@@ -205,8 +205,11 @@ public class AuraTypeChecker
 				var typedCond = forStmt.Condition is not null
 					? ExpressionAndConfirm(forStmt.Condition, new Bool())
 					: null;
+				var typedInc = forStmt.Increment is not null
+					? Expression(forStmt.Increment)
+					: null;
 				var typedBody = NonReturnableBody(forStmt.Body);
-				return new TypedFor(typedInit, typedCond, typedBody, forStmt.Line);
+				return new TypedFor(typedInit, typedCond, typedInc, typedBody, forStmt.Line);
 			});
 		}, forStmt);
 	}
