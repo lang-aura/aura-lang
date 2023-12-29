@@ -125,13 +125,13 @@ public class AuraFmt : AuraCommand
 		var cond = for_.Condition is not null
 			? Expression(for_.Condition)
 			: string.Empty;
-		var body = string.Join('\n', for_.Body.Select(stmt => $"{RepeatTab(Tabs + 1)}{Statement(stmt)}"));
+		var body = string.Join('\n', for_.Body.Select(Statement));
 		return $"for {init}; {cond}; {{\n{body}\n}}";
 	}
 
 	private string ForEachStmt(UntypedForEach foreach_)
 	{
-		var body = string.Join('\n', foreach_.Body.Select(stmt => $"{RepeatTab(Tabs + 1)}{Statement}"));
+		var body = string.Join('\n', foreach_.Body.Select(Statement));
 		return $"foreach {foreach_.EachName.Value} in {Expression(foreach_.Iterable)} {{\n{body}\n}}";
 	}
 
@@ -144,26 +144,18 @@ public class AuraFmt : AuraCommand
 
 	private string LetStmt(UntypedLet let)
 	{
+		if (let.NameTyp is null) return ShortLetStmt(let);
 		var mut = let.Mutable ? "mut " : string.Empty;
-		var init = let.Initializer is not null
-			? Expression(let.Initializer)
-			: string.Empty;
+		return let.Initializer is not null
+			? $"let {mut}{let.Name.Value}: {let.NameTyp!} = {Expression(let.Initializer)}"
+			: $"let {mut}{let.Name.Value}: {let.NameTyp!}";
+	}
 
-		if (let.NameTyp is not null)
-		{
-			if (let.Initializer is not null)
-			{
-				return $"let {mut}{let.Name.Value}: {let.NameTyp!} = {init}";
-			}
-			else
-			{
-				return $"let {mut}{let.Name.Value}: {let.NameTyp!}";
-			}
-		}
-		else
-		{
-			return $"{mut}{let.Name.Value} := {init}";
-		}
+	private string ShortLetStmt(UntypedLet let)
+	{
+		var mut = let.Mutable ? "mut " : string.Empty;
+		var init = Expression(let.Initializer!);
+		return $"{mut}{let.Name.Value} := {init}";
 	}
 
 	private string ModStmt(UntypedMod mod) => $"mod {mod.Value.Value}";
@@ -182,7 +174,7 @@ public class AuraFmt : AuraCommand
 			? "pub "
 			: string.Empty;
 		var paramz = string.Join(", ", c.Params.Select(p => $"{p.Name}: {p.ParamType.Typ}"));
-		var methods = string.Join("\n\n", c.Body.Select(method => $"{RepeatTab(Tabs + 1)}{Statement(method)}"));
+		var methods = string.Join("\n\n", c.Body.Select(Statement));
 		return $"{pub}class ({paramz}) {{\n{methods}\n}}";
 	}
 
@@ -224,13 +216,8 @@ public class AuraFmt : AuraCommand
 
 	private string BlockExpr(UntypedBlock block)
 	{
-		var stmts = string.Join(
-			"\n",
-			block.Statements
-			.Where(stmt => stmt is not UntypedNewLine)
-			.Select(stmt => $"{RepeatTab(Tabs + 1)}{Statement(stmt)}")
-		);
-		return $"{{\n{stmts}\n}}";
+		var stmts = string.Join($"\n{AddTabs(Tabs + 1)}", block.Statements.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
+		return $"{{\n{AddTabs(Tabs + 1)}{stmts}\n}}";
 	}
 
 	private string CallExpr(UntypedCall call)
@@ -310,5 +297,5 @@ public class AuraFmt : AuraCommand
 
 	private string IsExpr(UntypedIs iss) => "is";
 
-	private string RepeatTab(int n) => new('\t', n);
+	private string AddTabs(int n) => new('\t', n);
 }

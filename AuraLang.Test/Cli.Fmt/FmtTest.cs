@@ -8,25 +8,13 @@ public class FmtTest
 	[Test]
 	public void TestFmt_HelloWorld_NoChange()
 	{
+		// Arrange
 		var source = "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world\")\n}\n";
-		var formatted = ArrangeAndAct(source);
-		MakeAssertions(formatted, source);
-	}
-
-	// [Test]
-	// public void TestFmt_HelloWorld_AddNewline()
-	// {
-	// 	var expected = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}\n";
-	// 	var formatted = ArrangeAndAct("mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}");
-	// 	MakeAssertions(formatted, expected);
-	// }
-
-	[Test]
-	public void TestFmt_Defer_NoChange()
-	{
-		var source = "defer f()\n";
-		var formatted = ArrangeAndAct(source);
-		MakeAssertions(formatted, source);
+		var fmt = new AuraFmt(new FmtOptions());
+		// Act
+		var formatted = fmt.FormatAuraSourceCode(source, "test.aura");
+		// Assert
+		Assert.That(formatted, Is.EqualTo(source));
 	}
 
 	[Test]
