@@ -9,7 +9,7 @@ public class FmtTest
 	public void TestFmt_HelloWorld_NoChange()
 	{
 		// Arrange
-		var source = "mod main\n\nimport aura/io\n\nfn main() {\nio.println(\"Hello world\")\n}\n";
+		var source = "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world\")\n}\n";
 		var fmt = new AuraFmt(new FmtOptions());
 		// Act
 		var formatted = fmt.FormatAuraSourceCode(source, "test.aura");

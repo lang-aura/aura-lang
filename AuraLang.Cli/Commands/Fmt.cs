@@ -144,13 +144,18 @@ public class AuraFmt : AuraCommand
 
     private string LetStmt(UntypedLet let)
     {
+        if (let.NameTyp is null) return ShortLetStmt(let);
         var mut = let.Mutable ? "mut " : string.Empty;
-        var init = let.Initializer is not null
-            ? $" = {Expression(let.Initializer)}"
-            : string.Empty;
-        return let.NameTyp is not null
-            ? $"{mut}{let.Name.Value} := {init}"
-            : $"let {mut}{let.Name.Value}: {let.NameTyp!}{init}";
+        return let.Initializer is not null
+            ? $"let {mut}{let.Name.Value}: {let.NameTyp!} = {Expression(let.Initializer)}"
+            : $"let {mut}{let.Name.Value}: {let.NameTyp!}";
+    }
+
+    private string ShortLetStmt(UntypedLet let)
+    {
+        var mut = let.Mutable ? "mut " : string.Empty;
+        var init = Expression(let.Initializer!);
+        return $"{mut}{let.Name.Value} := {init}";
     }
 
     private string ModStmt(UntypedMod mod) => $"mod {mod.Value.Value}";
@@ -211,8 +216,8 @@ public class AuraFmt : AuraCommand
 
     private string BlockExpr(UntypedBlock block)
     {
-        var stmts = string.Join("\n", block.Statements.Select(Statement));
-        return $"{{\n{stmts}\n}}";
+        var stmts = string.Join($"\n{AddTabs(Tabs + 1)}", block.Statements.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
+        return $"{{\n{AddTabs(Tabs + 1)}{stmts}\n}}";
     }
 
     private string CallExpr(UntypedCall call)
@@ -290,4 +295,6 @@ public class AuraFmt : AuraCommand
     }
 
     private string IsExpr(UntypedIs iss) => "is";
+
+    private string AddTabs(int n) => new('\t', n);
 }
