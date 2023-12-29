@@ -74,13 +74,13 @@ public class FmtTest
 		MakeAssertions(formatted, source);
 	}
 
-	// [Test]
-	// public void TestFmt_For_NoChange()
-	// {
-	// 	var source = "for i := 0; i < 10; i++ {\nio.println(\"Hi there\")\n}\n";
-	// 	var formatted = ArrangeAndAct(source);
-	// 	MakeAssertions(formatted, source);
-	// }
+	[Test]
+	public void TestFmt_For_NoChange()
+	{
+		var source = "for i := 0; i < 10; i = i + 1 {\nio.println(\"Hi there\")\n}\n";
+		var formatted = ArrangeAndAct(source);
+		MakeAssertions(formatted, source);
+	}
 
 	[Test]
 	public void TestFmt_Assign_NoChange()

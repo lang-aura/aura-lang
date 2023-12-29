@@ -223,7 +223,7 @@ public record UntypedExpressionStmt(IUntypedAuraExpression Expression, int Line)
 /// <param name="Condition">The condition that will be evaluated after each iteration. If the condition evaluates to false, the loop
 /// will exit</param>
 /// <param name="Body">Collection of statements that will be executed on each iteration</param>
-public record UntypedFor(IUntypedAuraStatement? Initializer, IUntypedAuraExpression? Condition, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement;
+public record UntypedFor(IUntypedAuraStatement? Initializer, IUntypedAuraExpression? Condition, IUntypedAuraExpression? Increment, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a simplified <c>for</c> loop that supports iterating through an

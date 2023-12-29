@@ -658,6 +658,7 @@ public class CompilerTest
 					new IntLiteral(10, 1),
 					new Bool(),
 					1),
+				null,
 				new List<ITypedAuraStatement>(),
 				1)
 		});
@@ -685,6 +686,7 @@ public class CompilerTest
 					new IntLiteral(10, 1),
 					new Bool(),
 					1),
+				null,
 				new List<ITypedAuraStatement>
 				{
 					new TypedLet(

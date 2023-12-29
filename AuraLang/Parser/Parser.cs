@@ -474,11 +474,10 @@ public class AuraParser
 		var body = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd() && !Check(TokType.RightBrace)) body.Add(Declaration());
 		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
-		if (increment is not null) body.Add(new UntypedExpressionStmt(increment, line));
 		// Consume trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedFor(initializer, condition, body, line);
+		return new UntypedFor(initializer, condition, increment, body, line);
 	}
 
 	private IUntypedAuraStatement ForEachStatement()
