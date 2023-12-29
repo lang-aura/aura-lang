@@ -35,7 +35,7 @@ public class AuraScanner
 	private bool _isLineBlank;
 
 	private readonly List<Tok> _tokens;
-	private readonly ScannerExceptionContainer _exContainer = new();
+	private readonly ScannerExceptionContainer _exContainer;
 	private string FilePath { get; }
 
 	public AuraScanner(string source, string filePath)
@@ -47,6 +47,7 @@ public class AuraScanner
 		_isLineBlank = true;
 		_tokens = new List<Tok>();
 		FilePath = filePath;
+		_exContainer = new ScannerExceptionContainer(filePath);
 	}
 
 	public List<Tok> ScanTokens()
@@ -206,7 +207,7 @@ public class AuraScanner
 			default:
 				// If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
 				// then it must be an invalid character
-				throw new InvalidCharacterException(FilePath, _line);
+				throw new InvalidCharacterException(c, _line);
 		}
 	}
 
@@ -453,7 +454,7 @@ public class AuraScanner
 		// Scan the entire token, up until the closing double quote
 		while (!IsAtEnd() && Peek() != '"') s += Advance();
 		// If we've reached the end of the file without encountering the closing ", we throw an exception
-		if (IsAtEnd()) throw new UnterminatedStringException(FilePath, _line);
+		if (IsAtEnd()) throw new UnterminatedStringException(_line);
 		// Advance past the closing "
 		Advance();
 
@@ -466,12 +467,12 @@ public class AuraScanner
 		// Scan the entire token, up until the closing single quote
 		while (!IsAtEnd() && Peek() != '\'') s += Advance();
 		// If we've reached the end of the file without encountering the closing ', we throw an exception
-		if (IsAtEnd()) throw new UnterminatedCharException(FilePath, _line);
+		if (IsAtEnd()) throw new UnterminatedCharException(_line);
 		// Advance past the closing '
 		Advance();
 		// Ensure that the char is a single character
-		if (s.Length == 0) throw new EmptyCharException(FilePath, _line);
-		if (s.Length > 1) throw new CharLengthGreaterThanOneException(FilePath, _line);
+		if (s.Length == 0) throw new EmptyCharException(_line);
+		if (s.Length > 1) throw new CharLengthGreaterThanOneException(_line);
 
 		return new Tok(TokType.CharLiteral, s, _line);
 	}

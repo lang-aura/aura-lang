@@ -1,18 +1,20 @@
-﻿using System.Linq.Expressions;
-using AuraLang.AST;
+﻿﻿using AuraLang.AST;
 using AuraLang.Cli.Options;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Shared;
-using AuraLang.Types;
-using Microsoft.VisualBasic;
-using AuraInt = AuraLang.Types.Int;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Cli.Commands;
 
 public class AuraFmt : AuraCommand
 {
+	/// <summary>
+	/// The number of tabs to precede the current line in the source file with. For top-level declarations, this will be 0. It is a const
+	/// because its value is never directly updated - instead, it will be incremented by the methods that need to use it (i.e. <c>BlockExpr</c>
+	/// will add `Tabs + 1` tabs in front of all statements contained inside the block.)
+	/// </summary>
+	private const int Tabs = 0;
+
 	public AuraFmt(FmtOptions opts) : base(opts) { }
 
 	/// <summary>
@@ -37,14 +39,14 @@ public class AuraFmt : AuraCommand
 
 	public string FormatAuraSourceCode(string source, string filePath)
 	{
-        // Scan
-        var tokens = new AuraScanner(source, filePath).ScanTokens();
-        // Parse
-        var untypedAst = new AuraParser(tokens, filePath).Parse();
-        // Format AST
-        var formatted = Format(untypedAst);
-        // Turn back into a string
-        var s = string.Join(string.Empty, formatted);
+		// Scan
+		var tokens = new AuraScanner(source, filePath).ScanTokens();
+		// Parse
+		var untypedAst = new AuraParser(tokens, filePath).Parse();
+		// Format AST
+		var formatted = Format(untypedAst);
+		// Turn back into a string
+		var s = string.Join(string.Empty, formatted);
 		if (s[^1] is not '\n') s += '\n';
 		return s;
 	}

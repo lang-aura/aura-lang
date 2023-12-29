@@ -54,11 +54,21 @@ public class New : AuraCommand
 			StartInfo = new ProcessStartInfo
 			{
 				FileName = "go",
-				Arguments = $"mod init {Name}"
+				Arguments = $"mod init {Name}",
+				RedirectStandardOutput = true,
+				RedirectStandardError = true,
 			}
 		};
 		modInit.Start();
 		modInit.WaitForExit();
+		if (modInit.ExitCode > 0)
+		{
+			Console.WriteLine(modInit.StandardError.ReadToEnd());
+		}
+		else
+		{
+			Console.WriteLine($"New Aura project `{Name}` successfully created!");
+		}
 
 		return 0;
 	}

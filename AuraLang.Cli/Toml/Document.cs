@@ -8,5 +8,6 @@ namespace AuraLang.Cli.Toml;
 public record Document
 {
 	[TomlProperty("project")]
+	[TomlDoNotInlineObject]
 	public Project? Project { get; init; }
 }

@@ -41,7 +41,7 @@ public class AuraCompiler
 	/// <summary>
 	/// Contains all exceptions thrown during the compilation process. 
 	/// </summary>
-	private readonly CompilerExceptionContainer _exContainer = new();
+	private readonly CompilerExceptionContainer _exContainer;
 
 	private string ProjectName { get; }
 	private readonly LocalModuleReader _localModuleReader;
@@ -56,6 +56,7 @@ public class AuraCompiler
 		_localModuleReader = localmoduleReader;
 		_outputWriter = outputWriter;
 		FilePath = filePath;
+		_exContainer = new CompilerExceptionContainer(filePath);
 	}
 
 	public string Compile()
@@ -96,7 +97,7 @@ public class AuraCompiler
 			TypedContinue c => ContinueStmt(c),
 			TypedBreak b => BreakStmt(b),
 			TypedInterface i => InterfaceStmt(i),
-			_ => throw new UnknownStatementException(FilePath, stmt.Line)
+			_ => throw new UnknownStatementException(stmt, stmt.Line)
 		};
 	}
 
@@ -128,7 +129,7 @@ public class AuraCompiler
 			TypedVariable v => VariableExpr(v),
 			TypedAnonymousFunction f => AnonymousFunctionExpr(f),
 			TypedIs is_ => IsExpr(is_),
-			_ => throw new UnknownExpressionException(FilePath, expr.Line)
+			_ => throw new UnknownExpressionException(expr, expr.Line)
 		};
 	}
 
