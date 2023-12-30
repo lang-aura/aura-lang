@@ -39,15 +39,15 @@ public abstract class AuraCommand
 		var paths = Directory.GetFiles(path, "*.aura");
 		foreach (var p in paths)
 		{
-            try
-            {
-                a(p);
-            }
+			try
+			{
+				a(p);
+			}
 			catch (AuraExceptionContainer ex)
-            {
-                ex.Report();
-                return;
-            }
+			{
+				ex.Report();
+				return;
+			}
 		}
 
 		var dirs = Directory.GetDirectories(path);
