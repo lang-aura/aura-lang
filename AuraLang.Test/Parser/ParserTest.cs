@@ -550,14 +550,7 @@ public class ParserTest
 				new Tok(TokType.Less, "<", 1),
 				new IntLiteral(10, 1),
 				1),
-			new UntypedAssignment(
-						new Tok(TokType.Identifier, "i", 1),
-						new UntypedBinary(
-							new UntypedVariable(new Tok(TokType.Identifier, "i", 1), 1),
-							new Tok(TokType.Plus, "+", 1),
-							new IntLiteral(1, 1),
-							1),
-						1),
+			new UntypedPlusPlusIncrement(new UntypedVariable(new Tok(TokType.Identifier, "i", 1), 1), 1),
 			new List<IUntypedAuraStatement> { },
 			1));
 	}

@@ -123,3 +123,13 @@ public class CannotSetOnNonClassException : TypeCheckerException
 {
 	public CannotSetOnNonClassException(int line) : base("Cannot set on non-class", line) { }
 }
+
+public class CannotIncrementNonNumberException : TypeCheckerException
+{
+	public CannotIncrementNonNumberException(int line) : base("Cannot increment non-number", line) { }
+}
+
+public class CannotDecrementNonNumberException : TypeCheckerException
+{
+	public CannotDecrementNonNumberException(int line) : base("Cannot decrement non-number", line) { }
+}
