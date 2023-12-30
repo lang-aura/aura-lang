@@ -13,7 +13,7 @@ public class AuraFmt : AuraCommand
 	/// because its value is never directly updated - instead, it will be incremented by the methods that need to use it (i.e. <c>BlockExpr</c>
 	/// will add `Tabs + 1` tabs in front of all statements contained inside the block.)
 	/// </summary>
-	private const int Tabs = 0;
+	private int Tabs = 0;
 
 	public AuraFmt(FmtOptions opts) : base(opts) { }
 
@@ -130,8 +130,12 @@ public class AuraFmt : AuraCommand
 		var inc = for_.Increment is not null
 			? Expression(for_.Increment)
 			: string.Empty;
-		var body = string.Join($"\n{AddTabs(Tabs + 1)}", for_.Body.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
-		return $"for {init}; {cond}; {inc} {{\n{body}\n}}";
+		var body = WithIndent(() =>
+		{
+			return string.Join($"\n{AddTabs(Tabs)}", for_.Body.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
+		});
+
+		return $"for {init}; {cond}; {inc} {{\n{AddTabs(Tabs + 1)}{body}\n{AddTabs(Tabs)}}}";
 	}
 
 	private string ForEachStmt(UntypedForEach foreach_)
@@ -144,7 +148,10 @@ public class AuraFmt : AuraCommand
 	{
 		var pub = f.Public == Visibility.Public ? "pub " : string.Empty;
 		var paramz = string.Join(", ", f.Params.Select(p => p.Name.Value));
-		return $"{pub}fn {f.Name.Value}({paramz}) {Expression(f.Body)}";
+
+		var body = Expression(f.Body);
+
+		return $"{AddTabs(Tabs)}{pub}fn {f.Name.Value}({paramz}) {body}";
 	}
 
 	private string LetStmt(UntypedLet let)
@@ -225,8 +232,13 @@ public class AuraFmt : AuraCommand
 
 	private string BlockExpr(UntypedBlock block)
 	{
-		var stmts = string.Join($"\n{AddTabs(Tabs + 1)}", block.Statements.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
-		return $"{{\n{AddTabs(Tabs + 1)}{stmts}\n}}";
+		var s = $"{AddTabs(Tabs)}{{\n{AddTabs(Tabs)}";
+		var body = WithIndent(() =>
+		{
+			return string.Join($"\n{AddTabs(Tabs)}", block.Statements.Where(stmt => stmt is not UntypedNewLine).Select(Statement));
+		});
+
+		return $"{{\n{AddTabs(Tabs + 1)}{body}\n{AddTabs(Tabs)}}}";
 	}
 
 	private string CallExpr(UntypedCall call)
@@ -305,6 +317,14 @@ public class AuraFmt : AuraCommand
 	}
 
 	private string IsExpr(UntypedIs iss) => "is";
+
+	private string WithIndent(Func<string> a)
+	{
+		Tabs++;
+		var result = a();
+		Tabs--;
+		return result;
+	}
 
 	private string AddTabs(int n) => new('\t', n);
 }
