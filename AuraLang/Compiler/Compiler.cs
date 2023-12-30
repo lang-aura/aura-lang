@@ -129,8 +129,8 @@ public class AuraCompiler
 			TypedVariable v => VariableExpr(v),
 			TypedAnonymousFunction f => AnonymousFunctionExpr(f),
 			TypedIs is_ => IsExpr(is_),
-            TypedPlusPlusIncrement ppi => IncrementExpr(ppi),
-            TypedMinusMinusDecrement mmd => DecrementExpr(mmd),
+			TypedPlusPlusIncrement ppi => IncrementExpr(ppi),
+			TypedMinusMinusDecrement mmd => DecrementExpr(mmd),
 			_ => throw new UnknownExpressionException(expr, expr.Line)
 		};
 	}
@@ -351,17 +351,17 @@ public class AuraCompiler
 		return $"{assign.Name.Value} = {value}";
 	}
 
-    private string IncrementExpr(TypedPlusPlusIncrement inc)
-    {
-        var name = Expression(inc.Name);
-        return $"{name}++";
-    }
+	private string IncrementExpr(TypedPlusPlusIncrement inc)
+	{
+		var name = Expression(inc.Name);
+		return $"{name}++";
+	}
 
-    private string DecrementExpr(TypedMinusMinusDecrement dec)
-    {
-        var name = Expression(dec.Name);
-        return $"{name}--";
-    }
+	private string DecrementExpr(TypedMinusMinusDecrement dec)
+	{
+		var name = Expression(dec.Name);
+		return $"{name}--";
+	}
 
 	private string BinaryExpr(TypedBinary b)
 	{

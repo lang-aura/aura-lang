@@ -126,10 +126,10 @@ public class CannotSetOnNonClassException : TypeCheckerException
 
 public class CannotIncrementNonNumberException : TypeCheckerException
 {
-    public CannotIncrementNonNumberException(int line) : base("Cannot increment non-number", line) { }
+	public CannotIncrementNonNumberException(int line) : base("Cannot increment non-number", line) { }
 }
 
 public class CannotDecrementNonNumberException : TypeCheckerException
 {
-    public CannotDecrementNonNumberException(int line) : base("Cannot decrement non-number", line) { }
+	public CannotDecrementNonNumberException(int line) : base("Cannot decrement non-number", line) { }
 }

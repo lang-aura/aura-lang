@@ -129,8 +129,8 @@ public class AuraTypeChecker
 			UntypedVariable variable => VariableExpr(variable),
 			UntypedAnonymousFunction f => AnonymousFunctionExpr(f),
 			UntypedIs is_ => IsExpr(is_),
-            UntypedPlusPlusIncrement ppi => PlusPlusIncrementExpr(ppi),
-            UntypedMinusMinusDecrement mmd => MinusMinusDecrementExpr(mmd),
+			UntypedPlusPlusIncrement ppi => PlusPlusIncrementExpr(ppi),
+			UntypedMinusMinusDecrement mmd => MinusMinusDecrementExpr(mmd),
 			_ => throw new UnknownExpressionTypeException(expr.Line)
 		};
 	}
@@ -746,23 +746,23 @@ public class AuraTypeChecker
 		}, assignment);
 	}
 
-    private TypedPlusPlusIncrement PlusPlusIncrementExpr(UntypedPlusPlusIncrement inc)
-    {
-        var name = Expression(inc.Name);
-        // Ensure that expression has type of either int or float
-        if (name.Typ is not Int && name.Typ is not Float) throw new CannotIncrementNonNumberException(inc.Line);
+	private TypedPlusPlusIncrement PlusPlusIncrementExpr(UntypedPlusPlusIncrement inc)
+	{
+		var name = Expression(inc.Name);
+		// Ensure that expression has type of either int or float
+		if (name.Typ is not Int && name.Typ is not Float) throw new CannotIncrementNonNumberException(inc.Line);
 
-        return new TypedPlusPlusIncrement(name, name.Typ, inc.Line);
-    }
+		return new TypedPlusPlusIncrement(name, name.Typ, inc.Line);
+	}
 
-    private TypedMinusMinusDecrement MinusMinusDecrementExpr(UntypedMinusMinusDecrement dec)
-    {
-        var name = Expression(dec.Name);
-        // Ensure that expression has type of either int or float
-        if (name.Typ is not Int && name.Typ is not Float) throw new CannotDecrementNonNumberException(dec.Line);
+	private TypedMinusMinusDecrement MinusMinusDecrementExpr(UntypedMinusMinusDecrement dec)
+	{
+		var name = Expression(dec.Name);
+		// Ensure that expression has type of either int or float
+		if (name.Typ is not Int && name.Typ is not Float) throw new CannotDecrementNonNumberException(dec.Line);
 
-        return new TypedMinusMinusDecrement(name, name.Typ, dec.Line);
-    }
+		return new TypedMinusMinusDecrement(name, name.Typ, dec.Line);
+	}
 
 	/// <summary>
 	/// Type checks a binary expression
