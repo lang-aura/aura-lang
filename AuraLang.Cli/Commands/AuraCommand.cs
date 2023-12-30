@@ -1,4 +1,5 @@
 ﻿using AuraLang.Cli.Options;
+using AuraLang.Exceptions;
 
 namespace AuraLang.Cli.Commands;
 
@@ -38,7 +39,15 @@ public abstract class AuraCommand
 		var paths = Directory.GetFiles(path, "*.aura");
 		foreach (var p in paths)
 		{
-			a(p);
+            try
+            {
+                a(p);
+            }
+			catch (AuraExceptionContainer ex)
+            {
+                ex.Report();
+                return;
+            }
 		}
 
 		var dirs = Directory.GetDirectories(path);
