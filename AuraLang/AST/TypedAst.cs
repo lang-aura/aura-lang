@@ -37,6 +37,18 @@ public interface ITypedAuraCallable
 public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ, int Line) : ITypedAuraExpression;
 
 /// <summary>
+/// Represents an increment operation where the value of the variable is incremented by 1.
+/// </summary>
+/// <param name="Name">The variable being incremented</param>
+public record TypedPlusPlusIncrement(ITypedAuraExpression Name, AuraType Typ, int Line) : ITypedAuraExpression;
+
+/// <summary>
+/// Represents a decrement operation where the value of the variable is decremented by 1.
+/// </summary>
+/// <param name="Name">The variable being decremented</param>
+public record TypedMinusMinusDecrement(ITypedAuraExpression Name, AuraType Typ, int Line) : ITypedAuraExpression;
+
+/// <summary>
 /// Represents a typed binary expression. Both the left and right expressions must have the same type.
 /// </summary>
 /// <param name="Left">The expression on the left side of the binary expression</param>

@@ -109,6 +109,8 @@ public class AuraFmt : AuraCommand
 			UntypedVariable v => VariableExpr(v),
 			UntypedAnonymousFunction af => AnonymousFunctionExpr(af),
 			UntypedIs iss => IsExpr(iss),
+            UntypedPlusPlusIncrement ppi => IncrementExpr(ppi),
+            UntypedMinusMinusDecrement ddm => DecrementExpr(ddm),
 			_ => throw new Exception() // TODO Create exception
 		};
 	}
@@ -214,6 +216,10 @@ public class AuraFmt : AuraCommand
 	}
 
 	private string AssignmentExpr(UntypedAssignment assign) => $"{assign.Name.Value} = {Expression(assign.Value)}";
+
+    private string IncrementExpr(UntypedPlusPlusIncrement inc) => $"{Expression(inc.Name)}++";
+
+    private string DecrementExpr(UntypedMinusMinusDecrement dec) => $"{Expression(dec.Name)}--";
 
 	private string BinaryExpr(UntypedBinary binary) => $"{Expression(binary.Left)} {binary.Operator.Value} {Expression(binary.Right)}";
 

@@ -32,6 +32,18 @@ public interface IUntypedAuraCallable
 public record UntypedAssignment(Tok Name, IUntypedAuraExpression Value, int Line) : IUntypedAuraExpression;
 
 /// <summary>
+/// Represents an increment operation where the value of the variable is incremented by 1.
+/// </summary>
+/// <param name="Name">The variable being incremented</param>
+public record UntypedPlusPlusIncrement(IUntypedAuraExpression Name, int Line) : IUntypedAuraExpression;
+
+/// <summary>
+/// Represents a decrement operation where the value of the variable is decremented by 1.
+/// </summary>
+/// <param name="Name">The variable being decremented</param>
+public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, int Line) : IUntypedAuraExpression;
+
+/// <summary>
 /// Represents a binary expression containing a left and right operand and an operator. A simple
 /// binary expression might look like:
 /// <code>5 + 5</code>

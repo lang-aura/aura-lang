@@ -665,18 +665,12 @@ public class AuraParser
 		else if (Match(TokType.PlusPlus))
 		{
 			var variable = expression as UntypedVariable;
-			if (variable is not null)
-				return new UntypedAssignment(variable.Name,
-					new UntypedBinary(variable, new Tok(TokType.Plus, "+", variable.Line),
-						new IntLiteral(1, variable.Line), variable.Line), variable.Line);
+			if (variable is not null) return new UntypedPlusPlusIncrement(new UntypedVariable(variable.Name, variable.Line), variable.Line);
 		}
 		else if (Match(TokType.MinusMinus))
 		{
 			var variable = expression as UntypedVariable;
-			if (variable is not null)
-				return new UntypedAssignment(variable.Name,
-					new UntypedBinary(variable, new Tok(TokType.Minus, "-", variable.Line),
-						new IntLiteral(1, variable.Line), variable.Line), variable.Line);
+			if (variable is not null) return new UntypedMinusMinusDecrement(new UntypedVariable(variable.Name, variable.Line), variable.Line);
 		}
 
 		return expression;
