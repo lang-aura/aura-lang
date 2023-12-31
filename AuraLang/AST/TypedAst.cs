@@ -315,6 +315,11 @@ public record TypedImport(Tok Package, Tok? Alias, int Line) : ITypedAuraStateme
 	public AuraType Typ => new None();
 }
 
+public record TypedMultipleImport(List<Tok> Packages, int Line) : ITypedAuraStatement
+{
+	public AuraType Typ => new None();
+}
+
 /// <summary>
 /// Represents a type-checked comment
 /// </summary>

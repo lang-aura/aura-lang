@@ -93,6 +93,7 @@ public class AuraCompiler
 			FullyTypedClass c => ClassStmt(c),
 			TypedWhile w => WhileStmt(w),
 			TypedImport i => ImportStmt(i),
+			TypedMultipleImport mi => MultipleImportStmt(mi),
 			TypedComment c => CommentStmt(c),
 			TypedContinue c => ContinueStmt(c),
 			TypedBreak b => BreakStmt(b),
@@ -284,6 +285,52 @@ public class AuraCompiler
 		return body != string.Empty
 			? $"for {cond} {{{body}\n}}"
 			: $"for {cond} {{}}";
+	}
+
+	private string MultipleImportStmt(TypedMultipleImport i)
+	{
+		var multipleImports = new List<string>();
+
+		foreach (var pkg in i.Packages)
+		{
+			if (IsStdlibImportName(pkg.Value))
+			{
+				var name = ExtractStdlibPkgName(pkg.Value);
+				multipleImports.Add(BuildStdlibPkgName(name));
+				continue;
+			}
+
+			// Read all Aura source files in the specified directory
+			foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{pkg.Value}"))
+			{
+				// Read the file's contents
+				var contents = _localModuleReader.Read(source);
+				// Scan file
+				var tokens = new AuraScanner(contents, FilePath).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
+				// Parse file
+				var untypedAst = new AuraParser(tokens, FilePath).Parse();
+				// Type check file
+				var typedAst = new AuraTypeChecker(
+					new VariableStore(),
+					new EnclosingClassStore(),
+					new EnclosingNodeStore<IUntypedAuraExpression>(),
+					new EnclosingNodeStore<IUntypedAuraStatement>(),
+					new LocalModuleReader(),
+					FilePath).CheckTypes(untypedAst);
+				// Compile file
+				var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(),
+						source)
+					.Compile();
+				// Write output to `build` directory
+				var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
+				_outputWriter.CreateDirectory(dirName);
+				_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
+			}
+
+			multipleImports.Add($"\"{ProjectName}/{pkg.Value}\"");
+		}
+
+		return $"import (\n\t{string.Join("\n\t", multipleImports)}\n)";
 	}
 
 	private string ImportStmt(TypedImport i)
@@ -592,7 +639,9 @@ public class AuraCompiler
 
 	private string ExtractStdlibPkgName(string pkg) => pkg.Split('/').Last();
 
-	private string BuildStdlibPkgImportStmt(string pkg) => $"import {pkg} \"{ProjectName}/stdlib/{pkg}\"";
+	private string BuildStdlibPkgImportStmt(string pkg) => $"import {BuildStdlibPkgName(pkg)}";
+
+	private string BuildStdlibPkgName(string pkg) => $"{pkg} \"{ProjectName}/stdlib/{pkg}\"";
 
 	private string LogicalOperatorToGoOperator(Tok op)
 	{
