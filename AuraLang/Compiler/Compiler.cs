@@ -289,59 +289,18 @@ public class AuraCompiler
 
 	private string MultipleImportStmt(TypedMultipleImport i)
 	{
-		var multipleImports = new List<string>();
-
-		foreach (var pkg in i.Packages)
-		{
-			if (IsStdlibImportName(pkg.Package.Value))
-			{
-				var name = ExtractStdlibPkgName(pkg.Package.Value);
-				multipleImports.Add(BuildStdlibPkgName(name));
-				continue;
-			}
-
-			// Read all Aura source files in the specified directory
-			foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{pkg.Package.Value}"))
-			{
-				// Read the file's contents
-				var contents = _localModuleReader.Read(source);
-				// Scan file
-				var tokens = new AuraScanner(contents, FilePath).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
-				// Parse file
-				var untypedAst = new AuraParser(tokens, FilePath).Parse();
-				// Type check file
-				var typedAst = new AuraTypeChecker(
-					new VariableStore(),
-					new EnclosingClassStore(),
-					new EnclosingNodeStore<IUntypedAuraExpression>(),
-					new EnclosingNodeStore<IUntypedAuraStatement>(),
-					new LocalModuleReader(),
-					FilePath).CheckTypes(untypedAst);
-				// Compile file
-				var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(),
-						source)
-					.Compile();
-				// Write output to `build` directory
-				var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
-				_outputWriter.CreateDirectory(dirName);
-				_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
-			}
-
-			var importName = pkg.Alias is null
-			? $"\"{ProjectName}/{pkg.Package.Value}\""
-			: $"{pkg.Alias.Value.Value} \"{ProjectName}/{pkg.Package.Value}\"";
-			multipleImports.Add(importName);
-		}
-
+		var multipleImports = i.Packages.Select(CompileImportStmt);
 		return $"import (\n\t{string.Join("\n\t", multipleImports)}\n)";
 	}
 
-	private string ImportStmt(TypedImport i)
+	private string ImportStmt(TypedImport i) => $"import {CompileImportStmt(i)}";
+
+	private string CompileImportStmt(TypedImport i)
 	{
 		if (IsStdlibImportName(i.Package.Value))
 		{
 			var name = ExtractStdlibPkgName(i.Package.Value);
-			return BuildStdlibPkgImportStmt(name);
+			return BuildStdlibPkgName(name);
 		}
 
 		// Read all Aura source files in the specified directory
@@ -372,8 +331,8 @@ public class AuraCompiler
 		}
 
 		return i.Alias is null
-			? $"import \"{ProjectName}/{i.Package.Value}\""
-			: $"import {i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
+			? $"\"{ProjectName}/{i.Package.Value}\""
+			: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
 	}
 
 	private string CommentStmt(TypedComment com) => com.Text.Value;
