@@ -141,6 +141,15 @@ public class FmtTest
 		MakeAssertions(formatted, expected);
 	}
 
+	[Test]
+	public void TestFmt_MultipleImports_Combine()
+	{
+		var expected = "import (\n\taura/io\n\taura/strings\n)\n\n";
+		var source = "import aura/io\nimport aura/strings\n";
+		var formatted = ArrangeAndAct(source);
+		MakeAssertions(formatted, expected);
+	}
+
 	private string ArrangeAndAct(string source)
 	{
 		// Arrange
