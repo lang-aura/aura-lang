@@ -9,9 +9,7 @@ namespace AuraLang.Cli.Commands;
 public class AuraFmt : AuraCommand
 {
 	/// <summary>
-	/// The number of tabs to precede the current line in the source file with. For top-level declarations, this will be 0. It is a const
-	/// because its value is never directly updated - instead, it will be incremented by the methods that need to use it (i.e. <c>BlockExpr</c>
-	/// will add `Tabs + 1` tabs in front of all statements contained inside the block.)
+	/// The number of tabs to precede the current line in the source file with. For top-level declarations, this will be 0.
 	/// </summary>
 	private int Tabs = 0;
 
@@ -53,6 +51,17 @@ public class AuraFmt : AuraCommand
 
 	private List<string> Format(List<IUntypedAuraStatement> nodes)
 	{
+        if (nodes.FindAll(n => n is UntypedImport).Count > 1)
+        {
+            var firstImportIndex = nodes.FindIndex(n => n is UntypedImport);
+            var imports = nodes.FindAll(n => n is UntypedImport).Select(stmt => (UntypedImport)stmt).ToList();
+            var formattedImports = MultipleImportStmts(imports);
+
+            var formattedNodes = nodes.Where(n => n is not UntypedImport).Select(Statement).ToList();
+            formattedNodes.Insert(firstImportIndex, formattedImports);
+            return formattedNodes;
+        }
+
 		return nodes.Select(Statement).ToList();
 	}
 
@@ -204,6 +213,12 @@ public class AuraFmt : AuraCommand
 			: string.Empty;
 		return $"import {i.Package.Value}{alias}";
 	}
+
+    private string MultipleImportStmts(List<UntypedImport> imports)
+    {
+        var importNames = string.Join("\n\t", imports.Select(i => i.Package.Value));
+        return $"import (\n\t{importNames}\n)";
+    }
 
 	private string CommentStmt(UntypedComment c) => c.Text.Value;
 
