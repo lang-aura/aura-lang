@@ -39,6 +39,10 @@ public class Build : AuraCommand
 			ex.Report();
 			return 1;
 		}
+		catch (AuraWarningContainer w)
+		{
+			w.Report();
+		}
 
 		// Build Go binary executable
 		Directory.SetCurrentDirectory("./build/pkg");
