@@ -124,22 +124,22 @@ public class FmtTest
 		MakeAssertions(formatted, expected);
 	}
 
-    [Test]
-    public void TestFmt_Function_NoChange()
-    {
-        var source = "fn main() {\n\tfor i := 0; i < 10; i++ {\n\t\tio.println(\"Hello world\")\n\t}\n}\n";
-        var formatted = ArrangeAndAct(source);
-        MakeAssertions(formatted, source);
-    }
+	[Test]
+	public void TestFmt_Function_NoChange()
+	{
+		var source = "fn main() {\n\tfor i := 0; i < 10; i++ {\n\t\tio.println(\"Hello world\")\n\t}\n}\n";
+		var formatted = ArrangeAndAct(source);
+		MakeAssertions(formatted, source);
+	}
 
-    [Test]
-    public void TestFmt_Function_AddTabs()
-    {
-        var expected = "fn main() {\n\tfor i := 0; i < 10; i++ {\n\t\tio.println(\"Hello world\")\n\t}\n}\n";
-        var source = "fn main() {\nfor i := 0; i < 10; i++ {\nio.println(\"Hello world\")\n}\n}\n";
-        var formatted = ArrangeAndAct(source);
-        MakeAssertions(formatted, expected);
-    }
+	[Test]
+	public void TestFmt_Function_AddTabs()
+	{
+		var expected = "fn main() {\n\tfor i := 0; i < 10; i++ {\n\t\tio.println(\"Hello world\")\n\t}\n}\n";
+		var source = "fn main() {\nfor i := 0; i < 10; i++ {\nio.println(\"Hello world\")\n}\n}\n";
+		var formatted = ArrangeAndAct(source);
+		MakeAssertions(formatted, expected);
+	}
 
 	private string ArrangeAndAct(string source)
 	{
