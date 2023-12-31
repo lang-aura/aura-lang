@@ -1041,6 +1041,23 @@ public class CompilerTest
 		MakeAssertions(output, "type IGREETER interface {}");
 	}
 
+    [Test]
+    public void TestCompile_MultipleImports()
+    {
+        var output = ArrangeAndAct(new List<ITypedAuraStatement>
+        {
+            new TypedMultipleImport(
+                Packages: new List<Tok>
+                {
+                    new(TokType.Identifier, "aura/io", 1),
+                    new(TokType.Identifier, "aura/strings", 1)
+                },
+                Line: 1
+            )
+        });
+        MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tstrings \"test/stdlib/strings\"\n)");
+    }
+
 	[Test]
 	public void TestCompile_Interface_OneMethod()
 	{

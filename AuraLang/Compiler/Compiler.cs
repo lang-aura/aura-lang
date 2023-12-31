@@ -93,6 +93,7 @@ public class AuraCompiler
 			FullyTypedClass c => ClassStmt(c),
 			TypedWhile w => WhileStmt(w),
 			TypedImport i => ImportStmt(i),
+            TypedMultipleImport mi => MultipleImportStmt(mi),
 			TypedComment c => CommentStmt(c),
 			TypedContinue c => ContinueStmt(c),
 			TypedBreak b => BreakStmt(b),
@@ -295,7 +296,8 @@ public class AuraCompiler
             if (IsStdlibImportName(pkg.Value))
             {
                 var name = ExtractStdlibPkgName(pkg.Value);
-                return BuildStdlibPkgImportStmt(name);
+                multipleImports.Add(BuildStdlibPkgName(name));
+                continue;
             }
 
             // Read all Aura source files in the specified directory
@@ -637,7 +639,9 @@ public class AuraCompiler
 
 	private string ExtractStdlibPkgName(string pkg) => pkg.Split('/').Last();
 
-	private string BuildStdlibPkgImportStmt(string pkg) => $"import {pkg} \"{ProjectName}/stdlib/{pkg}\"";
+	private string BuildStdlibPkgImportStmt(string pkg) => $"import {BuildStdlibPkgName(pkg)}";
+
+    private string BuildStdlibPkgName(string pkg) => $"{pkg} \"{ProjectName}/stdlib/{pkg}\"";
 
 	private string LogicalOperatorToGoOperator(Tok op)
 	{
