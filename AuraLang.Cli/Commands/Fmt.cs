@@ -51,16 +51,16 @@ public class AuraFmt : AuraCommand
 
 	private List<string> Format(List<IUntypedAuraStatement> nodes)
 	{
-        if (nodes.FindAll(n => n is UntypedImport).Count > 1)
-        {
-            var firstImportIndex = nodes.FindIndex(n => n is UntypedImport);
-            var imports = nodes.FindAll(n => n is UntypedImport).Select(stmt => (UntypedImport)stmt).ToList();
-            var formattedImports = MultipleImportStmts(imports);
+		if (nodes.FindAll(n => n is UntypedImport).Count > 1)
+		{
+			var firstImportIndex = nodes.FindIndex(n => n is UntypedImport);
+			var imports = nodes.FindAll(n => n is UntypedImport).Select(stmt => (UntypedImport)stmt).ToList();
+			var formattedImports = MultipleImportStmts(imports);
 
-            var formattedNodes = nodes.Where(n => n is not UntypedImport).Select(Statement).ToList();
-            formattedNodes.Insert(firstImportIndex, formattedImports);
-            return formattedNodes;
-        }
+			var formattedNodes = nodes.Where(n => n is not UntypedImport).Select(Statement).ToList();
+			formattedNodes.Insert(firstImportIndex, formattedImports);
+			return formattedNodes;
+		}
 
 		return nodes.Select(Statement).ToList();
 	}
@@ -214,11 +214,11 @@ public class AuraFmt : AuraCommand
 		return $"import {i.Package.Value}{alias}";
 	}
 
-    private string MultipleImportStmts(List<UntypedImport> imports)
-    {
-        var importNames = string.Join("\n\t", imports.Select(i => i.Package.Value));
-        return $"import (\n\t{importNames}\n)";
-    }
+	private string MultipleImportStmts(List<UntypedImport> imports)
+	{
+		var importNames = string.Join("\n\t", imports.Select(i => i.Package.Value));
+		return $"import (\n\t{importNames}\n)";
+	}
 
 	private string CommentStmt(UntypedComment c) => c.Text.Value;
 
