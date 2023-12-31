@@ -556,13 +556,15 @@ public class AuraTypeChecker
 
 	private TypedMultipleImport MultipleImportStmt(UntypedMultipleImport import_)
 	{
+		var typedImports = new List<TypedImport>();
+
 		foreach (var pkg in import_.Packages)
 		{
 			// First, check if the module being imported is built-in
-			if (!_stdlib.TryGetModule(pkg.Value, out var module))
+			if (!_stdlib.TryGetModule(pkg.Package.Value, out var module))
 			{
 				// Read all Aura source files in the specified directory
-				var exportedTypes = _localModuleReader.GetModuleSourcePaths($"src/{pkg.Value}")
+				var exportedTypes = _localModuleReader.GetModuleSourcePaths($"src/{pkg.Package.Value}")
 					.Select(f =>
 					{
 						// Read the file's contents
@@ -588,13 +590,15 @@ public class AuraTypeChecker
 					.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes),
 						a.variables.Concat(b.variables)));
 				var importedModule = new Module(
-					pkg.Value,
+					pkg.Package.Value,
 					exportedTypes.methods.ToList(),
 					exportedTypes.classes.ToList(),
 					exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
 				);
 				// Add module to list of local variables
-				var modName = pkg.Value.Split("/")[^1];
+				var modName = pkg.Alias is not null
+					? pkg.Alias.Value.Value
+					: pkg.Package.Value.Split("/")[^1];
 				_variableStore.Add(new Local(
 					modName,
 					importedModule,
@@ -647,9 +651,11 @@ public class AuraTypeChecker
 						null));
 				}
 			}
+
+			typedImports.Add(new TypedImport(pkg.Package, pkg.Alias, pkg.Line));
 		}
 
-		return new TypedMultipleImport(import_.Packages, import_.Line);
+		return new TypedMultipleImport(typedImports, import_.Line);
 	}
 
 	private TypedImport ImportStmt(UntypedImport import_)

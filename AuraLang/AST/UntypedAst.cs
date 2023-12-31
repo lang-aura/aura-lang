@@ -352,7 +352,7 @@ public record UntypedWhile(IUntypedAuraExpression Condition, List<IUntypedAuraSt
 /// <param name="Alias">Will contain a value if the import has an alias</param>
 public record UntypedImport(Tok Package, Tok? Alias, int Line) : IUntypedAuraStatement;
 
-public record UntypedMultipleImport(List<Tok> Packages, int Line) : IUntypedAuraStatement;
+public record UntypedMultipleImport(List<UntypedImport> Packages, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents an Aura comment, which can be declared in two different ways. Beginning a comment with

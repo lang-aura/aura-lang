@@ -304,8 +304,19 @@ public class AuraParser
 			var line = Previous().Line;
 			if (Match(TokType.LeftParen))
 			{
-				var packages = new List<Tok>();
-				while (!Match(TokType.RightParen)) packages.Add(Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line)));
+				var packages = new List<UntypedImport>();
+				while (!Match(TokType.RightParen))
+				{
+					var tok_ = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
+					if (Match(TokType.As))
+					{
+						var alias = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
+						// Parse trailing semicolon
+						Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
+						packages.Add(new UntypedImport(tok_, alias, line));
+					}
+					packages.Add(new UntypedImport(tok_, null, line));
+				}
 				return new UntypedMultipleImport(packages, line);
 			}
 
