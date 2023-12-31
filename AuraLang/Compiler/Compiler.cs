@@ -293,15 +293,15 @@ public class AuraCompiler
 
 		foreach (var pkg in i.Packages)
 		{
-			if (IsStdlibImportName(pkg.Value))
+			if (IsStdlibImportName(pkg.Package.Value))
 			{
-				var name = ExtractStdlibPkgName(pkg.Value);
+				var name = ExtractStdlibPkgName(pkg.Package.Value);
 				multipleImports.Add(BuildStdlibPkgName(name));
 				continue;
 			}
 
 			// Read all Aura source files in the specified directory
-			foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{pkg.Value}"))
+			foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{pkg.Package.Value}"))
 			{
 				// Read the file's contents
 				var contents = _localModuleReader.Read(source);
@@ -327,7 +327,10 @@ public class AuraCompiler
 				_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
 			}
 
-			multipleImports.Add($"\"{ProjectName}/{pkg.Value}\"");
+			var importName = pkg.Alias is null
+			? $"\"{ProjectName}/{pkg.Package.Value}\""
+			: $"{pkg.Alias.Value.Value} \"{ProjectName}/{pkg.Package.Value}\"";
+			multipleImports.Add(importName);
 		}
 
 		return $"import (\n\t{string.Join("\n\t", multipleImports)}\n)";

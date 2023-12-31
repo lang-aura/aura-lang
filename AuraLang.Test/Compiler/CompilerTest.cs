@@ -1047,15 +1047,32 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedMultipleImport(
-				Packages: new List<Tok>
+				Packages: new List<TypedImport>
 				{
-					new(TokType.Identifier, "aura/io", 1),
-					new(TokType.Identifier, "aura/strings", 1)
+					new(new Tok(TokType.Identifier, "aura/io", 1), null, 1),
+					new(new Tok(TokType.Identifier, "aura/strings", 1), null, 1)
 				},
 				Line: 1
 			)
 		});
 		MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tstrings \"test/stdlib/strings\"\n)");
+	}
+
+	[Test]
+	public void TestCompile_MultipleImports_WithAlias()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedMultipleImport(
+				Packages: new List<TypedImport>
+				{
+					new(new Tok(TokType.Identifier, "aura/io", 1), null, 1),
+					new(new Tok(TokType.Identifier, "test", 2), new Tok(TokType.Identifier, "t", 2), 2)
+				},
+				Line: 1
+			)
+		});
+		MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tt \"test/test\"\n)");
 	}
 
 	[Test]
