@@ -302,12 +302,12 @@ public class AuraParser
 		if (Match(TokType.Import))
 		{
 			var line = Previous().Line;
-            if (Match(TokType.LeftParen))
-            {
-                var packages = new List<Tok>();
-                while (!Match(TokType.RightParen)) packages.Add(Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line)));
-                return new UntypedMultipleImport(packages, line);
-            }
+			if (Match(TokType.LeftParen))
+			{
+				var packages = new List<Tok>();
+				while (!Match(TokType.RightParen)) packages.Add(Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line)));
+				return new UntypedMultipleImport(packages, line);
+			}
 
 			var tok = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 			// Check if the import has an alias

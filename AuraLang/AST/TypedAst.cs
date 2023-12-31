@@ -317,7 +317,7 @@ public record TypedImport(Tok Package, Tok? Alias, int Line) : ITypedAuraStateme
 
 public record TypedMultipleImport(List<Tok> Packages, int Line) : ITypedAuraStatement
 {
-    public AuraType Typ => new None();
+	public AuraType Typ => new None();
 }
 
 /// <summary>
