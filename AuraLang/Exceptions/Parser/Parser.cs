@@ -179,3 +179,8 @@ public class ExpectFunctionSignatureException : ParserException
 {
 	public ExpectFunctionSignatureException(int line) : base("Expected function signature", line) { }
 }
+
+public class ExpectNewLineException : ParserException
+{
+	public ExpectNewLineException(string found, int line) : base($"Expected '\n', but found '{found}'", line) { }
+}
