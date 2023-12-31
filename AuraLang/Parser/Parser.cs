@@ -304,6 +304,8 @@ public class AuraParser
 			var line = Previous().Line;
 			if (Match(TokType.LeftParen))
 			{
+                Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
+                Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Line));
 				var packages = new List<UntypedImport>();
 				while (!Match(TokType.RightParen))
 				{
@@ -315,8 +317,15 @@ public class AuraParser
 						Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 						packages.Add(new UntypedImport(tok_, alias, line));
 					}
-					packages.Add(new UntypedImport(tok_, null, line));
+                    else
+                    {
+                        Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
+                        Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Line));
+                        packages.Add(new UntypedImport(tok_, null, line));
+                    }
 				}
+                Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
+                Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Line));
 				return new UntypedMultipleImport(packages, line);
 			}
 

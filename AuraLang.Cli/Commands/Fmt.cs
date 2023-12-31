@@ -80,6 +80,7 @@ public class AuraFmt : AuraCommand
 			UntypedClass c => ClassStmt(c),
 			UntypedWhile w => WhileStmt(w),
 			UntypedImport i => ImportStmt(i),
+            UntypedMultipleImport mi => FormatMultipleImportStmts(mi),
 			UntypedComment c => CommentStmt(c),
 			UntypedContinue cont => ContinueStmt(cont),
 			UntypedBreak b => BreakStmt(b),
@@ -213,6 +214,17 @@ public class AuraFmt : AuraCommand
 			: string.Empty;
 		return $"import {i.Package.Value}{alias}";
 	}
+
+    private string FormatMultipleImportStmts(UntypedMultipleImport imports)
+    {
+        if (imports.Packages.Count == 1)
+        {
+            return Statement(imports.Packages.First());
+        }
+
+        var importNames = string.Join("\n\t", imports.Packages.Select(i => i.Package.Value));
+		return $"import (\n\t{importNames}\n)";
+    }
 
 	private string MultipleImportStmts(List<UntypedImport> imports)
 	{
