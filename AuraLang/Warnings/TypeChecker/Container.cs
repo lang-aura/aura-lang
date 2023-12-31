@@ -2,10 +2,10 @@
 
 public class TypeCheckerWarningContainer : AuraWarningContainer
 {
-    public TypeCheckerWarningContainer(string filePath) : base(filePath) { }
+	public TypeCheckerWarningContainer(string filePath) : base(filePath) { }
 
-    public void Add(TypeCheckerWarning w)
-    {
-        Warnings.Add(w);
-    }
+	public void Add(TypeCheckerWarning w)
+	{
+		Warnings.Add(w);
+	}
 }
