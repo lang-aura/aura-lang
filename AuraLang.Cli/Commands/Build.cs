@@ -8,7 +8,12 @@ namespace AuraLang.Cli.Commands;
 
 public class Build : AuraCommand
 {
-	public Build(BuildOptions opts) : base(opts) { }
+    private bool WarningsAsErrors { get; init; }
+
+	public Build(BuildOptions opts) : base(opts)
+    {
+        WarningsAsErrors = opts.WarningsAsErrors;
+    }
 
 	/// <summary>
 	/// Used to read the TOML config file located in the project's root
@@ -42,6 +47,7 @@ public class Build : AuraCommand
 		catch (AuraWarningContainer w)
 		{
 			w.Report();
+            if (WarningsAsErrors) return 1;
 		}
 
 		// Build Go binary executable
