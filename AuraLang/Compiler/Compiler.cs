@@ -295,9 +295,9 @@ public class AuraCompiler
 
 	private string ImportStmt(TypedImport i) => $"import {CompileImportStmt(i)}";
 
-    private string CompileImportStmt(TypedImport i)
-    {
-        if (IsStdlibImportName(i.Package.Value))
+	private string CompileImportStmt(TypedImport i)
+	{
+		if (IsStdlibImportName(i.Package.Value))
 		{
 			var name = ExtractStdlibPkgName(i.Package.Value);
 			return BuildStdlibPkgName(name);
@@ -333,7 +333,7 @@ public class AuraCompiler
 		return i.Alias is null
 			? $"\"{ProjectName}/{i.Package.Value}\""
 			: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
-    }
+	}
 
 	private string CommentStmt(TypedComment com) => com.Text.Value;
 
