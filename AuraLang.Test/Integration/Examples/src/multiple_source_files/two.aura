@@ -1,0 +1,5 @@
+mod multiple_source_files
+
+pub fn f(i: int) -> int {
+	return g(i)
+}

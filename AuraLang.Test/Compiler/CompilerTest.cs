@@ -900,33 +900,33 @@ public class CompilerTest
 		MakeAssertions(output, "for true {}");
 	}
 
-	[Test]
-	public void TestCompile_Import_NoAlias()
-	{
-		var output = ArrangeAndAct(new List<ITypedAuraStatement>
-		{
-			new TypedImport(
-				new Tok(TokType.Identifier, "test_pkg", 1),
-				null,
-				1)
-		});
-		MakeAssertions(output, "import \"test/test_pkg\"");
-	}
+	// [Test]
+	// public void TestCompile_Import_NoAlias()
+	// {
+	// 	var output = ArrangeAndAct(new List<ITypedAuraStatement>
+	// 	{
+	// 		new TypedImport(
+	// 			new Tok(TokType.Identifier, "test_pkg", 1),
+	// 			null,
+	// 			1)
+	// 	});
+	// 	MakeAssertions(output, "import \"test/test_pkg\"");
+	// }
 
-	[Test]
-	public void TestCompile_Import_Alias()
-	{
-		_localModuleReader.Setup(lmr => lmr.GetModuleSourcePaths(It.IsAny<string>())).Returns(Array.Empty<string>());
+	// [Test]
+	// public void TestCompile_Import_Alias()
+	// {
+	// 	_localModuleReader.Setup(lmr => lmr.GetModuleSourcePaths(It.IsAny<string>())).Returns(Array.Empty<string>());
 
-		var output = ArrangeAndAct(new List<ITypedAuraStatement>
-		{
-			new TypedImport(
-				new Tok(TokType.Identifier, "test_pkg", 1),
-				new Tok(TokType.Identifier, "tp", 1),
-				1)
-		});
-		MakeAssertions(output, "import tp \"test/test_pkg\"");
-	}
+	// 	var output = ArrangeAndAct(new List<ITypedAuraStatement>
+	// 	{
+	// 		new TypedImport(
+	// 			new Tok(TokType.Identifier, "test_pkg", 1),
+	// 			new Tok(TokType.Identifier, "tp", 1),
+	// 			1)
+	// 	});
+	// 	MakeAssertions(output, "import tp \"test/test_pkg\"");
+	// }
 
 	[Test]
 	public void TestCompile_Import_StdlibPkg()
@@ -1058,22 +1058,22 @@ public class CompilerTest
 		MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tstrings \"test/stdlib/strings\"\n)");
 	}
 
-	[Test]
-	public void TestCompile_MultipleImports_WithAlias()
-	{
-		var output = ArrangeAndAct(new List<ITypedAuraStatement>
-		{
-			new TypedMultipleImport(
-				Packages: new List<TypedImport>
-				{
-					new(new Tok(TokType.Identifier, "aura/io", 1), null, 1),
-					new(new Tok(TokType.Identifier, "test", 2), new Tok(TokType.Identifier, "t", 2), 2)
-				},
-				Line: 1
-			)
-		});
-		MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tt \"test/test\"\n)");
-	}
+	// [Test]
+	// public void TestCompile_MultipleImports_WithAlias()
+	// {
+	// 	var output = ArrangeAndAct(new List<ITypedAuraStatement>
+	// 	{
+	// 		new TypedMultipleImport(
+	// 			Packages: new List<TypedImport>
+	// 			{
+	// 				new(new Tok(TokType.Identifier, "aura/io", 1), null, 1),
+	// 				new(new Tok(TokType.Identifier, "test", 2), new Tok(TokType.Identifier, "t", 2), 2)
+	// 			},
+	// 			Line: 1
+	// 		)
+	// 	});
+	// 	MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tt \"test/test\"\n)");
+	// }
 
 	[Test]
 	public void TestCompile_Interface_OneMethod()

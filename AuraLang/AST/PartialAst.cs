@@ -25,7 +25,7 @@ public record PartiallyTypedFunction(Tok Name, List<Param> Params, UntypedBlock 
 /// <param name="Params">The partially typed class's parameters</param>
 /// <param name="Methods">The partially typed class's methods</param>
 /// <param name="Public">Indicates if the partially typed class is public or not</param>
-public record PartiallyTypedClass(Tok Name, List<Param> Params, List<PartiallyTypedFunction> Methods, Visibility Public, AuraType Typ, int Line) : ITypedAuraStatement, IUntypedFunction
+public record PartiallyTypedClass(Tok Name, List<Param> Params, List<NamedFunction> Methods, Visibility Public, AuraType Typ, int Line) : ITypedAuraStatement, IUntypedFunction
 {
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 	public List<Param> GetParams() => Params;

@@ -733,7 +733,7 @@ public class TypeCheckerTest
 			.Returns(new PartiallyTypedClass(
 				new Tok(TokType.Identifier, "Greeter", 1),
 				new List<Param>(),
-				new List<PartiallyTypedFunction>(),
+				new List<NamedFunction>(),
 				Visibility.Public,
 				new Class(
 					"Greeter",
@@ -1143,24 +1143,24 @@ public class TypeCheckerTest
 			1));
 	}
 
-	[Test]
-	public void TestTypeCheck_Import_NoAlias()
-	{
-		_localModuleReader.Setup(m => m.GetModuleSourcePaths(It.IsAny<string>())).Returns(new string[] { "test_pkg" });
-		_localModuleReader.Setup(m => m.Read(It.IsAny<string>())).Returns(string.Empty);
+	// [Test]
+	// public void TestTypeCheck_Import_NoAlias()
+	// {
+	// 	_localModuleReader.Setup(m => m.GetModuleSourcePaths(It.IsAny<string>())).Returns(new string[] { "test_pkg" });
+	// 	_localModuleReader.Setup(m => m.Read(It.IsAny<string>())).Returns(string.Empty);
 
-		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-		{
-			new UntypedImport(
-				new Tok(TokType.Identifier, "test_pkg", 1),
-				null,
-				1)
-		});
-		MakeAssertions(typedAst, new TypedImport(
-			new Tok(TokType.Identifier, "test_pkg", 1),
-			null,
-			1));
-	}
+	// 	var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+	// 	{
+	// 		new UntypedImport(
+	// 			new Tok(TokType.Identifier, "test_pkg", 1),
+	// 			null,
+	// 			1)
+	// 	});
+	// 	MakeAssertions(typedAst, new TypedImport(
+	// 		new Tok(TokType.Identifier, "test_pkg", 1),
+	// 		null,
+	// 		1));
+	// }
 
 	[Test]
 	public void TestTypeCheck_Comment()

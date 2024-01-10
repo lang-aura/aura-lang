@@ -1,0 +1,9 @@
+mod main
+
+import aura/io
+import multiple_source_files as mult
+
+fn main() {
+	i := mult.f(5)
+	io.printf("%d\n", i)
+}

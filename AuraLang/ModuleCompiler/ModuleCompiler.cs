@@ -1,5 +1,8 @@
 ﻿using AuraLang.AST;
 using AuraLang.FileCompiler;
+using AuraLang.Parser;
+using AuraLang.Scanner;
+using AuraLang.Token;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.ModuleCompiler;
@@ -33,7 +36,22 @@ public class AuraModuleCompiler
 
 	public List<(string, string)> CompileModule()
 	{
-		return Directory.GetFiles(Path, "*.aura")
+		var paths = Directory.GetFiles(Path, "*.aura");
+
+		foreach (var path in paths)
+		{
+			var contents = File.ReadAllText(path);
+			var tokens = new AuraScanner(contents, path)
+							.ScanTokens()
+							// Newline characters are retained by the scanner for use by `aura fmt` -- they are not
+							// relevant for the compilation process so we filter them out here before the parsing stage.
+							.Where(tok => tok.Typ is not TokType.Newline)
+							.ToList();
+			var untypedAst = new AuraParser(tokens, path).Parse();
+			TypeChecker.BuildSymbolsTable(untypedAst);
+		}
+
+		return paths
 			.Select(p =>
 			{
 				var compiledOutput = new AuraFileCompiler(p, ProjectName, TypeChecker).CompileFile();
