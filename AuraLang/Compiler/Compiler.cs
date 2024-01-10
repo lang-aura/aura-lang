@@ -2,6 +2,7 @@
 using System.Text;
 using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
+using AuraLang.ModuleCompiler;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Shared;
@@ -303,8 +304,18 @@ public class AuraCompiler
 			return BuildStdlibPkgName(name);
 		}
 
+		var compiledModule = new AuraModuleCompiler($"src/{i.Package.Value}", ProjectName).CompileModule();
+		foreach (var (path, output) in compiledModule)
+		{
+			// Write output to `build` directory
+			var dirName = Path.GetDirectoryName(path)!.Replace("src/", "");
+			_outputWriter.CreateDirectory(dirName);
+			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(path), output);
+		}
+
+
 		// Read all Aura source files in the specified directory
-		foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{i.Package.Value}"))
+		/*foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{i.Package.Value}"))
 		{
 			// Read the file's contents
 			var contents = _localModuleReader.Read(source);
@@ -328,7 +339,7 @@ public class AuraCompiler
 			var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
 			_outputWriter.CreateDirectory(dirName);
 			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
-		}
+		}*/
 
 		return i.Alias is null
 			? $"\"{ProjectName}/{i.Package.Value}\""

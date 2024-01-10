@@ -1,0 +1,5 @@
+mod multiple_source_files
+
+fn g(i: int) -> int {
+	return i * 2
+}

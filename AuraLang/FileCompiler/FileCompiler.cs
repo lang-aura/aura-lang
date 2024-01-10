@@ -39,6 +39,7 @@ public class AuraFileCompiler
 						.Where(tok => tok.Typ is not TokType.Newline)
 						.ToList();
 		var untypedAst = new AuraParser(tokens, Path).Parse();
+		TypeChecker.BuildSymbolsTable(untypedAst);
 		var typedAst = TypeChecker.CheckTypes(untypedAst);
 		return new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(), Path)
 			.Compile();
