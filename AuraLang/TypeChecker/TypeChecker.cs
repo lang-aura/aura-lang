@@ -39,41 +39,41 @@ public class AuraTypeChecker
 
 	public void BuildSymbolsTable(List<IUntypedAuraStatement> stmts)
 	{
-        foreach (var stmt in stmts)
-        {
-            switch (stmt)
-            {
-                case UntypedImport i:
-                    var im = ImportStmt(i);
-                    break;
-                case UntypedLet l:
-                    AddLetStmtToSymbolsTable(l);
-                    break;
-                case UntypedNamedFunction nf:
-                    var f = ParseFunctionSignature(nf);
-                    _variableStore.Add(new Local(
-                        nf.Name.Value,
-                        f,
-                        1,
-                        null
-                    ));
-                    break;
-                case UntypedClass c:
-                    var cl = ParseClassSignature(c);
-                    _variableStore.Add(new Local(
-                        c.Name.Value,
-                        cl,
-                        1,
-                        null
-                    ));
-                    break;
-                case UntypedInterface interface_:
-                    _variableStore.Add(new Local(
-                        interface_.Name.Value,
-                        new Interface(interface_.Name.Value, interface_.Methods, interface_.Public),
-                        1,
-                        null
-                    ));
+		foreach (var stmt in stmts)
+		{
+			switch (stmt)
+			{
+				case UntypedImport i:
+					var im = ImportStmt(i);
+					break;
+				case UntypedLet l:
+					AddLetStmtToSymbolsTable(l);
+					break;
+				case UntypedNamedFunction nf:
+					var f = ParseFunctionSignature(nf);
+					_variableStore.Add(new Local(
+						nf.Name.Value,
+						f,
+						1,
+						null
+					));
+					break;
+				case UntypedClass c:
+					var cl = ParseClassSignature(c);
+					_variableStore.Add(new Local(
+						c.Name.Value,
+						cl,
+						1,
+						null
+					));
+					break;
+				case UntypedInterface interface_:
+					_variableStore.Add(new Local(
+						interface_.Name.Value,
+						new Interface(interface_.Name.Value, interface_.Methods, interface_.Public),
+						1,
+						null
+					));
 
 					foreach (var m in interface_.Methods)
 					{
@@ -84,9 +84,9 @@ public class AuraTypeChecker
 							null
 						));
 					}
-                    break;
-            }
-        }
+					break;
+			}
+		}
 	}
 
 	public List<ITypedAuraStatement> CheckTypes(List<IUntypedAuraStatement> untypedAst)
@@ -357,19 +357,19 @@ public class AuraTypeChecker
 		}, f);
 	}
 
-    private NamedFunction ParseFunctionSignature(UntypedNamedFunction f)
-    {
-        var typedParams = TypeCheckParams(f.Params);
-        var returnType = TypeCheckReturnTypeTok(f.ReturnType);
-        return new NamedFunction(f.Name.Value, f.Public, new Function(typedParams, returnType));
-    }
+	private NamedFunction ParseFunctionSignature(UntypedNamedFunction f)
+	{
+		var typedParams = TypeCheckParams(f.Params);
+		var returnType = TypeCheckReturnTypeTok(f.ReturnType);
+		return new NamedFunction(f.Name.Value, f.Public, new Function(typedParams, returnType));
+	}
 
 	private TypedNamedFunction FunctionStmt(UntypedNamedFunction f)
 	{
 		var typedParams = TypeCheckParams(f.Params);
-        var returnType = f.ReturnType is not null
-            ? TypeTokenToType(f.ReturnType!.Value)
-            : new Nil();
+		var returnType = f.ReturnType is not null
+			? TypeTokenToType(f.ReturnType!.Value)
+			: new Nil();
 		// Add parameters as local variables
 		foreach (var param in f.Params)
 		{
@@ -389,41 +389,41 @@ public class AuraTypeChecker
 		return new TypedNamedFunction(f.Name, typedParams, typedBody, returnType, f.Public, f.Line);
 	}
 
-    private void AddLetStmtToSymbolsTable(UntypedLet let)
-    {
-        if (let.NameTyp is null)
-        {
-            AddShortLetStmtToSymbolsTable(let);
-            return;
-        }
+	private void AddLetStmtToSymbolsTable(UntypedLet let)
+	{
+		if (let.NameTyp is null)
+		{
+			AddShortLetStmtToSymbolsTable(let);
+			return;
+		}
 
-        var nameTyp = let.NameTyp;
-        // Type check initializer
-        var defaultable = nameTyp as IDefaultable;
-        if (let.Initializer is null && defaultable is null)
-            throw new MustSpecifyInitialValueForNonDefaultableTypeException(nameTyp, let.Line);
-        var typedInit = let.Initializer is not null
-            ? ExpressionAndConfirm(let.Initializer, nameTyp)
-            : defaultable!.Default(let.Line);
-        // Add new variable to list of locals
-        _variableStore.Add(new Local(
-            let.Name.Value,
-            typedInit?.Typ ?? new Nil(),
-            _scope,
-            null));
-    }
+		var nameTyp = let.NameTyp;
+		// Type check initializer
+		var defaultable = nameTyp as IDefaultable;
+		if (let.Initializer is null && defaultable is null)
+			throw new MustSpecifyInitialValueForNonDefaultableTypeException(nameTyp, let.Line);
+		var typedInit = let.Initializer is not null
+			? ExpressionAndConfirm(let.Initializer, nameTyp)
+			: defaultable!.Default(let.Line);
+		// Add new variable to list of locals
+		_variableStore.Add(new Local(
+			let.Name.Value,
+			typedInit?.Typ ?? new Nil(),
+			_scope,
+			null));
+	}
 
-    private void AddShortLetStmtToSymbolsTable(UntypedLet let)
-    {
-        // Type check initializer
-        var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
-        // Add new variable to list of locals
-        _variableStore.Add(new Local(
-            let.Name.Value,
-            typedInit?.Typ ?? new Nil(),
-            _scope,
-            null));
-    }
+	private void AddShortLetStmtToSymbolsTable(UntypedLet let)
+	{
+		// Type check initializer
+		var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
+		// Add new variable to list of locals
+		_variableStore.Add(new Local(
+			let.Name.Value,
+			typedInit?.Typ ?? new Nil(),
+			_scope,
+			null));
+	}
 
 	/// <summary>
 	/// Type checks a let statement
@@ -501,29 +501,29 @@ public class AuraTypeChecker
 		}, r);
 	}
 
-    private Class ParseClassSignature(UntypedClass class_)
-    {
-        var typedParams = class_.Params.Select(p =>
-        {
-            var typedDefaultValue = p.ParamType.DefaultValue is not null
-                ? (ILiteral)Expression(p.ParamType.DefaultValue)
-                : null;
-            var paramTyp = p.ParamType.Typ;
-            return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
-        });
-        var methodSignatures = class_.Methods.Select(ParseFunctionSignature);
-        var implements = class_.Implementing.Any()
-            ? class_.Implementing.Select(impl =>
-            {
-                var local = FindOrThrow(impl.Value, null, class_.Line);
-                var i = local.Kind as Interface ??
-                        throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
-                return i;
-            })
-            : new List<Interface>();
-        
-        return new Class(class_.Name.Value, typedParams.ToList(), methodSignatures.ToList(), implements.ToList(), class_.Public);
-    }
+	private Class ParseClassSignature(UntypedClass class_)
+	{
+		var typedParams = class_.Params.Select(p =>
+		{
+			var typedDefaultValue = p.ParamType.DefaultValue is not null
+				? (ILiteral)Expression(p.ParamType.DefaultValue)
+				: null;
+			var paramTyp = p.ParamType.Typ;
+			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+		});
+		var methodSignatures = class_.Methods.Select(ParseFunctionSignature);
+		var implements = class_.Implementing.Any()
+			? class_.Implementing.Select(impl =>
+			{
+				var local = FindOrThrow(impl.Value, null, class_.Line);
+				var i = local.Kind as Interface ??
+						throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
+				return i;
+			})
+			: new List<Interface>();
+
+		return new Class(class_.Name.Value, typedParams.ToList(), methodSignatures.ToList(), implements.ToList(), class_.Public);
+	}
 
 	/// <summary>
 	/// Type checks a class declaration
@@ -762,8 +762,8 @@ public class AuraTypeChecker
 					null));
 			}
 		}
-        return new TypedImport(import_.Package, import_.Alias, import_.Line);
-    }
+		return new TypedImport(import_.Package, import_.Alias, import_.Line);
+	}
 
 	/// <summary>
 	/// Type checks a comment. This method is basically a no-op, since comments don't have a type, nor do they
