@@ -3,8 +3,6 @@ using System.Text;
 using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
 using AuraLang.ModuleCompiler;
-using AuraLang.Parser;
-using AuraLang.Scanner;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.TypeChecker;

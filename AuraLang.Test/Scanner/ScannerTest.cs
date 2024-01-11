@@ -1,5 +1,4 @@
-﻿using AuraLang.Exceptions;
-using AuraLang.Exceptions.Scanner;
+﻿using AuraLang.Exceptions.Scanner;
 using AuraLang.Scanner;
 using AuraLang.Token;
 
