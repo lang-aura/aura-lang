@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
 using AuraLang.Token;
@@ -8,7 +6,6 @@ using AuraLang.TypeChecker;
 using AuraLang.Types;
 using Moq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using AuraChar = AuraLang.Types.Char;
 using AuraList = AuraLang.Types.List;
 using AuraString = AuraLang.Types.String;
@@ -17,7 +14,7 @@ namespace AuraLang.Test.TypeChecker;
 
 public class TypeCheckerTest
 {
-	private readonly Mock<IVariableStore> _variableStore = new();
+	private readonly Mock<ISymbolsTable> _symbolsTable = new();
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
@@ -33,7 +30,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_variableStore.Setup(v => v.Find("i", It.IsAny<string>()))
+		_symbolsTable.Setup(v => v.Find("i", It.IsAny<string>()))
 			.Returns(new Local("i", new Int(), 1, null));
 
 		var typedAst = ArrangeAndAct(
@@ -135,7 +132,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoArgs()
 	{
-		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
+		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -171,7 +168,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_TwoArgs_WithTags()
 	{
-		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
+		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -223,7 +220,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_DefaultValues()
 	{
-		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
+		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -272,7 +269,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
 	{
-		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
+		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -310,7 +307,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
 	{
-		_variableStore.Setup(v => v.Find("f", null)).Returns(new Local(
+		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
 			"f",
 			new NamedFunction(
 				"f",
@@ -351,7 +348,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Get()
 	{
-		_variableStore.Setup(v => v.Find("greeter", null)).Returns(
+		_symbolsTable.Setup(v => v.Find("greeter", null)).Returns(
 			new Local(
 				"greeter",
 				new Class(
@@ -404,7 +401,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndex()
 	{
-		_variableStore.Setup(v => v.Find("names", null))
+		_symbolsTable.Setup(v => v.Find("names", null))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -437,7 +434,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndexRange()
 	{
-		_variableStore.Setup(v => v.Find("names", null))
+		_symbolsTable.Setup(v => v.Find("names", null))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -674,7 +671,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set()
 	{
-		_variableStore.Setup(v => v.Find("greeter", null))
+		_symbolsTable.Setup(v => v.Find("greeter", null))
 			.Returns(new Local(
 				"greeter",
 				new Class(
@@ -809,7 +806,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Variable()
 	{
-		_variableStore.Setup(v => v.Find("name", null))
+		_symbolsTable.Setup(v => v.Find("name", null))
 			.Returns(new Local(
 				"name",
 				new AuraString(),
@@ -835,7 +832,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Defer()
 	{
-		_variableStore.Setup(v => v.Find("f", null))
+		_symbolsTable.Setup(v => v.Find("f", null))
 			.Returns(new Local(
 				"f",
 				new NamedFunction(
@@ -878,7 +875,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_For_EmptyBody()
 	{
-		_variableStore.Setup(v => v.Find("i", null))
+		_symbolsTable.Setup(v => v.Find("i", null))
 			.Returns(new Local(
 				"i",
 				new Int(),
@@ -929,7 +926,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ForEach_EmptyBody()
 	{
-		_variableStore.Setup(v => v.Find("names", null))
+		_symbolsTable.Setup(v => v.Find("names", null))
 			.Returns(new Local(
 				"names",
 				new AuraList(new AuraString()),
@@ -1314,13 +1311,13 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingTwoInterfaces_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null))
+		_symbolsTable.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
 				1,
 				null));
-		_variableStore.Setup(v => v.Find("IGreeter2", null))
+		_symbolsTable.Setup(v => v.Find("IGreeter2", null))
 			.Returns(new Local(
 				"IGreeter2",
 				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private),
@@ -1353,7 +1350,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod_MissingImplementation()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null))
+		_symbolsTable.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter",
@@ -1398,7 +1395,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod_ImplementationNotPublic()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null))
+		_symbolsTable.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter",
@@ -1472,7 +1469,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null))
+		_symbolsTable.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter",
@@ -1607,7 +1604,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_variableStore.Setup(v => v.Find("IGreeter", null))
+		_symbolsTable.Setup(v => v.Find("IGreeter", null))
 			.Returns(new Local(
 				"IGreeter",
 				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
@@ -1636,7 +1633,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set_Invalid()
 	{
-		_variableStore.Setup(v => v.Find("v", null))
+		_symbolsTable.Setup(v => v.Find("v", null))
 			.Returns(new Local(
 				"v",
 				new Int(),
@@ -1662,7 +1659,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Is()
 	{
-		_variableStore.Setup(v => v.Find("v", null))
+		_symbolsTable.Setup(v => v.Find("v", null))
 			.Returns(new Local(
 				"v",
 				new Int(),
@@ -1692,7 +1689,7 @@ public class TypeCheckerTest
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
 				_enclosingStmtStore.Object, _localModuleReader.Object, "Test")
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
@@ -1700,7 +1697,7 @@ public class TypeCheckerTest
 	{
 		try
 		{
-			new AuraTypeChecker(_variableStore.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
 					_enclosingStmtStore.Object, _localModuleReader.Object, "Test")
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();

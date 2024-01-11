@@ -13,7 +13,7 @@ namespace AuraLang.TypeChecker;
 
 public class AuraTypeChecker
 {
-	private readonly IVariableStore _variableStore;
+	private readonly ISymbolsTable _symbolsTable;
 	private int _scope = 1;
 	private readonly IEnclosingClassStore _enclosingClassStore;
 	private readonly AuraStdlib _stdlib = new();
@@ -23,12 +23,12 @@ public class AuraTypeChecker
 	private readonly LocalModuleReader _localModuleReader;
 	private string FilePath { get; }
 
-	public AuraTypeChecker(IVariableStore variableStore, IEnclosingClassStore enclosingClassStore,
+	public AuraTypeChecker(ISymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
 		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore, LocalModuleReader localModuleReader,
 		string filePath)
 	{
-		_variableStore = variableStore;
+		_symbolsTable = symbolsTable;
 		_enclosingClassStore = enclosingClassStore;
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
@@ -51,7 +51,7 @@ public class AuraTypeChecker
 					break;
 				case UntypedNamedFunction nf:
 					var f = ParseFunctionSignature(nf);
-					_variableStore.Add(new Local(
+					_symbolsTable.Add(new Local(
 						nf.Name.Value,
 						f,
 						1,
@@ -60,7 +60,7 @@ public class AuraTypeChecker
 					break;
 				case UntypedClass c:
 					var cl = ParseClassSignature(c);
-					_variableStore.Add(new Local(
+					_symbolsTable.Add(new Local(
 						c.Name.Value,
 						cl,
 						1,
@@ -68,7 +68,7 @@ public class AuraTypeChecker
 					));
 					break;
 				case UntypedInterface interface_:
-					_variableStore.Add(new Local(
+					_symbolsTable.Add(new Local(
 						interface_.Name.Value,
 						new Interface(interface_.Name.Value, interface_.Methods, interface_.Public),
 						1,
@@ -77,7 +77,7 @@ public class AuraTypeChecker
 
 					foreach (var m in interface_.Methods)
 					{
-						_variableStore.Add(new Local(
+						_symbolsTable.Add(new Local(
 							m.Name,
 							m,
 							1,
@@ -193,14 +193,14 @@ public class AuraTypeChecker
 	/// <param name="line">The line in the Aura source file where the variable usage appears</param>
 	private T FindAndConfirm<T>(string varName, string? modName, T expected, int line) where T : AuraType
 	{
-		var local = _variableStore.Find(varName, modName) ?? throw new UnknownVariableException(varName, line);
+		var local = _symbolsTable.Find(varName, modName) ?? throw new UnknownVariableException(varName, line);
 		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(line);
 		return (T)local.Kind;
 	}
 
 	private Local FindOrThrow(string varName, string? modName, int line)
 	{
-		var local = _variableStore.Find(varName, modName) ?? throw new UnknownVariableException(varName, line);
+		var local = _symbolsTable.Find(varName, modName) ?? throw new UnknownVariableException(varName, line);
 		return local!;
 	}
 
@@ -267,7 +267,7 @@ public class AuraTypeChecker
 				var iter = Expression(forEachStmt.Iterable);
 				if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
 				// Add current element variable to list of local variables
-				_variableStore.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, null));
+				_symbolsTable.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, null));
 				// Type check body
 				var typedBody = NonReturnableBody(forEachStmt.Body);
 				return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
@@ -293,7 +293,7 @@ public class AuraTypeChecker
 				// Add parameters as local variables
 				foreach (var param in typedParams)
 				{
-					_variableStore.Add(new Local(
+					_symbolsTable.Add(new Local(
 						param.Name.Value,
 						param.ParamType.Typ,
 						_scope,
@@ -306,7 +306,7 @@ public class AuraTypeChecker
 				if (!returnType.IsSameOrInheritingType(typedBody.Typ))
 					throw new TypeMismatchException(f.Line);
 				// Add function as local variable
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					f.Name.Value,
 					new NamedFunction(
 						f.Name.Value,
@@ -339,7 +339,7 @@ public class AuraTypeChecker
 				// Add the function's parameters as local variables
 				foreach (var param in typedParams)
 				{
-					_variableStore.Add(new Local(
+					_symbolsTable.Add(new Local(
 						param.Name.Value,
 						param.ParamType.Typ,
 						_scope,
@@ -375,7 +375,7 @@ public class AuraTypeChecker
 		{
 			var paramTyp = param.ParamType.Typ;
 			if (param.ParamType.Variadic) paramTyp = new List(paramTyp);
-			_variableStore.Add(new Local(
+			_symbolsTable.Add(new Local(
 				param.Name.Value,
 				paramTyp,
 				_scope + 1,
@@ -406,7 +406,7 @@ public class AuraTypeChecker
 			? ExpressionAndConfirm(let.Initializer, nameTyp)
 			: defaultable!.Default(let.Line);
 		// Add new variable to list of locals
-		_variableStore.Add(new Local(
+		_symbolsTable.Add(new Local(
 			let.Name.Value,
 			typedInit?.Typ ?? new Nil(),
 			_scope,
@@ -418,7 +418,7 @@ public class AuraTypeChecker
 		// Type check initializer
 		var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
 		// Add new variable to list of locals
-		_variableStore.Add(new Local(
+		_symbolsTable.Add(new Local(
 			let.Name.Value,
 			typedInit?.Typ ?? new Nil(),
 			_scope,
@@ -444,7 +444,7 @@ public class AuraTypeChecker
 				? ExpressionAndConfirm(let.Initializer, nameTyp)
 				: defaultable!.Default(let.Line);
 			// Add new variable to list of locals
-			_variableStore.Add(new Local(
+			_symbolsTable.Add(new Local(
 				let.Name.Value,
 				typedInit?.Typ ?? new Nil(),
 				_scope,
@@ -466,7 +466,7 @@ public class AuraTypeChecker
 			// Type check initializer
 			var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
 			// Add new variable to list of locals
-			_variableStore.Add(new Local(
+			_symbolsTable.Add(new Local(
 				let.Name.Value,
 				typedInit?.Typ ?? new Nil(),
 				_scope,
@@ -692,7 +692,7 @@ public class AuraTypeChecker
 			var modName = import_.Alias is not null
 				? import_.Alias.Value.Value
 				: import_.Package.Value.Split("/")[^1];
-			_variableStore.Add(new Local(
+			_symbolsTable.Add(new Local(
 				modName,
 				importedModule,
 				_scope,
@@ -701,7 +701,7 @@ public class AuraTypeChecker
 			// Add local module's exported types to current scope
 			foreach (var f in importedModule.PublicFunctions)
 			{
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					f.Name,
 					f,
 					_scope,
@@ -710,7 +710,7 @@ public class AuraTypeChecker
 
 			foreach (var c in importedModule.PublicClasses)
 			{
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					c.Name,
 					c,
 					_scope,
@@ -719,7 +719,7 @@ public class AuraTypeChecker
 
 			foreach (var v in importedModule.PublicVariables)
 			{
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					v.Key,
 					v.Value.Typ,
 					_scope,
@@ -729,7 +729,7 @@ public class AuraTypeChecker
 		else
 		{
 			// Add module to list of local variables
-			_variableStore.Add(new Local(
+			_symbolsTable.Add(new Local(
 				"io",
 				module!,
 				_scope,
@@ -737,7 +737,7 @@ public class AuraTypeChecker
 
 			foreach (var f in module!.PublicFunctions)
 			{
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					f.Name,
 					f,
 					_scope,
@@ -746,7 +746,7 @@ public class AuraTypeChecker
 
 			foreach (var c in module!.PublicClasses)
 			{
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					c.Name,
 					c,
 					_scope,
@@ -755,7 +755,7 @@ public class AuraTypeChecker
 
 			foreach (var v in module!.PublicVariables)
 			{
-				_variableStore.Add(new Local(
+				_symbolsTable.Add(new Local(
 					v.Key,
 					v.Value.Typ,
 					_scope,
@@ -1198,7 +1198,7 @@ public class AuraTypeChecker
 	private void ExitScope()
 	{
 		// Before exiting block, remove any variables created in this scope
-		_variableStore.ExitScope(_scope);
+		_symbolsTable.ExitScope(_scope);
 		_scope--;
 	}
 

@@ -82,7 +82,7 @@ public class IntegrationTest_SingleFile
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
-		var typeChecker = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(),
+		var typeChecker = new AuraTypeChecker(new SymbolsTable(), new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
 			new LocalModuleReader(), "Test");
 		var compiler = new AuraFileCompiler(path, "Examples");
