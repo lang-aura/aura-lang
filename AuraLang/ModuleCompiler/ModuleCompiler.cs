@@ -29,7 +29,37 @@ public class AuraModuleCompiler
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
 			new EnclosingNodeStore<IUntypedAuraStatement>(),
 			new LocalModuleReader(),
-			path);
+			path,
+			ProjectName);
+	}
+
+	public AuraModuleCompiler(string path, string projectName, AuraTypeChecker typeChecker)
+	{
+		Path = path;
+		ProjectName = projectName;
+		TypeChecker = typeChecker;
+	}
+
+	public List<(string, List<ITypedAuraStatement>)> TypeCheckModule()
+	{
+		var untypedAsts = Directory.GetFiles(Path, "*.aura")
+			.Select(p =>
+			{
+				var parsedOutput = new AuraFileCompiler(p, ProjectName).ParseFile();
+				return (p, parsedOutput);
+			});
+
+		// Ensure all source files in the module have the same `mod` name
+		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod));
+		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
+		{
+			throw new DirectoryCannotContainMultipleModulesException(1);
+		}
+
+		// Build symbols table
+		foreach (var (_, untypedAst) in untypedAsts) TypeChecker.BuildSymbolsTable(untypedAst);
+		// Type check source files
+		return untypedAsts.Select(pair => (pair.p, new AuraFileCompiler(pair.p, ProjectName).TypeCheckUntypedAst(TypeChecker, pair.parsedOutput))).ToList();
 	}
 
 	public List<(string, string)> CompileModule()

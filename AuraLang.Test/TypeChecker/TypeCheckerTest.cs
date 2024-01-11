@@ -1690,7 +1690,7 @@ public class TypeCheckerTest
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
 		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
-				_enclosingStmtStore.Object, _localModuleReader.Object, "Test")
+				_enclosingStmtStore.Object, _localModuleReader.Object, "Test", "Test")
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
 	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
@@ -1698,7 +1698,7 @@ public class TypeCheckerTest
 		try
 		{
 			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
-					_enclosingStmtStore.Object, _localModuleReader.Object, "Test")
+					_enclosingStmtStore.Object, _localModuleReader.Object, "Test", "Test")
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();
 		}
