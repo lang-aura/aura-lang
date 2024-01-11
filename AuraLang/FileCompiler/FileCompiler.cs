@@ -1,4 +1,5 @@
-﻿using AuraLang.Compiler;
+﻿using AuraLang.AST;
+using AuraLang.Compiler;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Token;
@@ -15,21 +16,13 @@ public class AuraFileCompiler
 
 	private string ProjectName { get; }
 
-	/// <summary>
-	/// Since a module may contain multiple source files, the FileCompiler accepts a type checker that
-	/// may contain state from type checking other files in the module. In this way, variables declared
-	/// in one source file can be reused across multiple files in the module.
-	/// </summary>
-	private AuraTypeChecker TypeChecker { get; }
-
-	public AuraFileCompiler(string path, string projectName, AuraTypeChecker typeChecker)
+	public AuraFileCompiler(string path, string projectName)
 	{
 		Path = path;
 		ProjectName = projectName;
-		TypeChecker = typeChecker;
 	}
 
-	public string CompileFile()
+	public List<IUntypedAuraStatement> ParseFile()
 	{
 		var contents = File.ReadAllText(Path);
 		var tokens = new AuraScanner(contents, Path)
@@ -38,10 +31,20 @@ public class AuraFileCompiler
 						// relevant for the compilation process so we filter them out here before the parsing stage.
 						.Where(tok => tok.Typ is not TokType.Newline)
 						.ToList();
-		var untypedAst = new AuraParser(tokens, Path).Parse();
-		TypeChecker.BuildSymbolsTable(untypedAst);
-		var typedAst = TypeChecker.CheckTypes(untypedAst);
+		return new AuraParser(tokens, Path).Parse();
+	}
+
+	public string TypeCheckAndCompileUntypedAst(AuraTypeChecker typeChecker, List<IUntypedAuraStatement> untypedAst)
+	{
+		var typedAst = typeChecker.CheckTypes(untypedAst);
 		return new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(), Path)
 			.Compile();
+	}
+
+	public string CompileFile(AuraTypeChecker typeChecker)
+	{
+		var untypedAst = ParseFile();
+		typeChecker.BuildSymbolsTable(untypedAst);
+		return TypeCheckAndCompileUntypedAst(typeChecker, untypedAst);
 	}
 }
