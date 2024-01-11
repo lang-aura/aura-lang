@@ -18,3 +18,8 @@ public class UnknownExpressionException : CompilerException
 	public UnknownExpressionException(ITypedAuraExpression expr, int line)
 		: base($"Unknown expression: {expr}", line) { }
 }
+
+public class DirectoryCannotContainMultipleModulesException : CompilerException
+{
+	public DirectoryCannotContainMultipleModulesException(int line) : base("Directory cannot contain multiple modules", line) { }
+}

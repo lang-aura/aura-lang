@@ -304,46 +304,26 @@ public class AuraCompiler
 			return BuildStdlibPkgName(name);
 		}
 
-		var compiledModule = new AuraModuleCompiler($"src/{i.Package.Value}", ProjectName).CompileModule();
-		foreach (var (path, output) in compiledModule)
+		try
 		{
-			// Write output to `build` directory
-			var dirName = Path.GetDirectoryName(path)!.Replace("src/", "");
-			_outputWriter.CreateDirectory(dirName);
-			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(path), output);
+			var compiledModule = new AuraModuleCompiler($"src/{i.Package.Value}", ProjectName).CompileModule();
+			foreach (var (path, output) in compiledModule)
+			{
+				// Write output to `build` directory
+				var dirName = Path.GetDirectoryName(path)!.Replace("src/", "");
+				_outputWriter.CreateDirectory(dirName);
+				_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(path), output);
+			}
+
+			return i.Alias is null
+				? $"\"{ProjectName}/{i.Package.Value}\""
+				: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
+		}
+		catch (Exception)
+		{
+			throw new DirectoryCannotContainMultipleModulesException(1);
 		}
 
-
-		// Read all Aura source files in the specified directory
-		/*foreach (var source in _localModuleReader.GetModuleSourcePaths($"src/{i.Package.Value}"))
-		{
-			// Read the file's contents
-			var contents = _localModuleReader.Read(source);
-			// Scan file
-			var tokens = new AuraScanner(contents, FilePath).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
-			// Parse file
-			var untypedAst = new AuraParser(tokens, FilePath).Parse();
-			// Type check file
-			var typedAst = new AuraTypeChecker(
-				new VariableStore(),
-				new EnclosingClassStore(),
-				new EnclosingNodeStore<IUntypedAuraExpression>(),
-				new EnclosingNodeStore<IUntypedAuraStatement>(),
-				new LocalModuleReader(),
-				FilePath).CheckTypes(untypedAst);
-			// Compile file
-			var output = new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(),
-					source)
-				.Compile();
-			// Write output to `build` directory
-			var dirName = Path.GetDirectoryName(source)!.Replace("src/", "");
-			_outputWriter.CreateDirectory(dirName);
-			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(source), output);
-		}*/
-
-		return i.Alias is null
-			? $"\"{ProjectName}/{i.Package.Value}\""
-			: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
 	}
 
 	private string CommentStmt(TypedComment com) => com.Text.Value;

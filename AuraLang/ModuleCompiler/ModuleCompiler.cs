@@ -1,4 +1,5 @@
 ﻿using AuraLang.AST;
+using AuraLang.Exceptions.TypeChecker;
 using AuraLang.FileCompiler;
 using AuraLang.Parser;
 using AuraLang.Scanner;
@@ -37,6 +38,7 @@ public class AuraModuleCompiler
 	public List<(string, string)> CompileModule()
 	{
 		var paths = Directory.GetFiles(Path, "*.aura");
+		var moduleNames = new List<string>();
 
 		foreach (var path in paths)
 		{
@@ -48,7 +50,16 @@ public class AuraModuleCompiler
 							.Where(tok => tok.Typ is not TokType.Newline)
 							.ToList();
 			var untypedAst = new AuraParser(tokens, path).Parse();
+
+			var modName = untypedAst.Find(node => node is UntypedMod);
+			moduleNames.Add(((UntypedMod)modName!).Value.Value);
+
 			TypeChecker.BuildSymbolsTable(untypedAst);
+		}
+
+		if (!moduleNames.All(name => name == moduleNames.First()))
+		{
+			throw new DirectoryCannotContainMultipleModulesException(1);
 		}
 
 		return paths

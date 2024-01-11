@@ -1,0 +1,7 @@
+mod one
+
+import aura/io
+
+pub fn g() {
+	io.println("Hello world")
+}

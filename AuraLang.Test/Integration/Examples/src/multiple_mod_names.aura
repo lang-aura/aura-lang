@@ -1,0 +1,8 @@
+mod main
+
+import aura/io
+import multiple_mod_names as mult
+
+fn main() {
+	mult.f()
+}

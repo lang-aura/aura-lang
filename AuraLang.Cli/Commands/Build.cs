@@ -41,7 +41,7 @@ public class Build : AuraCommand
 		}
 		catch (AuraExceptionContainer ex)
 		{
-			ex.Report();
+			Console.WriteLine(ex.Report());
 			return 1;
 		}
 		catch (AuraWarningContainer w)
