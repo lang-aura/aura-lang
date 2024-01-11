@@ -94,7 +94,7 @@ public class Build : AuraCommand
 		var dirs = Directory.GetDirectories("./build/pkg").Where(p => p.Split("/")[^1] != "stdlib");
 		foreach (var dir in dirs)
 		{
-			Directory.Delete(dir);
+			Directory.Delete(dir, true);
 		}
 
 		// Delete executable file
