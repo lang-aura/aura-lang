@@ -85,11 +85,11 @@ public class IntegrationTest_SingleFile
 		var typeChecker = new AuraTypeChecker(new VariableStore(), new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
 			new LocalModuleReader(), "Test");
-		var compiler = new AuraFileCompiler(path, "Examples", typeChecker);
+		var compiler = new AuraFileCompiler(path, "Examples");
 
 		try
 		{
-			var output = compiler.CompileFile();
+			var output = compiler.CompileFile(typeChecker);
 			// Create Go output file
 			await File.WriteAllTextAsync($"build/pkg/{fileName}.go", output);
 			// Format Go output file
