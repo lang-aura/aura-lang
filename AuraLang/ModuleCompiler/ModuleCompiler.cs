@@ -24,7 +24,7 @@ public class AuraModuleCompiler
 		Path = path;
 		ProjectName = projectName;
 		TypeChecker = new AuraTypeChecker(
-			new VariableStore(),
+			new SymbolsTable(),
 			new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
 			new EnclosingNodeStore<IUntypedAuraStatement>(),

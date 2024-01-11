@@ -1,12 +1,9 @@
-﻿using AuraLang.Exceptions.TypeChecker;
-using AuraLang.Types;
-
-namespace AuraLang.TypeChecker;
+﻿namespace AuraLang.TypeChecker;
 
 /// <summary>
 /// Stores variables on behalf of the Type Checker
 /// </summary>
-public interface IVariableStore
+public interface ISymbolsTable
 {
 	/// <summary>
 	/// Adds a new local variable
@@ -29,7 +26,7 @@ public interface IVariableStore
 	void ExitScope(int scope);
 }
 
-public class VariableStore : IVariableStore
+public class SymbolsTable : ISymbolsTable
 {
 	private readonly List<Local> _variables = new();
 
