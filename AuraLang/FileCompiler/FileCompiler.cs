@@ -34,6 +34,8 @@ public class AuraFileCompiler
 		return new AuraParser(tokens, Path).Parse();
 	}
 
+	public List<ITypedAuraStatement> TypeCheckUntypedAst(AuraTypeChecker typeChecker, List<IUntypedAuraStatement> untypedAst) => typeChecker.CheckTypes(untypedAst);
+
 	public string TypeCheckAndCompileUntypedAst(AuraTypeChecker typeChecker, List<IUntypedAuraStatement> untypedAst)
 	{
 		var typedAst = typeChecker.CheckTypes(untypedAst);

@@ -1,7 +1,6 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
-using AuraLang.Parser;
-using AuraLang.Scanner;
+using AuraLang.ModuleCompiler;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
 using AuraLang.Token;
@@ -22,11 +21,12 @@ public class AuraTypeChecker
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
 	private readonly LocalModuleReader _localModuleReader;
 	private string FilePath { get; }
+	private string ProjectName { get; }
 
 	public AuraTypeChecker(ISymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
 		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore, LocalModuleReader localModuleReader,
-		string filePath)
+		string filePath, string projectName)
 	{
 		_symbolsTable = symbolsTable;
 		_enclosingClassStore = enclosingClassStore;
@@ -35,58 +35,68 @@ public class AuraTypeChecker
 		_localModuleReader = localModuleReader;
 		FilePath = filePath;
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
+		ProjectName = projectName;
 	}
 
 	public void BuildSymbolsTable(List<IUntypedAuraStatement> stmts)
 	{
 		foreach (var stmt in stmts)
 		{
-			switch (stmt)
+			try
 			{
-				case UntypedImport i:
-					var im = ImportStmt(i);
-					break;
-				case UntypedLet l:
-					AddLetStmtToSymbolsTable(l);
-					break;
-				case UntypedNamedFunction nf:
-					var f = ParseFunctionSignature(nf);
-					_symbolsTable.Add(new Local(
-						nf.Name.Value,
-						f,
-						1,
-						null
-					));
-					break;
-				case UntypedClass c:
-					var cl = ParseClassSignature(c);
-					_symbolsTable.Add(new Local(
-						c.Name.Value,
-						cl,
-						1,
-						null
-					));
-					break;
-				case UntypedInterface interface_:
-					_symbolsTable.Add(new Local(
-						interface_.Name.Value,
-						new Interface(interface_.Name.Value, interface_.Methods, interface_.Public),
-						1,
-						null
-					));
-
-					foreach (var m in interface_.Methods)
-					{
+				switch (stmt)
+				{
+					case UntypedImport i:
+						var im = ImportStmt(i);
+						break;
+					case UntypedLet l:
+						AddLetStmtToSymbolsTable(l);
+						break;
+					case UntypedNamedFunction nf:
+						var f = ParseFunctionSignature(nf);
 						_symbolsTable.Add(new Local(
-							m.Name,
-							m,
+							nf.Name.Value,
+							f,
 							1,
 							null
 						));
-					}
-					break;
+						break;
+					case UntypedClass c:
+						var cl = ParseClassSignature(c);
+						_symbolsTable.Add(new Local(
+							c.Name.Value,
+							cl,
+							1,
+							null
+						));
+						break;
+					case UntypedInterface interface_:
+						_symbolsTable.Add(new Local(
+							interface_.Name.Value,
+							new Interface(interface_.Name.Value, interface_.Methods, interface_.Public),
+							1,
+							null
+						));
+
+						foreach (var m in interface_.Methods)
+						{
+							_symbolsTable.Add(new Local(
+								m.Name,
+								m,
+								1,
+								null
+							));
+						}
+						break;
+				}
+			}
+			catch (TypeCheckerException ex)
+			{
+				_exContainer.Add(ex);
 			}
 		}
+
+		if (!_exContainer.IsEmpty()) throw _exContainer;
 	}
 
 	public List<ITypedAuraStatement> CheckTypes(List<IUntypedAuraStatement> untypedAst)
@@ -641,41 +651,19 @@ public class AuraTypeChecker
 		// First, check if the module being imported is built-in
 		if (!_stdlib.TryGetModule(import_.Package.Value, out var module))
 		{
-			// Read all Aura source files in the specified directory
-			var paths = _localModuleReader.GetModuleSourcePaths($"src/{import_.Package.Value}");
+			var typedAsts = new AuraModuleCompiler($"src/{import_.Package.Value}", ProjectName, this).TypeCheckModule();
 
-			foreach (var path in paths)
-			{
-				var contents = File.ReadAllText(path);
-				var tokens = new AuraScanner(contents, path)
-								.ScanTokens()
-								// Newline characters are retained by the scanner for use by `aura fmt` -- they are not
-								// relevant for the compilation process so we filter them out here before the parsing stage.
-								.Where(tok => tok.Typ is not TokType.Newline)
-								.ToList();
-				var untypedAst = new AuraParser(tokens, path).Parse();
-				BuildSymbolsTable(untypedAst);
-			}
-
-			var exportedTypes = paths
-				.Select(f =>
+			var exportedTypes = typedAsts
+				.Select(typedAst =>
 				{
-					// Read the file's contents
-					var contents = _localModuleReader.Read(f);
-					// Scan file
-					var tokens = new AuraScanner(contents, FilePath).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
-					// Parse file
-					var untypedAst = new AuraParser(tokens, FilePath).Parse();
-					// Type check file
-					var typedAst = CheckTypes(untypedAst);
 					// Extract public methods and classes
-					var methods = typedAst
+					var methods = typedAst.Item2
 						.Where(node => node.Typ is NamedFunction)
 						.Select(node => (node.Typ as NamedFunction)!);
-					var classes = typedAst
+					var classes = typedAst.Item2
 						.Where(node => node.Typ is Class)
 						.Select(node => (node.Typ as Class)!);
-					var variables = typedAst
+					var variables = typedAst.Item2
 						.Where(node => node is TypedLet)
 						.Select(node => (node as TypedLet)!);
 					return (methods, classes, variables);

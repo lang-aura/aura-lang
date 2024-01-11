@@ -76,7 +76,7 @@ public class IntegrationTest_SingleFile
 	public async Task TestIntegration_ImportModuleWithTwoModuleNames()
 	{
 		var output = await ArrangeAndAct_SingleFile("src/multiple_mod_names.aura");
-		MakeAssertions(output, "[src/multiple_mod_names.aura line 1] Directory cannot contain multiple modules");
+		MakeAssertions(output, "[Test line 1] Directory cannot contain multiple modules");
 	}
 
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
@@ -84,7 +84,7 @@ public class IntegrationTest_SingleFile
 		var fileName = Path.GetFileNameWithoutExtension(path);
 		var typeChecker = new AuraTypeChecker(new SymbolsTable(), new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
-			new LocalModuleReader(), "Test");
+			new LocalModuleReader(), "Test", "Test");
 		var compiler = new AuraFileCompiler(path, "Examples");
 
 		try
