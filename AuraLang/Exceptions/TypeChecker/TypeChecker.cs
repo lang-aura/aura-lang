@@ -133,3 +133,8 @@ public class CannotDecrementNonNumberException : TypeCheckerException
 {
 	public CannotDecrementNonNumberException(int line) : base("Cannot decrement non-number", line) { }
 }
+
+public class DirectoryCannotContainMultipleModulesException : TypeCheckerException
+{
+	public DirectoryCannotContainMultipleModulesException(int line) : base("Directory cannot contain multiple modules", line) { }
+}

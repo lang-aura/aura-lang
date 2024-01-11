@@ -72,6 +72,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "10\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_ImportModuleWithTwoModuleNames()
+	{
+		var output = await ArrangeAndAct_SingleFile("src/multiple_mod_names.aura");
+		MakeAssertions(output, "[src/multiple_mod_names.aura line 1] Directory cannot contain multiple modules");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
@@ -120,8 +127,7 @@ public class IntegrationTest_SingleFile
 		}
 		catch (AuraExceptionContainer ex)
 		{
-			ex.Report();
-			throw;
+			return ex.Report();
 		}
 	}
 

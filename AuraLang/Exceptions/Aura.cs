@@ -12,11 +12,10 @@ public abstract class AuraExceptionContainer : Exception
 
 	public bool IsEmpty() => Exs.Count == 0;
 
-	public void Report()
+	public string Report()
 	{
 		var errs = Exs.Select(ex => ex.Error(FilePath));
-		var output = string.Join("\n\n", errs);
-		Console.WriteLine(output);
+		return string.Join("\n\n", errs);
 	}
 }
 
