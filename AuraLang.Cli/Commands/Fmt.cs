@@ -29,10 +29,10 @@ public class AuraFmt : AuraCommand
 	/// Formats an individual Aura source file
 	/// </summary>
 	/// <param name="path">The path of the Aura source file</param>
-	public void FormatFile(string path)
+	public void FormatFile(string path, string contents)
 	{
-		var contents = FormatAuraSourceCode(File.ReadAllText(path), path);
-		File.WriteAllText(path, contents);
+		var formatted = FormatAuraSourceCode(contents, path);
+		File.WriteAllText(path, formatted);
 	}
 
 	public string FormatAuraSourceCode(string source, string filePath)

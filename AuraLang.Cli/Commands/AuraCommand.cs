@@ -21,7 +21,7 @@ public abstract class AuraCommand
 	///	</summary>
 	/// <param name="a">The Action to call on each Aura source file in the project. The action will accept
 	/// each file's path as a parameter</param>
-	protected void TraverseProject(Action<string> a)
+	protected void TraverseProject(Action<string, string> a)
 	{
 		TraverseProjectRecur("./src", a);
 	}
@@ -34,18 +34,24 @@ public abstract class AuraCommand
 	/// directory and any sub-directories will be processed by the supplied Action</param>
 	/// <param name="a">The Action to call on each Aura source file in the current directory and any sub-directories. The action will
 	/// accept each file's path as a parameter</param>
-	private void TraverseProjectRecur(string path, Action<string> a)
+	private void TraverseProjectRecur(string path, Action<string, string> a)
 	{
 		var paths = Directory.GetFiles(path, "*.aura");
 		foreach (var p in paths)
 		{
 			try
 			{
-				a(p);
+				var contents = File.ReadAllText(p);
+				a(p, contents);
 			}
 			catch (AuraExceptionContainer ex)
 			{
 				ex.Report();
+				return;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
 				return;
 			}
 		}
