@@ -340,7 +340,17 @@ public class AuraScanner
 			case 'd':
 				return CheckKeywordToken(TokType.Defer, tok, "defer");
 			case 'e':
-				return CheckKeywordToken(TokType.Else, tok, "else");
+				if (tok.Length >= 2)
+				{
+					switch (tok[1])
+					{
+						case 'l':
+							return CheckKeywordToken(TokType.Else, tok, "else");
+						case 'r':
+							return CheckKeywordToken(TokType.Error, tok, "error");
+					}
+				}
+				break;
 			case 'f':
 				if (tok.Length >= 2)
 				{

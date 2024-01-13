@@ -577,6 +577,31 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_NamedFunction_ReturnError()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new(TokType.Fn, "fn", 1),
+			new(TokType.Identifier, "f", 1),
+			new(TokType.LeftParen, "(", 1),
+			new(TokType.RightParen, ")", 1),
+			new(TokType.Arrow, "->", 1),
+			new(TokType.Error, "error", 1),
+			new(TokType.LeftBrace, "{", 1),
+			new(TokType.RightBrace, "}", 1),
+			new(TokType.Semicolon, ";", 1),
+			new(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedNamedFunction(
+			new Tok(TokType.Identifier, "f", 1),
+			new List<Param>(),
+			new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
+			new Tok(TokType.Error, "error", 1),
+			Visibility.Private,
+			1));
+	}
+
+	[Test]
 	public void TestParse_NamedFunction_ParamDefaultValue_Invalid()
 	{
 		ArrangeAndAct_Invalid(
