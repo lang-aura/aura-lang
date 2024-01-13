@@ -1221,6 +1221,7 @@ public class AuraTypeChecker
 			TokType.Bool => new Bool(),
 			TokType.Any => new Any(),
 			TokType.Char => new AuraChar(),
+			TokType.Error => new Error(),
 			_ => throw new UnexpectedTypeException(tok.Line)
 		};
 	}

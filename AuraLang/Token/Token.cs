@@ -70,6 +70,7 @@ public enum TokType
 	Yield, // yield
 	Interface, // interface
 	Is, // is
+	Error, // error
 	Identifier,
 	StringLiteral,
 	CharLiteral,

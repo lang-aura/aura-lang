@@ -238,6 +238,8 @@ public class AuraParser
 				var value = TypeTokenToType(Advance());
 				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, tok.Line));
 				return new Map(key, value);
+			case TokType.Error:
+				return new Error();
 			default:
 				throw new UnexpectedTypeException(tok.Value, tok.Line);
 		}

@@ -446,3 +446,18 @@ public class Map : AuraType, IIndexable, IDefaultable
 		new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
 }
+
+public class Error : AuraType
+{
+	public string? Message { get; }
+
+	public Error(string message)
+	{
+		Message = message;
+	}
+
+	public Error() { }
+
+	public override bool IsSameType(AuraType other) => other is Class c && c.Name == "Error";
+	public override string ToString() => Message ?? string.Empty;
+}
