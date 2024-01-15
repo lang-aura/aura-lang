@@ -1110,7 +1110,7 @@ public class CompilerTest
 		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
 		_outputWriter.Setup(ow => ow.WriteOutput(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 		// Arrange
-		var compiler = new AuraCompiler(typedAst, "test", _localModuleReader.Object, _outputWriter.Object, "Test");
+		var compiler = new AuraCompiler(typedAst, "test", _outputWriter.Object, "Test");
 		// Act
 		return compiler.Compile();
 	}
@@ -1120,7 +1120,7 @@ public class CompilerTest
 		output = output.Trim();
 		Assert.Multiple(() =>
 		{
-			Assert.That(output.Length, Is.EqualTo(expected.Length));
+			Assert.That(output, Has.Length.EqualTo(expected.Length));
 			Assert.That(output, Is.EqualTo(expected));
 		});
 	}

@@ -459,5 +459,5 @@ public class Error : AuraType
 	public Error() { }
 
 	public override bool IsSameType(AuraType other) => other is Error;
-	public override string ToString() => Message ?? string.Empty;
+	public override string ToString() => "error";
 }

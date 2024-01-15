@@ -3,9 +3,9 @@ using System.Text;
 using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
 using AuraLang.ModuleCompiler;
+using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Token;
-using AuraLang.TypeChecker;
 using AuraLang.Types;
 
 namespace AuraLang.Compiler;
@@ -43,19 +43,17 @@ public class AuraCompiler
 	private readonly CompilerExceptionContainer _exContainer;
 
 	private string ProjectName { get; }
-	private readonly LocalModuleReader _localModuleReader;
 	private readonly CompiledOutputWriter _outputWriter;
-	private string FilePath { get; }
+	private readonly Module _prelude;
 
-	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName, LocalModuleReader localmoduleReader,
+	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName,
 		CompiledOutputWriter outputWriter, string filePath)
 	{
 		_typedAst = typedAst;
 		ProjectName = projectName;
-		_localModuleReader = localmoduleReader;
 		_outputWriter = outputWriter;
-		FilePath = filePath;
 		_exContainer = new CompilerExceptionContainer(filePath);
+		_prelude = new AuraPrelude().GetPrelude();
 	}
 
 	public string Compile()
@@ -301,6 +299,7 @@ public class AuraCompiler
 			var name = ExtractStdlibPkgName(i.Package.Value);
 			return BuildStdlibPkgName(name);
 		}
+		if (i.Package.Value.Contains("prelude")) return $"prelude \"{i.Package.Value}\"";
 
 		try
 		{
@@ -510,7 +509,17 @@ public class AuraCompiler
 		return $"{unary.Operator.Value}{expr}";
 	}
 
-	private string VariableExpr(TypedVariable v) => v.Name.Value;
+	private string VariableExpr(TypedVariable v)
+	{
+		if (IsVariableInPrelude(v.Name.Value))
+		{
+			return AddPreludePrefix(v.Name.Value);
+		}
+		else
+		{
+			return v.Name.Value;
+		}
+	}
 
 	private string IsExpr(TypedIs is_)
 	{
@@ -634,5 +643,33 @@ public class AuraCompiler
 		}
 
 		return camelCase.ToString();
+	}
+
+	private bool IsVariableInPrelude(string name)
+	{
+		if (_prelude.PublicVariables.ContainsKey(name)) return true;
+		if (_prelude.PublicClasses.Where(c => c.Name == name).Any()) return true;
+		if (_prelude.PublicFunctions.Where(f => f.Name == name).Any()) return true;
+		return false;
+	}
+
+	private string AddPreludePrefix(string name)
+	{
+		var typedImport = new TypedImport(
+			Package: new Tok(
+				Typ: TokType.Identifier,
+				Value: $"{ProjectName}/prelude",
+				Line: 1
+			),
+			Alias: new Tok(
+				Typ: TokType.Identifier,
+				Value: "prelude",
+				Line: 1
+			),
+			Line: 1
+		);
+		var preludeImport = ImportStmt(typedImport);
+		_goDocument.WriteStmt(preludeImport, 1, typedImport);
+		return $"prelude.{ConvertSnakeCaseToCamelCase(name)}";
 	}
 }
