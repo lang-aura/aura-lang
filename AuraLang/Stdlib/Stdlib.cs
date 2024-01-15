@@ -485,33 +485,6 @@ public class AuraStdlib
 				},
 				publicClasses: new List<Class>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
-		},
-		{
-			"aura/errors", new Module(
-				name: "errors",
-				publicFunctions: new List<NamedFunction>(),
-				publicClasses: new List<Class>
-				{
-					new(
-						name: "Error",
-						parameters: new List<Param>
-						{
-							new(
-								new Tok(TokType.Identifier, "message", 1),
-								new ParamType(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							)
-						},
-						methods: new List<NamedFunction>(),
-						implementing: new List<Interface>(),
-						pub: Visibility.Public
-					)
-				},
-				publicVariables: new Dictionary<string, ITypedAuraExpression>()
-			)
 		}
 	};
 

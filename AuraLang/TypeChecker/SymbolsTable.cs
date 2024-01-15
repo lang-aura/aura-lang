@@ -1,4 +1,7 @@
-﻿namespace AuraLang.TypeChecker;
+﻿using AuraLang.Prelude;
+using AuraLang.Types;
+
+namespace AuraLang.TypeChecker;
 
 /// <summary>
 /// Stores variables on behalf of the Type Checker
@@ -28,13 +31,26 @@ public interface ISymbolsTable
 
 public class SymbolsTable : ISymbolsTable
 {
-	private readonly List<Local> _variables = new();
+	private readonly List<Local> _symbols = new();
 
-	public void Add(Local local) => _variables.Add(local);
+	public SymbolsTable()
+	{
+		foreach (var p in AuraPrelude.Prelude)
+		{
+			_symbols.Add(new Local(
+				Name: ((NamedFunction)p).Name,
+				Kind: p,
+				Scope: 1,
+				Defining: null
+			));
+		}
+	}
+
+	public void Add(Local local) => _symbols.Add(local);
 
 	public Local? Find(string varName, string? modName)
 	{
-		var local = _variables.Find(v => v.Name == varName &&
+		var local = _symbols.Find(v => v.Name == varName &&
 										 (v.Defining is null && modName is null ||
 										  v.Defining == modName));
 		if (local.Equals(default)) return null;
@@ -43,14 +59,14 @@ public class SymbolsTable : ISymbolsTable
 
 	public void ExitScope(int scope)
 	{
-		for (var i = _variables.Count - 1; i >= 0; i--)
+		for (var i = _symbols.Count - 1; i >= 0; i--)
 		{
-			if (_variables[i].Scope < scope)
+			if (_symbols[i].Scope < scope)
 			{
 				break;
 			}
 
-			_variables.RemoveAt(_variables.Count - 1);
+			_symbols.RemoveAt(_symbols.Count - 1);
 		}
 	}
 }

@@ -956,61 +956,33 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_NamedFunction_NoParams_ReturnError()
 	{
-		_symbolsTable.Setup(st => st.Find("errors", null))
-			.Returns(
-				new Local(
-					Name: "errors",
-					Kind: new Module(
-						name: "errors",
-						publicFunctions: new List<NamedFunction>(),
-						publicClasses: new List<Class>
+		_symbolsTable.Setup(v => v.Find("error", null))
+			.Returns(new Local(
+				"error",
+				new NamedFunction(
+					name: "error",
+					pub: Visibility.Public,
+					f: new Function(
+						fParams: new List<Param>
 						{
 							new(
-								name: "Error",
-								parameters: new List<Param>
-								{
-									new(
-										new Tok(TokType.Identifier, "message", 1),
-										new ParamType(
-											Typ: new AuraString(),
-											Variadic: false,
-											DefaultValue: null
-										)
-									)
-								},
-								methods: new List<NamedFunction>(),
-								implementing: new List<Interface>(),
-								pub: Visibility.Public
-							)
-						},
-						publicVariables: new Dictionary<string, ITypedAuraExpression>()
-					),
-					Scope: 1,
-					Defining: null));
-
-		_symbolsTable.Setup(st => st.Find("Error", null))
-			.Returns(
-				new Local(
-					Name: "Error",
-					Kind: new Class(
-						name: "Error",
-						parameters: new List<Param>
-						{
-							new(
-								new Tok(TokType.Identifier, "message", 1),
-								new ParamType(
+								Name: new Tok(
+									Typ: TokType.Identifier,
+									Value: "message",
+									Line: 1
+								),
+								ParamType: new ParamType(
 									Typ: new AuraString(),
 									Variadic: false,
 									DefaultValue: null
 								)
 							)
 						},
-						methods: new List<NamedFunction>(),
-						implementing: new List<Interface>(),
-						pub: Visibility.Public
-					),
-					Scope: 1,
-					Defining: null));
+						returnType: new Error()
+					)
+				),
+				1,
+				null));
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1021,12 +993,12 @@ public class TypeCheckerTest
 				{
 					new UntypedReturn(
 						Value: new UntypedCall(
-							Callee: new UntypedGet(
-								Obj: new UntypedVariable(
-									Name: new Tok(TokType.Identifier, "errors", 1),
+							Callee: new UntypedVariable(
+								Name: new Tok(
+									Typ: TokType.Identifier,
+									Value: "error",
 									Line: 1
 								),
-								Name: new Tok(TokType.Identifier, "Error", 1),
 								Line: 1
 							),
 							Arguments: new List<(Tok?, IUntypedAuraExpression)>
@@ -1045,103 +1017,53 @@ public class TypeCheckerTest
 		MakeAssertions(typedAst, new TypedNamedFunction(
 			Name: new Tok(TokType.Identifier, "f", 1),
 			Params: new List<Param>(),
-			Body: new TypedBlock(new List<ITypedAuraStatement>
-			{
-				new TypedReturn(
-						Value: new TypedCall(
-							Callee: new TypedGet(
-								Obj: new TypedVariable(
-									Name: new Tok(TokType.Identifier, "errors", 1),
-									Typ: new Module(
-										name: "errors",
-										publicFunctions: new List<NamedFunction>(),
-										publicClasses: new List<Class>
-										{
-											new(
-												name: "Error",
-												parameters: new List<Param>
-												{
-													new(
-														new Tok(TokType.Identifier, "message", 1),
-														new ParamType(
-															Typ: new AuraString(),
-															Variadic: false,
-															DefaultValue: null
-														)
+			Body: new TypedBlock(
+				Statements: new List<ITypedAuraStatement>
+				{
+					new TypedReturn(
+							Value: new TypedCall(
+								Callee: new TypedVariable(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: "error",
+										Line: 1
+									),
+									Typ: new NamedFunction(
+										name: "error",
+										pub: Visibility.Public,
+										f: new Function(
+											fParams: new List<Param>
+											{
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "message",
+														Line: 1
+													),
+													ParamType: new ParamType(
+														Typ: new AuraString(),
+														Variadic: false,
+														DefaultValue: null
 													)
-												},
-												methods: new List<NamedFunction>(),
-												implementing: new List<Interface>(),
-												pub: Visibility.Public
-											)
-										},
-										publicVariables: new Dictionary<string, ITypedAuraExpression>()
+												)
+											},
+											returnType: new Error()
+										)
 									),
 									Line: 1
 								),
-								Name: new Tok(TokType.Identifier, "Error", 1),
-								Typ: new Class(
-									name: "Error",
-									parameters: new List<Param>
-									{
-										new(
-											new Tok(TokType.Identifier, "message", 1),
-											new ParamType(
-												Typ: new AuraString(),
-												Variadic: false,
-												DefaultValue: null
-											)
-										)
-									},
-									methods: new List<NamedFunction>(),
-									implementing: new List<Interface>(),
-									pub: Visibility.Public
-								),
+								Arguments: new List<ITypedAuraExpression>
+								{
+									new StringLiteral("Helpful error message", 1)
+								},
+								Typ: new Error(),
 								Line: 1
 							),
-							Arguments: new List<ITypedAuraExpression>
-							{
-								new StringLiteral("Helpful error message", 1)
-							},
-							Typ: new Class(
-								name: "Error",
-								parameters: new List<Param>
-								{
-									new(
-										new Tok(TokType.Identifier, "message", 1),
-										new ParamType(
-											Typ: new AuraString(),
-											Variadic: false,
-											DefaultValue: null
-										)
-									)
-								},
-								methods: new List<NamedFunction>(),
-								implementing: new List<Interface>(),
-								pub: Visibility.Public
-							),
 							Line: 1
-						),
-						Line: 1
-					)
-			},
-			new Class(
-				name: "Error",
-				parameters: new List<Param>
-				{
-					new(
-						new Tok(TokType.Identifier, "message", 1),
-						new ParamType(
-							Typ: new AuraString(),
-							Variadic: false,
-							DefaultValue: null
 						)
-					)
 				},
-				methods: new List<NamedFunction>(),
-				implementing: new List<Interface>(),
-				pub: Visibility.Public
-			), 1),
+				Typ: new Error(),
+				Line: 1),
 			ReturnType: new Error(),
 			Public: Visibility.Public,
 			Line: 1));
