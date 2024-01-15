@@ -1,4 +1,4 @@
-using AuraLang.Shared;
+﻿using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraString = AuraLang.Types.String;
