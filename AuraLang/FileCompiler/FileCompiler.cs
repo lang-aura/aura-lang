@@ -39,7 +39,7 @@ public class AuraFileCompiler
 	public string TypeCheckAndCompileUntypedAst(AuraTypeChecker typeChecker, List<IUntypedAuraStatement> untypedAst)
 	{
 		var typedAst = typeChecker.CheckTypes(untypedAst);
-		return new AuraCompiler(typedAst, ProjectName, new LocalModuleReader(), new CompiledOutputWriter(), Path)
+		return new AuraCompiler(typedAst, ProjectName, new CompiledOutputWriter(), Path)
 			.Compile();
 	}
 

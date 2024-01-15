@@ -79,6 +79,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "[src/multiple_mod_names.aura line 1] Directory cannot contain multiple modules");
 	}
 
+	[Test]
+	public async Task TestIntegration_Error()
+	{
+		var output = await ArrangeAndAct_SingleFile("src/error.aura");
+		MakeAssertions(output, "Helpful error message\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

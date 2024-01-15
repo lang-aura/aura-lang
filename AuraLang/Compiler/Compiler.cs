@@ -3,9 +3,9 @@ using System.Text;
 using AuraLang.AST;
 using AuraLang.Exceptions.Compiler;
 using AuraLang.ModuleCompiler;
+using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Token;
-using AuraLang.TypeChecker;
 using AuraLang.Types;
 
 namespace AuraLang.Compiler;
@@ -43,23 +43,43 @@ public class AuraCompiler
 	private readonly CompilerExceptionContainer _exContainer;
 
 	private string ProjectName { get; }
-	private readonly LocalModuleReader _localModuleReader;
 	private readonly CompiledOutputWriter _outputWriter;
-	private string FilePath { get; }
 
-	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName, LocalModuleReader localmoduleReader,
+	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName,
 		CompiledOutputWriter outputWriter, string filePath)
 	{
 		_typedAst = typedAst;
 		ProjectName = projectName;
-		_localModuleReader = localmoduleReader;
 		_outputWriter = outputWriter;
-		FilePath = filePath;
 		_exContainer = new CompilerExceptionContainer(filePath);
 	}
 
 	public string Compile()
 	{
+		_goDocument.WriteStmt("import \"errors\"", 1, new TypedImport(Package: new Tok(TokType.Identifier, "errors", 1), Alias: null, Line: 1));
+		foreach (var f in new AuraPrelude().GetPrelude().PublicFunctions)
+		{
+			try
+			{
+				var s = "func err(message string) error {\n\treturn errors.New(message)\n}";
+				_goDocument.WriteStmt(s, 1, new TypedNamedFunction(
+					Name: new Tok(TokType.Identifier, "err", 1),
+					Params: new List<Param>(),
+					Body: new TypedBlock(
+						Statements: new List<ITypedAuraStatement>(),
+						Typ: new Error(),
+						Line: 1
+					),
+					ReturnType: new Error(),
+					Public: Visibility.Private,
+					Line: 1
+				));
+			}
+			catch (CompilerException ex)
+			{
+				_exContainer.Add(ex);
+			}
+		}
 		foreach (var node in _typedAst)
 		{
 			try

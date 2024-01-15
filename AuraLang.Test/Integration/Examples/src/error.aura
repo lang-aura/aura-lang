@@ -1,0 +1,12 @@
+mod main
+
+import aura/io
+
+fn main() {
+	e := f()
+	io.printf("%v\n", e)
+}
+
+fn f() -> error {
+	return err("Helpful error message")
+}

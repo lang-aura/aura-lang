@@ -91,7 +91,7 @@ public class Build : AuraCommand
 		}
 
 		// Delete any sub-directories containing Go source files
-		var dirs = Directory.GetDirectories("./build/pkg").Where(p => p.Split("/")[^1] != "stdlib");
+		var dirs = Directory.GetDirectories("./build/pkg").Where(p => p.Split("/")[^1] != "stdlib" && p.Split("/")[^1] != "prelude");
 		foreach (var dir in dirs)
 		{
 			Directory.Delete(dir, true);

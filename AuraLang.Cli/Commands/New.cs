@@ -30,6 +30,7 @@ public class New : AuraCommand
 		Directory.CreateDirectory($"{projPath}/build");
 		Directory.CreateDirectory($"{projPath}/build/pkg");
 		Directory.CreateDirectory($"{projPath}/build/pkg/stdlib");
+		Directory.CreateDirectory($"{projPath}/build/pkg/prelude");
 		var homeDir = Environment.GetEnvironmentVariable("HOME");
 
 		var cp = new Process
@@ -38,6 +39,17 @@ public class New : AuraCommand
 			{
 				FileName = "cp",
 				Arguments = $"-R \"{homeDir}/.aura/stdlib/\" \"{projPath}/build/pkg/stdlib\""
+			}
+		};
+		cp.Start();
+		cp.WaitForExit();
+
+		cp = new Process
+		{
+			StartInfo = new ProcessStartInfo
+			{
+				FileName = "cp",
+				Arguments = $"-R \"{homeDir}/.aura/prelude/\" \"{projPath}/build/pkg/prelude\""
 			}
 		};
 		cp.Start();

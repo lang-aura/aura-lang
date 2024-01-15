@@ -1,5 +1,4 @@
 ﻿using AuraLang.Prelude;
-using AuraLang.Types;
 
 namespace AuraLang.TypeChecker;
 
@@ -35,10 +34,10 @@ public class SymbolsTable : ISymbolsTable
 
 	public SymbolsTable()
 	{
-		foreach (var p in AuraPrelude.Prelude)
+		foreach (var p in new AuraPrelude().GetPrelude().PublicFunctions)
 		{
 			_symbols.Add(new Local(
-				Name: ((NamedFunction)p).Name,
+				Name: p.Name,
 				Kind: p,
 				Scope: 1,
 				Defining: null
