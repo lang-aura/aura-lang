@@ -446,7 +446,7 @@ public class AuraCompiler
 					: $"{obj}.{get.Name.Value.ToUpper()}"
 				: $"{obj}.{get.Name.Value}";
 		}
-		
+
 		if (get.Obj.Typ is not Module && get.Obj.Typ is not Class && get.Obj.Typ is not Interface) c.Arguments.Insert(0, get!.Obj);
 
 		var compiledParams = c.Arguments.Select(Expression);

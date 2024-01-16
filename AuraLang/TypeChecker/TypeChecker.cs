@@ -940,7 +940,7 @@ public class AuraTypeChecker
 
 					return new TypedCall(typedGet, typedArgs, funcDeclaration_.GetReturnType(), call.Line);
 				}
-			} 
+			}
 			var f = FindOrThrow(call.Callee.GetName(), null, call.Line);
 			var funcDeclaration = f.Kind as ICallable;
 			// Type check arguments
