@@ -441,11 +441,13 @@ public class AuraCompiler
 		else
 		{
 			callee = get!.Obj.Typ is Module m
-				? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
+				? IsStdlibPkg(m.Name)
+					? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
+					: $"{obj}.{get.Name.Value.ToUpper()}"
 				: $"{obj}.{get.Name.Value}";
 		}
 		
-		if (get.Obj.Typ is not Module) c.Arguments.Insert(0, get!.Obj);
+		if (get.Obj.Typ is not Module && get.Obj.Typ is not Class && get.Obj.Typ is not Interface) c.Arguments.Insert(0, get!.Obj);
 
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
