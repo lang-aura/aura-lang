@@ -412,7 +412,7 @@ public class AuraCompiler
 			_goDocument.WriteStmt(ImportStmt(new TypedImport(
 				Package: new Tok(
 					Typ: TokType.Identifier,
-					Value: "aura/errors",
+					Value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
 					Line: 1
 				),
 				Alias: new Tok(
@@ -426,7 +426,7 @@ public class AuraCompiler
 			new TypedImport(
 				Package: new Tok(
 					Typ: TokType.Identifier,
-					Value: "aura/errors",
+					Value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
 					Line: 1
 				),
 				Alias: new Tok(
@@ -631,7 +631,7 @@ public class AuraCompiler
 	{
 		return typ switch
 		{
-			AuraString => "string",
+			AuraString => "strings",
 			List => "lists",
 			Error => "errors",
 			_ => string.Empty

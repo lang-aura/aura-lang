@@ -1,0 +1,18 @@
+mod main
+
+import aura/io
+
+fn main() {
+	// String literals in Aura can be created by surrounding a string of characters with double quotes
+	s := "Hello world"
+	// The `strings` stdlib package in Aura provides a number of different methods that can be called on strings.
+	// These methods can be called like `s.to_upper()`, and they do not require the `aura/strings` module to be
+	// imported in the Aura source file (the Aura compiler will handle importing the module in the compiled Go file)
+	io.println(s.to_upper())
+	io.println(f(s))
+}
+
+// Strings can also be used as function parameters and return types, just like any other Aura type
+fn f(s: string) -> string {
+	return s.to_lower()
+}

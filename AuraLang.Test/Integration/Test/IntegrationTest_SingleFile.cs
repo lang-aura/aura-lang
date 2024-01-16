@@ -86,6 +86,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "Helpful error message\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_Strings()
+	{
+		var output = await ArrangeAndAct_SingleFile("src/strings.aura");
+		MakeAssertions(output, "HELLO WORLD\nhello world\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
