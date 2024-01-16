@@ -4,7 +4,7 @@ import aura/io
 
 fn main() {
 	e := f()
-	io.printf("%v\n", e)
+	io.printf("%v\n", e.message())
 }
 
 fn f() -> error {

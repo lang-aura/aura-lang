@@ -1,4 +1,4 @@
-package aura_prelude
+package prelude
 
 import "errors"
 
