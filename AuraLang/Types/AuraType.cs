@@ -1,5 +1,6 @@
 ﻿using AuraLang.AST;
 using AuraLang.Shared;
+using AuraLang.Stdlib;
 
 namespace AuraLang.Types;
 
@@ -86,7 +87,7 @@ public class Float : AuraType, IDefaultable
 /// <summary>
 /// Represents a string value
 /// </summary>
-public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable
+public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable
 {
 	public override bool IsSameType(AuraType other) => other is String;
 
@@ -96,6 +97,12 @@ public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefault
 	public AuraType GetIndexedType() => new Char();
 	public AuraType GetRangeIndexedType() => new String();
 	public ITypedAuraExpression Default(int line) => new StringLiteral(string.Empty, line);
+
+	public AuraType? Get(string attribute)
+	{
+		var stringMod = new AuraStdlib().GetAllModules()["aura/strings"];
+		return stringMod.PublicFunctions.First(f => f.Name == attribute);
+	}
 }
 
 /// <summary>
@@ -112,7 +119,7 @@ public class Bool : AuraType, IDefaultable
 /// <summary>
 /// Represents a resizable array of elements, all of which must have the same type
 /// </summary>
-public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable
+public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable
 {
 	/// <summary>
 	/// The type of the elements in the list
@@ -136,6 +143,12 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 
 	public ITypedAuraExpression Default(int line) =>
 		new ListLiteral<ITypedAuraExpression>(new List<ITypedAuraExpression>(), new List(Kind), line);
+
+	public AuraType? Get(string attribute)
+	{
+		var listsMod = new AuraStdlib().GetAllModules()["aura/lists"];
+		return listsMod.PublicFunctions.First(f => f.Name == attribute);
+	}
 }
 
 /// <summary>
@@ -447,7 +460,7 @@ public class Map : AuraType, IIndexable, IDefaultable
 			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
 }
 
-public class Error : AuraType
+public class Error : AuraType, IGettable
 {
 	public string? Message { get; }
 
@@ -460,4 +473,10 @@ public class Error : AuraType
 
 	public override bool IsSameType(AuraType other) => other is Error;
 	public override string ToString() => "error";
+
+	public AuraType? Get(string attribute)
+	{
+		var errorMod = new AuraStdlib().GetAllModules()["aura/errors"];
+		return errorMod.PublicFunctions.First(f => f.Name == attribute);
+	}
 }

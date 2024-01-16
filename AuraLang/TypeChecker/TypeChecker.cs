@@ -718,7 +718,7 @@ public class AuraTypeChecker
 		{
 			// Add module to list of local variables
 			_symbolsTable.Add(new Local(
-				"io",
+				import_.Package.Value.Replace("aura/", string.Empty),
 				module!,
 				_scope,
 				null));
@@ -911,6 +911,36 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
+			if (call.Callee is UntypedGet ug)
+			{
+				var typedGet = GetExpr(ug);
+				if (typedGet.Obj.Typ is AuraString || typedGet.Obj.Typ is List || typedGet.Obj.Typ is Error)
+				{
+					var f_ = FindOrThrow(ug.GetName(), null, call.Line);
+					var funcDeclaration_ = f_.Kind as ICallable;
+					// Ensure the function call has the correct number of arguments
+					if (funcDeclaration_!.GetParams().Count != call.Arguments.Count + 1) throw new IncorrectNumberOfArgumentsException(call.Arguments.Count, funcDeclaration_.GetParams().Count, call.Line);
+					// Type check arguments
+					// TODO Refactor once the type checking parameter functions are refactored
+					var orderedArgs = call.Arguments
+						.Select(pair => pair.Item2)
+						.ToList();
+
+					var typedArgs = new List<ITypedAuraExpression>();
+					var paramTypes = funcDeclaration_.GetParamTypes();
+					var i = 0;
+					foreach (var arg in orderedArgs)
+					{
+						var typedArg = i >= paramTypes.Count
+							? ExpressionAndConfirm(arg, paramTypes[^1].Typ)
+							: ExpressionAndConfirm(arg, paramTypes[i + 1].Typ);
+						typedArgs.Add(typedArg);
+						i++;
+					}
+
+					return new TypedCall(typedGet, typedArgs, funcDeclaration_.GetReturnType(), call.Line);
+				}
+			}
 			var f = FindOrThrow(call.Callee.GetName(), null, call.Line);
 			var funcDeclaration = f.Kind as ICallable;
 			// Type check arguments
@@ -960,10 +990,57 @@ public class AuraTypeChecker
 			// Type check object, which must be gettable
 			var objExpr = Expression(get.Obj);
 			if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(objExpr.ToString()!, objExpr.Typ, get.GetName(), get.Line);
+			// Check if a stdlib package needs to be imported
+			if (g is AuraString)
+			{
+				ImportStmt(new UntypedImport(
+					Package: new Tok(
+						Typ: TokType.Identifier,
+						Value: "aura/strings",
+						Line: 1
+					),
+					Alias: new Tok(
+						Typ: TokType.Identifier,
+						Value: "strings",
+						Line: 1
+					),
+					Line: 1
+				));
+			}
+			if (g is List)
+			{
+				ImportStmt(new UntypedImport(
+					Package: new Tok(
+						Typ: TokType.Identifier,
+						Value: "aura/lists",
+						Line: 1
+					),
+					Alias: new Tok(
+						Typ: TokType.Identifier,
+						Value: "lists",
+						Line: 1
+					),
+					Line: 1
+				));
+			}
+			if (g is Error)
+			{
+				ImportStmt(new UntypedImport(
+					Package: new Tok(
+						Typ: TokType.Identifier,
+						Value: "aura/errors",
+						Line: 1
+					),
+					Alias: new Tok(
+						Typ: TokType.Identifier,
+						Value: "errors",
+						Line: 1
+					),
+					Line: 1
+				));
+			}
 			// Fetch the gettable's attribute
-			var attrTyp = g.Get(get.Name.Value);
-			if (attrTyp is null) throw new ClassAttributeDoesNotExistException(objExpr.ToString()!, get.GetName(), get.Line);
-
+			var attrTyp = g.Get(get.Name.Value) ?? throw new ClassAttributeDoesNotExistException(objExpr.ToString()!, get.GetName(), get.Line);
 			return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
 		}, get);
 	}
@@ -1247,6 +1324,7 @@ public class AuraTypeChecker
 			.ToList();
 	}
 
+	// TODO separate the responsibilities of these two type checking parameter functions
 	private TypedCall TypeCheckPositionalParameters(UntypedCall call, ICallable declaration)
 	{
 		var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
@@ -1306,8 +1384,8 @@ public class AuraTypeChecker
 			var index = declaration.GetParamIndex(missingParam.Name.Value);
 			var defaultValue = missingParam.ParamType.DefaultValue ??
 							   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(call.GetName(), missingParam.Name.Value, call.Line);
-			if (index >= orderedArgs.Count) typedArgs.Add((ITypedAuraExpression)defaultValue);
-			else typedArgs.Insert(index, (ITypedAuraExpression)defaultValue);
+			if (index >= orderedArgs.Count) typedArgs.Add(defaultValue);
+			else typedArgs.Insert(index, defaultValue);
 		}
 
 		return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);

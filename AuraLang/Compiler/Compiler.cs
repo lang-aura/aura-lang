@@ -7,6 +7,7 @@ using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
+using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Compiler;
 
@@ -405,11 +406,49 @@ public class AuraCompiler
 		var get = c.Callee as TypedGet;
 		var obj = Expression(get!.Obj);
 
-		var callee = IsStdlibPkg(obj)
-			? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
-			: get!.Obj.Typ is Module m
-				? $"{obj}.{get.Name.Value.ToUpper()}"
+		string callee;
+		if (IsStdlibPkgType(get.Obj.Typ))
+		{
+			_goDocument.WriteStmt(ImportStmt(new TypedImport(
+				Package: new Tok(
+					Typ: TokType.Identifier,
+					Value: "aura/errors",
+					Line: 1
+				),
+				Alias: new Tok(
+					Typ: TokType.Identifier,
+					Value: "errors",
+					Line: 1
+				),
+				Line: 1
+			)),
+			1,
+			new TypedImport(
+				Package: new Tok(
+					Typ: TokType.Identifier,
+					Value: "aura/errors",
+					Line: 1
+				),
+				Alias: new Tok(
+					Typ: TokType.Identifier,
+					Value: "errors",
+					Line: 1
+				),
+				Line: 1
+			));
+			callee = $"{AuraTypeToString(get.Obj.Typ)}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}";
+		}
+		else
+		{
+			callee = get!.Obj.Typ is Module m
+				? IsStdlibPkg(m.Name)
+					? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
+					: $"{obj}.{get.Name.Value.ToUpper()}"
 				: $"{obj}.{get.Name.Value}";
+		}
+
+		if (get.Obj.Typ is not Module && get.Obj.Typ is not Class && get.Obj.Typ is not Interface) c.Arguments.Insert(0, get!.Obj);
+
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
 	}
@@ -475,8 +514,8 @@ public class AuraCompiler
 	{
 		var items = literal.Value.Select(pair =>
 		{
-			var keyExpr = Expression((ITypedAuraExpression)pair.Key);
-			var valueExpr = Expression((ITypedAuraExpression)pair.Value);
+			var keyExpr = Expression(pair.Key);
+			var valueExpr = Expression(pair.Value);
 			return $"{keyExpr}: {valueExpr}";
 		});
 		return items.Any()
@@ -579,11 +618,31 @@ public class AuraCompiler
 		return body.ToString();
 	}
 
+	private bool IsStdlibPkgType(AuraType typ)
+	{
+		return typ switch
+		{
+			AuraString or List or Error => true,
+			_ => false
+		};
+	}
+
+	private string AuraTypeToString(AuraType typ)
+	{
+		return typ switch
+		{
+			AuraString => "string",
+			List => "lists",
+			Error => "errors",
+			_ => string.Empty
+		};
+	}
+
 	private bool IsStdlibPkg(string pkg)
 	{
 		return pkg switch
 		{
-			"io" or "strings" or "lists" => true,
+			"io" or "strings" or "lists" or "errors" => true,
 			_ => false
 		};
 	}
@@ -592,7 +651,7 @@ public class AuraCompiler
 	{
 		return pkg switch
 		{
-			"aura/io" or "aura/strings" or "aura/lists" => true,
+			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" => true,
 			_ => false
 		};
 	}
