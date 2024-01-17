@@ -1,0 +1,26 @@
+mod main
+
+import aura/io
+
+fn main() {
+	// A list's type is denoted by surrounding the type of the lists' items with square brackets. When initializing a new list literal,
+	// the list's type is followed by the list's initial items enclosing in curly brackets. Each item in the list literal must have the same
+	// type as denoted in the list literal's type.
+	let s: [string] = [string]{ "Hello", "world" }
+	// Lists can be indexed into with square brackets succeeding the list (in this case, the variable `s` has a type of list, although you can also
+	// index into a list literal). Indexes can also index into a range of the list's items with a colon between the lower and upper index, i.e. `s[0:2]`,
+	// which, in this case, will fetch the first and second items in the list (i.e. the lower index is inclusive and the upper index is exclusive). The
+	// upper and lower indexes can be omitted, which will default to 0 (if lower index is omitted) or one index beyond the last index in the list (if the
+	// upper index is omitted, and since the upper index is exclusive, this will include up to and including the final item in the list) - i.e. `s[:4]` will
+	// fetch the first four items in the list, and `s[:]` will fetch all items in the list.
+	io.printf("First index = %s\n", s[0])
+	f(s)
+}
+
+// Lists can be used as function parameters and return types, like any other Aura type.
+fn f(l: [string]) {
+	// Lists are a compound type, meaning they can be iterated over with a `foreach` loop
+	foreach item in l {
+		io.println(item)
+	}
+}

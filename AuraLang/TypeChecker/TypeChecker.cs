@@ -1157,7 +1157,7 @@ public class AuraTypeChecker
 			var items = literal.Value;
 			var typedItem = Expression(items.First());
 			var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
-			return new ListLiteral<ITypedAuraExpression>(typedItems, new List(typedItem.Typ), literal.Line);
+			return new ListLiteral<ITypedAuraExpression>(typedItems, typedItem.Typ, literal.Line);
 		}, literal);
 	}
 
