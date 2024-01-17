@@ -921,21 +921,11 @@ public class AuraTypeChecker
 					// Ensure the function call has the correct number of arguments
 					if (funcDeclaration_!.GetParams().Count != call.Arguments.Count + 1) throw new IncorrectNumberOfArgumentsException(call.Arguments.Count, funcDeclaration_.GetParams().Count, call.Line);
 					// Type check arguments
-					// TODO Refactor once the type checking parameter functions are refactored
-					var orderedArgs = call.Arguments
-						.Select(pair => pair.Item2)
-						.ToList();
-
 					var typedArgs = new List<ITypedAuraExpression>();
-					var paramTypes = funcDeclaration_.GetParamTypes();
-					var i = 0;
-					foreach (var arg in orderedArgs)
+					if (funcDeclaration_.GetParams().Count > 0)
 					{
-						var typedArg = i >= paramTypes.Count
-							? ExpressionAndConfirm(arg, paramTypes[^1].Typ)
-							: ExpressionAndConfirm(arg, paramTypes[i + 1].Typ);
-						typedArgs.Add(typedArg);
-						i++;
+						var endIndex = funcDeclaration_.GetParams().Count - 1;
+						typedArgs = TypeCheckArguments(call.Arguments.Select(pair => pair.Item2).ToList(), funcDeclaration_.GetParams().GetRange(1, endIndex), call.Line);
 					}
 
 					return new TypedCall(typedGet, typedArgs, funcDeclaration_.GetReturnType(), call.Line);
@@ -1324,7 +1314,24 @@ public class AuraTypeChecker
 			.ToList();
 	}
 
-	// TODO separate the responsibilities of these two type checking parameter functions
+	private List<ITypedAuraExpression> TypeCheckArguments(List<IUntypedAuraExpression> arguments, List<Param> parameters, int line)
+	{
+		var typedArgs = new List<ITypedAuraExpression>();
+		var paramTypes = parameters.Select(p => p.ParamType).ToList();
+		var i = 0;
+
+		foreach (var arg in arguments)
+		{
+			var typedArg = i >= paramTypes.Count
+				? ExpressionAndConfirm(arg, paramTypes[^1].Typ)
+				: ExpressionAndConfirm(arg, paramTypes[i].Typ);
+			typedArgs.Add(typedArg);
+			i++;
+		}
+
+		return typedArgs;
+	}
+
 	private TypedCall TypeCheckPositionalParameters(UntypedCall call, ICallable declaration)
 	{
 		var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
@@ -1338,17 +1345,7 @@ public class AuraTypeChecker
 			.Select(pair => pair.Item2)
 			.ToList();
 
-		var typedArgs = new List<ITypedAuraExpression>();
-		var paramTypes = declaration.GetParamTypes();
-		var i = 0;
-		foreach (var arg in orderedArgs)
-		{
-			var typedArg = i >= paramTypes.Count
-				? ExpressionAndConfirm(arg, paramTypes[^1].Typ)
-				: ExpressionAndConfirm(arg, paramTypes[i].Typ);
-			typedArgs.Add(typedArg);
-			i++;
-		}
+		var typedArgs = TypeCheckArguments(orderedArgs, declaration.GetParams(), call.Line);
 
 		return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
 	}
