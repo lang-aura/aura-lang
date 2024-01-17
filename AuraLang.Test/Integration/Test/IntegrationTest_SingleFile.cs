@@ -93,6 +93,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "HELLO WORLD\nhello world\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_Lists()
+	{
+		var output = await ArrangeAndAct_SingleFile("src/lists.aura");
+		MakeAssertions(output, "First index = Hello\nHello\nworld\nContains hello\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

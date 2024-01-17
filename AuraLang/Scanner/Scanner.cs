@@ -364,7 +364,7 @@ public class AuraScanner
 							return CheckKeywordToken(TokType.False, tok, "false");
 						case 'o':
 							if (tok.Length == 3) return CheckKeywordToken(TokType.For, tok, "for");
-							else if (tok.Length > 3) CheckKeywordToken(TokType.ForEach, tok, "foreach");
+							else if (tok.Length > 3) return CheckKeywordToken(TokType.ForEach, tok, "foreach");
 							break;
 					}
 				}

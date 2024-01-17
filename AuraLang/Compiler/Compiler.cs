@@ -499,12 +499,12 @@ public class AuraCompiler
 	private string FloatLiteralExpr(FloatLiteral literal) =>
 		string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
 
-	private string BoolLiteralExpr(BoolLiteral literal) => (bool)literal.Value ? "true" : "false";
+	private string BoolLiteralExpr(BoolLiteral literal) => literal.Value ? "true" : "false";
 
 	private string ListLiteralExpr(ListLiteral<ITypedAuraExpression> literal)
 	{
 		var items = literal.Value
-			.Select(item => Expression((ITypedAuraExpression)item));
+			.Select(Expression);
 		return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
 	}
 
