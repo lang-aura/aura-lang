@@ -15,6 +15,10 @@ fn main() {
 	// fetch the first four items in the list, and `s[:]` will fetch all items in the list.
 	io.printf("First index = %s\n", s[0])
 	f(s)
+
+	if s.contains("Hello") {
+		io.println("Contains hello")
+	}
 }
 
 // Lists can be used as function parameters and return types, like any other Aura type.

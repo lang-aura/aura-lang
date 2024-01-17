@@ -97,7 +97,7 @@ public class IntegrationTest_SingleFile
 	public async Task TestIntegration_Lists()
 	{
 		var output = await ArrangeAndAct_SingleFile("src/lists.aura");
-		MakeAssertions(output, "First index = Hello\nHello\nworld\n");
+		MakeAssertions(output, "First index = Hello\nHello\nworld\nContains hello\n");
 	}
 
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
