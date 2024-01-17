@@ -18,7 +18,6 @@ public class TypeCheckerTest
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
-	private readonly Mock<LocalModuleReader> _localModuleReader = new();
 
 	[SetUp]
 	public void Setup()
@@ -1806,7 +1805,7 @@ public class TypeCheckerTest
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
 		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
-				_enclosingStmtStore.Object, _localModuleReader.Object, "Test", "Test")
+				_enclosingStmtStore.Object, "Test", "Test")
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
 	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
@@ -1814,7 +1813,7 @@ public class TypeCheckerTest
 		try
 		{
 			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
-					_enclosingStmtStore.Object, _localModuleReader.Object, "Test", "Test")
+					_enclosingStmtStore.Object, "Test", "Test")
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();
 		}

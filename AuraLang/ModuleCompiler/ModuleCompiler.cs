@@ -28,7 +28,6 @@ public class AuraModuleCompiler
 			new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
 			new EnclosingNodeStore<IUntypedAuraStatement>(),
-			new LocalModuleReader(),
 			path,
 			ProjectName);
 	}
