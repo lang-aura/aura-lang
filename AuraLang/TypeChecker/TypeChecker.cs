@@ -19,21 +19,17 @@ public class AuraTypeChecker
 	private readonly TypeCheckerExceptionContainer _exContainer;
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
-	private readonly LocalModuleReader _localModuleReader;
-	private string FilePath { get; }
 	private string ProjectName { get; }
 
 	public AuraTypeChecker(ISymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
-		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore, LocalModuleReader localModuleReader,
+		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore,
 		string filePath, string projectName)
 	{
 		_symbolsTable = symbolsTable;
 		_enclosingClassStore = enclosingClassStore;
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
-		_localModuleReader = localModuleReader;
-		FilePath = filePath;
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
 		ProjectName = projectName;
 	}

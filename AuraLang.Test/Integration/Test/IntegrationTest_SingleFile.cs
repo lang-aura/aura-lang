@@ -105,7 +105,7 @@ public class IntegrationTest_SingleFile
 		var fileName = Path.GetFileNameWithoutExtension(path);
 		var typeChecker = new AuraTypeChecker(new SymbolsTable(), new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
-			new LocalModuleReader(), path, "Test");
+			path, "Test");
 		var compiler = new AuraFileCompiler(path, "Examples");
 
 		try
