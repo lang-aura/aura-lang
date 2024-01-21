@@ -1,8 +1,10 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.ModuleCompiler;
+using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
+using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraChar = AuraLang.Types.Char;
@@ -12,16 +14,17 @@ namespace AuraLang.TypeChecker;
 
 public class AuraTypeChecker
 {
-	private readonly ISymbolsTable _symbolsTable;
-	private int _scope = 1;
+	private readonly IGlobalSymbolsTable _symbolsTable;
 	private readonly IEnclosingClassStore _enclosingClassStore;
 	private readonly AuraStdlib _stdlib = new();
 	private readonly TypeCheckerExceptionContainer _exContainer;
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
 	private string ProjectName { get; }
+	private string? ModuleName { get; set; }
+	private readonly AuraPrelude _prelude = new();
 
-	public AuraTypeChecker(ISymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
+	public AuraTypeChecker(IGlobalSymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
 		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore,
 		string filePath, string projectName)
@@ -36,6 +39,8 @@ public class AuraTypeChecker
 
 	public void BuildSymbolsTable(List<IUntypedAuraStatement> stmts)
 	{
+		ModuleName = ((UntypedMod)stmts.First(stmt => stmt is UntypedMod)).Value.Value;
+
 		foreach (var stmt in stmts)
 		{
 			try
@@ -50,38 +55,42 @@ public class AuraTypeChecker
 						break;
 					case UntypedNamedFunction nf:
 						var f = ParseFunctionSignature(nf);
-						_symbolsTable.Add(new Local(
-							nf.Name.Value,
-							f,
-							1,
-							null
-						));
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: nf.Name.Value,
+								Kind: f
+							),
+							symbolsNamespace: ModuleName
+						);
 						break;
 					case UntypedClass c:
 						var cl = ParseClassSignature(c);
-						_symbolsTable.Add(new Local(
-							c.Name.Value,
-							cl,
-							1,
-							null
-						));
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: c.Name.Value,
+								Kind: cl
+							),
+							symbolsNamespace: ModuleName
+						);
 						break;
 					case UntypedInterface interface_:
-						_symbolsTable.Add(new Local(
-							interface_.Name.Value,
-							new Interface(interface_.Name.Value, interface_.Methods, interface_.Public),
-							1,
-							null
-						));
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: interface_.Name.Value,
+								Kind: new Interface(interface_.Name.Value, interface_.Methods, interface_.Public)
+							),
+							symbolsNamespace: ModuleName
+						);
 
 						foreach (var m in interface_.Methods)
 						{
-							_symbolsTable.Add(new Local(
-								m.Name,
-								m,
-								1,
-								null
-							));
+							_symbolsTable.TryAddSymbol(
+								symbol: new AuraSymbol(
+									Name: m.Name,
+									Kind: m
+								),
+								symbolsNamespace: ModuleName
+							);
 						}
 						break;
 				}
@@ -193,20 +202,20 @@ public class AuraTypeChecker
 	/// <summary>
 	/// Finds a variable in the symbols table, and confirms that it matches an expected type.
 	/// </summary>
-	/// <param name="varName">The variable's name</param>
-	/// <param name="modName">The name of the variable's defining scope</param>
+	/// <param name="symbolName">The variable's name</param>
+	/// <param name="symbolNamespace">The namespace where the variable was defined</param>
 	/// <param name="expected">The variable's expected type</param>
 	/// <param name="line">The line in the Aura source file where the variable usage appears</param>
-	private T FindAndConfirm<T>(string varName, string? modName, T expected, int line) where T : AuraType
+	private T FindAndConfirm<T>(string symbolName, string symbolNamespace, T expected, int line) where T : AuraType
 	{
-		var local = _symbolsTable.Find(varName, modName) ?? throw new UnknownVariableException(varName, line);
+		var local = _symbolsTable.GetSymbol(symbolName, symbolNamespace) ?? throw new UnknownVariableException(symbolName, line);
 		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(line);
 		return (T)local.Kind;
 	}
 
-	private Local FindOrThrow(string varName, string? modName, int line)
+	private AuraSymbol FindOrThrow(string varName, string symbolNamespace, int line)
 	{
-		var local = _symbolsTable.Find(varName, modName) ?? throw new UnknownVariableException(varName, line);
+		var local = _symbolsTable.GetSymbol(varName, symbolNamespace) ?? throw new UnknownVariableException(varName, line);
 		return local!;
 	}
 
@@ -217,11 +226,15 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked defer statement</returns>
 	private TypedDefer DeferStmt(UntypedDefer defer)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			var typedCall = CallExpr((UntypedCall)defer.Call);
-			return new TypedDefer(typedCall, defer.Line);
-		}, defer);
+		return WithEnclosingStmt(
+			f: () =>
+			{
+				var typedCall = CallExpr((UntypedCall)defer.Call);
+				return new TypedDefer(typedCall, defer.Line);
+			},
+			node: defer,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	/// <summary>
@@ -239,21 +252,25 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked for loop</returns>
 	private TypedFor ForStmt(UntypedFor forStmt)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			return InNewScope(() =>
+		return WithEnclosingStmt(
+			f: () =>
 			{
-				var typedInit = forStmt.Initializer is not null ? Statement(forStmt.Initializer) : null;
-				var typedCond = forStmt.Condition is not null
-					? ExpressionAndConfirm(forStmt.Condition, new Bool())
-					: null;
-				var typedInc = forStmt.Increment is not null
-					? Expression(forStmt.Increment)
-					: null;
-				var typedBody = NonReturnableBody(forStmt.Body);
-				return new TypedFor(typedInit, typedCond, typedInc, typedBody, forStmt.Line);
-			});
-		}, forStmt);
+				return InNewScope(() =>
+				{
+					var typedInit = forStmt.Initializer is not null ? Statement(forStmt.Initializer) : null;
+					var typedCond = forStmt.Condition is not null
+						? ExpressionAndConfirm(forStmt.Condition, new Bool())
+						: null;
+					var typedInc = forStmt.Increment is not null
+						? Expression(forStmt.Increment)
+						: null;
+					var typedBody = NonReturnableBody(forStmt.Body);
+					return new TypedFor(typedInit, typedCond, typedInc, typedBody, forStmt.Line);
+				});
+			},
+			node: forStmt,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	/// <summary>
@@ -265,20 +282,28 @@ public class AuraTypeChecker
 	/// the IIterable interface</exception>
 	private TypedForEach ForEachStmt(UntypedForEach forEachStmt)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			return InNewScope(() =>
+		return WithEnclosingStmt(
+			f: () =>
 			{
-				// Type check iterable
-				var iter = Expression(forEachStmt.Iterable);
-				if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
-				// Add current element variable to list of local variables
-				_symbolsTable.Add(new Local(forEachStmt.EachName.Value, typedIter.GetIterType(), _scope, null));
-				// Type check body
-				var typedBody = NonReturnableBody(forEachStmt.Body);
-				return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
-			});
-		}, forEachStmt);
+				return InNewScope(() =>
+				{
+					// Type check iterable
+					var iter = Expression(forEachStmt.Iterable);
+					if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Line);
+					// Add current element variable to list of local variables
+					_symbolsTable.TryAddSymbol(
+						symbol: new AuraSymbol(
+							Name: forEachStmt.EachName.Value,
+							Kind: typedIter.GetIterType()),
+						symbolsNamespace: ModuleName!);
+					// Type check body
+					var typedBody = NonReturnableBody(forEachStmt.Body);
+					return new TypedForEach(forEachStmt.EachName, iter, typedBody, forEachStmt.Line);
+				});
+			},
+			node: forEachStmt,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	/// <summary>
@@ -291,41 +316,49 @@ public class AuraTypeChecker
 	/// the same type as specified in the function's signature</exception>
 	private TypedNamedFunction NamedFunctionStmt(UntypedNamedFunction f, string modName)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			return InNewScope(() =>
+		return WithEnclosingStmt(
+			f: () =>
 			{
-				var typedParams = TypeCheckParams(f.Params);
-				// Add parameters as local variables
-				foreach (var param in typedParams)
+				return InNewScope(() =>
 				{
-					_symbolsTable.Add(new Local(
-						param.Name.Value,
-						param.ParamType.Typ,
-						_scope,
-						null));
-				}
+					var typedParams = TypeCheckParams(f.Params);
+					// Add parameters as local variables
+					foreach (var param in typedParams)
+					{
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: param.Name.Value,
+								Kind: param.ParamType.Typ
+							),
+							symbolsNamespace: ModuleName!
+						);
+					}
 
-				var typedBody = BlockExpr(f.Body);
-				// Ensure the function's body returns the type specified in its signature
-				var returnType = TypeCheckReturnTypeTok(f.ReturnType);
-				if (!returnType.IsSameOrInheritingType(typedBody.Typ))
-					throw new TypeMismatchException(f.Line);
-				// Add function as local variable
-				_symbolsTable.Add(new Local(
-					f.Name.Value,
-					new NamedFunction(
-						f.Name.Value,
-						f.Public,
-						new Function(
-							TypeCheckParams(f.Params),
-							returnType)
-					),
-					_scope,
-					null));
-				return new TypedNamedFunction(f.Name, typedParams.ToList(), typedBody, returnType, f.Public, f.Line);
-			});
-		}, f);
+					var typedBody = BlockExpr(f.Body);
+					// Ensure the function's body returns the type specified in its signature
+					var returnType = TypeCheckReturnTypeTok(f.ReturnType);
+					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
+						throw new TypeMismatchException(f.Line);
+					// Add function as local variable
+					_symbolsTable.TryAddSymbol(
+						symbol: new AuraSymbol(
+							Name: f.Name.Value,
+							Kind: new NamedFunction(
+								f.Name.Value,
+								f.Public,
+								new Function(
+									TypeCheckParams(f.Params),
+									returnType)
+							)
+						),
+						symbolsNamespace: ModuleName!
+					);
+					return new TypedNamedFunction(f.Name, typedParams.ToList(), typedBody, returnType, f.Public, f.Line);
+				});
+			},
+			node: f,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	/// <summary>
@@ -337,30 +370,35 @@ public class AuraTypeChecker
 	/// than the one specified in the function's signature</exception>
 	private TypedAnonymousFunction AnonymousFunctionExpr(UntypedAnonymousFunction f)
 	{
-		return _enclosingExpressionStore.WithEnclosing(() =>
-		{
-			return InNewScope(() =>
+		return _enclosingExpressionStore.WithEnclosing(
+			f: () =>
 			{
-				var typedParams = TypeCheckParams(f.Params);
-				// Add the function's parameters as local variables
-				foreach (var param in typedParams)
+				return InNewScope(() =>
 				{
-					_symbolsTable.Add(new Local(
-						param.Name.Value,
-						param.ParamType.Typ,
-						_scope,
-						null));
-				}
+					var typedParams = TypeCheckParams(f.Params);
+					// Add the function's parameters as local variables
+					foreach (var param in typedParams)
+					{
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: param.Name.Value,
+								Kind: param.ParamType.Typ
+							),
+							symbolsNamespace: ModuleName!
+						);
+					}
 
-				var typedBody = BlockExpr(f.Body);
-				// Ensure the function's body returns the type specified in its signature
-				var returnType = TypeCheckReturnTypeTok(f.ReturnType);
-				if (!returnType.IsSameOrInheritingType(typedBody.Typ))
-					throw new TypeMismatchException(f.Line);
+					var typedBody = BlockExpr(f.Body);
+					// Ensure the function's body returns the type specified in its signature
+					var returnType = TypeCheckReturnTypeTok(f.ReturnType);
+					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
+						throw new TypeMismatchException(f.Line);
 
-				return new TypedAnonymousFunction(typedParams, typedBody, returnType, f.Line);
-			});
-		}, f);
+					return new TypedAnonymousFunction(typedParams, typedBody, returnType, f.Line);
+				});
+			},
+			node: f
+		);
 	}
 
 	private NamedFunction ParseFunctionSignature(UntypedNamedFunction f)
@@ -381,11 +419,13 @@ public class AuraTypeChecker
 		{
 			var paramTyp = param.ParamType.Typ;
 			if (param.ParamType.Variadic) paramTyp = new List(paramTyp);
-			_symbolsTable.Add(new Local(
-				param.Name.Value,
-				paramTyp,
-				_scope + 1,
-				null));
+			_symbolsTable.TryAddSymbol(
+				symbol: new AuraSymbol(
+					Name: param.Name.Value,
+					Kind: paramTyp
+				),
+				symbolsNamespace: ModuleName!
+			);
 		}
 
 		var typedBody = BlockExpr(f.Body);
@@ -412,11 +452,13 @@ public class AuraTypeChecker
 			? ExpressionAndConfirm(let.Initializer, nameTyp)
 			: defaultable!.Default(let.Line);
 		// Add new variable to list of locals
-		_symbolsTable.Add(new Local(
-			let.Name.Value,
-			typedInit?.Typ ?? new Nil(),
-			_scope,
-			null));
+		_symbolsTable.TryAddSymbol(
+			symbol: new AuraSymbol(
+				Name: let.Name.Value,
+				Kind: typedInit?.Typ ?? new Nil()
+			),
+			symbolsNamespace: ModuleName!
+		);
 	}
 
 	private void AddShortLetStmtToSymbolsTable(UntypedLet let)
@@ -424,11 +466,13 @@ public class AuraTypeChecker
 		// Type check initializer
 		var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
 		// Add new variable to list of locals
-		_symbolsTable.Add(new Local(
-			let.Name.Value,
-			typedInit?.Typ ?? new Nil(),
-			_scope,
-			null));
+		_symbolsTable.TryAddSymbol(
+			symbol: new AuraSymbol(
+				Name: let.Name.Value,
+				Kind: typedInit?.Typ ?? new Nil()
+			),
+			symbolsNamespace: ModuleName!
+		);
 	}
 
 	/// <summary>
@@ -438,26 +482,36 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked let statement</returns>
 	private TypedLet LetStmt(UntypedLet let)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			if (let.NameTyp is null) return ShortLetStmt(let);
-			var nameTyp = let.NameTyp;
-			// Type check initializer
-			var defaultable = nameTyp as IDefaultable;
-			if (let.Initializer is null && defaultable is null)
-				throw new MustSpecifyInitialValueForNonDefaultableTypeException(nameTyp, let.Line);
-			var typedInit = let.Initializer is not null
-				? ExpressionAndConfirm(let.Initializer, nameTyp)
-				: defaultable!.Default(let.Line);
-			// Add new variable to list of locals
-			_symbolsTable.Add(new Local(
-				let.Name.Value,
-				typedInit?.Typ ?? new Nil(),
-				_scope,
-				null));
+		if (let.NameTyp is null) return ShortLetStmt(let);
 
-			return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
-		}, let);
+		var typedLet = WithEnclosingStmt(
+			f: () =>
+			{
+				var nameTyp = let.NameTyp;
+				// Type check initializer
+				var defaultable = nameTyp as IDefaultable;
+				if (let.Initializer is null && defaultable is null)
+					throw new MustSpecifyInitialValueForNonDefaultableTypeException(nameTyp, let.Line);
+				var typedInit = let.Initializer is not null
+					? ExpressionAndConfirm(let.Initializer, nameTyp)
+					: defaultable!.Default(let.Line);
+
+				return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
+			},
+			node: let,
+			symbolNamespace: ModuleName!
+		);
+
+		// Add new variable to list of locals
+		_symbolsTable.TryAddSymbol(
+			symbol: new AuraSymbol(
+				Name: typedLet.Name.Value,
+				Kind: typedLet.Initializer?.Typ ?? new None()
+			),
+			symbolsNamespace: ModuleName!
+		);
+
+		return typedLet;
 	}
 
 	/// <summary>
@@ -467,19 +521,27 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked short let statement</returns>
 	private TypedLet ShortLetStmt(UntypedLet let)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			// Type check initializer
-			var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
-			// Add new variable to list of locals
-			_symbolsTable.Add(new Local(
-				let.Name.Value,
-				typedInit?.Typ ?? new Nil(),
-				_scope,
-				null));
+		var typedShortLet = WithEnclosingStmt(
+			f: () =>
+			{
+				// Type check initializer
+				var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
+				return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
+			},
+			node: let,
+			symbolNamespace: ModuleName!
+		);
 
-			return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
-		}, let);
+		// Add new variable to list of locals
+		_symbolsTable.TryAddSymbol(
+			symbol: new AuraSymbol(
+				Name: typedShortLet.Name.Value,
+				Kind: typedShortLet.Initializer!.Typ
+			),
+			symbolsNamespace: ModuleName!
+		);
+
+		return typedShortLet;
 	}
 
 	/// <summary>
@@ -500,11 +562,15 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked return statement</returns>
 	private TypedReturn ReturnStmt(UntypedReturn r)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			var typedVal = r.Value is not null ? Expression(r.Value) : null;
-			return new TypedReturn(typedVal, r.Line);
-		}, r);
+		return WithEnclosingStmt(
+			f: () =>
+			{
+				var typedVal = r.Value is not null ? Expression(r.Value) : null;
+				return new TypedReturn(typedVal, r.Line);
+			},
+			node: r,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	private Class ParseClassSignature(UntypedClass class_)
@@ -521,7 +587,7 @@ public class AuraTypeChecker
 		var implements = class_.Implementing.Any()
 			? class_.Implementing.Select(impl =>
 			{
-				var local = FindOrThrow(impl.Value, null, class_.Line);
+				var local = FindOrThrow(impl.Value, ModuleName!, class_.Line);
 				var i = local.Kind as Interface ??
 						throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
 				return i;
@@ -538,84 +604,88 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked class declaration</returns>
 	private FullyTypedClass ClassStmt(UntypedClass class_)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			var typedParams = class_.Params.Select(p =>
+		return WithEnclosingStmt(
+			f: () =>
 			{
-				var typedDefaultValue = p.ParamType.DefaultValue is not null
-					? (ILiteral)Expression(p.ParamType.DefaultValue)
-					: null;
-				var paramTyp = p.ParamType.Typ;
-				return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
-			});
-
-			var methodSignatures = class_.Methods.Select(m => ParseFunctionSignature(m)).ToList();
-			var methodTypes = methodSignatures
-				.Select(method =>
+				var typedParams = class_.Params.Select(p =>
 				{
-					var typedMethodParams = method.GetParams().Select(p =>
+					var typedDefaultValue = p.ParamType.DefaultValue is not null
+						? (ILiteral)Expression(p.ParamType.DefaultValue)
+						: null;
+					var paramTyp = p.ParamType.Typ;
+					return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+				});
+
+				var methodSignatures = class_.Methods.Select(m => ParseFunctionSignature(m)).ToList();
+				var methodTypes = methodSignatures
+					.Select(method =>
 					{
-						var typedMethodDefaultValue = p.ParamType.DefaultValue is not null
-							? (ILiteral)Expression(p.ParamType.DefaultValue)
-							: null;
-						var methodParamType = p.ParamType.Typ;
-						return new Param(p.Name,
-							new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
-					});
-					return new NamedFunction(
-						method.Name,
-						method.Public,
-						new Function(typedMethodParams.ToList(), method.GetReturnType()));
-				})
-				.ToList();
-
-			// Get type of implementing interface
-			var implements = class_.Implementing.Any()
-				? class_.Implementing.Select(impl =>
-				{
-					var local = FindOrThrow(impl.Value, null, class_.Line);
-					var i = local.Kind as Interface ??
-							throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
-					return i;
-				})
-				: new List<Interface>();
-
-			// Store the partially typed class as the current enclosing class
-			var partiallyTypedClass = new PartiallyTypedClass(
-				class_.Name,
-				class_.Params,
-				methodSignatures,
-				class_.Public,
-				new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), class_.Public),
-				class_.Line);
-			_enclosingClassStore.Push(partiallyTypedClass);
-			// Finish type checking the class's methods
-			var typedMethods = class_.Methods
-				.Select(FunctionStmt)
-				.ToList();
-
-			// If the class implements any interfaces, ensure that it contains all required methods
-			if (implements.Any())
-			{
-				var valid = implements.Select(impl =>
-					{
-						return impl.Functions.Select(f =>
-							{
-								return typedMethods
-									.Where(m => m.Public == Visibility.Public)
-									.Select(tm => tm.GetFunctionType())
-									.Contains(f);
-							})
-							.All(b => b);
+						var typedMethodParams = method.GetParams().Select(p =>
+						{
+							var typedMethodDefaultValue = p.ParamType.DefaultValue is not null
+								? (ILiteral)Expression(p.ParamType.DefaultValue)
+								: null;
+							var methodParamType = p.ParamType.Typ;
+							return new Param(p.Name,
+								new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
+						});
+						return new NamedFunction(
+							method.Name,
+							method.Public,
+							new Function(typedMethodParams.ToList(), method.GetReturnType()));
 					})
-					.All(b => b);
-				if (!valid) throw new MissingInterfaceMethodException(string.Empty, string.Empty, class_.Line); // TODO
-			}
+					.ToList();
 
-			_enclosingClassStore.Pop();
-			return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public,
-				implements.ToList(), class_.Line);
-		}, class_);
+				// Get type of implementing interface
+				var implements = class_.Implementing.Any()
+					? class_.Implementing.Select(impl =>
+					{
+						var local = FindOrThrow(impl.Value, ModuleName!, class_.Line);
+						var i = local.Kind as Interface ??
+								throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
+						return i;
+					})
+					: new List<Interface>();
+
+				// Store the partially typed class as the current enclosing class
+				var partiallyTypedClass = new PartiallyTypedClass(
+					class_.Name,
+					class_.Params,
+					methodSignatures,
+					class_.Public,
+					new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), class_.Public),
+					class_.Line);
+				_enclosingClassStore.Push(partiallyTypedClass);
+				// Finish type checking the class's methods
+				var typedMethods = class_.Methods
+					.Select(FunctionStmt)
+					.ToList();
+
+				// If the class implements any interfaces, ensure that it contains all required methods
+				if (implements.Any())
+				{
+					var valid = implements.Select(impl =>
+						{
+							return impl.Functions.Select(f =>
+								{
+									return typedMethods
+										.Where(m => m.Public == Visibility.Public)
+										.Select(tm => tm.GetFunctionType())
+										.Contains(f);
+								})
+								.All(b => b);
+						})
+						.All(b => b);
+					if (!valid) throw new MissingInterfaceMethodException(string.Empty, string.Empty, class_.Line); // TODO
+				}
+
+				_enclosingClassStore.Pop();
+				return new FullyTypedClass(class_.Name, typedParams.ToList(), typedMethods, class_.Public,
+					implements.ToList(), class_.Line);
+			},
+			node: class_,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	/// <summary>
@@ -625,15 +695,19 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked while loop</returns>
 	private TypedWhile WhileStmt(UntypedWhile while_)
 	{
-		return _enclosingStatementStore.WithEnclosing(() =>
-		{
-			return InNewScope(() =>
+		return WithEnclosingStmt(
+			f: () =>
 			{
-				var typedCond = ExpressionAndConfirm(while_.Condition, new Bool());
-				var typedBody = NonReturnableBody(while_.Body);
-				return new TypedWhile(typedCond, typedBody, while_.Line);
-			});
-		}, while_);
+				return InNewScope(() =>
+				{
+					var typedCond = ExpressionAndConfirm(while_.Condition, new Bool());
+					var typedBody = NonReturnableBody(while_.Body);
+					return new TypedWhile(typedCond, typedBody, while_.Line);
+				});
+			},
+			node: while_,
+			symbolNamespace: ModuleName!
+		);
 	}
 
 	private TypedMultipleImport MultipleImportStmt(UntypedMultipleImport import_)
@@ -667,84 +741,17 @@ public class AuraTypeChecker
 				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes),
 					a.variables.Concat(b.variables)));
 			var importedModule = new Module(
-				import_.Package.Value,
+				import_.Alias?.Value ?? import_.Package.Value,
 				exportedTypes.methods.ToList(),
 				exportedTypes.classes.ToList(),
 				exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
 			);
 			// Add module to list of local variables
-			var modName = import_.Alias is not null
-				? import_.Alias.Value.Value
-				: import_.Package.Value.Split("/")[^1];
-			_symbolsTable.Add(new Local(
-				modName,
-				importedModule,
-				_scope,
-				null
-			));
-			// Add local module's exported types to current scope
-			foreach (var f in importedModule.PublicFunctions)
-			{
-				_symbolsTable.Add(new Local(
-					f.Name,
-					f,
-					_scope,
-					modName));
-			}
-
-			foreach (var c in importedModule.PublicClasses)
-			{
-				_symbolsTable.Add(new Local(
-					c.Name,
-					c,
-					_scope,
-					modName));
-			}
-
-			foreach (var v in importedModule.PublicVariables)
-			{
-				_symbolsTable.Add(new Local(
-					v.Key,
-					v.Value.Typ,
-					_scope,
-					modName));
-			}
+			_symbolsTable.AddModule(importedModule);
 		}
 		else
 		{
-			// Add module to list of local variables
-			_symbolsTable.Add(new Local(
-				import_.Package.Value.Replace("aura/", string.Empty),
-				module!,
-				_scope,
-				null));
-
-			foreach (var f in module!.PublicFunctions)
-			{
-				_symbolsTable.Add(new Local(
-					f.Name,
-					f,
-					_scope,
-					null));
-			}
-
-			foreach (var c in module!.PublicClasses)
-			{
-				_symbolsTable.Add(new Local(
-					c.Name,
-					c,
-					_scope,
-					null));
-			}
-
-			foreach (var v in module!.PublicVariables)
-			{
-				_symbolsTable.Add(new Local(
-					v.Key,
-					v.Value.Typ,
-					_scope,
-					null));
-			}
+			_symbolsTable.AddModule(module!);
 		}
 		return new TypedImport(import_.Package, import_.Alias, import_.Line);
 	}
@@ -820,7 +827,7 @@ public class AuraTypeChecker
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			// Fetch the variable being assigned to
-			var v = FindOrThrow(assignment.Name.Value, null, assignment.Line);
+			var v = FindOrThrow(assignment.Name.Value, ModuleName!, assignment.Line);
 			// Ensure that the new value and the variable have the same type
 			var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
 			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
@@ -907,12 +914,13 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
+			string? namespace_ = null;
 			if (call.Callee is UntypedGet ug)
 			{
 				var typedGet = GetExpr(ug);
-				if (typedGet.Obj.Typ is AuraString || typedGet.Obj.Typ is List || typedGet.Obj.Typ is Error)
+				if (typedGet.Obj.Typ is IImportableModule im)
 				{
-					var f_ = FindOrThrow(ug.GetName(), null, call.Line);
+					var f_ = FindOrThrow(ug.GetName(), im.GetModuleName(), call.Line);
 					var funcDeclaration_ = f_.Kind as ICallable;
 					// Ensure the function call has the correct number of arguments
 					if (funcDeclaration_!.GetParams().Count != call.Arguments.Count + 1) throw new IncorrectNumberOfArgumentsException(call.Arguments.Count, funcDeclaration_.GetParams().Count, call.Line);
@@ -926,8 +934,11 @@ public class AuraTypeChecker
 
 					return new TypedCall(typedGet, typedArgs, funcDeclaration_.GetReturnType(), call.Line);
 				}
+				if (typedGet.Obj.Typ is Module m) namespace_ = m.Name;
 			}
-			var f = FindOrThrow(call.Callee.GetName(), null, call.Line);
+			if (IsSymbolInPreludeNamespace(call.GetName())) namespace_ = "prelude";
+
+			var f = FindOrThrow(call.Callee.GetName(), namespace_ ?? ModuleName!, call.Line);
 			var funcDeclaration = f.Kind as ICallable;
 			// Type check arguments
 			if (call.Arguments.Any())
@@ -973,6 +984,31 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
+			// TODO check if object is a module (maybe check if a namespace exists matching the object's value?)
+			if (get.Obj is UntypedVariable v && _symbolsTable.GetNamespace(v.Name.Value) is not null)
+			{
+				var n = _symbolsTable.GetNamespace(v.Name.Value);
+				if (n is not null)
+				{
+					var symbolNamespace = v.Name.Value;
+					var attribute = FindOrThrow(get.Name.Value, symbolNamespace, get.Line);
+					return new TypedGet(
+						Obj: new TypedVariable(
+							Name: new Tok(
+								Typ: TokType.Identifier,
+								Value: v.Name.Value,
+								Line: get.Line
+							),
+							Typ: n.ParseAsModule(),
+							Line: get.Line
+						),
+						Name: get.Name,
+						Typ: attribute.Kind,
+						Line: get.Line
+					);
+				}
+			}
+
 			// Type check object, which must be gettable
 			var objExpr = Expression(get.Obj);
 			if (objExpr.Typ is not IGettable g) throw new CannotGetFromNonClassException(objExpr.ToString()!, objExpr.Typ, get.GetName(), get.Line);
@@ -1177,7 +1213,7 @@ public class AuraTypeChecker
 	/// </summary>
 	/// <param name="this_">The `this` expression to type check</param>
 	/// <returns>A valid, type checked `this` expression</returns>
-	private TypedThis ThisExpr(UntypedThis this_) => new(this_.Keyword, _enclosingClassStore.Peek().Typ, this_.Line);
+	private TypedThis ThisExpr(UntypedThis this_) => new(this_.Keyword, _enclosingClassStore.Peek()!.Typ, this_.Line);
 
 	/// <summary>
 	/// Type checks a unary expression
@@ -1214,10 +1250,13 @@ public class AuraTypeChecker
 	/// <returns>A valid, type checked variable expression</returns>
 	private TypedVariable VariableExpr(UntypedVariable v)
 	{
-		var localVar = FindOrThrow(v.Name.Value, null, v.Line);
+		var namespace_ = IsSymbolInPreludeNamespace(v.Name.Value)
+			? "prelude"
+			: ModuleName!;
+		var localVar = FindOrThrow(v.Name.Value, namespace_, v.Line);
 		var kind = !localVar.Kind.IsSameType(new Unknown(string.Empty))
 			? localVar.Kind
-			: FindOrThrow(((Unknown)localVar.Kind).Name, null, v.Line).Kind;
+			: FindOrThrow(((Unknown)localVar.Kind).Name, ModuleName!, v.Line).Kind;
 		return new TypedVariable(v.Name, kind, v.Line);
 	}
 
@@ -1225,7 +1264,7 @@ public class AuraTypeChecker
 	{
 		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
-		var i = FindAndConfirm(is_.Expected.Value, null,
+		var i = FindAndConfirm(is_.Expected.Value, ModuleName!,
 			new Interface(string.Empty, new List<NamedFunction>(), Visibility.Private), is_.Line);
 
 		return new TypedIs(typedExpr, i, is_.Line);
@@ -1249,8 +1288,7 @@ public class AuraTypeChecker
 	private void ExitScope()
 	{
 		// Before exiting block, remove any variables created in this scope
-		_symbolsTable.ExitScope(_scope);
-		_scope--;
+		_symbolsTable.ExitScope(ModuleName!);
 	}
 
 	private List<ITypedAuraStatement> NonReturnableBody(List<IUntypedAuraStatement> body)
@@ -1267,7 +1305,7 @@ public class AuraTypeChecker
 
 	private T InNewScope<T>(Func<T> f) where T : ITypedAuraAstNode
 	{
-		_scope++;
+		_symbolsTable.AddScope(ModuleName!);
 		var typedNode = f();
 		ExitScope();
 		return typedNode;
@@ -1298,7 +1336,7 @@ public class AuraTypeChecker
 				: null;
 			var paramTyp = p.ParamType.Typ is not Unknown u
 				? p.ParamType.Typ
-				: FindOrThrow(u.Name, null, p.Name.Line).Kind;
+				: FindOrThrow(u.Name, ModuleName!, p.Name.Line).Kind;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 		}).ToList();
 	}
@@ -1386,4 +1424,21 @@ public class AuraTypeChecker
 
 	private AuraType TypeCheckReturnTypeTok(Tok? returnTok) =>
 		returnTok is not null ? TypeTokenToType(returnTok.Value) : new Nil();
+
+	private TU WithEnclosingStmt<TU, T>(Func<TU> f, T node, string symbolNamespace)
+		where TU : ITypedAuraStatement
+		where T : IUntypedAuraStatement
+	{
+		_symbolsTable.AddScope(symbolNamespace);
+		var typedNode = _enclosingStatementStore.WithEnclosing(f, node);
+		_symbolsTable.ExitScope(symbolNamespace);
+		return typedNode;
+	}
+
+	private bool IsSymbolInPreludeNamespace(string symbolName)
+	{
+		var typ = _prelude.GetPrelude().Get(symbolName);
+		if (typ is null) return false;
+		else return true;
+	}
 }

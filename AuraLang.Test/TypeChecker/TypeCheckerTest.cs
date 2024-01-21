@@ -1,6 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
+using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
 using AuraLang.Types;
@@ -14,7 +15,7 @@ namespace AuraLang.Test.TypeChecker;
 
 public class TypeCheckerTest
 {
-	private readonly Mock<ISymbolsTable> _symbolsTable = new();
+	private readonly Mock<IGlobalSymbolsTable> _symbolsTable = new();
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
@@ -29,8 +30,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_symbolsTable.Setup(v => v.Find("i", It.IsAny<string>()))
-			.Returns(new Local("i", new Int(), 1, null));
+		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>()))
+			.Returns(new AuraSymbol("i", new Int()));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -131,16 +132,19 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoArgs()
 	{
-		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
-			"f",
-			new NamedFunction(
+		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"f",
-				Visibility.Private,
-				new Function(
-					new List<Param>(),
-					new Nil())),
-			1,
-			null));
+				new NamedFunction(
+					"f",
+					Visibility.Private,
+					new Function(
+						new List<Param>(),
+						new Nil()
+					)
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -167,24 +171,27 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_TwoArgs_WithTags()
 	{
-		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
-			"f",
-			new NamedFunction(
+		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"f",
-				Visibility.Private,
-				new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "i", 1),
-							new ParamType(new Int(), false, null)),
-						new(
-							new Tok(TokType.Identifier, "s", 1),
-							new ParamType(new AuraString(), false, null))
-					},
-					new Nil())),
-			1,
-			null));
+				new NamedFunction(
+					"f",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i", 1),
+								new ParamType(new Int(), false, null)),
+							new(
+								new Tok(TokType.Identifier, "s", 1),
+								new ParamType(new AuraString(), false, null))
+						},
+						new Nil()
+					)
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -219,24 +226,27 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_DefaultValues()
 	{
-		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
-			"f",
-			new NamedFunction(
+		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"f",
-				Visibility.Private,
-				new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "i", 1),
-							new ParamType(new Int(), false, new IntLiteral(10, 1))),
-						new(
-							new Tok(TokType.Identifier, "s", 1),
-							new ParamType(new AuraString(), false, null))
-					},
-					new Nil())),
-			1,
-			null));
+				new NamedFunction(
+					"f",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i", 1),
+								new ParamType(new Int(), false, new IntLiteral(10, 1))),
+							new(
+								new Tok(TokType.Identifier, "s", 1),
+								new ParamType(new AuraString(), false, null))
+						},
+						new Nil()
+					)
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -268,24 +278,26 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
 	{
-		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
-			"f",
-			new NamedFunction(
+		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"f",
-				Visibility.Private,
-				new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "i", 1),
-							new ParamType(new Int(), false, null)),
-						new(
-							new Tok(TokType.Identifier, "s", 1),
-							new ParamType(new AuraString(), false, new StringLiteral("Hello world", 1)))
-					},
-					new Nil())),
-			1,
-			null));
+				new NamedFunction(
+					"f",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i", 1),
+								new ParamType(new Int(), false, null)),
+							new(
+								new Tok(TokType.Identifier, "s", 1),
+								new ParamType(new AuraString(), false, new StringLiteral("Hello world", 1)))
+						},
+						new Nil()
+					)
+				)
+			));
 
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
@@ -306,24 +318,27 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
 	{
-		_symbolsTable.Setup(v => v.Find("f", null)).Returns(new Local(
-			"f",
-			new NamedFunction(
+		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"f",
-				Visibility.Private,
-				new Function(
-					new List<Param>
-					{
-						new(
-							new Tok(TokType.Identifier, "i", 1),
-							new ParamType(new Int(), false, null)),
-						new(
-							new Tok(TokType.Identifier, "s", 1),
-							new ParamType(new AuraString(), false, null))
-					},
-					new Nil())),
-			1,
-			null));
+				new NamedFunction(
+					"f",
+					Visibility.Private,
+					new Function(
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i", 1),
+								new ParamType(new Int(), false, null)),
+							new(
+								new Tok(TokType.Identifier, "s", 1),
+								new ParamType(new AuraString(), false, null))
+						},
+						new Nil()
+					)
+				)
+			)
+		);
 
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
@@ -347,22 +362,24 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Get()
 	{
-		_symbolsTable.Setup(v => v.Find("greeter", null)).Returns(
-			new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("greeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"greeter",
 				new Class(
 					"Greeter",
 					new List<Param>
 					{
-						new Param(
+						new(
 							new Tok(TokType.Identifier, "name", 1),
-							new ParamType(new AuraString(), false, null))
+							new ParamType(new AuraString(), false, null)
+						)
 					},
 					new List<NamedFunction>(),
 					new List<Interface>(),
-					Visibility.Private),
-				1,
-				null));
+					Visibility.Private
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -400,12 +417,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndex()
 	{
-		_symbolsTable.Setup(v => v.Find("names", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("names", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"names",
-				new AuraList(new AuraString()),
-				1,
-				null));
+				new AuraList(new AuraString())
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -433,12 +450,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndexRange()
 	{
-		_symbolsTable.Setup(v => v.Find("names", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("names", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"names",
-				new AuraList(new AuraString()),
-				1,
-				null));
+				new AuraList(new AuraString())
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -670,8 +687,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set()
 	{
-		_symbolsTable.Setup(v => v.Find("greeter", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("greeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"greeter",
 				new Class(
 					"Greeter",
@@ -683,9 +700,10 @@ public class TypeCheckerTest
 					},
 					new List<NamedFunction>(),
 					new List<Interface>(),
-					Visibility.Private),
-				1,
-				null));
+					Visibility.Private
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -805,12 +823,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Variable()
 	{
-		_symbolsTable.Setup(v => v.Find("name", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("name", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"name",
-				new AuraString(),
-				1,
-				null));
+				new AuraString()
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -831,17 +849,19 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Defer()
 	{
-		_symbolsTable.Setup(v => v.Find("f", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"f",
 				new NamedFunction(
 					"f",
 					Visibility.Private,
 					new Function(
 						new List<Param>(),
-						new Nil())),
-				1,
-				null));
+						new Nil()
+					)
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -863,8 +883,11 @@ public class TypeCheckerTest
 						Visibility.Private,
 						new Function(
 							new List<Param>(),
-							new Nil())),
-					1),
+							new Nil()
+						)
+					),
+					1
+				),
 				new List<ITypedAuraExpression>(),
 				new Nil(),
 				1),
@@ -874,12 +897,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_For_EmptyBody()
 	{
-		_symbolsTable.Setup(v => v.Find("i", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"i",
-				new Int(),
-				1,
-				null));
+				new Int()
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -925,12 +948,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ForEach_EmptyBody()
 	{
-		_symbolsTable.Setup(v => v.Find("names", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("names", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"names",
-				new AuraList(new AuraString()),
-				1,
-				null));
+				new AuraList(new AuraString())
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -955,8 +978,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_NamedFunction_NoParams_ReturnError()
 	{
-		_symbolsTable.Setup(v => v.Find("error", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("error", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"error",
 				new NamedFunction(
 					name: "error",
@@ -979,9 +1002,9 @@ public class TypeCheckerTest
 						},
 						returnType: new Error()
 					)
-				),
-				1,
-				null));
+				)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1426,18 +1449,18 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingTwoInterfaces_NoMethods()
 	{
-		_symbolsTable.Setup(v => v.Find("IGreeter", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
-				1,
-				null));
-		_symbolsTable.Setup(v => v.Find("IGreeter2", null))
-			.Returns(new Local(
+				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private)
+			)
+		);
+		_symbolsTable.Setup(v => v.GetSymbol("IGreeter2", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"IGreeter2",
-				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private),
-				1,
-				null));
+				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1465,8 +1488,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod_MissingImplementation()
 	{
-		_symbolsTable.Setup(v => v.Find("IGreeter", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"IGreeter",
 				new Interface("IGreeter",
 				new List<NamedFunction>
@@ -1490,9 +1513,9 @@ public class TypeCheckerTest
 						)
 					)
 				},
-				Visibility.Private),
-				1,
-				null));
+				Visibility.Private)
+			)
+		);
 
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
@@ -1510,8 +1533,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod_ImplementationNotPublic()
 	{
-		_symbolsTable.Setup(v => v.Find("IGreeter", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"IGreeter",
 				new Interface("IGreeter",
 				new List<NamedFunction>
@@ -1535,9 +1558,9 @@ public class TypeCheckerTest
 						)
 					)
 				},
-				Visibility.Private),
-				1,
-				null));
+				Visibility.Private)
+			)
+		);
 
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
@@ -1584,8 +1607,8 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod()
 	{
-		_symbolsTable.Setup(v => v.Find("IGreeter", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"IGreeter",
 				new Interface("IGreeter",
 				new List<NamedFunction>
@@ -1609,9 +1632,9 @@ public class TypeCheckerTest
 						)
 					)
 				},
-				Visibility.Private),
-				1,
-				null));
+				Visibility.Private)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1719,12 +1742,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_symbolsTable.Setup(v => v.Find("IGreeter", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
-				1,
-				null));
+				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private)
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
@@ -1748,12 +1771,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set_Invalid()
 	{
-		_symbolsTable.Setup(v => v.Find("v", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"v",
-				new Int(),
-				1,
-				null));
+				new Int()
+			)
+		);
 
 		ArrangeAndAct_Invalid(
 			new List<IUntypedAuraStatement>
@@ -1774,12 +1797,12 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Is()
 	{
-		_symbolsTable.Setup(v => v.Find("v", null))
-			.Returns(new Local(
+		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(
+			new AuraSymbol(
 				"v",
-				new Int(),
-				1,
-				null));
+				new Int()
+			)
+		);
 
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{

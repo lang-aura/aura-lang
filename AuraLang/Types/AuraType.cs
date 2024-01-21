@@ -87,7 +87,7 @@ public class Float : AuraType, IDefaultable
 /// <summary>
 /// Represents a string value
 /// </summary>
-public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable
+public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
 {
 	public override bool IsSameType(AuraType other) => other is String;
 
@@ -103,6 +103,8 @@ public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefault
 		var stringMod = new AuraStdlib().GetAllModules()["aura/strings"];
 		return stringMod.PublicFunctions.First(f => f.Name == attribute);
 	}
+
+	public string GetModuleName() => "strings";
 }
 
 /// <summary>
@@ -119,7 +121,7 @@ public class Bool : AuraType, IDefaultable
 /// <summary>
 /// Represents a resizable array of elements, all of which must have the same type
 /// </summary>
-public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable
+public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
 {
 	/// <summary>
 	/// The type of the elements in the list
@@ -149,6 +151,8 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 		var listsMod = new AuraStdlib().GetAllModules()["aura/lists"];
 		return listsMod.PublicFunctions.First(f => f.Name == attribute);
 	}
+
+	public string GetModuleName() => "lists";
 }
 
 /// <summary>
@@ -460,7 +464,7 @@ public class Map : AuraType, IIndexable, IDefaultable
 			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
 }
 
-public class Error : AuraType, IGettable
+public class Error : AuraType, IGettable, IImportableModule
 {
 	public string? Message { get; }
 
@@ -479,4 +483,6 @@ public class Error : AuraType, IGettable
 		var errorMod = new AuraStdlib().GetAllModules()["aura/errors"];
 		return errorMod.PublicFunctions.First(f => f.Name == attribute);
 	}
+
+	public string GetModuleName() => "errors";
 }

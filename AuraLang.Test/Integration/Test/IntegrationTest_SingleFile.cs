@@ -2,6 +2,7 @@
 using AuraLang.AST;
 using AuraLang.Exceptions;
 using AuraLang.FileCompiler;
+using AuraLang.Symbol;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.Test.Integration.Test;
@@ -103,7 +104,7 @@ public class IntegrationTest_SingleFile
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
-		var typeChecker = new AuraTypeChecker(new SymbolsTable(), new EnclosingClassStore(),
+		var typeChecker = new AuraTypeChecker(new GlobalSymbolsTable(), new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
 			path, "Test");
 		var compiler = new AuraFileCompiler(path, "Examples");
