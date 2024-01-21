@@ -5,8 +5,6 @@ using AuraLang.Token;
 using AuraLang.TypeChecker;
 using AuraLang.Types;
 using Moq;
-using AuraList = AuraLang.Types.List;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Test.Compiler;
 
@@ -24,7 +22,7 @@ public class CompilerTest
 				new TypedAssignment(
 					new Tok(TokType.Identifier, "i", 1),
 					new IntLiteral(5, 1),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -41,7 +39,7 @@ public class CompilerTest
 					new IntLiteral(5, 1),
 					new Tok(TokType.Plus, "+", 1),
 					new IntLiteral(5, 1),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -56,7 +54,7 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedBlock(
 					new List<ITypedAuraStatement>(),
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -79,7 +77,7 @@ public class CompilerTest
 							new IntLiteral(5, 2),
 							2),
 					},
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -96,30 +94,30 @@ public class CompilerTest
 					new TypedGet(
 						new TypedVariable(
 							new Tok(TokType.Identifier, "io", 1),
-							new Module(
+							new AuraModule(
 								"io",
-								new List<NamedFunction>
+								new List<AuraNamedFunction>
 								{
 									new(
 										"Println",
 										Visibility.Private,
-										new Function(
+										new AuraFunction(
 											new List<Param>
 											{
 												new(
 													new Tok(TokType.Identifier, "s", 1),
 													new ParamType(new AuraString(), false, null))
 											},
-											new Nil()))
+											new AuraNil()))
 								},
-								new List<Class>(),
+								new List<AuraClass>(),
 								new Dictionary<string, ITypedAuraExpression>()),
 							1),
 						new Tok(TokType.Identifier, "println", 1),
-						new NamedFunction(
+						new AuraNamedFunction(
 							"println",
 							Visibility.Private,
-							new Function(
+							new AuraFunction(
 								new List<Param>
 								{
 									new Param(
@@ -129,10 +127,10 @@ public class CompilerTest
 											false,
 											null))
 								},
-								new Nil())),
+								new AuraNil())),
 						1),
 					new List<ITypedAuraExpression> { new StringLiteral("Hello world", 1) },
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -148,15 +146,15 @@ public class CompilerTest
 				new TypedCall(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "f", 1),
-						new NamedFunction(
+						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
-							new Function(
+							new AuraFunction(
 								new List<Param>(),
-								new Nil())),
+								new AuraNil())),
 						1),
 					new List<ITypedAuraExpression>(),
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -172,20 +170,20 @@ public class CompilerTest
 				new TypedCall(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "f", 1),
-						new NamedFunction(
+						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
-							new Function(
+							new AuraFunction(
 								new List<Param>
 								{
 									new(
 										new Tok(TokType.Identifier, "i", 1),
-										new ParamType(new Int(), false, null))
+										new ParamType(new AuraInt(), false, null))
 								},
-								new Nil())),
+								new AuraNil())),
 						1),
 					new List<ITypedAuraExpression> { new IntLiteral(5, 1) },
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -201,23 +199,23 @@ public class CompilerTest
 				new TypedCall(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "f", 1),
-						new NamedFunction(
+						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
-							new Function(
+							new AuraFunction(
 								new List<Param>
 								{
 									new(
 										new Tok(TokType.Identifier, "i", 1),
-										new ParamType(new Int(), false, null)),
+										new ParamType(new AuraInt(), false, null)),
 									new(
 										new Tok(TokType.Identifier, "s", 1),
 										new ParamType(new AuraString(), false, null))
 								},
-								new Nil())),
+								new AuraNil())),
 						1),
 					new List<ITypedAuraExpression> { new IntLiteral(5, 1), new StringLiteral("Hello world", 1) },
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -233,7 +231,7 @@ public class CompilerTest
 				new TypedGet(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "greeter", 1),
-						new Class(
+						new AuraClass(
 							"Greeter",
 							new List<Param>
 							{
@@ -241,8 +239,8 @@ public class CompilerTest
 									new Tok(TokType.Identifier, "name", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new List<NamedFunction>(),
-							new List<Interface>(),
+							new List<AuraNamedFunction>(),
+							new List<AuraInterface>(),
 							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
@@ -262,7 +260,7 @@ public class CompilerTest
 				new TypedGetIndex(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "names", 1),
-						new Types.List(new AuraString()),
+						new Types.AuraList(new AuraString()),
 						1),
 					new IntLiteral(0, 1),
 					new AuraString(),
@@ -281,11 +279,11 @@ public class CompilerTest
 				new TypedGetIndexRange(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "names", 1),
-						new Types.List(new AuraString()),
+						new Types.AuraList(new AuraString()),
 						1),
 					new IntLiteral(0, 1),
 					new IntLiteral(2, 1),
-					new Types.List(new AuraString()),
+					new Types.AuraList(new AuraString()),
 					1),
 				1)
 		});
@@ -322,10 +320,10 @@ public class CompilerTest
 								new IntLiteral(1, 2),
 								2)
 						},
-						new Int(),
+						new AuraInt(),
 						1),
 					null,
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -347,7 +345,7 @@ public class CompilerTest
 								new IntLiteral(1, 2),
 								2)
 						},
-						new Int(),
+						new AuraInt(),
 						1),
 					new TypedBlock(
 						new List<ITypedAuraStatement>
@@ -356,9 +354,9 @@ public class CompilerTest
 								new IntLiteral(2, 4),
 								2)
 						},
-						new Int(),
+						new AuraInt(),
 						3),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -421,7 +419,7 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new ListLiteral<ITypedAuraExpression>(
 					new List<ITypedAuraExpression> { new IntLiteral(1, 1), new IntLiteral(2, 1), new IntLiteral(3, 1) },
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -440,7 +438,7 @@ public class CompilerTest
 						{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
 					},
 					new AuraString(),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -456,7 +454,7 @@ public class CompilerTest
 				new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 					new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(),
 					new AuraString(),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -509,7 +507,7 @@ public class CompilerTest
 					new BoolLiteral(true, 1),
 					new Tok(TokType.And, "and", 1),
 					new BoolLiteral(false, 1),
-					new Bool(),
+					new AuraBool(),
 					1),
 				1)
 		});
@@ -525,7 +523,7 @@ public class CompilerTest
 				new TypedSet(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "greeter", 1),
-						new Class(
+						new AuraClass(
 							"Greeter",
 							new List<Param>
 							{
@@ -533,8 +531,8 @@ public class CompilerTest
 									new Tok(TokType.Identifier, "name", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new List<NamedFunction>(),
-							new List<Interface>(),
+							new List<AuraNamedFunction>(),
+							new List<AuraInterface>(),
 							Visibility.Private),
 						1),
 					new Tok(TokType.Identifier, "name", 1),
@@ -554,11 +552,11 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedThis(
 					new Tok(TokType.This, "this", 1),
-					new Class(
+					new AuraClass(
 						"Greeter",
 						new List<Param>(),
-						new List<NamedFunction>(),
-						new List<Interface>(),
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
 						Visibility.Private),
 					1),
 				1)
@@ -575,7 +573,7 @@ public class CompilerTest
 				new TypedUnary(
 					new Tok(TokType.Bang, "!", 1),
 					new BoolLiteral(true, 1),
-					new Bool(),
+					new AuraBool(),
 					1),
 				1)
 		});
@@ -591,7 +589,7 @@ public class CompilerTest
 				new TypedUnary(
 					new Tok(TokType.Minus, "-", 1),
 					new IntLiteral(5, 1),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -622,15 +620,15 @@ public class CompilerTest
 				new TypedCall(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "f", 1),
-						new NamedFunction(
+						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
-							new Function(
+							new AuraFunction(
 								new List<Param>(),
-								new Nil())),
+								new AuraNil())),
 						1),
 					new List<ITypedAuraExpression>(),
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -652,11 +650,11 @@ public class CompilerTest
 				new TypedLogical(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "i", 1),
-						new Int(),
+						new AuraInt(),
 						1),
 					new Tok(TokType.Less, "<", 1),
 					new IntLiteral(10, 1),
-					new Bool(),
+					new AuraBool(),
 					1),
 				null,
 				new List<ITypedAuraStatement>(),
@@ -680,11 +678,11 @@ public class CompilerTest
 				new TypedLogical(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "i", 1),
-						new Int(),
+						new AuraInt(),
 						1),
 					new Tok(TokType.Less, "<", 1),
 					new IntLiteral(10, 1),
-					new Bool(),
+					new AuraBool(),
 					1),
 				null,
 				new List<ITypedAuraStatement>
@@ -751,8 +749,8 @@ public class CompilerTest
 			new TypedNamedFunction(
 				new Tok(TokType.Identifier, "f", 1),
 				new List<Param>(),
-				new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
-				new Nil(),
+				new TypedBlock(new List<ITypedAuraStatement>(), new AuraNil(), 1),
+				new AuraNil(),
 				Visibility.Private,
 				1)
 		});
@@ -767,8 +765,8 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedAnonymousFunction(
 					new List<Param>(),
-					new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
-					new Nil(),
+					new TypedBlock(new List<ITypedAuraStatement>(), new AuraNil(), 1),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -841,10 +839,10 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new List<Interface>
+				new List<AuraInterface>
 				{
-					new("IGreeter", new List<NamedFunction>(), Visibility.Private),
-					new("IGreeter2", new List<NamedFunction>(), Visibility.Private)
+					new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private),
+					new("IGreeter2", new List<AuraNamedFunction>(), Visibility.Private)
 				},
 				1)
 		});
@@ -863,7 +861,7 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new List<Interface> { new("IGreeter", new List<NamedFunction>(), Visibility.Private) },
+				new List<AuraInterface> { new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private) },
 				1)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
@@ -881,7 +879,7 @@ public class CompilerTest
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
-				new List<Interface>(),
+				new List<AuraInterface>(),
 				1)
 		});
 		MakeAssertions(output, "type GREETER struct {}");
@@ -962,11 +960,11 @@ public class CompilerTest
 				new TypedIs(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "v", 1),
-						new Int(),
+						new AuraInt(),
 						1),
-					new Interface(
+					new AuraInterface(
 						"IGreeter",
-						new List<NamedFunction>(),
+						new List<AuraNamedFunction>(),
 						Visibility.Private),
 					1),
 				1)
@@ -986,11 +984,11 @@ public class CompilerTest
 				new TypedIs(
 					new TypedVariable(
 						new Tok(TokType.Identifier, "v", 1),
-						new Int(),
+						new AuraInt(),
 						1),
-					new Interface(
+					new AuraInterface(
 						"IGreeter",
-						new List<NamedFunction>(),
+						new List<AuraNamedFunction>(),
 						Visibility.Private),
 					1),
 				1)
@@ -1008,19 +1006,19 @@ public class CompilerTest
 					new TypedIs(
 						new TypedVariable(
 							new Tok(TokType.Identifier, "v", 1),
-							new Int(),
+							new AuraInt(),
 							1),
-						new Interface(
+						new AuraInterface(
 							"IGreeter",
-							new List<NamedFunction>(),
+							new List<AuraNamedFunction>(),
 							Visibility.Private),
 						1),
 					new TypedBlock(
 						new List<ITypedAuraStatement>(),
-						new Nil(),
+						new AuraNil(),
 						1),
 					null,
-					new Nil(),
+					new AuraNil(),
 					1),
 				1)
 		});
@@ -1034,7 +1032,7 @@ public class CompilerTest
 		{
 			new TypedInterface(
 				new Tok(TokType.Identifier, "IGreeter", 1),
-				new List<NamedFunction>(),
+				new List<AuraNamedFunction>(),
 				Visibility.Public,
 				1)
 		});
@@ -1082,18 +1080,18 @@ public class CompilerTest
 		{
 			new TypedInterface(
 				new Tok(TokType.Identifier, "IGreeter", 1),
-				new List<NamedFunction>
+				new List<AuraNamedFunction>
 				{
-					new NamedFunction(
+					new AuraNamedFunction(
 						"say_hi",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new Param(
 									new Tok(TokType.Identifier, "i", 1),
 									new ParamType(
-										new Int(),
+										new AuraInt(),
 										false,
 										null))
 							},

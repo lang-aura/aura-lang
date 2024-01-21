@@ -1,17 +1,17 @@
 ﻿using AuraLang.AST;
 using AuraLang.Prelude;
 using AuraLang.Types;
-using Module = AuraLang.Types.Module;
+using AuraModule = AuraLang.Types.AuraModule;
 
 namespace AuraLang.Symbol;
 
 public interface IGlobalSymbolsTable
 {
 	ISymbolsNamespace? GetNamespace(string name);
-	Module? GetNamespaceAsModule(string name);
+	AuraModule? GetNamespaceAsModule(string name);
 	AuraSymbol? GetSymbol(string name, string symbolsNamespace);
 	void AddNamespace(string name);
-	void AddModule(Module module);
+	void AddModule(AuraModule module);
 	bool TryAddSymbol(AuraSymbol symbol, string symbolsNamespace);
 	void AddScope(string symbolsNamespace);
 	void ExitScope(string namespace_);
@@ -37,7 +37,7 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 		return null;
 	}
 
-	public Module? GetNamespaceAsModule(string name)
+	public AuraModule? GetNamespaceAsModule(string name)
 	{
 		var namespace_ = GetNamespace(name);
 		if (namespace_ is null) return null;
@@ -55,7 +55,7 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 
 	public void AddNamespace(string name) => _symbolsTable.TryAdd(name, new SymbolsNamespace(name));
 
-	public void AddModule(Module module)
+	public void AddModule(AuraModule module)
 	{
 		// First, add the module's namespace
 		AddNamespace(module.Name);
@@ -132,7 +132,7 @@ public interface ISymbolsNamespace
 	void AddScope();
 	void AddSymbol(AuraSymbol symbol);
 	AuraSymbol? Find(string name);
-	Module ParseAsModule();
+	AuraModule ParseAsModule();
 	void ExitScope();
 }
 
@@ -165,21 +165,21 @@ public class SymbolsNamespace : ISymbolsNamespace
 		return null;
 	}
 
-	public Module ParseAsModule()
+	public AuraModule ParseAsModule()
 	{
 		var symbols = _scopes[0].GetAllSymbols();
 
-		var functions = new List<NamedFunction>();
-		var classes = new List<Class>();
+		var functions = new List<AuraNamedFunction>();
+		var classes = new List<AuraClass>();
 		var variables = new Dictionary<string, ITypedAuraExpression>();
 		foreach (var symbol in symbols)
 		{
-			if (symbol.Kind is NamedFunction f) functions.Add(f);
-			if (symbol.Kind is Class c) classes.Add(c);
+			if (symbol.Kind is AuraNamedFunction f) functions.Add(f);
+			if (symbol.Kind is AuraClass c) classes.Add(c);
 			// TODO parse exported variables
 		}
 
-		return new Module(
+		return new AuraModule(
 			name: Name,
 			publicFunctions: functions,
 			publicClasses: classes,

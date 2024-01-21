@@ -7,8 +7,6 @@ using AuraLang.Stdlib;
 using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraChar = AuraLang.Types.Char;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.TypeChecker;
 
@@ -77,7 +75,7 @@ public class AuraTypeChecker
 						_symbolsTable.TryAddSymbol(
 							symbol: new AuraSymbol(
 								Name: interface_.Name.Value,
-								Kind: new Interface(interface_.Name.Value, interface_.Methods, interface_.Public)
+								Kind: new AuraInterface(interface_.Name.Value, interface_.Methods, interface_.Public)
 							),
 							symbolsNamespace: ModuleName
 						);
@@ -259,7 +257,7 @@ public class AuraTypeChecker
 				{
 					var typedInit = forStmt.Initializer is not null ? Statement(forStmt.Initializer) : null;
 					var typedCond = forStmt.Condition is not null
-						? ExpressionAndConfirm(forStmt.Condition, new Bool())
+						? ExpressionAndConfirm(forStmt.Condition, new AuraBool())
 						: null;
 					var typedInc = forStmt.Increment is not null
 						? Expression(forStmt.Increment)
@@ -343,10 +341,10 @@ public class AuraTypeChecker
 					_symbolsTable.TryAddSymbol(
 						symbol: new AuraSymbol(
 							Name: f.Name.Value,
-							Kind: new NamedFunction(
+							Kind: new AuraNamedFunction(
 								f.Name.Value,
 								f.Public,
-								new Function(
+								new AuraFunction(
 									TypeCheckParams(f.Params),
 									returnType)
 							)
@@ -401,11 +399,11 @@ public class AuraTypeChecker
 		);
 	}
 
-	private NamedFunction ParseFunctionSignature(UntypedNamedFunction f)
+	private AuraNamedFunction ParseFunctionSignature(UntypedNamedFunction f)
 	{
 		var typedParams = TypeCheckParams(f.Params);
 		var returnType = TypeCheckReturnTypeTok(f.ReturnType);
-		return new NamedFunction(f.Name.Value, f.Public, new Function(typedParams, returnType));
+		return new AuraNamedFunction(f.Name.Value, f.Public, new AuraFunction(typedParams, returnType));
 	}
 
 	private TypedNamedFunction FunctionStmt(UntypedNamedFunction f)
@@ -413,12 +411,12 @@ public class AuraTypeChecker
 		var typedParams = TypeCheckParams(f.Params);
 		var returnType = f.ReturnType is not null
 			? TypeTokenToType(f.ReturnType!.Value)
-			: new Nil();
+			: new AuraNil();
 		// Add parameters as local variables
 		foreach (var param in f.Params)
 		{
 			var paramTyp = param.ParamType.Typ;
-			if (param.ParamType.Variadic) paramTyp = new List(paramTyp);
+			if (param.ParamType.Variadic) paramTyp = new AuraList(paramTyp);
 			_symbolsTable.TryAddSymbol(
 				symbol: new AuraSymbol(
 					Name: param.Name.Value,
@@ -455,7 +453,7 @@ public class AuraTypeChecker
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
 				Name: let.Name.Value,
-				Kind: typedInit?.Typ ?? new Nil()
+				Kind: typedInit?.Typ ?? new AuraNil()
 			),
 			symbolsNamespace: ModuleName!
 		);
@@ -469,7 +467,7 @@ public class AuraTypeChecker
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
 				Name: let.Name.Value,
-				Kind: typedInit?.Typ ?? new Nil()
+				Kind: typedInit?.Typ ?? new AuraNil()
 			),
 			symbolsNamespace: ModuleName!
 		);
@@ -506,7 +504,7 @@ public class AuraTypeChecker
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
 				Name: typedLet.Name.Value,
-				Kind: typedLet.Initializer?.Typ ?? new None()
+				Kind: typedLet.Initializer?.Typ ?? new AuraNone()
 			),
 			symbolsNamespace: ModuleName!
 		);
@@ -573,7 +571,7 @@ public class AuraTypeChecker
 		);
 	}
 
-	private Class ParseClassSignature(UntypedClass class_)
+	private AuraClass ParseClassSignature(UntypedClass class_)
 	{
 		var typedParams = class_.Params.Select(p =>
 		{
@@ -588,13 +586,13 @@ public class AuraTypeChecker
 			? class_.Implementing.Select(impl =>
 			{
 				var local = FindOrThrow(impl.Value, ModuleName!, class_.Line);
-				var i = local.Kind as Interface ??
+				var i = local.Kind as AuraInterface ??
 						throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
 				return i;
 			})
-			: new List<Interface>();
+			: new List<AuraInterface>();
 
-		return new Class(class_.Name.Value, typedParams.ToList(), methodSignatures.ToList(), implements.ToList(), class_.Public);
+		return new AuraClass(class_.Name.Value, typedParams.ToList(), methodSignatures.ToList(), implements.ToList(), class_.Public);
 	}
 
 	/// <summary>
@@ -629,10 +627,10 @@ public class AuraTypeChecker
 							return new Param(p.Name,
 								new ParamType(methodParamType, p.ParamType.Variadic, typedMethodDefaultValue));
 						});
-						return new NamedFunction(
+						return new AuraNamedFunction(
 							method.Name,
 							method.Public,
-							new Function(typedMethodParams.ToList(), method.GetReturnType()));
+							new AuraFunction(typedMethodParams.ToList(), method.GetReturnType()));
 					})
 					.ToList();
 
@@ -641,11 +639,11 @@ public class AuraTypeChecker
 					? class_.Implementing.Select(impl =>
 					{
 						var local = FindOrThrow(impl.Value, ModuleName!, class_.Line);
-						var i = local.Kind as Interface ??
+						var i = local.Kind as AuraInterface ??
 								throw new CannotImplementNonInterfaceException(impl.Value, class_.Line);
 						return i;
 					})
-					: new List<Interface>();
+					: new List<AuraInterface>();
 
 				// Store the partially typed class as the current enclosing class
 				var partiallyTypedClass = new PartiallyTypedClass(
@@ -653,7 +651,7 @@ public class AuraTypeChecker
 					class_.Params,
 					methodSignatures,
 					class_.Public,
-					new Class(class_.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), class_.Public),
+					new AuraClass(class_.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), class_.Public),
 					class_.Line);
 				_enclosingClassStore.Push(partiallyTypedClass);
 				// Finish type checking the class's methods
@@ -700,7 +698,7 @@ public class AuraTypeChecker
 			{
 				return InNewScope(() =>
 				{
-					var typedCond = ExpressionAndConfirm(while_.Condition, new Bool());
+					var typedCond = ExpressionAndConfirm(while_.Condition, new AuraBool());
 					var typedBody = NonReturnableBody(while_.Body);
 					return new TypedWhile(typedCond, typedBody, while_.Line);
 				});
@@ -728,11 +726,11 @@ public class AuraTypeChecker
 				{
 					// Extract public methods and classes
 					var methods = typedAst.Item2
-						.Where(node => node.Typ is NamedFunction)
-						.Select(node => (node.Typ as NamedFunction)!);
+						.Where(node => node.Typ is AuraNamedFunction)
+						.Select(node => (node.Typ as AuraNamedFunction)!);
 					var classes = typedAst.Item2
-						.Where(node => node.Typ is Class)
-						.Select(node => (node.Typ as Class)!);
+						.Where(node => node.Typ is AuraClass)
+						.Select(node => (node.Typ as AuraClass)!);
 					var variables = typedAst.Item2
 						.Where(node => node is TypedLet)
 						.Select(node => (node as TypedLet)!);
@@ -740,7 +738,7 @@ public class AuraTypeChecker
 				})
 				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes),
 					a.variables.Concat(b.variables)));
-			var importedModule = new Module(
+			var importedModule = new AuraModule(
 				import_.Alias?.Value ?? import_.Package.Value,
 				exportedTypes.methods.ToList(),
 				exportedTypes.classes.ToList(),
@@ -838,7 +836,7 @@ public class AuraTypeChecker
 	{
 		var name = Expression(inc.Name);
 		// Ensure that expression has type of either int or float
-		if (name.Typ is not Int && name.Typ is not Float) throw new CannotIncrementNonNumberException(inc.Line);
+		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotIncrementNonNumberException(inc.Line);
 
 		return new TypedPlusPlusIncrement(name, name.Typ, inc.Line);
 	}
@@ -847,7 +845,7 @@ public class AuraTypeChecker
 	{
 		var name = Expression(dec.Name);
 		// Ensure that expression has type of either int or float
-		if (name.Typ is not Int && name.Typ is not Float) throw new CannotDecrementNonNumberException(dec.Line);
+		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotDecrementNonNumberException(dec.Line);
 
 		return new TypedMinusMinusDecrement(name, name.Typ, dec.Line);
 	}
@@ -886,15 +884,15 @@ public class AuraTypeChecker
 				}
 
 				// The block's type is the type of its last statement
-				AuraType blockTyp = new Nil();
+				AuraType blockTyp = new AuraNil();
 				if (typedStmts.Any())
 				{
 					var lastStmt = typedStmts.Last();
 					blockTyp = lastStmt switch
 					{
-						TypedReturn r => r.Value is not null ? r.Value.Typ : new Nil(),
+						TypedReturn r => r.Value is not null ? r.Value.Typ : new AuraNil(),
 						TypedYield y => y.Value.Typ,
-						_ => lastStmt.Typ is not None ? lastStmt.Typ : new Nil()
+						_ => lastStmt.Typ is not AuraNone ? lastStmt.Typ : new AuraNil()
 					};
 				}
 
@@ -934,7 +932,7 @@ public class AuraTypeChecker
 
 					return new TypedCall(typedGet, typedArgs, funcDeclaration_.GetReturnType(), call.Line);
 				}
-				if (typedGet.Obj.Typ is Module m) namespace_ = m.Name;
+				if (typedGet.Obj.Typ is AuraModule m) namespace_ = m.Name;
 			}
 			if (IsSymbolInPreludeNamespace(call.GetName())) namespace_ = "prelude";
 
@@ -1029,7 +1027,7 @@ public class AuraTypeChecker
 					Line: 1
 				));
 			}
-			if (g is List)
+			if (g is AuraList)
 			{
 				ImportStmt(new UntypedImport(
 					Package: new Tok(
@@ -1045,7 +1043,7 @@ public class AuraTypeChecker
 					Line: 1
 				));
 			}
-			if (g is Error)
+			if (g is AuraError)
 			{
 				ImportStmt(new UntypedImport(
 					Package: new Tok(
@@ -1153,7 +1151,7 @@ public class AuraTypeChecker
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			var typedCond = ExpressionAndConfirm(if_.Condition, new Bool());
+			var typedCond = ExpressionAndConfirm(if_.Condition, new AuraBool());
 			var typedThen = BlockExpr(if_.Then);
 			// Type check else branch
 			ITypedAuraExpression? typedElse = null;
@@ -1230,12 +1228,12 @@ public class AuraTypeChecker
 			// Ensure that operand is a valid type and the operand can be used with it
 			if (unary.Operator.Typ is TokType.Minus)
 			{
-				if (typedRight.Typ is not Int && typedRight.Typ is not Float)
+				if (typedRight.Typ is not AuraInt && typedRight.Typ is not AuraFloat)
 					throw new MismatchedUnaryOperatorAndOperandException(unary.Operator.Value, typedRight.Typ, unary.Line);
 			}
 			else if (unary.Operator.Typ is TokType.Minus)
 			{
-				if (typedRight.Typ is not Bool)
+				if (typedRight.Typ is not AuraBool)
 					throw new MismatchedUnaryOperatorAndOperandException(unary.Operator.Value, typedRight.Typ, unary.Line);
 			}
 
@@ -1254,9 +1252,9 @@ public class AuraTypeChecker
 			? "prelude"
 			: ModuleName!;
 		var localVar = FindOrThrow(v.Name.Value, namespace_, v.Line);
-		var kind = !localVar.Kind.IsSameType(new Unknown(string.Empty))
+		var kind = !localVar.Kind.IsSameType(new AuraUnknown(string.Empty))
 			? localVar.Kind
-			: FindOrThrow(((Unknown)localVar.Kind).Name, ModuleName!, v.Line).Kind;
+			: FindOrThrow(((AuraUnknown)localVar.Kind).Name, ModuleName!, v.Line).Kind;
 		return new TypedVariable(v.Name, kind, v.Line);
 	}
 
@@ -1265,7 +1263,7 @@ public class AuraTypeChecker
 		var typedExpr = Expression(is_.Expr);
 		// Ensure the expected type is an interface
 		var i = FindAndConfirm(is_.Expected.Value, ModuleName!,
-			new Interface(string.Empty, new List<NamedFunction>(), Visibility.Private), is_.Line);
+			new AuraInterface(string.Empty, new List<AuraNamedFunction>(), Visibility.Private), is_.Line);
 
 		return new TypedIs(typedExpr, i, is_.Line);
 	}
@@ -1281,7 +1279,7 @@ public class AuraTypeChecker
 		{
 			var typedLeft = Expression(logical.Left);
 			var typedRight = ExpressionAndConfirm(logical.Right, typedLeft.Typ);
-			return new TypedLogical(typedLeft, logical.Operator, typedRight, new Bool(), logical.Line);
+			return new TypedLogical(typedLeft, logical.Operator, typedRight, new AuraBool(), logical.Line);
 		}, logical);
 	}
 
@@ -1316,13 +1314,13 @@ public class AuraTypeChecker
 	{
 		return tok.Typ switch
 		{
-			TokType.Int => new Int(),
-			TokType.Float => new Float(),
+			TokType.Int => new AuraInt(),
+			TokType.Float => new AuraFloat(),
 			TokType.String => new AuraString(),
-			TokType.Bool => new Bool(),
-			TokType.Any => new Any(),
+			TokType.Bool => new AuraBool(),
+			TokType.Any => new AuraAny(),
 			TokType.Char => new AuraChar(),
-			TokType.Error => new Error(),
+			TokType.Error => new AuraError(),
 			_ => throw new UnexpectedTypeException(tok.Line)
 		};
 	}
@@ -1334,7 +1332,7 @@ public class AuraTypeChecker
 			var typedDefaultValue = p.ParamType.DefaultValue is not null
 				? (ILiteral)Expression(p.ParamType.DefaultValue)
 				: null;
-			var paramTyp = p.ParamType.Typ is not Unknown u
+			var paramTyp = p.ParamType.Typ is not AuraUnknown u
 				? p.ParamType.Typ
 				: FindOrThrow(u.Name, ModuleName!, p.Name.Line).Kind;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
@@ -1423,7 +1421,7 @@ public class AuraTypeChecker
 	}
 
 	private AuraType TypeCheckReturnTypeTok(Tok? returnTok) =>
-		returnTok is not null ? TypeTokenToType(returnTok.Value) : new Nil();
+		returnTok is not null ? TypeTokenToType(returnTok.Value) : new AuraNil();
 
 	private TU WithEnclosingStmt<TU, T>(Func<TU> f, T node, string symbolNamespace)
 		where TU : ITypedAuraStatement

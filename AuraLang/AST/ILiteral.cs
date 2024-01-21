@@ -1,6 +1,4 @@
 ﻿using AuraLang.Types;
-using AuraChar = AuraLang.Types.Char;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.AST;
 
@@ -17,7 +15,7 @@ public interface ILiteral<out T> : ILiteral
 /// <param name="I">The integer value</param>
 public record IntLiteral(long I, int Line) : ILiteral<long>
 {
-	public AuraType Typ => new Int();
+	public AuraType Typ => new AuraInt();
 	public long Value => I;
 }
 
@@ -27,7 +25,7 @@ public record IntLiteral(long I, int Line) : ILiteral<long>
 /// <param name="F">The float value</param>
 public record FloatLiteral(double F, int Line) : ILiteral<double>
 {
-	public AuraType Typ => new Float();
+	public AuraType Typ => new AuraFloat();
 	public double Value => F;
 }
 
@@ -48,7 +46,7 @@ public record StringLiteral(string S, int Line) : ILiteral<string>
 public record ListLiteral<T>(List<T> L, AuraType Kind, int Line) : ILiteral<List<T>>
 	where T : IAuraAstNode
 {
-	public AuraType Typ => new List(Kind);
+	public AuraType Typ => new AuraList(Kind);
 	public List<T> Value => L;
 }
 
@@ -70,7 +68,7 @@ public record MapLiteral<TK, TV>(Dictionary<TK, TV> M, AuraType KeyType, AuraTyp
 	where TK : IAuraAstNode
 	where TV : IAuraAstNode
 {
-	public AuraType Typ => new Map(KeyType, ValueType);
+	public AuraType Typ => new AuraMap(KeyType, ValueType);
 	public Dictionary<TK, TV> Value => M;
 }
 
@@ -80,7 +78,7 @@ public record MapLiteral<TK, TV>(Dictionary<TK, TV> M, AuraType KeyType, AuraTyp
 /// <param name="B">The boolean value</param>
 public record BoolLiteral(bool B, int Line) : ILiteral<bool>
 {
-	public AuraType Typ => new Bool();
+	public AuraType Typ => new AuraBool();
 	public bool Value => B;
 }
 

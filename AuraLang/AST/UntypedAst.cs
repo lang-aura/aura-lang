@@ -287,7 +287,7 @@ public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, To
 /// </summary>
 /// <param name="Name">The name of the newly-declared variable</param>
 /// <param name="NameTyp">The variable's type, if it was declared with an explicit type annotation. If not, the value of this field will
-/// be <see cref="Unknown"/></param>
+/// be <see cref="AuraUnknown"/></param>
 /// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">The initializer expression whose result will be assigned to the new variable. This expression may be omitted.</param>
 public record UntypedLet(Tok Name, AuraType? NameTyp, bool Mutable, IUntypedAuraExpression? Initializer, int Line) : IUntypedAuraStatement;
@@ -333,7 +333,7 @@ public record UntypedClass(Tok Name, List<Param> Params, List<IUntypedAuraStatem
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates if the interface is public or not</param>
 public record UntypedInterface
-	(Tok Name, List<NamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement;
+	(Tok Name, List<AuraNamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement;
 
 /// <summary>
 /// Represents a <c>while</c> loop, which follows this syntax:
