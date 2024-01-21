@@ -20,7 +20,18 @@ public abstract class AuraCommand
 	{
 		Verbose = opts.Verbose ?? false;
 	}
-	public abstract int Execute();
+
+	public int Execute()
+	{
+		if (!IsInProjectRoot())
+		{
+			Console.WriteLine("Must be in project root!");
+			return 1;
+		}
+		return ExecuteCommand();
+	}
+
+	protected abstract int ExecuteCommand();
 
 	/// <summary>
 	/// Traverses the project's Aura source files and calls the supplied Action on each file

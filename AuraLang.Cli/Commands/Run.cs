@@ -26,7 +26,7 @@ public class Run : AuraCommand
 	/// Runs the Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the process succeeded</returns>
-	public override int Execute()
+	protected override int ExecuteCommand()
 	{
 		Build.Execute();
 		// After build is finished executing, the current directory will be the `build/pkg` directory, so we return to the project's root directory here
