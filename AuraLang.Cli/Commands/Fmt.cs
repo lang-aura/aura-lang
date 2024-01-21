@@ -19,7 +19,7 @@ public class AuraFmt : AuraCommand
 	/// Formats the entire Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the command succeeded</returns>
-	public override int Execute()
+	protected override int ExecuteCommand()
 	{
 		TraverseProject(FormatFile);
 		return 0;

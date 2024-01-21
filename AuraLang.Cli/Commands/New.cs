@@ -20,7 +20,7 @@ public class New : AuraCommand
 	/// Creates a new Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the process succeeded</returns>
-	public override int Execute()
+	protected override int ExecuteCommand()
 	{
 		var projPath = $"./{Name}";
 		Directory.CreateDirectory(projPath);
