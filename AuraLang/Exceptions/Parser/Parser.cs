@@ -184,3 +184,8 @@ public class ExpectNewLineException : ParserException
 {
 	public ExpectNewLineException(string found, int line) : base($"Expected '\n', but found '{found}'", line) { }
 }
+
+public class FileMustBeginWithModStmtException : ParserException
+{
+	public FileMustBeginWithModStmtException(int line) : base("Cannot omit `mod` statement", line) { }
+}

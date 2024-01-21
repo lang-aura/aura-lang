@@ -5,7 +5,6 @@ using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
 using Newtonsoft.Json;
-using String = AuraLang.Types.AuraString;
 
 namespace AuraLang.Test.Parser;
 
@@ -314,7 +313,7 @@ public class ParserTest
 					{ new StringLiteral("Hello", 2), new IntLiteral(1, 2) },
 					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
 				},
-				new String(),
+				new AuraString(),
 				new AuraInt(),
 				1), new StringLiteral("Hello", 4), 1),
 			1));
@@ -353,7 +352,7 @@ public class ParserTest
 					{ new StringLiteral("Hello", 2), new IntLiteral(1, 2) },
 					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
 				},
-				new String(),
+				new AuraString(),
 				new AuraInt(),
 				1),
 			1));
@@ -819,7 +818,7 @@ public class ParserTest
 									false,
 									null))
 						},
-						new String())
+						new AuraString())
 				)
 			},
 			Visibility.Private,
@@ -1032,6 +1031,26 @@ public class ParserTest
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange
+		tokens.Insert(0, new Tok(
+			Typ: TokType.Newline,
+			Value: "\n",
+			Line: 1
+		));
+		tokens.Insert(0, new Tok(
+			Typ: TokType.Semicolon,
+			Value: ";",
+			Line: 1
+		));
+		tokens.Insert(0, new Tok(
+			Typ: TokType.Identifier,
+			Value: "main",
+			Line: 1
+		));
+		tokens.Insert(0, new Tok(
+			Typ: TokType.Mod,
+			Value: "mod",
+			Line: 1
+		));
 		var parser = new AuraParser(tokens, "Test");
 		// Act
 		return parser.Parse();
@@ -1054,6 +1073,8 @@ public class ParserTest
 
 	private void MakeAssertions(List<IUntypedAuraStatement> untypedAst, IUntypedAuraStatement expected)
 	{
+		untypedAst.RemoveAt(0); // Remove `mod` statement
+		untypedAst.RemoveAt(0); // Remove newline after `mod` statement
 		Assert.Multiple(() =>
 		{
 			Assert.That(untypedAst, Is.Not.Null);

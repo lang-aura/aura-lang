@@ -12,14 +12,12 @@ public class AuraParser
 	private readonly List<Tok> _tokens;
 	private int _index;
 	private readonly ParserExceptionContainer _exContainer;
-	private string FilePath { get; }
 	private const int MAX_PARAMS = 255;
 
 	public AuraParser(List<Tok> tokens, string filePath)
 	{
 		_tokens = tokens;
 		_index = 0;
-		FilePath = filePath;
 		_exContainer = new ParserExceptionContainer(filePath);
 	}
 
@@ -44,6 +42,11 @@ public class AuraParser
 		}
 
 		if (!_exContainer.IsEmpty()) throw _exContainer;
+		if (statements.Where(stmt => stmt is not UntypedComment).First() is not UntypedMod)
+		{
+			_exContainer.Add(new FileMustBeginWithModStmtException(1));
+			throw _exContainer;
+		}
 		return statements;
 	}
 
