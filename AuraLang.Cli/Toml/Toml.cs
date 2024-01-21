@@ -43,19 +43,32 @@ public class AuraToml
 	/// Parses the project's TOML config file
 	/// </summary>
 	/// <returns>A <c>Document</c> representing the TOML config file</returns>
-	public Document Parse()
+	public Document? Parse()
 	{
-		var s = File.ReadAllText($"{_path}/aura.toml");
-		return TomletMain.To<Document>(s);
+		try
+		{
+			var s = File.ReadAllText($"{_path}/aura.toml");
+			return TomletMain.To<Document>(s);
+		}
+		catch (FileNotFoundException)
+		{
+			return null;
+		}
+		catch (DirectoryNotFoundException)
+		{
+			return null;
+		}
+
 	}
 
 	/// <summary>
 	/// Fetches the project's name from the TOML config file
 	/// </summary>
 	/// <returns>The project's name</returns>
-	public string GetProjectName()
+	public string? GetProjectName()
 	{
 		var doc = Parse();
+		if (doc is null) return null;
 		return doc.Project!.Name!;
 	}
 }

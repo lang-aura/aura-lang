@@ -1,4 +1,5 @@
 ﻿using AuraLang.Cli.Options;
+using AuraLang.Cli.Toml;
 using AuraLang.Exceptions;
 
 namespace AuraLang.Cli.Commands;
@@ -9,6 +10,11 @@ public abstract class AuraCommand
 	/// Indicates whether the command's output is verbose
 	/// </summary>
 	protected bool Verbose { get; init; }
+
+	/// <summary>
+	/// Used to read the TOML config file located in the project's root
+	/// </summary>
+	private readonly AuraToml _toml = new();
 
 	protected AuraCommand(AuraOptions opts)
 	{
@@ -21,9 +27,12 @@ public abstract class AuraCommand
 	///	</summary>
 	/// <param name="a">The Action to call on each Aura source file in the project. The action will accept
 	/// each file's path as a parameter</param>
-	protected void TraverseProject(Action<string, string> a)
+	protected void TraverseProject(Action<string, string> a) => TraverseProjectRecur("./src", a);
+
+	protected bool IsInProjectRoot()
 	{
-		TraverseProjectRecur("./src", a);
+		var projName = _toml.GetProjectName();
+		return projName is not null;
 	}
 
 	/// <summary>

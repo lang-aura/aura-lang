@@ -26,13 +26,18 @@ public class Build : AuraCommand
 	/// <returns>An integer status indicating if the process succeeded</returns>
 	public override int Execute()
 	{
+		if (!IsInProjectRoot())
+		{
+			Console.WriteLine("Must be in project root!");
+			return 1;
+		}
 		// Before building the project, clear out all Go files from the `build` directory. This will prevent issues arising
 		// from, for example, old Go files previously built from Aura source files that have since been deleted.
 		ResetBuildDirectory();
 
 		try
 		{
-			var projCompiler = new AuraProjectCompiler(_toml.GetProjectName());
+			var projCompiler = new AuraProjectCompiler(_toml.GetProjectName()!);
 			var compiledOutput = projCompiler.CompileProject();
 			foreach (var output in compiledOutput)
 			{
