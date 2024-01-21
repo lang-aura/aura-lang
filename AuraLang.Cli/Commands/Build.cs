@@ -72,7 +72,15 @@ public class Build : AuraCommand
 	/// </summary>
 	private void FormatGoProject()
 	{
-		var cmd = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = "fmt" } };
+		var cmd = new Process
+		{
+			StartInfo = new ProcessStartInfo
+			{
+				FileName = "go",
+				Arguments = "fmt",
+				RedirectStandardOutput = true
+			}
+		};
 		cmd.Start();
 		cmd.WaitForExit();
 	}
