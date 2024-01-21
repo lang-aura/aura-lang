@@ -37,16 +37,16 @@ public abstract class AuraType
 /// stage of the compilation process. For example, when declaring a variable using Aura's short <c>:=</c>
 /// syntax (i.e. <code>i := 5</code>), the type of <c>i</c> is unknown before it is type checked.
 /// </summary>
-public class Unknown : AuraType
+public class AuraUnknown : AuraType
 {
 	public string Name { get; init; }
 
-	public Unknown(string name)
+	public AuraUnknown(string name)
 	{
 		Name = name;
 	}
 
-	public override bool IsSameType(AuraType other) => other is Unknown;
+	public override bool IsSameType(AuraType other) => other is AuraUnknown;
 
 	public override string ToString() => "unknown";
 }
@@ -55,9 +55,9 @@ public class Unknown : AuraType
 /// Used to represent the type of an Aura statement, which has no type because statements
 /// do not return a value.
 /// </summary>
-public class None : AuraType
+public class AuraNone : AuraType
 {
-	public override bool IsSameType(AuraType other) => other is None;
+	public override bool IsSameType(AuraType other) => other is AuraNone;
 
 	public override string ToString() => "none";
 }
@@ -65,9 +65,9 @@ public class None : AuraType
 /// <summary>
 /// Represents an integer value
 /// </summary>
-public class Int : AuraType, IDefaultable
+public class AuraInt : AuraType, IDefaultable
 {
-	public override bool IsSameType(AuraType other) => other is Int;
+	public override bool IsSameType(AuraType other) => other is AuraInt;
 
 	public override string ToString() => "int";
 	public ITypedAuraExpression Default(int line) => new IntLiteral(0, line);
@@ -76,9 +76,9 @@ public class Int : AuraType, IDefaultable
 /// <summary>
 /// Represents a floating point value
 /// </summary>
-public class Float : AuraType, IDefaultable
+public class AuraFloat : AuraType, IDefaultable
 {
-	public override bool IsSameType(AuraType other) => other is Float;
+	public override bool IsSameType(AuraType other) => other is AuraFloat;
 
 	public override string ToString() => "float";
 	public ITypedAuraExpression Default(int line) => new FloatLiteral(0.0, line);
@@ -87,15 +87,15 @@ public class Float : AuraType, IDefaultable
 /// <summary>
 /// Represents a string value
 /// </summary>
-public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
+public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
 {
-	public override bool IsSameType(AuraType other) => other is String;
+	public override bool IsSameType(AuraType other) => other is AuraString;
 
-	public AuraType GetIterType() => new Char();
+	public AuraType GetIterType() => new AuraChar();
 	public override string ToString() => "string";
-	public AuraType IndexingType() => new Int();
-	public AuraType GetIndexedType() => new Char();
-	public AuraType GetRangeIndexedType() => new String();
+	public AuraType IndexingType() => new AuraInt();
+	public AuraType GetIndexedType() => new AuraChar();
+	public AuraType GetRangeIndexedType() => new AuraString();
 	public ITypedAuraExpression Default(int line) => new StringLiteral(string.Empty, line);
 
 	public AuraType? Get(string attribute)
@@ -110,9 +110,9 @@ public class String : AuraType, IIterable, IIndexable, IRangeIndexable, IDefault
 /// <summary>
 /// Represents a boolean value
 /// </summary>
-public class Bool : AuraType, IDefaultable
+public class AuraBool : AuraType, IDefaultable
 {
-	public override bool IsSameType(AuraType other) => other is Bool;
+	public override bool IsSameType(AuraType other) => other is AuraBool;
 
 	public override string ToString() => "bool";
 	public ITypedAuraExpression Default(int line) => new BoolLiteral(false, line);
@@ -121,30 +121,30 @@ public class Bool : AuraType, IDefaultable
 /// <summary>
 /// Represents a resizable array of elements, all of which must have the same type
 /// </summary>
-public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
+public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
 {
 	/// <summary>
 	/// The type of the elements in the list
 	/// </summary>
 	private AuraType Kind { get; }
 
-	public List(AuraType kind)
+	public AuraList(AuraType kind)
 	{
 		Kind = kind;
 	}
 
-	public override bool IsEqual(AuraType other) => other is List list && Kind.IsSameType(list.Kind);
+	public override bool IsEqual(AuraType other) => other is AuraList list && Kind.IsSameType(list.Kind);
 
-	public override bool IsSameType(AuraType other) => other is List list;
+	public override bool IsSameType(AuraType other) => other is AuraList list;
 
 	public AuraType GetIterType() => Kind;
 	public override string ToString() => $"[]{Kind}";
-	public AuraType IndexingType() => new Int();
+	public AuraType IndexingType() => new AuraInt();
 	public AuraType GetIndexedType() => Kind;
-	public AuraType GetRangeIndexedType() => new List(Kind);
+	public AuraType GetRangeIndexedType() => new AuraList(Kind);
 
 	public ITypedAuraExpression Default(int line) =>
-		new ListLiteral<ITypedAuraExpression>(new List<ITypedAuraExpression>(), new List(Kind), line);
+		new ListLiteral<ITypedAuraExpression>(new List<ITypedAuraExpression>(), new AuraList(Kind), line);
 
 	public AuraType? Get(string attribute)
 	{
@@ -158,22 +158,22 @@ public class List : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultab
 /// <summary>
 /// Represents an Aura function
 /// </summary>
-public class NamedFunction : AuraType, ICallable
+public class AuraNamedFunction : AuraType, ICallable
 {
 	public string Name { get; }
 	public Visibility Public { get; }
-	private Function F { get; }
+	private AuraFunction F { get; }
 
-	public NamedFunction(string name, Visibility pub, Function f)
+	public AuraNamedFunction(string name, Visibility pub, AuraFunction f)
 	{
 		Name = name;
 		Public = pub;
 		F = f;
 	}
 
-	public override bool IsEqual(AuraType other) => other is NamedFunction f && Name == f.Name && F.IsSameType(f.F);
+	public override bool IsEqual(AuraType other) => other is AuraNamedFunction f && Name == f.Name && F.IsSameType(f.F);
 
-	public override bool IsSameType(AuraType other) => other is NamedFunction;
+	public override bool IsSameType(AuraType other) => other is AuraNamedFunction;
 
 	public override string ToString()
 	{
@@ -182,7 +182,7 @@ public class NamedFunction : AuraType, ICallable
 			: Name.ToLower();
 		var pt = string.Join(", ", F.Params
 			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
-		return $"func {name}({pt}){(F.ReturnType is not Nil ? F.ReturnType : "")}";
+		return $"func {name}({pt}){(F.ReturnType is not AuraNil ? F.ReturnType : "")}";
 	}
 
 	public string ToStringInterface()
@@ -192,7 +192,7 @@ public class NamedFunction : AuraType, ICallable
 			: Name.ToLower();
 		var pt = string.Join(", ", F.Params
 			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
-		return $"{name}({pt}) {(F.ReturnType.IsSameType(new Nil()) ? string.Empty : F.ReturnType)}";
+		return $"{name}({pt}) {(F.ReturnType.IsSameType(new AuraNil()) ? string.Empty : F.ReturnType)}";
 	}
 
 	public List<Param> GetParams() => F.Params;
@@ -206,21 +206,21 @@ public class NamedFunction : AuraType, ICallable
 /// Represents an anonymous function in Aura, which is basically just a named function
 /// without a name
 /// </summary>
-public class Function : AuraType, ICallable
+public class AuraFunction : AuraType, ICallable
 {
 	public List<Param> Params { get; }
 	public AuraType ReturnType { get; }
 
-	public Function(List<Param> fParams, AuraType returnType)
+	public AuraFunction(List<Param> fParams, AuraType returnType)
 	{
 		Params = fParams;
 		ReturnType = returnType;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Function f && CompareParamsForEquality(Params, f.Params) &&
+	public override bool IsEqual(AuraType other) => other is AuraFunction f && CompareParamsForEquality(Params, f.Params) &&
 													ReturnType.IsSameType(f.ReturnType);
 
-	public override bool IsSameType(AuraType other) => other is Function;
+	public override bool IsSameType(AuraType other) => other is AuraFunction;
 
 	public override string ToString()
 	{
@@ -236,13 +236,13 @@ public class Function : AuraType, ICallable
 	public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
 }
 
-public class Interface : AuraType, IGettable
+public class AuraInterface : AuraType, IGettable
 {
 	public Visibility Public { get; }
 	public string Name { get; init; }
-	public List<NamedFunction> Functions { get; init; }
+	public List<AuraNamedFunction> Functions { get; init; }
 
-	public Interface(string name, List<NamedFunction> functions, Visibility pub)
+	public AuraInterface(string name, List<AuraNamedFunction> functions, Visibility pub)
 	{
 		Name = name;
 		Functions = functions;
@@ -250,13 +250,13 @@ public class Interface : AuraType, IGettable
 	}
 
 	public override bool IsEqual(AuraType other) =>
-		other is Interface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
+		other is AuraInterface i && Name == i.Name && Functions.SequenceEqual(i.Functions);
 
-	public override bool IsSameType(AuraType other) => other is Interface;
+	public override bool IsSameType(AuraType other) => other is AuraInterface;
 
 	public override bool IsInheritingType(AuraType other)
 	{
-		if (other is not Class c) return false;
+		if (other is not AuraClass c) return false;
 		return c.Implementing.Contains(this);
 	}
 
@@ -265,7 +265,7 @@ public class Interface : AuraType, IGettable
 	public override bool Equals(object? obj)
 	{
 		if (obj is null) return false;
-		if (obj is not Interface i) return false;
+		if (obj is not AuraInterface i) return false;
 		return Name == i.Name &&
 			   Functions == i.Functions;
 	}
@@ -282,15 +282,15 @@ public class Interface : AuraType, IGettable
 /// Represents a class type in Aura. Classes have their own type signature as well as zero or more
 /// methods, each of which also have their own type.
 /// </summary>
-public class Class : AuraType, IGettable, ICallable
+public class AuraClass : AuraType, IGettable, ICallable
 {
 	public Visibility Public { get; }
 	public string Name { get; init; }
 	public List<Param> Parameters { get; }
-	public List<NamedFunction> Methods { get; }
-	public List<Interface> Implementing { get; }
+	public List<AuraNamedFunction> Methods { get; }
+	public List<AuraInterface> Implementing { get; }
 
-	public Class(string name, List<Param> parameters, List<NamedFunction> methods, List<Interface> implementing,
+	public AuraClass(string name, List<Param> parameters, List<AuraNamedFunction> methods, List<AuraInterface> implementing,
 		Visibility pub)
 	{
 		Name = name;
@@ -300,11 +300,11 @@ public class Class : AuraType, IGettable, ICallable
 		Public = pub;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Class c && Name == c.Name &&
+	public override bool IsEqual(AuraType other) => other is AuraClass c && Name == c.Name &&
 													Parameters.SequenceEqual(c.Parameters) &&
 													Methods.SequenceEqual(c.Methods);
 
-	public override bool IsSameType(AuraType other) => other is Class;
+	public override bool IsSameType(AuraType other) => other is AuraClass;
 
 	public override string ToString() => "class";
 
@@ -352,14 +352,14 @@ public class Class : AuraType, IGettable, ICallable
 /// which establishes the module's name. Any functions declared in that source file are considered
 /// part of the same module.
 /// </summary>
-public class Module : AuraType, IGettable
+public class AuraModule : AuraType, IGettable
 {
 	public string Name { get; init; }
-	public List<NamedFunction> PublicFunctions { get; init; }
-	public List<Class> PublicClasses { get; init; }
+	public List<AuraNamedFunction> PublicFunctions { get; init; }
+	public List<AuraClass> PublicClasses { get; init; }
 	public Dictionary<string, ITypedAuraExpression> PublicVariables { get; init; }
 
-	public Module(string name, List<NamedFunction> publicFunctions, List<Class> publicClasses,
+	public AuraModule(string name, List<AuraNamedFunction> publicFunctions, List<AuraClass> publicClasses,
 		Dictionary<string, ITypedAuraExpression> publicVariables)
 	{
 		Name = name;
@@ -369,9 +369,9 @@ public class Module : AuraType, IGettable
 	}
 
 	public override bool IsEqual(AuraType other) =>
-		other is Module m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
+		other is AuraModule m && Name == m.Name && PublicFunctions.SequenceEqual(m.PublicFunctions);
 
-	public override bool IsSameType(AuraType other) => other is Module;
+	public override bool IsSameType(AuraType other) => other is AuraModule;
 
 	public override string ToString() => "module";
 
@@ -407,22 +407,22 @@ public class Module : AuraType, IGettable
 
 /// <summary>
 /// Represents a type with no return value. This type is used for expressions that do not return a value.
-/// This type differs from <see cref="Unknown"/> in that <c>Nil</c> indicates the type is known to not
+/// This type differs from <see cref="AuraUnknown"/> in that <c>Nil</c> indicates the type is known to not
 /// exist, whereas <c>Unknown</c> indicates that the type is not yet known.
 /// </summary>
-public class Nil : AuraType
+public class AuraNil : AuraType
 {
-	public override bool IsSameType(AuraType other) => other is Nil;
+	public override bool IsSameType(AuraType other) => other is AuraNil;
 	public override string ToString() => "nil";
 }
 
 /// <summary>
 /// Represents the parent type of all other types in Aura
 /// </summary>
-public class Any : AuraType
+public class AuraAny : AuraType
 {
 	public override bool IsInheritingType(AuraType other) => true;
-	public override bool IsSameType(AuraType other) => other is Any;
+	public override bool IsSameType(AuraType other) => other is AuraAny;
 	public override string ToString() => "any";
 }
 
@@ -430,9 +430,9 @@ public class Any : AuraType
 /// Represents a single character, and is denoted in Aura programs by a single character surrounded
 /// with single quotes.
 /// </summary>
-public class Char : AuraType
+public class AuraChar : AuraType
 {
-	public override bool IsSameType(AuraType other) => other is Char;
+	public override bool IsSameType(AuraType other) => other is AuraChar;
 	public override string ToString() => "byte";
 }
 
@@ -440,21 +440,21 @@ public class Char : AuraType
 /// Represents a data type containing a series of key-value pairs. All the keys must have the same
 /// type and all the values must have the same type.
 /// </summary>
-public class Map : AuraType, IIndexable, IDefaultable
+public class AuraMap : AuraType, IIndexable, IDefaultable
 {
 	public AuraType Key { get; }
 	public AuraType Value { get; }
 
-	public Map(AuraType key, AuraType value)
+	public AuraMap(AuraType key, AuraType value)
 	{
 		Key = key;
 		Value = value;
 	}
 
-	public override bool IsEqual(AuraType other) => other is Map m && Key.IsSameOrInheritingType(m.Key) &&
+	public override bool IsEqual(AuraType other) => other is AuraMap m && Key.IsSameOrInheritingType(m.Key) &&
 													Value.IsSameOrInheritingType(m.Value);
 
-	public override bool IsSameType(AuraType other) => other is Map;
+	public override bool IsSameType(AuraType other) => other is AuraMap;
 	public override string ToString() => $"map[{Key}]{Value}";
 	public AuraType IndexingType() => Key;
 	public AuraType GetIndexedType() => Value;
@@ -464,18 +464,18 @@ public class Map : AuraType, IIndexable, IDefaultable
 			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
 }
 
-public class Error : AuraType, IGettable, IImportableModule
+public class AuraError : AuraType, IGettable, IImportableModule
 {
 	public string? Message { get; }
 
-	public Error(string message)
+	public AuraError(string message)
 	{
 		Message = message;
 	}
 
-	public Error() { }
+	public AuraError() { }
 
-	public override bool IsSameType(AuraType other) => other is Error;
+	public override bool IsSameType(AuraType other) => other is AuraError;
 	public override string ToString() => "error";
 
 	public AuraType? Get(string attribute)

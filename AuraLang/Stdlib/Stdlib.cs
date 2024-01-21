@@ -2,23 +2,22 @@
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Stdlib;
 
 public class AuraStdlib
 {
-	private readonly Dictionary<string, Module> _modules = new()
+	private readonly Dictionary<string, AuraModule> _modules = new()
 	{
 		{
-			"aura/io", new Module(
+			"aura/io", new AuraModule(
 				name: "io",
-				publicFunctions: new List<NamedFunction>
+				publicFunctions: new List<AuraNamedFunction>
 				{
 					new(
 						"printf",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -26,69 +25,69 @@ public class AuraStdlib
 									new ParamType(new AuraString(), false, null)),
 								new(
 									new Tok(TokType.Identifier, "a", 1),
-									new ParamType(new Any(), true, null))
+									new ParamType(new AuraAny(), true, null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"println",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "s", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"print",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "s", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"eprintln",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "s", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"eprint",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "s", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"readln",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>(),
 							new AuraString())
 						),
 					new(
 						"read_file",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -100,19 +99,19 @@ public class AuraStdlib
 					new(
 						"read_lines",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "path", 1),
 									new ParamType(new AuraString(), false, null))
 							},
-							new List(new AuraString()))
+							new AuraList(new AuraString()))
 						),
 					new(
 						"write_file",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -124,20 +123,20 @@ public class AuraStdlib
 
 
 							},
-							new Nil()))
+							new AuraNil()))
 				},
-				publicClasses: new List<Class>(),
+				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
 		},
 		{
-			"aura/strings", new Module(
+			"aura/strings", new AuraModule(
 				name: "strings",
-				publicFunctions: new List<NamedFunction>
+				publicFunctions: new List<AuraNamedFunction>
 				{
 					new(
 						"to_lower",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -152,7 +151,7 @@ public class AuraStdlib
 					new(
 						"to_upper",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -167,7 +166,7 @@ public class AuraStdlib
 					new(
 						"contains",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -183,12 +182,12 @@ public class AuraStdlib
 										false,
 										null))
 							},
-							new Bool())
+							new AuraBool())
 						),
 					new(
 						"length",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -198,12 +197,12 @@ public class AuraStdlib
 										false,
 										null))
 							},
-							new Bool())
+							new AuraBool())
 						),
 					new(
 						"split",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -219,12 +218,12 @@ public class AuraStdlib
 										false,
 										null))
 							},
-							new Bool())
+							new AuraBool())
 						),
 					new(
 						"to_int",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
@@ -234,267 +233,267 @@ public class AuraStdlib
 										false,
 										null))
 							},
-							new Bool())
+							new AuraBool())
 						),
 				},
-				publicClasses: new List<Class>(),
+				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
 		},
 		{
-			"aura/lists", new Module(
+			"aura/lists", new AuraModule(
 				name: "lists",
-				publicFunctions: new List<NamedFunction>
+				publicFunctions: new List<AuraNamedFunction>
 				{
 					new(
 					"contains",
 					Visibility.Public,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "a", 1),
 								new ParamType(
-									new List(new Any()),
+									new AuraList(new AuraAny()),
 									false,
 									null)),
 							new(
 								new Tok(TokType.Identifier, "item", 1),
 								new ParamType(
-									new Any(),
+									new AuraAny(),
 									false,
 									null))
 						},
-						new Bool())
+						new AuraBool())
 					),
 					new(
 					"is_empty",
 					Visibility.Public,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "a", 1),
 								new ParamType(
-									new List(new Any()),
+									new AuraList(new AuraAny()),
 									false,
 									null))
 						},
-						new Bool())
+						new AuraBool())
 					),
 					new(
 						"length",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Any()),
+										new AuraList(new AuraAny()),
 										false,
 										null))
 							},
-							new Int())
+							new AuraInt())
 						),
 					new(
 						"map_",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Any()),
+										new AuraList(new AuraAny()),
 										false,
 										null)),
 								new(
 									new Tok(TokType.Identifier, "b", 1),
 									new ParamType(
-										new Function(
+										new AuraFunction(
 											new List<Param>
 											{
 												new(
 													new Tok(TokType.Identifier, "t", 1),
 													new ParamType(
-														new Any(),
+														new AuraAny(),
 														false,
 														null))
 											},
-											new Any()),
+											new AuraAny()),
 										false,
 										null))
 							},
-							new List(new Any()))
+							new AuraList(new AuraAny()))
 						),
 					new(
 						"filter",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Any()),
+										new AuraList(new AuraAny()),
 										false,
 										null)),
 								new(
 									new Tok(TokType.Identifier, "f", 1),
 									new ParamType(
-										new Function(
+										new AuraFunction(
 											new List<Param>
 											{
 												new(
 													new Tok(TokType.Identifier, "t", 1),
 													new ParamType(
-														new Any(),
+														new AuraAny(),
 														false,
 														null))
 											},
-											new Bool()),
+											new AuraBool()),
 										false,
 										null))
 							},
-							new List(new Any()))
+							new AuraList(new AuraAny()))
 						),
 					new(
 						"reduce",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Any()),
+										new AuraList(new AuraAny()),
 										false,
 										null)),
 								new(
 									new Tok(TokType.Identifier, "f", 1),
 									new ParamType(
-										new Function(
+										new AuraFunction(
 											new List<Param>
 											{
 												new(
 													new Tok(TokType.Identifier, "t1", 1),
 													new ParamType(
-														new Any(),
+														new AuraAny(),
 														false,
 														null)),
 												new(
 													new Tok(TokType.Identifier, "t2", 1),
 													new ParamType(
-														new Any(),
+														new AuraAny(),
 														false,
 														null))
 											},
-											new Bool()),
+											new AuraBool()),
 										false,
 										null)),
 								new(
 									new Tok(TokType.Identifier, "t", 1),
 									new ParamType(
-										new Any(),
+										new AuraAny(),
 										false,
 										null)),
 							},
-							new Any())
+							new AuraAny())
 						),
 					new(
 						"min",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Int()),
+										new AuraList(new AuraInt()),
 										false,
 										null))
 							},
-							new Int())
+							new AuraInt())
 						),
 					new(
 						"max",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Int()),
+										new AuraList(new AuraInt()),
 										false,
 										null))
 							},
-							new Int())
+							new AuraInt())
 						),
 					new(
 						"push",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Any()),
+										new AuraList(new AuraAny()),
 										false,
 										null)),
 								new(
 									new Tok(TokType.Identifier, "t", 1),
 									new ParamType(
-										new Any(),
+										new AuraAny(),
 										false,
 										null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"pop",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Any()),
+										new AuraList(new AuraAny()),
 										false,
 										null))
 							},
-							new Nil())
+							new AuraNil())
 						),
 					new(
 						"sum",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "a", 1),
 									new ParamType(
-										new List(new Int()),
+										new AuraList(new AuraInt()),
 										false,
 										null))
 							},
-							new Int())
+							new AuraInt())
 						),
 				},
-				publicClasses: new List<Class>(),
+				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
 		},
 		{
-			"aura/errors", new Module(
+			"aura/errors", new AuraModule(
 				name: "errors",
-				publicFunctions: new List<NamedFunction>
+				publicFunctions: new List<AuraNamedFunction>
 				{
 					new(
 						name: "message",
 						pub: Visibility.Public,
-						f: new Function(
+						f: new AuraFunction(
 							fParams: new List<Param>
 							{
 								new(
@@ -504,7 +503,7 @@ public class AuraStdlib
 										Line: 1
 									),
 									ParamType: new ParamType(
-										Typ: new Error(),
+										Typ: new AuraError(),
 										Variadic: false,
 										DefaultValue: null
 									)
@@ -514,13 +513,13 @@ public class AuraStdlib
 						)
 					)
 				},
-				publicClasses: new List<Class>(),
+				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>()
 			)
 		}
 	};
 
-	public Dictionary<string, Module> GetAllModules() => _modules;
+	public Dictionary<string, AuraModule> GetAllModules() => _modules;
 
-	public bool TryGetModule(string name, out Module? mod) => _modules.TryGetValue(name, out mod);
+	public bool TryGetModule(string name, out AuraModule? mod) => _modules.TryGetValue(name, out mod);
 }

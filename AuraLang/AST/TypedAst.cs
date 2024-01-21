@@ -145,12 +145,12 @@ public record TypedVariable(Tok Name, AuraType Typ, int Line) : ITypedAuraExpres
 /// </summary>
 /// <param name="expr">The expression whose type will be checked against the expected type</param>
 /// <param name="expected">The expected type</param>
-public record TypedIs(ITypedAuraExpression Expr, Interface Expected, int Line) : ITypedAuraExpression
+public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected, int Line) : ITypedAuraExpression
 {
 	/// <summary>
 	/// An <c>is</c> expression always returns a boolean indicating if the <c>expr</c> matches the <c>expected</c> type
 	/// </summary>
-	public AuraType Typ => new Bool();
+	public AuraType Typ => new AuraBool();
 }
 
 /// <summary>
@@ -165,7 +165,7 @@ public record TypedGrouping(ITypedAuraExpression Expr, AuraType Typ, int Line) :
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function's scope</param>
 public record TypedDefer(TypedCall Call, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -174,7 +174,7 @@ public record TypedDefer(TypedCall Call, int Line) : ITypedAuraStatement
 /// <param name="Expression">The enclosed expression</param>
 public record TypedExpressionStmt(ITypedAuraExpression Expression, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -186,7 +186,7 @@ public record TypedExpressionStmt(ITypedAuraExpression Expression, int Line) : I
 public record TypedFor(ITypedAuraStatement? Initializer, ITypedAuraExpression? Condition, ITypedAuraExpression? Increment,
 	List<ITypedAuraStatement> Body, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -198,7 +198,7 @@ public record TypedFor(ITypedAuraStatement? Initializer, ITypedAuraExpression? C
 public record TypedForEach
 	(Tok EachName, ITypedAuraExpression Iterable, List<ITypedAuraStatement> Body, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -211,7 +211,7 @@ public record TypedForEach
 public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
 	Visibility Public, int Line) : ITypedAuraStatement, ITypedFunction
 {
-	public AuraType Typ => new NamedFunction(Name.Value, Public, new Function(Params, ReturnType));
+	public AuraType Typ => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType));
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 	/// <summary>
@@ -220,7 +220,7 @@ public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, 
 	/// that was declared.
 	/// </summary>
 	/// <returns>The type of the declared function</returns>
-	public AuraType GetFunctionType() => new NamedFunction(Name.Value, Public, new Function(Params, ReturnType));
+	public AuraType GetFunctionType() => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType));
 }
 
 /// <summary>
@@ -231,7 +231,7 @@ public record TypedNamedFunction(Tok Name, List<Param> Params, TypedBlock Body, 
 /// <param name="ReturnType">The anonymous function's return type</param>
 public record TypedAnonymousFunction(List<Param> Params, TypedBlock Body, AuraType ReturnType, int Line) : ITypedAuraExpression, ITypedFunction
 {
-	public AuraType Typ => new Function(Params, ReturnType);
+	public AuraType Typ => new AuraFunction(Params, ReturnType);
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 }
@@ -246,7 +246,7 @@ public record TypedAnonymousFunction(List<Param> Params, TypedBlock Body, AuraTy
 public record TypedLet
 	(Tok Name, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -255,7 +255,7 @@ public record TypedLet
 /// <param name="Value">The module's name</param>
 public record TypedMod(Tok Value, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -264,7 +264,7 @@ public record TypedMod(Tok Value, int Line) : ITypedAuraStatement
 /// <param name="Value">The value to return</param>
 public record TypedReturn(ITypedAuraExpression? Value, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -274,9 +274,9 @@ public record TypedReturn(ITypedAuraExpression? Value, int Line) : ITypedAuraSta
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record TypedInterface
-	(Tok Name, List<NamedFunction> Methods, Visibility Public, int Line) : ITypedAuraStatement
+	(Tok Name, List<AuraNamedFunction> Methods, Visibility Public, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -286,10 +286,10 @@ public record TypedInterface
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
-public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<Interface> Implementing,
+public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<AuraInterface> Implementing,
 	int Line) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 	public string GetName() => Name.Value;
@@ -302,7 +302,7 @@ public record FullyTypedClass(Tok Name, List<Param> Params, List<TypedNamedFunct
 /// <param name="Body">Collection of statements executed once per iteration</param>
 public record TypedWhile(ITypedAuraExpression Condition, List<ITypedAuraStatement> Body, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -312,12 +312,12 @@ public record TypedWhile(ITypedAuraExpression Condition, List<ITypedAuraStatemen
 /// <param name="Alias">Will have a value if the package is being imported under an alias</param>
 public record TypedImport(Tok Package, Tok? Alias, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 public record TypedMultipleImport(List<TypedImport> Packages, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -326,7 +326,7 @@ public record TypedMultipleImport(List<TypedImport> Packages, int Line) : ITyped
 /// <param name="Text">The text of the comment</param>
 public record TypedComment(Tok Text, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -334,7 +334,7 @@ public record TypedComment(Tok Text, int Line) : ITypedAuraStatement
 /// </summary>
 public record TypedContinue(int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -342,7 +342,7 @@ public record TypedContinue(int Line) : ITypedAuraStatement
 /// </summary>
 public record TypedBreak(int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }
 
 /// <summary>
@@ -350,7 +350,7 @@ public record TypedBreak(int Line) : ITypedAuraStatement
 /// </summary>
 public record TypedNil(int Line) : ITypedAuraExpression
 {
-	public AuraType Typ => new Nil();
+	public AuraType Typ => new AuraNil();
 }
 
 /// <summary>
@@ -359,5 +359,5 @@ public record TypedNil(int Line) : ITypedAuraExpression
 /// <param name="Value">The value to be yielded from the enclosing expression</param>
 public record TypedYield(ITypedAuraExpression Value, int Line) : ITypedAuraStatement
 {
-	public AuraType Typ => new None();
+	public AuraType Typ => new AuraNone();
 }

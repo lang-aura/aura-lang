@@ -2,20 +2,19 @@
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Prelude;
 
 public class AuraPrelude
 {
-	private readonly Module _prelude = new(
+	private readonly AuraModule _prelude = new(
 		name: "prelude",
-		publicFunctions: new List<NamedFunction>
+		publicFunctions: new List<AuraNamedFunction>
 		{
 			new(
 				name: "err",
 				pub: Visibility.Public,
-				new Function(
+				new AuraFunction(
 					fParams: new List<Param>
 					{
 						new(
@@ -31,13 +30,13 @@ public class AuraPrelude
 							)
 						)
 					},
-					returnType: new Error()
+					returnType: new AuraError()
 				)
 			)
 		},
-		publicClasses: new List<Class>(),
+		publicClasses: new List<AuraClass>(),
 		publicVariables: new Dictionary<string, ITypedAuraExpression>()
 	);
 
-	public Module GetPrelude() => _prelude;
+	public AuraModule GetPrelude() => _prelude;
 }

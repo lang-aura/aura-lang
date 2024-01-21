@@ -4,8 +4,6 @@ using AuraLang.Exceptions.Parser;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraChar = AuraLang.Types.Char;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Parser;
 
@@ -200,19 +198,19 @@ public class AuraParser
 		switch (tok.Typ)
 		{
 			case TokType.Int:
-				return new Int();
+				return new AuraInt();
 			case TokType.Float:
-				return new Float();
+				return new AuraFloat();
 			case TokType.String:
 				return new AuraString();
 			case TokType.Bool:
-				return new Bool();
+				return new AuraBool();
 			case TokType.LeftBracket:
 				var kind = TypeTokenToType(Advance());
 				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, tok.Line));
-				return new List(kind);
+				return new AuraList(kind);
 			case TokType.Any:
-				return new Any();
+				return new AuraAny();
 			case TokType.Char:
 				return new AuraChar();
 			case TokType.Fn:
@@ -225,21 +223,21 @@ public class AuraParser
 				// Parse return type (if there is one)
 				var returnType = Match(TokType.Arrow)
 					? TypeTokenToType(Advance())
-					: new Nil();
+					: new AuraNil();
 
-				var f = new Function(paramz, returnType);
-				return name is null ? f : new NamedFunction(name.Value.Value, Visibility.Private, f);
+				var f = new AuraFunction(paramz, returnType);
+				return name is null ? f : new AuraNamedFunction(name.Value.Value, Visibility.Private, f);
 			case TokType.Identifier:
-				return new Unknown(Previous().Value);
+				return new AuraUnknown(Previous().Value);
 			case TokType.Map:
 				Consume(TokType.LeftBracket, new ExpectLeftBracketAfterMapKeywordException(Peek().Value, tok.Line));
 				var key = TypeTokenToType(Advance());
 				Consume(TokType.Colon, new ExpectColonException(Peek().Value, tok.Line));
 				var value = TypeTokenToType(Advance());
 				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, tok.Line));
-				return new Map(key, value);
+				return new AuraMap(key, value);
 			case TokType.Error:
-				return new Error();
+				return new AuraError();
 			default:
 				throw new UnexpectedTypeException(tok.Value, tok.Line);
 		}
@@ -367,12 +365,12 @@ public class AuraParser
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
 		// Parse the interface's methods
-		var methods = new List<NamedFunction>();
+		var methods = new List<AuraNamedFunction>();
 		while (!IsAtEnd() && !Check(TokType.RightBrace))
 		{
 			if (Match(TokType.Comment)) Advance(); // Check for comment and advance past semicolon, if necessary
 			var typ = TypeTokenToType(Advance());
-			if (typ is not NamedFunction f) throw new ExpectFunctionSignatureException(Peek().Line);
+			if (typ is not AuraNamedFunction f) throw new ExpectFunctionSignatureException(Peek().Line);
 			methods.Add(f);
 			Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 		}

@@ -7,9 +7,6 @@ using AuraLang.TypeChecker;
 using AuraLang.Types;
 using Moq;
 using Newtonsoft.Json;
-using AuraChar = AuraLang.Types.Char;
-using AuraList = AuraLang.Types.List;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Test.TypeChecker;
 
@@ -31,7 +28,7 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Assignment()
 	{
 		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>()))
-			.Returns(new AuraSymbol("i", new Int()));
+			.Returns(new AuraSymbol("i", new AuraInt()));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -47,7 +44,7 @@ public class TypeCheckerTest
 			new TypedAssignment(
 				new Tok(TokType.Identifier, "i", 1),
 				new IntLiteral(6, 1),
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -70,7 +67,7 @@ public class TypeCheckerTest
 				new BoolLiteral(true, 1),
 				new Tok(TokType.And, "and", 1),
 				new BoolLiteral(false, 1),
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -89,7 +86,7 @@ public class TypeCheckerTest
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new TypedBlock(
 				new List<ITypedAuraStatement>(),
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -105,7 +102,7 @@ public class TypeCheckerTest
 					{
 						new UntypedLet(
 							new Tok(TokType.Identifier, "i", 2),
-							new Int(),
+							new AuraInt(),
 							false,
 							new IntLiteral(5, 2),
 							2)
@@ -124,7 +121,7 @@ public class TypeCheckerTest
 						new IntLiteral(5, 2),
 						2)
 				},
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -135,12 +132,12 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"f",
-				new NamedFunction(
+				new AuraNamedFunction(
 					"f",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>(),
-						new Nil()
+						new AuraNil()
 					)
 				)
 			)
@@ -160,10 +157,10 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
+					new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())),
 					1),
 				new List<ITypedAuraExpression>(),
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -174,20 +171,20 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"f",
-				new NamedFunction(
+				new AuraNamedFunction(
 					"f",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "i", 1),
-								new ParamType(new Int(), false, null)),
+								new ParamType(new AuraInt(), false, null)),
 							new(
 								new Tok(TokType.Identifier, "s", 1),
 								new ParamType(new AuraString(), false, null))
 						},
-						new Nil()
+						new AuraNil()
 					)
 				)
 			)
@@ -215,10 +212,10 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
+					new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())),
 					1),
 				new List<ITypedAuraExpression> { new IntLiteral(5, 1), new StringLiteral("Hello world", 1) },
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -229,20 +226,20 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"f",
-				new NamedFunction(
+				new AuraNamedFunction(
 					"f",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "i", 1),
-								new ParamType(new Int(), false, new IntLiteral(10, 1))),
+								new ParamType(new AuraInt(), false, new IntLiteral(10, 1))),
 							new(
 								new Tok(TokType.Identifier, "s", 1),
 								new ParamType(new AuraString(), false, null))
 						},
-						new Nil()
+						new AuraNil()
 					)
 				)
 			)
@@ -267,10 +264,10 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction("f", Visibility.Private, new Function(new List<Param>(), new Nil())),
+					new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())),
 					1),
 				new List<ITypedAuraExpression> { new IntLiteral(10, 1), new StringLiteral("Hello world", 1) },
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -281,20 +278,20 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"f",
-				new NamedFunction(
+				new AuraNamedFunction(
 					"f",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "i", 1),
-								new ParamType(new Int(), false, null)),
+								new ParamType(new AuraInt(), false, null)),
 							new(
 								new Tok(TokType.Identifier, "s", 1),
 								new ParamType(new AuraString(), false, new StringLiteral("Hello world", 1)))
 						},
-						new Nil()
+						new AuraNil()
 					)
 				)
 			));
@@ -321,20 +318,20 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"f",
-				new NamedFunction(
+				new AuraNamedFunction(
 					"f",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "i", 1),
-								new ParamType(new Int(), false, null)),
+								new ParamType(new AuraInt(), false, null)),
 							new(
 								new Tok(TokType.Identifier, "s", 1),
 								new ParamType(new AuraString(), false, null))
 						},
-						new Nil()
+						new AuraNil()
 					)
 				)
 			)
@@ -365,7 +362,7 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("greeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"greeter",
-				new Class(
+				new AuraClass(
 					"Greeter",
 					new List<Param>
 					{
@@ -374,8 +371,8 @@ public class TypeCheckerTest
 							new ParamType(new AuraString(), false, null)
 						)
 					},
-					new List<NamedFunction>(),
-					new List<Interface>(),
+					new List<AuraNamedFunction>(),
+					new List<AuraInterface>(),
 					Visibility.Private
 				)
 			)
@@ -396,7 +393,7 @@ public class TypeCheckerTest
 			new TypedGet(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "greeter", 1),
-					new Class(
+					new AuraClass(
 						"Greeter",
 						new List<Param>
 						{
@@ -404,8 +401,8 @@ public class TypeCheckerTest
 								new Tok(TokType.Identifier, "name", 1),
 								new ParamType(new AuraString(), false, null))
 						},
-						new List<NamedFunction>(),
-						new List<Interface>(),
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
 						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
@@ -521,10 +518,10 @@ public class TypeCheckerTest
 				new BoolLiteral(true, 1),
 				new TypedBlock(
 					new List<ITypedAuraStatement>(),
-					new Nil(),
+					new AuraNil(),
 					1),
 				null,
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -579,14 +576,14 @@ public class TypeCheckerTest
 			new UntypedExpressionStmt(
 				new ListLiteral<IUntypedAuraExpression>(
 					new List<IUntypedAuraExpression> { new IntLiteral(1, 1) },
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new ListLiteral<ITypedAuraExpression>(
 				new List<ITypedAuraExpression> { new IntLiteral(1, 1) },
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -603,7 +600,7 @@ public class TypeCheckerTest
 						{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
 					},
 					new AuraString(),
-					new Int(),
+					new AuraInt(),
 					1),
 				1)
 		});
@@ -614,7 +611,7 @@ public class TypeCheckerTest
 					{ new StringLiteral("Hello", 1), new IntLiteral(1, 1) }
 				},
 				new AuraString(),
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -679,7 +676,7 @@ public class TypeCheckerTest
 				new IntLiteral(5, 1),
 				new Tok(TokType.Less, "<", 1),
 				new IntLiteral(10, 1),
-				new Bool(),
+				new AuraBool(),
 				1),
 			1));
 	}
@@ -690,7 +687,7 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("greeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"greeter",
-				new Class(
+				new AuraClass(
 					"Greeter",
 					new List<Param>
 					{
@@ -698,8 +695,8 @@ public class TypeCheckerTest
 							new Tok(TokType.Identifier, "name", 1),
 							new ParamType(new AuraString(), false, null))
 					},
-					new List<NamedFunction>(),
-					new List<Interface>(),
+					new List<AuraNamedFunction>(),
+					new List<AuraInterface>(),
 					Visibility.Private
 				)
 			)
@@ -721,7 +718,7 @@ public class TypeCheckerTest
 			new TypedSet(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "greeter", 1),
-					new Class(
+					new AuraClass(
 						"Greeter",
 						new List<Param>
 						{
@@ -729,8 +726,8 @@ public class TypeCheckerTest
 								new Tok(TokType.Identifier, "name", 1),
 								new ParamType(new AuraString(), false, null))
 						},
-						new List<NamedFunction>(),
-						new List<Interface>(),
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
 						Visibility.Private),
 					1),
 				new Tok(TokType.Identifier, "name", 1),
@@ -747,13 +744,13 @@ public class TypeCheckerTest
 			.Returns(new PartiallyTypedClass(
 				new Tok(TokType.Identifier, "Greeter", 1),
 				new List<Param>(),
-				new List<NamedFunction>(),
+				new List<AuraNamedFunction>(),
 				Visibility.Public,
-				new Class(
+				new AuraClass(
 					"Greeter",
 					new List<Param>(),
-					new List<NamedFunction>(),
-					new List<Interface>(),
+					new List<AuraNamedFunction>(),
+					new List<AuraInterface>(),
 					Visibility.Private),
 				1));
 
@@ -768,11 +765,11 @@ public class TypeCheckerTest
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new TypedThis(
 				new Tok(TokType.This, "this", 1),
-				new Class(
+				new AuraClass(
 					"Greeter",
 					new List<Param>(),
-					new List<NamedFunction>(),
-					new List<Interface>(),
+					new List<AuraNamedFunction>(),
+					new List<AuraInterface>(),
 					Visibility.Private),
 				1),
 			1));
@@ -794,7 +791,7 @@ public class TypeCheckerTest
 			new TypedUnary(
 				new Tok(TokType.Bang, "!", 1),
 				new BoolLiteral(true, 1),
-				new Bool(),
+				new AuraBool(),
 				1),
 			1));
 	}
@@ -815,7 +812,7 @@ public class TypeCheckerTest
 			new TypedUnary(
 				new Tok(TokType.Minus, "-", 1),
 				new IntLiteral(5, 1),
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -852,12 +849,12 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"f",
-				new NamedFunction(
+				new AuraNamedFunction(
 					"f",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>(),
-						new Nil()
+						new AuraNil()
 					)
 				)
 			)
@@ -878,18 +875,18 @@ public class TypeCheckerTest
 			new TypedCall(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "f", 1),
-					new NamedFunction(
+					new AuraNamedFunction(
 						"f",
 						Visibility.Private,
-						new Function(
+						new AuraFunction(
 							new List<Param>(),
-							new Nil()
+							new AuraNil()
 						)
 					),
 					1
 				),
 				new List<ITypedAuraExpression>(),
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -900,7 +897,7 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"i",
-				new Int()
+				new AuraInt()
 			)
 		);
 
@@ -934,11 +931,11 @@ public class TypeCheckerTest
 			new TypedLogical(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "i", 1),
-					new Int(),
+					new AuraInt(),
 					1),
 				new Tok(TokType.Less, "<", 1),
 				new IntLiteral(10, 1),
-				new Bool(),
+				new AuraBool(),
 				1),
 			null,
 			new List<ITypedAuraStatement>(),
@@ -981,10 +978,10 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("error", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"error",
-				new NamedFunction(
+				new AuraNamedFunction(
 					name: "error",
 					pub: Visibility.Public,
-					f: new Function(
+					f: new AuraFunction(
 						fParams: new List<Param>
 						{
 							new(
@@ -1000,7 +997,7 @@ public class TypeCheckerTest
 								)
 							)
 						},
-						returnType: new Error()
+						returnType: new AuraError()
 					)
 				)
 			)
@@ -1050,10 +1047,10 @@ public class TypeCheckerTest
 										Value: "error",
 										Line: 1
 									),
-									Typ: new NamedFunction(
+									Typ: new AuraNamedFunction(
 										name: "error",
 										pub: Visibility.Public,
-										f: new Function(
+										f: new AuraFunction(
 											fParams: new List<Param>
 											{
 												new(
@@ -1069,7 +1066,7 @@ public class TypeCheckerTest
 													)
 												)
 											},
-											returnType: new Error()
+											returnType: new AuraError()
 										)
 									),
 									Line: 1
@@ -1078,15 +1075,15 @@ public class TypeCheckerTest
 								{
 									new StringLiteral("Helpful error message", 1)
 								},
-								Typ: new Error(),
+								Typ: new AuraError(),
 								Line: 1
 							),
 							Line: 1
 						)
 				},
-				Typ: new Error(),
+				Typ: new AuraError(),
 				Line: 1),
-			ReturnType: new Error(),
+			ReturnType: new AuraError(),
 			Public: Visibility.Public,
 			Line: 1));
 	}
@@ -1107,8 +1104,8 @@ public class TypeCheckerTest
 		MakeAssertions(typedAst, new TypedNamedFunction(
 			new Tok(TokType.Identifier, "f", 1),
 			new List<Param>(),
-			new TypedBlock(new List<ITypedAuraStatement>(), new Nil(), 1),
-			new Nil(),
+			new TypedBlock(new List<ITypedAuraStatement>(), new AuraNil(), 1),
+			new AuraNil(),
 			Visibility.Public,
 			1));
 	}
@@ -1131,9 +1128,9 @@ public class TypeCheckerTest
 				new List<Param>(),
 				new TypedBlock(
 					new List<ITypedAuraStatement>(),
-					new Nil(),
+					new AuraNil(),
 					1),
-				new Nil(),
+				new AuraNil(),
 				1),
 			1));
 	}
@@ -1145,7 +1142,7 @@ public class TypeCheckerTest
 		{
 			new UntypedLet(
 				new Tok(TokType.Identifier, "i", 1),
-				new Int(),
+				new AuraInt(),
 				false,
 				new IntLiteral(1, 1),
 				1)
@@ -1165,7 +1162,7 @@ public class TypeCheckerTest
 		{
 			new UntypedLet(
 				new Tok(TokType.Identifier, "i", 1),
-				new Int(),
+				new AuraInt(),
 				false,
 				null,
 				1)
@@ -1258,7 +1255,7 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			new List<Interface>(),
+			new List<AuraInterface>(),
 			1));
 	}
 
@@ -1385,13 +1382,13 @@ public class TypeCheckerTest
 		{
 			new UntypedInterface(
 				new Tok(TokType.Identifier, "IGreeter", 1),
-				new List<NamedFunction>(),
+				new List<AuraNamedFunction>(),
 				Visibility.Public,
 				1)
 		});
 		MakeAssertions(typedAst, new TypedInterface(
 			new Tok(TokType.Identifier, "IGreeter", 1),
-			new List<NamedFunction>(),
+			new List<AuraNamedFunction>(),
 			Visibility.Public,
 			1));
 	}
@@ -1403,18 +1400,18 @@ public class TypeCheckerTest
 		{
 			new UntypedInterface(
 				new Tok(TokType.Identifier, "IGreeter", 1),
-				new List<NamedFunction>
+				new List<AuraNamedFunction>
 				{
-					new NamedFunction(
+					new AuraNamedFunction(
 						"say_hi",
 						Visibility.Private,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new Param(
 									new Tok(TokType.Identifier, "i", 1),
 									new ParamType(
-										new Int(),
+										new AuraInt(),
 										false,
 										null))
 							},
@@ -1425,18 +1422,18 @@ public class TypeCheckerTest
 		});
 		MakeAssertions(typedAst, new TypedInterface(
 			new Tok(TokType.Identifier, "IGreeter", 1),
-			new List<NamedFunction>
+			new List<AuraNamedFunction>
 			{
-				new NamedFunction(
+				new AuraNamedFunction(
 					"say_hi",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new Param(
 								new Tok(TokType.Identifier, "i", 1),
 								new ParamType(
-									new Int(),
+									new AuraInt(),
 									false,
 									null))
 						},
@@ -1452,13 +1449,13 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private)
+				new AuraInterface("IGreeter", new List<AuraNamedFunction>(), Visibility.Private)
 			)
 		);
 		_symbolsTable.Setup(v => v.GetSymbol("IGreeter2", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"IGreeter2",
-				new Interface("IGreeter2", new List<NamedFunction>(), Visibility.Private)
+				new AuraInterface("IGreeter2", new List<AuraNamedFunction>(), Visibility.Private)
 			)
 		);
 
@@ -1477,10 +1474,10 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			new List<Interface>
+			new List<AuraInterface>
 			{
-				new("IGreeter", new List<NamedFunction>(), Visibility.Private),
-				new("IGreeter2", new List<NamedFunction>(), Visibility.Private)
+				new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private),
+				new("IGreeter2", new List<AuraNamedFunction>(), Visibility.Private)
 			},
 			1));
 	}
@@ -1491,25 +1488,25 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter",
-				new List<NamedFunction>
+				new AuraInterface("IGreeter",
+				new List<AuraNamedFunction>
 				{
 					new(
 						"f",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "i", 1),
 									new ParamType(
-										new Int(),
+										new AuraInt(),
 										false,
 										null
 									)
 								)
 							},
-							new Int()
+							new AuraInt()
 						)
 					)
 				},
@@ -1536,25 +1533,25 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter",
-				new List<NamedFunction>
+				new AuraInterface("IGreeter",
+				new List<AuraNamedFunction>
 				{
 					new(
 						"f",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "i", 1),
 									new ParamType(
-										new Int(),
+										new AuraInt(),
 										false,
 										null
 									)
 								)
 							},
-							new Int()
+							new AuraInt()
 						)
 					)
 				},
@@ -1576,7 +1573,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(TokType.Identifier, "i", 1),
 								ParamType: new ParamType(
-									new Int(),
+									new AuraInt(),
 									false,
 									null
 								)
@@ -1610,25 +1607,25 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter",
-				new List<NamedFunction>
+				new AuraInterface("IGreeter",
+				new List<AuraNamedFunction>
 				{
 					new(
 						"f",
 						Visibility.Public,
-						new Function(
+						new AuraFunction(
 							new List<Param>
 							{
 								new(
 									new Tok(TokType.Identifier, "i", 1),
 									new ParamType(
-										new Int(),
+										new AuraInt(),
 										false,
 										null
 									)
 								)
 							},
-							new Int()
+							new AuraInt()
 						)
 					)
 				},
@@ -1650,7 +1647,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(TokType.Identifier, "i", 1),
 								ParamType: new ParamType(
-									new Int(),
+									new AuraInt(),
 									false,
 									null
 								)
@@ -1687,7 +1684,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(TokType.Identifier, "i", 1),
 								ParamType: new ParamType(
-									new Int(),
+									new AuraInt(),
 									false,
 									null
 								)
@@ -1701,37 +1698,37 @@ public class TypeCheckerTest
 									Line: 1
 								)
 							},
-							Typ: new Int(),
+							Typ: new AuraInt(),
 							Line: 1
 						),
-						ReturnType: new Int(),
+						ReturnType: new AuraInt(),
 						Public: Visibility.Public,
 						Line: 1
 					)
 			},
 			Public: Visibility.Private,
-			Implementing: new List<Interface>
+			Implementing: new List<AuraInterface>
 			{
 				new(
 					name: "IGreeter",
-					functions: new List<NamedFunction>
+					functions: new List<AuraNamedFunction>
 					{
 						new(
 							"f",
 							Visibility.Public,
-							new Function(
+							new AuraFunction(
 								new List<Param>
 								{
 									new(
 										new Tok(TokType.Identifier, "i", 1),
 										new ParamType(
-											new Int(),
+											new AuraInt(),
 											false,
 											null
 										)
 									)
 								},
-								new Int()
+								new AuraInt()
 							)
 						)
 					},
@@ -1745,7 +1742,7 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"IGreeter",
-				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private)
+				new AuraInterface("IGreeter", new List<AuraNamedFunction>(), Visibility.Private)
 			)
 		);
 
@@ -1764,7 +1761,7 @@ public class TypeCheckerTest
 			new List<Param>(),
 			new List<TypedNamedFunction>(),
 			Visibility.Private,
-			new List<Interface> { new("IGreeter", new List<NamedFunction>(), Visibility.Private) },
+			new List<AuraInterface> { new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private) },
 			1));
 	}
 
@@ -1774,7 +1771,7 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"v",
-				new Int()
+				new AuraInt()
 			)
 		);
 
@@ -1800,7 +1797,7 @@ public class TypeCheckerTest
 		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(
 			new AuraSymbol(
 				"v",
-				new Int()
+				new AuraInt()
 			)
 		);
 
@@ -1819,9 +1816,9 @@ public class TypeCheckerTest
 			new TypedIs(
 				new TypedVariable(
 					new Tok(TokType.Identifier, "v", 1),
-					new Int(),
+					new AuraInt(),
 					1),
-				new Interface("IGreeter", new List<NamedFunction>(), Visibility.Private),
+				new AuraInterface("IGreeter", new List<AuraNamedFunction>(), Visibility.Private),
 				1),
 			1));
 	}

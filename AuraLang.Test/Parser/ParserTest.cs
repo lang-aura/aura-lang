@@ -5,7 +5,7 @@ using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
 using Newtonsoft.Json;
-using String = AuraLang.Types.String;
+using String = AuraLang.Types.AuraString;
 
 namespace AuraLang.Test.Parser;
 
@@ -273,7 +273,7 @@ public class ParserTest
 		MakeAssertions(untypedAst, new UntypedExpressionStmt(
 			new ListLiteral<ITypedAuraExpression>(
 				new List<ITypedAuraExpression> { new IntLiteral(5, 1), new IntLiteral(6, 1) },
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -315,7 +315,7 @@ public class ParserTest
 					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
 				},
 				new String(),
-				new Int(),
+				new AuraInt(),
 				1), new StringLiteral("Hello", 4), 1),
 			1));
 	}
@@ -354,7 +354,7 @@ public class ParserTest
 					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
 				},
 				new String(),
-				new Int(),
+				new AuraInt(),
 				1),
 			1));
 	}
@@ -684,7 +684,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedLet(
 			new Tok(TokType.Identifier, "i", 1),
-			new Int(),
+			new AuraInt(),
 			false,
 			new IntLiteral(5, 1),
 			1));
@@ -751,7 +751,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedInterface(
 			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<NamedFunction>(),
+			new List<AuraNamedFunction>(),
 			Visibility.Private,
 			1));
 	}
@@ -775,7 +775,7 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedInterface(
 			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<NamedFunction> { new("say_hi", Visibility.Private, new Function(new List<Param>(), new Nil())) },
+			new List<AuraNamedFunction> { new("say_hi", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())) },
 			Visibility.Private,
 			1));
 	}
@@ -804,18 +804,18 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedInterface(
 			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<NamedFunction>
+			new List<AuraNamedFunction>
 			{
 				new(
 					"say_hi",
 					Visibility.Private,
-					new Function(
+					new AuraFunction(
 						new List<Param>
 						{
 							new(
 								new Tok(TokType.Identifier, "i", 2),
 								new ParamType(
-									new Int(),
+									new AuraInt(),
 									false,
 									null))
 						},

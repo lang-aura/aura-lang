@@ -7,7 +7,6 @@ using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using AuraString = AuraLang.Types.String;
 
 namespace AuraLang.Compiler;
 
@@ -45,7 +44,7 @@ public class AuraCompiler
 
 	private string ProjectName { get; }
 	private readonly CompiledOutputWriter _outputWriter;
-	private readonly Module _prelude;
+	private readonly AuraModule _prelude;
 
 	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName,
 		CompiledOutputWriter outputWriter, string filePath)
@@ -176,7 +175,7 @@ public class AuraCompiler
 			_declaredVariables[f.Name.Value] = f.Public;
 			var funcName = f.Public is Visibility.Public ? f.Name.Value.ToUpper() : f.Name.Value.ToLower();
 			var compiledParams = CompileParams(f.Params, ",");
-			var returnValue = f.ReturnType is not Nil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
+			var returnValue = f.ReturnType is not AuraNil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
 			var body = Expression(f.Body);
 			return $"func {funcName}({compiledParams}){returnValue} {body}";
 		}, f);
@@ -187,7 +186,7 @@ public class AuraCompiler
 		return InNewEnclosingType(() =>
 		{
 			var compiledParams = CompileParams(f.Params, ",");
-			var returnValue = f.ReturnType is not Nil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
+			var returnValue = f.ReturnType is not AuraNil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
 			var body = Expression(f.Body);
 			return $"func({compiledParams}){returnValue} {body}";
 		}, f);
@@ -264,7 +263,7 @@ public class AuraCompiler
 				{
 					var params_ = CompileParams(m.Params, ",");
 					var body = Expression(m.Body);
-					var returnType = m.ReturnType is Nil ? string.Empty : $" {AuraTypeToGoType(m.ReturnType)}";
+					var returnType = m.ReturnType is AuraNil ? string.Empty : $" {AuraTypeToGoType(m.ReturnType)}";
 					// To make the handling of `this` expressions a little easier for the compiler, all method receivers in the outputted Go code have an identifier of `this`
 					return $"func (this {className}) {m.Name.Value}({params_}){returnType} {body}";
 				})
@@ -383,7 +382,7 @@ public class AuraCompiler
 	private string CallExpr(TypedCall c)
 	{
 		if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
-		if (c.Callee is TypedVariable v && v.Typ is Class) return CallExpr_Class(c);
+		if (c.Callee is TypedVariable v && v.Typ is AuraClass) return CallExpr_Class(c);
 		var callee = Expression((ITypedAuraExpression)c.Callee);
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
@@ -392,7 +391,7 @@ public class AuraCompiler
 	private string CallExpr_Class(TypedCall c)
 	{
 		var v = c.Callee as TypedVariable;
-		var class_ = v!.Typ as Class;
+		var class_ = v!.Typ as AuraClass;
 
 		var params_ = string.Join("\n", class_!.GetParams()
 			.Zip(c.Arguments)
@@ -440,14 +439,14 @@ public class AuraCompiler
 		}
 		else
 		{
-			callee = get!.Obj.Typ is Module m
+			callee = get!.Obj.Typ is AuraModule m
 				? IsStdlibPkg(m.Name)
 					? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
 					: $"{obj}.{get.Name.Value.ToUpper()}"
 				: $"{obj}.{get.Name.Value}";
 		}
 
-		if (get.Obj.Typ is not Module && get.Obj.Typ is not Class && get.Obj.Typ is not Interface) c.Arguments.Insert(0, get!.Obj);
+		if (get.Obj.Typ is not AuraModule && get.Obj.Typ is not AuraClass && get.Obj.Typ is not AuraInterface) c.Arguments.Insert(0, get!.Obj);
 
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
@@ -622,7 +621,7 @@ public class AuraCompiler
 	{
 		return typ switch
 		{
-			AuraString or List or Error => true,
+			AuraString or AuraList or AuraError => true,
 			_ => false
 		};
 	}
@@ -632,8 +631,8 @@ public class AuraCompiler
 		return typ switch
 		{
 			AuraString => "strings",
-			List => "lists",
-			Error => "errors",
+			AuraList => "lists",
+			AuraError => "errors",
 			_ => string.Empty
 		};
 	}
