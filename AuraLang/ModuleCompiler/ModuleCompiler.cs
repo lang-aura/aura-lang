@@ -1,6 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.FileCompiler;
+using AuraLang.Symbol;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.ModuleCompiler;
@@ -24,7 +25,7 @@ public class AuraModuleCompiler
 		Path = path;
 		ProjectName = projectName;
 		TypeChecker = new AuraTypeChecker(
-			new SymbolsTable(),
+			new GlobalSymbolsTable(),
 			new EnclosingClassStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
 			new EnclosingNodeStore<IUntypedAuraStatement>(),

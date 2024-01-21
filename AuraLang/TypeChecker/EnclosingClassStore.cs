@@ -20,7 +20,7 @@ public interface IEnclosingClassStore
 	/// Retrieves the current enclosing class without removing it from the stack
 	/// </summary>
 	/// <returns>The current enclosing class</returns>
-	PartiallyTypedClass Peek();
+	PartiallyTypedClass? Peek();
 }
 
 public class EnclosingClassStore : IEnclosingClassStore
@@ -30,5 +30,5 @@ public class EnclosingClassStore : IEnclosingClassStore
 	public void Push(PartiallyTypedClass ptc) => _enclosingClass.Push(ptc);
 	public void Pop() => _enclosingClass.Pop();
 
-	public PartiallyTypedClass Peek() => _enclosingClass.Peek();
+	public PartiallyTypedClass? Peek() => _enclosingClass.Peek();
 }
