@@ -1,4 +1,5 @@
-﻿using AuraLang.Cli.Options;
+﻿using AuraLang.Cli.Exceptions;
+using AuraLang.Cli.Options;
 using AuraLang.Cli.Toml;
 using AuraLang.Exceptions;
 
@@ -23,9 +24,13 @@ public abstract class AuraCommand
 
 	public int Execute()
 	{
-		if (!IsInProjectRoot())
+		try
 		{
-			Console.WriteLine("aura.toml file not found! All of the Aura CLI's commands expect to be run from the project's root directory.");
+			FindProjectRoot();
+		}
+		catch (TomlFileNotFoundException ex)
+		{
+			Console.WriteLine(ex.Message);
 			return 1;
 		}
 		return ExecuteCommand();
@@ -40,11 +45,23 @@ public abstract class AuraCommand
 	/// each file's path as a parameter</param>
 	protected void TraverseProject(Action<string, string> a) => TraverseProjectRecur("./src", a);
 
-	protected bool IsInProjectRoot()
-	{
-		var projName = _toml.GetProjectName();
-		return projName is not null;
-	}
+    protected void FindProjectRoot()
+    {
+        FindProjectRootRecur(".");
+    }
+
+    private void FindProjectRootRecur(string path)
+    {
+        var projName = new AuraToml(path).GetProjectName();
+        if (projName is null)
+        {
+            if (Directory.GetParent(path) is null) throw new TomlFileNotFoundException();
+            FindProjectRootRecur(Directory.GetParent(path)!.FullName);
+            return;
+        }
+
+        Directory.SetCurrentDirectory(path);
+    }
 
 	/// <summary>
 	/// Recursively traverses the current directory and any sub-directories, calling the supplied Action
