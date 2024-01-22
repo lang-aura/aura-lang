@@ -25,7 +25,7 @@ public abstract class AuraCommand
 	{
 		if (!IsInProjectRoot())
 		{
-			Console.WriteLine("Must be in project root!");
+			Console.WriteLine("aura.toml file not found! All of the Aura CLI's commands expect to be run from the project's root directory.");
 			return 1;
 		}
 		return ExecuteCommand();
