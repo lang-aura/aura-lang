@@ -1,7 +1,6 @@
 ﻿using AuraLang.AST;
 using AuraLang.Prelude;
 using AuraLang.Types;
-using AuraModule = AuraLang.Types.AuraModule;
 
 namespace AuraLang.Symbol;
 
@@ -66,6 +65,16 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 				symbol: new AuraSymbol(
 					Name: f.Name,
 					Kind: f
+				),
+				symbolsNamespace: module.Name
+			);
+		}
+		foreach (var i in module.PublicInterfaces)
+		{
+			TryAddSymbol(
+				symbol: new AuraSymbol(
+					Name: i.Name,
+					Kind: i
 				),
 				symbolsNamespace: module.Name
 			);
@@ -170,11 +179,13 @@ public class SymbolsNamespace : ISymbolsNamespace
 		var symbols = _scopes[0].GetAllSymbols();
 
 		var functions = new List<AuraNamedFunction>();
+		var interfaces = new List<AuraInterface>();
 		var classes = new List<AuraClass>();
 		var variables = new Dictionary<string, ITypedAuraExpression>();
 		foreach (var symbol in symbols)
 		{
 			if (symbol.Kind is AuraNamedFunction f) functions.Add(f);
+			if (symbol.Kind is AuraInterface i) interfaces.Add(i);
 			if (symbol.Kind is AuraClass c) classes.Add(c);
 			// TODO parse exported variables
 		}
@@ -182,6 +193,7 @@ public class SymbolsNamespace : ISymbolsNamespace
 		return new AuraModule(
 			name: Name,
 			publicFunctions: functions,
+			publicInterfaces: interfaces,
 			publicClasses: classes,
 			publicVariables: variables
 		);
