@@ -9,7 +9,7 @@ public class FmtTest
 	public void TestFmt_HelloWorld_NoChange()
 	{
 		// Arrange
-		var source = "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world\")\n}\n";
+		var source = "mod main\n\nimport aura/io\n\nfn main() {\n    io.println(\"Hello world\")\n}\n";
 		var fmt = new AuraFmt(new FmtOptions());
 		// Act
 		var formatted = fmt.FormatAuraSourceCode(source, "test.aura");
@@ -77,7 +77,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_For_NoChange()
 	{
-		var source = "for i := 0; i < 10; i++ {\n\tio.println(\"Hi there\")\n}\n";
+		var source = "for i := 0; i < 10; i++ {\n    io.println(\"Hi there\")\n}\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -101,7 +101,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_NoChange()
 	{
-		var source = "{\n\tio.println(\"Hello world\")\n}\n";
+		var source = "{\n    io.println(\"Hello world\")\n}\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -109,7 +109,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_RemoveDoubleNewlines()
 	{
-		var expected = "{\n\ts := \"Hello world\"\n\tio.println(s)\n}\n";
+		var expected = "{\n    s := \"Hello world\"\n    io.println(s)\n}\n";
 		var source = "{\ns := \"Hello world\"\n\nio.println(s)\n}\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
@@ -118,7 +118,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_CorrectIndentation()
 	{
-		var expected = "{\n\tlet i: int = 5\n\tx := 5 * 2\n}\n";
+		var expected = "{\n    let i: int = 5\n    x := 5 * 2\n}\n";
 		var source = "{\nlet i: int = 5\nx := 5 * 2\n}\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
@@ -127,7 +127,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Function_NoChange()
 	{
-		var source = "fn main() {\n\tfor i := 0; i < 10; i++ {\n\t\tio.println(\"Hello world\")\n\t}\n}\n";
+		var source = "fn main() {\n    for i := 0; i < 10; i++ {\n        io.println(\"Hello world\")\n    }\n}\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -135,7 +135,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Function_AddTabs()
 	{
-		var expected = "fn main() {\n\tfor i := 0; i < 10; i++ {\n\t\tio.println(\"Hello world\")\n\t}\n}\n";
+		var expected = "fn main() {\n    for i := 0; i < 10; i++ {\n        io.println(\"Hello world\")\n    }\n}\n";
 		var source = "fn main() {\nfor i := 0; i < 10; i++ {\nio.println(\"Hello world\")\n}\n}\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
@@ -144,7 +144,7 @@ public class FmtTest
 	[Test]
 	public void TestFmt_MultipleImports_Combine()
 	{
-		var expected = "import (\n\taura/io\n\taura/strings\n)\n\n";
+		var expected = "import (\n    aura/io\n    aura/strings\n)\n\n";
 		var source = "import aura/io\nimport aura/strings\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
