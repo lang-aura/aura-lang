@@ -728,21 +728,25 @@ public class AuraTypeChecker
 					var methods = typedAst.Item2
 						.Where(node => node.Typ is AuraNamedFunction)
 						.Select(node => (node.Typ as AuraNamedFunction)!);
+					var interfaces = typedAst.Item2
+						.Where(node => node.Typ is AuraInterface)
+						.Select(node => (node.Typ as AuraInterface)!);
 					var classes = typedAst.Item2
 						.Where(node => node.Typ is AuraClass)
 						.Select(node => (node.Typ as AuraClass)!);
 					var variables = typedAst.Item2
 						.Where(node => node is TypedLet)
 						.Select(node => (node as TypedLet)!);
-					return (methods, classes, variables);
+					return (methods, interfaces, classes, variables);
 				})
-				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.classes.Concat(b.classes),
+				.Aggregate((a, b) => (a.methods.Concat(b.methods), a.interfaces.Concat(b.interfaces), a.classes.Concat(b.classes),
 					a.variables.Concat(b.variables)));
 			var importedModule = new AuraModule(
-				import_.Alias?.Value ?? import_.Package.Value,
-				exportedTypes.methods.ToList(),
-				exportedTypes.classes.ToList(),
-				exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
+				name: import_.Alias?.Value ?? import_.Package.Value,
+				publicFunctions: exportedTypes.methods.ToList(),
+				publicInterfaces: exportedTypes.interfaces.ToList(),
+				publicClasses: exportedTypes.classes.ToList(),
+				publicVariables: exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
 			);
 			// Add module to list of local variables
 			_symbolsTable.AddModule(importedModule);

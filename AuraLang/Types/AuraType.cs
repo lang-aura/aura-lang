@@ -356,14 +356,16 @@ public class AuraModule : AuraType, IGettable
 {
 	public string Name { get; init; }
 	public List<AuraNamedFunction> PublicFunctions { get; init; }
+	public List<AuraInterface> PublicInterfaces { get; init; }
 	public List<AuraClass> PublicClasses { get; init; }
 	public Dictionary<string, ITypedAuraExpression> PublicVariables { get; init; }
 
-	public AuraModule(string name, List<AuraNamedFunction> publicFunctions, List<AuraClass> publicClasses,
-		Dictionary<string, ITypedAuraExpression> publicVariables)
+	public AuraModule(string name, List<AuraNamedFunction> publicFunctions, List<AuraInterface> publicInterfaces,
+		List<AuraClass> publicClasses, Dictionary<string, ITypedAuraExpression> publicVariables)
 	{
 		Name = name;
 		PublicFunctions = publicFunctions;
+		PublicInterfaces = publicInterfaces;
 		PublicClasses = publicClasses;
 		PublicVariables = publicVariables;
 	}

@@ -95,8 +95,8 @@ public class CompilerTest
 						new TypedVariable(
 							new Tok(TokType.Identifier, "io", 1),
 							new AuraModule(
-								"io",
-								new List<AuraNamedFunction>
+								name: "io",
+								publicFunctions: new List<AuraNamedFunction>
 								{
 									new(
 										"Println",
@@ -110,8 +110,9 @@ public class CompilerTest
 											},
 											new AuraNil()))
 								},
-								new List<AuraClass>(),
-								new Dictionary<string, ITypedAuraExpression>()),
+								publicInterfaces: new List<AuraInterface>(),
+								publicClasses: new List<AuraClass>(),
+								publicVariables: new Dictionary<string, ITypedAuraExpression>()),
 							1),
 						new Tok(TokType.Identifier, "println", 1),
 						new AuraNamedFunction(

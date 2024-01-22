@@ -34,6 +34,7 @@ public class AuraPrelude
 				)
 			)
 		},
+		publicInterfaces: new List<AuraInterface>(),
 		publicClasses: new List<AuraClass>(),
 		publicVariables: new Dictionary<string, ITypedAuraExpression>()
 	);

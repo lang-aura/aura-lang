@@ -125,6 +125,7 @@ public class AuraStdlib
 							},
 							new AuraNil()))
 				},
+				publicInterfaces: new List<AuraInterface>(),
 				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
 		},
@@ -236,6 +237,7 @@ public class AuraStdlib
 							new AuraBool())
 						),
 				},
+				publicInterfaces: new List<AuraInterface>(),
 				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
 		},
@@ -482,6 +484,7 @@ public class AuraStdlib
 							new AuraInt())
 						),
 				},
+				publicInterfaces: new List<AuraInterface>(),
 				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>())
 		},
@@ -513,6 +516,7 @@ public class AuraStdlib
 						)
 					)
 				},
+				publicInterfaces: new List<AuraInterface>(),
 				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>()
 			)
