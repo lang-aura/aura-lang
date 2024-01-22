@@ -222,14 +222,14 @@ public class AuraFmt : AuraCommand
 			return Statement(imports.Packages.First());
 		}
 
-		var importNames = string.Join("\n\t", imports.Packages.Select(i => i.Package.Value));
-		return $"import (\n\t{importNames}\n)";
+		var importNames = string.Join("\n    ", imports.Packages.Select(i => i.Package.Value));
+		return $"import (\n    {importNames}\n)";
 	}
 
 	private string MultipleImportStmts(List<UntypedImport> imports)
 	{
-		var importNames = string.Join("\n\t", imports.Select(i => i.Package.Value));
-		return $"import (\n\t{importNames}\n)";
+		var importNames = string.Join("\n    ", imports.Select(i => i.Package.Value));
+		return $"import (\n    {importNames}\n)";
 	}
 
 	private string CommentStmt(UntypedComment c) => c.Text.Value;
@@ -353,5 +353,5 @@ public class AuraFmt : AuraCommand
 		return result;
 	}
 
-	private string AddTabs(int n) => new('\t', n);
+	private string AddTabs(int n) => new(' ', n * 4);
 }
