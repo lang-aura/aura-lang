@@ -45,23 +45,23 @@ public abstract class AuraCommand
 	/// each file's path as a parameter</param>
 	protected void TraverseProject(Action<string, string> a) => TraverseProjectRecur("./src", a);
 
-    protected void FindProjectRoot()
-    {
-        FindProjectRootRecur(".");
-    }
+	protected void FindProjectRoot()
+	{
+		FindProjectRootRecur(".");
+	}
 
-    private void FindProjectRootRecur(string path)
-    {
-        var projName = new AuraToml(path).GetProjectName();
-        if (projName is null)
-        {
-            if (Directory.GetParent(path) is null) throw new TomlFileNotFoundException();
-            FindProjectRootRecur(Directory.GetParent(path)!.FullName);
-            return;
-        }
+	private void FindProjectRootRecur(string path)
+	{
+		var projName = new AuraToml(path).GetProjectName();
+		if (projName is null)
+		{
+			if (Directory.GetParent(path) is null) throw new TomlFileNotFoundException();
+			FindProjectRootRecur(Directory.GetParent(path)!.FullName);
+			return;
+		}
 
-        Directory.SetCurrentDirectory(path);
-    }
+		Directory.SetCurrentDirectory(path);
+	}
 
 	/// <summary>
 	/// Recursively traverses the current directory and any sub-directories, calling the supplied Action

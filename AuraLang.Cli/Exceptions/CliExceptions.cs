@@ -1,4 +1,4 @@
-namespace AuraLang.Cli.Exceptions;
+﻿namespace AuraLang.Cli.Exceptions;
 
 public class TomlFileNotFoundException : Exception
 {
