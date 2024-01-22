@@ -495,8 +495,8 @@ public class AuraCompiler
 
 	private string IntLiteralExpr(IntLiteral literal) => $"{literal.Value}";
 
-	private string FloatLiteralExpr(FloatLiteral literal) =>
-		string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
+	private string FloatLiteralExpr(FloatLiteral literal)
+		=> string.Format(CultureInfo.InvariantCulture, "{0:0.0######}", literal.Value);
 
 	private string BoolLiteralExpr(BoolLiteral literal) => literal.Value ? "true" : "false";
 
