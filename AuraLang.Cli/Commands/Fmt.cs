@@ -3,10 +3,11 @@ using AuraLang.Cli.Options;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Shared;
+using AuraLang.Visitor;
 
 namespace AuraLang.Cli.Commands;
 
-public class AuraFmt : AuraCommand
+public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAuraExprVisitor<string>
 {
 	/// <summary>
 	/// The number of tabs to precede the current line in the source file with. For top-level declarations, this will be 0.
@@ -65,71 +66,15 @@ public class AuraFmt : AuraCommand
 		return nodes.Select(Statement).ToList();
 	}
 
-	private string Statement(IUntypedAuraStatement stmt)
-	{
-		return stmt switch
-		{
-			UntypedDefer defer => DeferStmt(defer),
-			UntypedExpressionStmt expressionStmt => ExpressionStmt(expressionStmt),
-			UntypedFor for_ => ForStmt(for_),
-			UntypedForEach foreach_ => ForEachStmt(foreach_),
-			UntypedNamedFunction f => NamedFunctionStmt(f),
-			UntypedLet let => LetStmt(let),
-			UntypedMod mod => ModStmt(mod),
-			UntypedReturn r => ReturnStmt(r),
-			UntypedClass c => ClassStmt(c),
-			UntypedWhile w => WhileStmt(w),
-			UntypedImport i => ImportStmt(i),
-			UntypedMultipleImport mi => FormatMultipleImportStmts(mi),
-			UntypedComment c => CommentStmt(c),
-			UntypedContinue cont => ContinueStmt(cont),
-			UntypedBreak b => BreakStmt(b),
-			UntypedYield y => YieldStmt(y),
-			UntypedInterface inter => InterfaceStmt(inter),
-			UntypedNewLine => "\n",
-			_ => throw new Exception() // TODO Create exception
-		};
-	}
+	private string Statement(IUntypedAuraStatement stmt) => stmt.Accept(this);
 
-	private string Expression(IUntypedAuraExpression expr)
-	{
-		return expr switch
-		{
-			UntypedAssignment assign => AssignmentExpr(assign),
-			UntypedBinary binary => BinaryExpr(binary),
-			UntypedBlock block => BlockExpr(block),
-			UntypedCall call => CallExpr(call),
-			UntypedGet get => GetExpr(get),
-			UntypedGetIndex getIndex => GetIndexExpr(getIndex),
-			UntypedGetIndexRange getIndexRange => GetIndexRangeExpr(getIndexRange),
-			UntypedGrouping grouping => GroupingExpr(grouping),
-			UntypedIf iff => IfExpr(iff),
-			IntLiteral i => IntLiteralExpr(i),
-			FloatLiteral f => FloatLiteralExpr(f),
-			StringLiteral s => StringLiteralExpr(s),
-			ListLiteral<IUntypedAuraExpression> l => ListLiteralExpr(l),
-			MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression> m => MapLiteralExpr(m),
-			BoolLiteral b => BoolLiteralExpr(b),
-			UntypedNil n => NilExpr(n),
-			CharLiteral c => CharLiteralExpr(c),
-			UntypedLogical lo => LogicalExpr(lo),
-			UntypedSet set => SetExpr(set),
-			UntypedThis th => ThisExpr(th),
-			UntypedUnary u => UnaryExpr(u),
-			UntypedVariable v => VariableExpr(v),
-			UntypedAnonymousFunction af => AnonymousFunctionExpr(af),
-			UntypedIs iss => IsExpr(iss),
-			UntypedPlusPlusIncrement ppi => IncrementExpr(ppi),
-			UntypedMinusMinusDecrement ddm => DecrementExpr(ddm),
-			_ => throw new Exception() // TODO Create exception
-		};
-	}
+	private string Expression(IUntypedAuraExpression expr) => expr.Accept(this);
 
-	private string DeferStmt(UntypedDefer defer) => $"defer {CallExpr((UntypedCall)defer.Call)}";
+	public string Visit(UntypedDefer defer) => $"defer {Visit((UntypedCall)defer.Call)}";
 
-	private string ExpressionStmt(UntypedExpressionStmt expressionStmt) => Expression(expressionStmt.Expression);
+	public string Visit(UntypedExpressionStmt expressionStmt) => Expression(expressionStmt.Expression);
 
-	private string ForStmt(UntypedFor for_)
+	public string Visit(UntypedFor for_)
 	{
 		var init = for_.Initializer is not null
 			? Statement(for_.Initializer)
@@ -148,13 +93,13 @@ public class AuraFmt : AuraCommand
 		return $"for {init}; {cond}; {inc} {{\n{AddTabs(Tabs + 1)}{body}\n{AddTabs(Tabs)}}}";
 	}
 
-	private string ForEachStmt(UntypedForEach foreach_)
+	public string Visit(UntypedForEach foreach_)
 	{
 		var body = string.Join('\n', foreach_.Body.Select(Statement));
 		return $"foreach {foreach_.EachName.Value} in {Expression(foreach_.Iterable)} {{\n{body}\n}}";
 	}
 
-	private string NamedFunctionStmt(UntypedNamedFunction f)
+	public string Visit(UntypedNamedFunction f)
 	{
 		var pub = f.Public == Visibility.Public ? "pub " : string.Empty;
 		var paramz = string.Join(", ", f.Params.Select(p => p.Name.Value));
@@ -164,7 +109,7 @@ public class AuraFmt : AuraCommand
 		return $"{AddTabs(Tabs)}{pub}fn {f.Name.Value}({paramz}) {body}";
 	}
 
-	private string LetStmt(UntypedLet let)
+	public string Visit(UntypedLet let)
 	{
 		if (let.NameTyp is null) return ShortLetStmt(let);
 		var mut = let.Mutable ? "mut " : string.Empty;
@@ -180,9 +125,9 @@ public class AuraFmt : AuraCommand
 		return $"{mut}{let.Name.Value} := {init}";
 	}
 
-	private string ModStmt(UntypedMod mod) => $"mod {mod.Value.Value}";
+	public string Visit(UntypedMod mod) => $"mod {mod.Value.Value}";
 
-	private string ReturnStmt(UntypedReturn r)
+	public string Visit(UntypedReturn r)
 	{
 		var value = r.Value is not null
 			? $" {Expression(r.Value)}"
@@ -190,7 +135,7 @@ public class AuraFmt : AuraCommand
 		return $"return{value}";
 	}
 
-	private string ClassStmt(UntypedClass c)
+	public string Visit(UntypedClass c)
 	{
 		var pub = c.Public == Visibility.Public
 			? "pub "
@@ -200,14 +145,14 @@ public class AuraFmt : AuraCommand
 		return $"{pub}class ({paramz}) {{\n{methods}\n}}";
 	}
 
-	private string WhileStmt(UntypedWhile w)
+	public string Visit(UntypedWhile w)
 	{
 		var cond = Expression(w.Condition);
 		var body = string.Join("\n", w.Body.Select(Statement));
 		return $"while {cond} {{\n{body}\n}}";
 	}
 
-	private string ImportStmt(UntypedImport i)
+	public string Visit(UntypedImport i)
 	{
 		var alias = i.Alias is not null
 			? $" as {i.Alias.Value.Value}"
@@ -215,7 +160,7 @@ public class AuraFmt : AuraCommand
 		return $"import {i.Package.Value}{alias}";
 	}
 
-	private string FormatMultipleImportStmts(UntypedMultipleImport imports)
+	public string Visit(UntypedMultipleImport imports)
 	{
 		if (imports.Packages.Count == 1)
 		{
@@ -232,15 +177,15 @@ public class AuraFmt : AuraCommand
 		return $"import (\n    {importNames}\n)";
 	}
 
-	private string CommentStmt(UntypedComment c) => c.Text.Value;
+	public string Visit(UntypedComment c) => c.Text.Value;
 
-	private string ContinueStmt(UntypedContinue cont) => "continue";
+	public string Visit(UntypedContinue cont) => "continue";
 
-	private string BreakStmt(UntypedBreak b) => "break";
+	public string Visit(UntypedBreak b) => "break";
 
-	private string YieldStmt(UntypedYield y) => "yield";
+	public string Visit(UntypedYield y) => "yield";
 
-	private string InterfaceStmt(UntypedInterface inter)
+	public string Visit(UntypedInterface inter)
 	{
 		var pub = inter.Public == Visibility.Public
 			? "pub "
@@ -249,15 +194,15 @@ public class AuraFmt : AuraCommand
 		return $"{pub}interface {{\n{methods}\n}}";
 	}
 
-	private string AssignmentExpr(UntypedAssignment assign) => $"{assign.Name.Value} = {Expression(assign.Value)}";
+	public string Visit(UntypedAssignment assign) => $"{assign.Name.Value} = {Expression(assign.Value)}";
 
-	private string IncrementExpr(UntypedPlusPlusIncrement inc) => $"{Expression(inc.Name)}++";
+	public string Visit(UntypedPlusPlusIncrement inc) => $"{Expression(inc.Name)}++";
 
-	private string DecrementExpr(UntypedMinusMinusDecrement dec) => $"{Expression(dec.Name)}--";
+	public string Visit(UntypedMinusMinusDecrement dec) => $"{Expression(dec.Name)}--";
 
-	private string BinaryExpr(UntypedBinary binary) => $"{Expression(binary.Left)} {binary.Operator.Value} {Expression(binary.Right)}";
+	public string Visit(UntypedBinary binary) => $"{Expression(binary.Left)} {binary.Operator.Value} {Expression(binary.Right)}";
 
-	private string BlockExpr(UntypedBlock block)
+	public string Visit(UntypedBlock block)
 	{
 		var s = $"{AddTabs(Tabs)}{{\n{AddTabs(Tabs)}";
 		var body = WithIndent(() =>
@@ -268,7 +213,7 @@ public class AuraFmt : AuraCommand
 		return $"{{\n{AddTabs(Tabs + 1)}{body}\n{AddTabs(Tabs)}}}";
 	}
 
-	private string CallExpr(UntypedCall call)
+	public string Visit(UntypedCall call)
 	{
 		var paramz = string.Join(", ", call.Arguments.Select(arg =>
 		{
@@ -280,16 +225,16 @@ public class AuraFmt : AuraCommand
 		return $"{Expression((IUntypedAuraExpression)call.Callee)}({paramz})";
 	}
 
-	private string GetExpr(UntypedGet get) => $"{Expression(get.Obj)}.{get.Name.Value}";
+	public string Visit(UntypedGet get) => $"{Expression(get.Obj)}.{get.Name.Value}";
 
-	private string GetIndexExpr(UntypedGetIndex getIndex) => $"{Expression(getIndex.Obj)}[{Expression(getIndex.Index)}]";
+	public string Visit(UntypedGetIndex getIndex) => $"{Expression(getIndex.Obj)}[{Expression(getIndex.Index)}]";
 
-	private string GetIndexRangeExpr(UntypedGetIndexRange getIndexRange)
+	public string Visit(UntypedGetIndexRange getIndexRange)
 		=> $"{Expression(getIndexRange.Obj)}[{Expression(getIndexRange.Lower)}:{Expression(getIndexRange.Upper)}]";
 
-	private string GroupingExpr(UntypedGrouping grouping) => $"({Expression(grouping.Expr)})";
+	public string Visit(UntypedGrouping grouping) => $"({Expression(grouping.Expr)})";
 
-	private string IfExpr(UntypedIf iff)
+	public string Visit(UntypedIf iff)
 	{
 		var cond = Expression(iff.Condition);
 		var then = Expression(iff.Then);
@@ -299,41 +244,43 @@ public class AuraFmt : AuraCommand
 		return $"if {cond} {then}{elsee}";
 	}
 
-	private string IntLiteralExpr(IntLiteral i) => $"{i.I}";
+	public string Visit(IntLiteral i) => $"{i.I}";
 
-	private string FloatLiteralExpr(FloatLiteral f) => $"{f.F}";
+	public string Visit(FloatLiteral f) => $"{f.F}";
 
-	private string StringLiteralExpr(StringLiteral s) => $"\"{s.S}\"";
+	public string Visit(StringLiteral s) => $"\"{s.S}\"";
 
-	private string ListLiteralExpr(ListLiteral<IUntypedAuraExpression> l)
+	public string Visit<U>(ListLiteral<U> l) where U : IAuraAstNode
 	{
-		var values = string.Join(", ", l.L.Select(Expression));
+		var values = string.Join(", ", l.L.Select(item => Expression((IUntypedAuraExpression)item)));
 		return $"[{l.Typ}]{{ {values} }}";
 	}
 
-	private string MapLiteralExpr(MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression> m)
+	public string Visit<TK, TV>(MapLiteral<TK, TV> m)
+		where TK : IAuraAstNode
+		where TV : IAuraAstNode
 	{
-		var values = m.M.Select(pair => $"{Expression(pair.Key)}: {Expression(pair.Value)}");
+		var values = m.M.Select(pair => $"{Expression((IUntypedAuraExpression)pair.Key)}: {Expression((IUntypedAuraExpression)pair.Value)}");
 		return $"map[{m.KeyType} : {m.ValueType}]{{ {values} }}";
 	}
 
-	private string BoolLiteralExpr(BoolLiteral b) => $"{b.B}";
+	public string Visit(BoolLiteral b) => $"{b.B}";
 
-	private string NilExpr(UntypedNil n) => "nil";
+	public string Visit(UntypedNil n) => "nil";
 
-	private string CharLiteralExpr(CharLiteral c) => $"'{c.C}'";
+	public string Visit(CharLiteral c) => $"'{c.C}'";
 
-	private string LogicalExpr(UntypedLogical lo) => $"{Expression(lo.Left)} {lo.Operator.Value} {Expression(lo.Right)}";
+	public string Visit(UntypedLogical lo) => $"{Expression(lo.Left)} {lo.Operator.Value} {Expression(lo.Right)}";
 
-	private string SetExpr(UntypedSet set) => $"{Expression(set.Obj)}.{set.Name.Value} = {Expression(set.Value)}";
+	public string Visit(UntypedSet set) => $"{Expression(set.Obj)}.{set.Name.Value} = {Expression(set.Value)}";
 
-	private string ThisExpr(UntypedThis th) => "this";
+	public string Visit(UntypedThis th) => "this";
 
-	private string UnaryExpr(UntypedUnary u) => $"{u.Operator.Value}{Expression(u.Right)}";
+	public string Visit(UntypedUnary u) => $"{u.Operator.Value}{Expression(u.Right)}";
 
-	private string VariableExpr(UntypedVariable v) => $"{v.Name.Value}";
+	public string Visit(UntypedVariable v) => $"{v.Name.Value}";
 
-	private string AnonymousFunctionExpr(UntypedAnonymousFunction af)
+	public string Visit(UntypedAnonymousFunction af)
 	{
 		var paramz = af.Params.Select(p => $"{p.Name}: {p.ParamType.Typ}");
 		var returnType = af.ReturnType is not null
@@ -343,7 +290,7 @@ public class AuraFmt : AuraCommand
 		return $"fn({paramz}){returnType} {body}";
 	}
 
-	private string IsExpr(UntypedIs iss) => "is";
+	public string Visit(UntypedIs iss) => "is";
 
 	private string WithIndent(Func<string> a)
 	{
@@ -354,4 +301,6 @@ public class AuraFmt : AuraCommand
 	}
 
 	private string AddTabs(int n) => new(' ', n * 4);
+
+	public string Visit(UntypedNewLine newline) => "\n";
 }

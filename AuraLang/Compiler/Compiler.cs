@@ -7,10 +7,11 @@ using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
+using AuraLang.Visitor;
 
 namespace AuraLang.Compiler;
 
-public class AuraCompiler
+public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor<string>
 {
 	/// <summary>
 	/// The typed Aura AST that will be compiled to Go
@@ -75,73 +76,19 @@ public class AuraCompiler
 		return _goDocument.Assemble();
 	}
 
-	private string Statement(ITypedAuraStatement stmt)
-	{
-		return stmt switch
-		{
-			TypedDefer d => DeferStmt(d),
-			TypedExpressionStmt es => ExpressionStmt(es),
-			TypedFor for_ => ForStmt(for_),
-			TypedForEach foreach_ => ForEachStmt(foreach_),
-			TypedNamedFunction f => NamedFunctionStmt(f),
-			TypedLet let => LetStmt(let),
-			TypedMod m => ModStmt(m),
-			TypedReturn r => ReturnStmt(r),
-			FullyTypedClass c => ClassStmt(c),
-			TypedWhile w => WhileStmt(w),
-			TypedImport i => ImportStmt(i),
-			TypedMultipleImport mi => MultipleImportStmt(mi),
-			TypedComment c => CommentStmt(c),
-			TypedContinue c => ContinueStmt(c),
-			TypedBreak b => BreakStmt(b),
-			TypedInterface i => InterfaceStmt(i),
-			_ => throw new UnknownStatementException(stmt, stmt.Line)
-		};
-	}
+	private string Statement(ITypedAuraStatement stmt) => stmt.Accept(this);
 
-	private string Expression(ITypedAuraExpression expr)
-	{
-		return expr switch
-		{
-			TypedAssignment a => AssignmentExpr(a),
-			TypedBinary b => BinaryExpr(b),
-			TypedBlock b => BlockExpr(b),
-			TypedCall c => CallExpr(c),
-			TypedGet g => GetExpr(g),
-			TypedGetIndex g => GetIndexExpr(g),
-			TypedGetIndexRange r => GetIndexRangeExpr(r),
-			TypedGrouping g => GroupingExpr(g),
-			TypedIf i => IfExpr(i),
-			StringLiteral s => StringLiteralExpr(s),
-			CharLiteral c => CharLiteralExpr(c),
-			IntLiteral i => IntLiteralExpr(i),
-			FloatLiteral f => FloatLiteralExpr(f),
-			BoolLiteral b => BoolLiteralExpr(b),
-			ListLiteral<ITypedAuraExpression> l => ListLiteralExpr(l),
-			TypedNil n => NilLiteralExpr(n),
-			MapLiteral<ITypedAuraExpression, ITypedAuraExpression> m => MapLiteralExpr(m),
-			TypedLogical l => LogicalExpr(l),
-			TypedSet s => SetExpr(s),
-			TypedThis t => ThisExpr(t),
-			TypedUnary u => UnaryExpr(u),
-			TypedVariable v => VariableExpr(v),
-			TypedAnonymousFunction f => AnonymousFunctionExpr(f),
-			TypedIs is_ => IsExpr(is_),
-			TypedPlusPlusIncrement ppi => IncrementExpr(ppi),
-			TypedMinusMinusDecrement mmd => DecrementExpr(mmd),
-			_ => throw new UnknownExpressionException(expr, expr.Line)
-		};
-	}
+	private string Expression(ITypedAuraExpression expr) => expr.Accept(this);
 
-	private string DeferStmt(TypedDefer defer)
+	public string Visit(TypedDefer defer)
 	{
-		var call = CallExpr(defer.Call);
+		var call = Visit(defer.Call);
 		return $"defer {call}";
 	}
 
-	private string ExpressionStmt(TypedExpressionStmt es) => Expression(es.Expression);
+	public string Visit(TypedExpressionStmt es) => Expression(es.Expression);
 
-	private string ForStmt(TypedFor for_)
+	public string Visit(TypedFor for_)
 	{
 		return InNewEnclosingType(() =>
 		{
@@ -156,7 +103,7 @@ public class AuraCompiler
 		}, for_);
 	}
 
-	private string ForEachStmt(TypedForEach foreach_)
+	public string Visit(TypedForEach foreach_)
 	{
 		return InNewEnclosingType(() =>
 		{
@@ -168,7 +115,7 @@ public class AuraCompiler
 		}, foreach_);
 	}
 
-	private string NamedFunctionStmt(TypedNamedFunction f)
+	public string Visit(TypedNamedFunction f)
 	{
 		return InNewEnclosingType(() =>
 		{
@@ -181,7 +128,7 @@ public class AuraCompiler
 		}, f);
 	}
 
-	private string AnonymousFunctionExpr(TypedAnonymousFunction f)
+	public string Visit(TypedAnonymousFunction f)
 	{
 		return InNewEnclosingType(() =>
 		{
@@ -192,7 +139,7 @@ public class AuraCompiler
 		}, f);
 	}
 
-	private string LetStmt(TypedLet let)
+	public string Visit(TypedLet let)
 	{
 		// Since Go's `if` statements and blocks are not expressions like they are in Aura, the compiler will first declare the variable without an initializer,
 		// and then convert the `return` statement in the block or `if` expression into an assignment where the value that would be returned is instead assigned
@@ -211,7 +158,7 @@ public class AuraCompiler
 				// The `else` block can either be a block or another `if` expression
 				var else_ = if_.Else switch
 				{
-					TypedIf @if => IfExpr(@if),
+					TypedIf @if => Visit(@if),
 					TypedBlock b => ParseReturnableBody(b.Statements, varName),
 					_ => string.Empty
 				};
@@ -238,19 +185,19 @@ public class AuraCompiler
 		}
 	}
 
-	private string ModStmt(TypedMod mod)
+	public string Visit(TypedMod mod)
 	{
 		return $"package {mod.Value.Value}";
 	}
 
-	private string ReturnStmt(TypedReturn r)
+	public string Visit(TypedReturn r)
 	{
 		return r.Value is not null
 			? $"return {Expression(r.Value)}"
 			: "return";
 	}
 
-	private string ClassStmt(FullyTypedClass c)
+	public string Visit(FullyTypedClass c)
 	{
 		return InNewEnclosingType(() =>
 		{
@@ -275,7 +222,7 @@ public class AuraCompiler
 		}, c);
 	}
 
-	private string WhileStmt(TypedWhile w)
+	public string Visit(TypedWhile w)
 	{
 		var cond = Expression(w.Condition);
 		var body = CompileLoopBody(w.Body);
@@ -284,13 +231,13 @@ public class AuraCompiler
 			: $"for {cond} {{}}";
 	}
 
-	private string MultipleImportStmt(TypedMultipleImport i)
+	public string Visit(TypedMultipleImport i)
 	{
 		var multipleImports = i.Packages.Select(CompileImportStmt);
 		return $"import (\n\t{string.Join("\n\t", multipleImports)}\n)";
 	}
 
-	private string ImportStmt(TypedImport i) => $"import {CompileImportStmt(i)}";
+	public string Visit(TypedImport i) => $"import {CompileImportStmt(i)}";
 
 	private string CompileImportStmt(TypedImport i)
 	{
@@ -323,13 +270,13 @@ public class AuraCompiler
 
 	}
 
-	private string CommentStmt(TypedComment com) => com.Text.Value;
+	public string Visit(TypedComment com) => com.Text.Value;
 
-	private string ContinueStmt(TypedContinue _) => "continue";
+	public string Visit(TypedContinue _) => "continue";
 
-	private string BreakStmt(TypedBreak _) => "break";
+	public string Visit(TypedBreak _) => "break";
 
-	private string InterfaceStmt(TypedInterface i)
+	public string Visit(TypedInterface i)
 	{
 		return InNewEnclosingType(() =>
 		{
@@ -342,32 +289,32 @@ public class AuraCompiler
 		}, i);
 	}
 
-	private string AssignmentExpr(TypedAssignment assign)
+	public string Visit(TypedAssignment assign)
 	{
 		var value = Expression(assign.Value);
 		return $"{assign.Name.Value} = {value}";
 	}
 
-	private string IncrementExpr(TypedPlusPlusIncrement inc)
+	public string Visit(TypedPlusPlusIncrement inc)
 	{
 		var name = Expression(inc.Name);
 		return $"{name}++";
 	}
 
-	private string DecrementExpr(TypedMinusMinusDecrement dec)
+	public string Visit(TypedMinusMinusDecrement dec)
 	{
 		var name = Expression(dec.Name);
 		return $"{name}--";
 	}
 
-	private string BinaryExpr(TypedBinary b)
+	public string Visit(TypedBinary b)
 	{
 		var left = Expression(b.Left);
 		var right = Expression(b.Right);
 		return $"{left} {b.Operator.Value} {right}";
 	}
 
-	private string BlockExpr(TypedBlock b)
+	public string Visit(TypedBlock b)
 	{
 		var compiledStmts = new AuraStringBuilder();
 		foreach (var stmt in b.Statements)
@@ -379,7 +326,7 @@ public class AuraCompiler
 		return compiledStmts.String() == string.Empty ? "{}" : $"{{\n{compiledStmts.String()}\n}}";
 	}
 
-	private string CallExpr(TypedCall c)
+	public string Visit(TypedCall c)
 	{
 		if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
 		if (c.Callee is TypedVariable v && v.Typ is AuraClass) return CallExpr_Class(c);
@@ -408,7 +355,7 @@ public class AuraCompiler
 		string callee;
 		if (IsStdlibPkgType(get.Obj.Typ))
 		{
-			_goDocument.WriteStmt(ImportStmt(new TypedImport(
+			_goDocument.WriteStmt(Visit(new TypedImport(
 				Package: new Tok(
 					Typ: TokType.Identifier,
 					Value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
@@ -452,20 +399,20 @@ public class AuraCompiler
 		return $"{callee}({string.Join(", ", compiledParams)})";
 	}
 
-	private string GetExpr(TypedGet get)
+	public string Visit(TypedGet get)
 	{
 		var objExpr = Expression(get.Obj);
 		return $"{objExpr}.{get.Name.Value}";
 	}
 
-	private string GetIndexExpr(TypedGetIndex getIndex)
+	public string Visit(TypedGetIndex getIndex)
 	{
 		var objExpr = Expression(getIndex.Obj);
 		var indexExpr = Expression(getIndex.Index);
 		return $"{objExpr}[{indexExpr}]";
 	}
 
-	private string GetIndexRangeExpr(TypedGetIndexRange getIndexRange)
+	public string Visit(TypedGetIndexRange getIndexRange)
 	{
 		var objExpr = Expression(getIndexRange.Obj);
 		var lowerExpr = Expression(getIndexRange.Lower);
@@ -473,13 +420,13 @@ public class AuraCompiler
 		return $"{objExpr}[{lowerExpr}:{upperExpr}]";
 	}
 
-	private string GroupingExpr(TypedGrouping g)
+	public string Visit(TypedGrouping g)
 	{
 		var expr = Expression(g.Expr);
 		return $"({expr})";
 	}
 
-	private string IfExpr(TypedIf if_)
+	public string Visit(TypedIf if_)
 	{
 		var cond = Expression(if_.Condition);
 		var then = Expression(if_.Then);
@@ -489,32 +436,34 @@ public class AuraCompiler
 			: $"if {cond} {then}{else_}";
 	}
 
-	private string StringLiteralExpr(StringLiteral literal) => $"\"{literal.Value}\"";
+	public string Visit(StringLiteral literal) => $"\"{literal.Value}\"";
 
-	private string CharLiteralExpr(CharLiteral literal) => $"'{literal.Value}'";
+	public string Visit(CharLiteral literal) => $"'{literal.Value}'";
 
-	private string IntLiteralExpr(IntLiteral literal) => $"{literal.Value}";
+	public string Visit(IntLiteral literal) => $"{literal.Value}";
 
-	private string FloatLiteralExpr(FloatLiteral literal)
-		=> string.Format(CultureInfo.InvariantCulture, "{0:0.0######}", literal.Value);
+	public string Visit(FloatLiteral literal) =>
+		string.Format(CultureInfo.InvariantCulture, "{0:0.0######}", literal.Value);
 
-	private string BoolLiteralExpr(BoolLiteral literal) => literal.Value ? "true" : "false";
+	public string Visit(BoolLiteral literal) => literal.Value ? "true" : "false";
 
-	private string ListLiteralExpr(ListLiteral<ITypedAuraExpression> literal)
+	public string Visit<U>(ListLiteral<U> literal) where U : IAuraAstNode
 	{
 		var items = literal.Value
-			.Select(Expression);
+			.Select(item => Expression((ITypedAuraExpression)item));
 		return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
 	}
 
-	private string NilLiteralExpr(TypedNil nil) => "nil";
+	public string Visit(TypedNil nil) => "nil";
 
-	private string MapLiteralExpr(MapLiteral<ITypedAuraExpression, ITypedAuraExpression> literal)
+	public string Visit<TK, TV>(MapLiteral<TK, TV> literal)
+		where TK : IAuraAstNode
+		where TV : IAuraAstNode
 	{
 		var items = literal.Value.Select(pair =>
 		{
-			var keyExpr = Expression(pair.Key);
-			var valueExpr = Expression(pair.Value);
+			var keyExpr = Expression((ITypedAuraExpression)pair.Key);
+			var valueExpr = Expression((ITypedAuraExpression)pair.Value);
 			return $"{keyExpr}: {valueExpr}";
 		});
 		return items.Any()
@@ -522,32 +471,32 @@ public class AuraCompiler
 			: $"{AuraTypeToGoType(literal.Typ)}{{}}";
 	}
 
-	private string LogicalExpr(TypedLogical logical)
+	public string Visit(TypedLogical logical)
 	{
 		var left = Expression(logical.Left);
 		var right = Expression(logical.Right);
 		return $"{left} {LogicalOperatorToGoOperator(logical.Operator)} {right}";
 	}
 
-	private string SetExpr(TypedSet set)
+	public string Visit(TypedSet set)
 	{
 		var obj = Expression(set.Obj);
 		var value = Expression(set.Value);
 		return $"{obj}.{set.Name.Value} = {value}";
 	}
 
-	private string ThisExpr(TypedThis _)
+	public string Visit(TypedThis _)
 	{
 		return "this";
 	}
 
-	private string UnaryExpr(TypedUnary unary)
+	public string Visit(TypedUnary unary)
 	{
 		var expr = Expression(unary.Right);
 		return $"{unary.Operator.Value}{expr}";
 	}
 
-	private string VariableExpr(TypedVariable v)
+	public string Visit(TypedVariable v)
 	{
 		if (IsVariableInPrelude(v.Name.Value))
 		{
@@ -559,13 +508,13 @@ public class AuraCompiler
 		}
 	}
 
-	private string IsExpr(TypedIs is_)
+	public string Visit(TypedIs is_)
 	{
 		var expr = Expression(is_.Expr);
 		return $"{expr}.({is_.Expected.Name})";
 	}
 
-	private string YieldStmt(TypedYield y, string decl) => $"{decl} = {y.Value}";
+	public string Visit(TypedYield y) => $"x = {y.Value}";
 
 	private string AuraTypeToGoType(AuraType typ) => typ.ToString();
 
@@ -726,8 +675,18 @@ public class AuraCompiler
 			),
 			Line: 1
 		);
-		var preludeImport = ImportStmt(typedImport);
+		var preludeImport = Visit(typedImport);
 		_goDocument.WriteStmt(preludeImport, 1, typedImport);
 		return $"prelude.{ConvertSnakeCaseToCamelCase(name)}";
+	}
+
+	public string Visit(PartiallyTypedFunction partiallyTypedFunction)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string Visit(PartiallyTypedClass partiallyTypedClass)
+	{
+		throw new NotImplementedException();
 	}
 }
