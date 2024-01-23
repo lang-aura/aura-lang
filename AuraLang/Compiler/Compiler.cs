@@ -443,7 +443,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	public string Visit(IntLiteral literal) => $"{literal.Value}";
 
 	public string Visit(FloatLiteral literal) =>
-		string.Format(CultureInfo.InvariantCulture, "{0:0.##}", literal.Value);
+		string.Format(CultureInfo.InvariantCulture, "{0:0.0######}", literal.Value);
 
 	public string Visit(BoolLiteral literal) => literal.Value ? "true" : "false";
 

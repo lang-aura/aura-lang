@@ -397,7 +397,7 @@ public class CompilerTest
 				new FloatLiteral(5.0, 1),
 				1)
 		});
-		MakeAssertions(output, "5");
+		MakeAssertions(output, "5.0");
 	}
 
 	[Test]
