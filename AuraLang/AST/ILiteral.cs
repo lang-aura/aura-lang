@@ -1,4 +1,5 @@
 ﻿using AuraLang.Types;
+using AuraLang.Visitor;
 
 namespace AuraLang.AST;
 
@@ -15,6 +16,8 @@ public interface ILiteral<out T> : ILiteral
 /// <param name="I">The integer value</param>
 public record IntLiteral(long I, int Line) : ILiteral<long>
 {
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraInt();
 	public long Value => I;
 }
@@ -25,6 +28,8 @@ public record IntLiteral(long I, int Line) : ILiteral<long>
 /// <param name="F">The float value</param>
 public record FloatLiteral(double F, int Line) : ILiteral<double>
 {
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraFloat();
 	public double Value => F;
 }
@@ -35,6 +40,8 @@ public record FloatLiteral(double F, int Line) : ILiteral<double>
 /// <param name="S">The string value</param>
 public record StringLiteral(string S, int Line) : ILiteral<string>
 {
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraString();
 	public string Value => S;
 }
@@ -46,6 +53,8 @@ public record StringLiteral(string S, int Line) : ILiteral<string>
 public record ListLiteral<T>(List<T> L, AuraType Kind, int Line) : ILiteral<List<T>>
 	where T : IAuraAstNode
 {
+	public U Accept<U>(IUntypedAuraExprVisitor<U> visitor) => visitor.Visit(this);
+	public U Accept<U>(ITypedAuraExprVisitor<U> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraList(Kind);
 	public List<T> Value => L;
 }
@@ -68,6 +77,8 @@ public record MapLiteral<TK, TV>(Dictionary<TK, TV> M, AuraType KeyType, AuraTyp
 	where TK : IAuraAstNode
 	where TV : IAuraAstNode
 {
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraMap(KeyType, ValueType);
 	public Dictionary<TK, TV> Value => M;
 }
@@ -78,6 +89,8 @@ public record MapLiteral<TK, TV>(Dictionary<TK, TV> M, AuraType KeyType, AuraTyp
 /// <param name="B">The boolean value</param>
 public record BoolLiteral(bool B, int Line) : ILiteral<bool>
 {
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraBool();
 	public bool Value => B;
 }
@@ -88,6 +101,8 @@ public record BoolLiteral(bool B, int Line) : ILiteral<bool>
 /// <param name="C">The char value</param>
 public record CharLiteral(char C, int Line) : ILiteral<char>
 {
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraChar();
 	public char Value => C;
 }
