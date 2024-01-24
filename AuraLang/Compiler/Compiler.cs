@@ -514,7 +514,13 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"{expr}.({is_.Expected.Name})";
 	}
 
-	public string Visit(TypedYield y) => $"x = {y.Value}";
+	public string Visit(TypedYield y)
+	{
+		var value = y.Value is ILiteral lit
+			? lit.ToString()
+			: y.Value.ToString();
+		return $"x = {value}";
+	}
 
 	private string AuraTypeToGoType(AuraType typ) => typ.ToString();
 

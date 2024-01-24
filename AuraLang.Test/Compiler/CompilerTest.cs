@@ -1104,6 +1104,22 @@ public class CompilerTest
 		MakeAssertions(output, "type IGREETER interface {\nSAY_HI(i int) string\n}");
 	}
 
+	[Test]
+	public void TestCompile_Yield()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedYield(
+				Value: new IntLiteral(
+					I: 5,
+					Line: 1
+				),
+				Line: 1
+			)
+		});
+		MakeAssertions(output, "x = 5");
+	}
+
 	private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)
 	{
 		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
