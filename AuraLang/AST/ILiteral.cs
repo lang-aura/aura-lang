@@ -20,6 +20,7 @@ public record IntLiteral(long I, int Line) : ILiteral<long>
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraInt();
 	public long Value => I;
+	public override string ToString() => $"{Value}";
 }
 
 /// <summary>
@@ -32,6 +33,7 @@ public record FloatLiteral(double F, int Line) : ILiteral<double>
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraFloat();
 	public double Value => F;
+	public override string ToString() => $"{Value}";
 }
 
 /// <summary>
@@ -44,6 +46,7 @@ public record StringLiteral(string S, int Line) : ILiteral<string>
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraString();
 	public string Value => S;
+	public override string ToString() => $"{Value}";
 }
 
 /// <summary>
@@ -57,6 +60,7 @@ public record ListLiteral<T>(List<T> L, AuraType Kind, int Line) : ILiteral<List
 	public U Accept<U>(ITypedAuraExprVisitor<U> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraList(Kind);
 	public List<T> Value => L;
+	public override string ToString() => $"{Value}";
 }
 
 /// <summary>
@@ -81,6 +85,7 @@ public record MapLiteral<TK, TV>(Dictionary<TK, TV> M, AuraType KeyType, AuraTyp
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraMap(KeyType, ValueType);
 	public Dictionary<TK, TV> Value => M;
+	public override string ToString() => $"{Value}";
 }
 
 /// <summary>
@@ -93,6 +98,7 @@ public record BoolLiteral(bool B, int Line) : ILiteral<bool>
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraBool();
 	public bool Value => B;
+	public override string ToString() => $"{Value}";
 }
 
 /// <summary>
@@ -105,4 +111,5 @@ public record CharLiteral(char C, int Line) : ILiteral<char>
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraChar();
 	public char Value => C;
+	public override string ToString() => $"{Value}";
 }
