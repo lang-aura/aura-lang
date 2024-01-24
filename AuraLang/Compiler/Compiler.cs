@@ -248,26 +248,18 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		}
 		if (i.Package.Value.Contains("prelude")) return $"prelude \"{i.Package.Value}\"";
 
-		try
+		var compiledModule = new AuraModuleCompiler($"src/{i.Package.Value}", ProjectName).CompileModule();
+		foreach (var (path, output) in compiledModule)
 		{
-			var compiledModule = new AuraModuleCompiler($"src/{i.Package.Value}", ProjectName).CompileModule();
-			foreach (var (path, output) in compiledModule)
-			{
-				// Write output to `build` directory
-				var dirName = Path.GetDirectoryName(path)!.Replace("src/", "");
-				_outputWriter.CreateDirectory(dirName);
-				_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(path), output);
-			}
-
-			return i.Alias is null
-				? $"\"{ProjectName}/{i.Package.Value}\""
-				: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
-		}
-		catch (Exception)
-		{
-			throw new DirectoryCannotContainMultipleModulesException(1);
+			// Write output to `build` directory
+			var dirName = Path.GetDirectoryName(path)!.Replace("src/", "");
+			_outputWriter.CreateDirectory(dirName);
+			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(path), output);
 		}
 
+		return i.Alias is null
+			? $"\"{ProjectName}/{i.Package.Value}\""
+			: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
 	}
 
 	public string Visit(TypedComment com) => com.Text.Value;
