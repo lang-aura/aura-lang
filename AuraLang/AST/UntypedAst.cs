@@ -483,7 +483,7 @@ public record UntypedNewLine(int Line) : IUntypedAuraStatement
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 }
 
-public record UntypedCheck(IUntypedAuraCallable Call, int Line) : IUntypedAuraStatement
+public record UntypedCheck(UntypedCall Call, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 }

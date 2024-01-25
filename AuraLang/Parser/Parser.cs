@@ -637,7 +637,7 @@ public class AuraParser
 		// Parse the expression to be checked
 		var expression = Expression();
 		// Make sure the checked expression is a function call
-		if (expression is not IUntypedAuraCallable callableExpr)
+		if (expression is not UntypedCall callableExpr)
 			throw new CanOnlyCheckFunctionCallException(Peek().Line);
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));

@@ -416,7 +416,7 @@ public record TypedYield(ITypedAuraExpression Value, int Line) : ITypedAuraState
 	public AuraType Typ => new AuraNone();
 }
 
-public record TypedCheck(ITypedAuraCallable Call, int Line) : ITypedAuraStatement
+public record TypedCheck(TypedCall Call, int Line) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();

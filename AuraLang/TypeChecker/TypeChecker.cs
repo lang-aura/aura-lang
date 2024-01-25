@@ -1407,7 +1407,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		if (typedCall.Typ is not AuraError) throw new InvalidUseOfCheckKeywordException(check.Line);
 
 		return new TypedCheck(
-			Call: (ITypedAuraCallable)typedCall,
+			Call: (TypedCall)typedCall,
 			Line: check.Line
 		);
 	}
