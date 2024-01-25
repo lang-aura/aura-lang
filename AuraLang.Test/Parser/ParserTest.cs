@@ -1053,6 +1053,12 @@ public class ParserTest
 		));
 	}
 
+	[Test]
+	public void TestParse_Struct()
+	{
+		
+	}
+
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange

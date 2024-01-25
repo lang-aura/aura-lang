@@ -324,6 +324,15 @@ public record TypedInterface
 	public AuraType Typ => new AuraNone();
 }
 
+public record TypedStruct(Tok Name, List<Param> Params, int Line) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
+{
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public AuraType Typ => new AuraNone();
+	public string GetName() => Name.Value;
+	public List<Param> GetParams() => Params;
+	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+}
+
 /// <summary>
 /// Represents a valid type-checked class declaration
 /// </summary>

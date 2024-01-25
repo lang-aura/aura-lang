@@ -488,3 +488,21 @@ public class AuraError : AuraType, IGettable, IImportableModule
 
 	public string GetModuleName() => "errors";
 }
+
+public class AuraStruct : AuraType
+{
+	public Visibility Public { get; }
+	public string Name { get; init; }
+	public List<Param> Parameters { get; }
+
+	public AuraStruct(string name, List<Param> parameters, Visibility pub)
+	{
+		Public = pub;
+		Name = name;
+		Parameters = parameters;
+	}
+
+	public override bool IsSameType(AuraType other) => other is AuraStruct;
+
+	public override string ToString() => "struct";
+}

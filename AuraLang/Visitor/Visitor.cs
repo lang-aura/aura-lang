@@ -24,6 +24,7 @@ public interface ITypedAuraStmtVisitor<T>
 	public abstract T Visit(PartiallyTypedFunction partiallyTypedFunction);
 	public abstract T Visit(PartiallyTypedClass partiallyTypedClass);
 	public abstract T Visit(TypedCheck check);
+	public abstract T Visit(TypedStruct @struct);
 }
 
 public interface ITypedAuraExprVisitor<T>
@@ -79,6 +80,7 @@ public interface IUntypedAuraStmtVisitor<T>
 	public abstract T Visit(UntypedYield yield);
 	public abstract T Visit(UntypedNewLine newline);
 	public abstract T Visit(UntypedCheck check);
+	public abstract T Visit(UntypedStruct @struct);
 }
 
 public interface IUntypedAuraExprVisitor<T>
