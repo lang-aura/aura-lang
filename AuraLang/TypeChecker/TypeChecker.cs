@@ -1412,4 +1412,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			Line: check.Line
 		);
 	}
+
+	public ITypedAuraStatement Visit(UntypedStruct @struct)
+	{
+		throw new NotImplementedException();
+	}
 }

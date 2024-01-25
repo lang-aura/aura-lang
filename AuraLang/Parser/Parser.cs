@@ -416,8 +416,6 @@ public class AuraParser
 		// Parse parameters
 		var paramz = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
-
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
 		return new UntypedStruct(name, paramz, line);

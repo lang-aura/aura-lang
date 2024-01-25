@@ -689,4 +689,9 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	}
 
 	public string Visit(TypedCheck check) => $"e := {Visit(check.Call)}\nif e != nil {{\nreturn e\n}}";
+
+	public string Visit(TypedStruct @struct)
+	{
+		throw new NotImplementedException();
+	}
 }

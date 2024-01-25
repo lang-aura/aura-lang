@@ -308,4 +308,9 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	{
 		throw new NotImplementedException();
 	}
+
+	public string Visit(UntypedStruct @struct)
+	{
+		throw new NotImplementedException();
+	}
 }
