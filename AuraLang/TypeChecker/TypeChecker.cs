@@ -360,6 +360,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 	public ITypedAuraStatement Visit(UntypedNamedFunction f)
 	{
+		_enclosingFunctionDeclarationStore.Push(f);
 		var typedParams = TypeCheckParams(f.Params);
 		var returnType = f.ReturnType is not null
 			? TypeTokenToType(f.ReturnType!.Value)

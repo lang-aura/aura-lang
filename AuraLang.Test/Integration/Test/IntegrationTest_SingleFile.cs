@@ -84,7 +84,7 @@ public class IntegrationTest_SingleFile
 	public async Task TestIntegration_Error()
 	{
 		var output = await ArrangeAndAct_SingleFile("src/error.aura");
-		MakeAssertions(output, "Helpful error message\n");
+		MakeAssertions(output, "Helpful error message\nHelpful error message\n");
 	}
 
 	[Test]
