@@ -687,4 +687,9 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		throw new NotImplementedException();
 	}
+
+	public string Visit(TypedCheck check)
+	{
+		throw new NotImplementedException();
+	}
 }

@@ -189,3 +189,8 @@ public class FileMustBeginWithModStmtException : ParserException
 {
 	public FileMustBeginWithModStmtException(int line) : base("Cannot omit `mod` statement", line) { }
 }
+
+public class CanOnlyCheckFunctionCallException : ParserException
+{
+	public CanOnlyCheckFunctionCallException(int line) : base("Can only check function call", line) { }
+}

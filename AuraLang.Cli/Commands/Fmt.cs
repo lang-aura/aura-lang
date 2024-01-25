@@ -303,4 +303,9 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	private string AddTabs(int n) => new(' ', n * 4);
 
 	public string Visit(UntypedNewLine newline) => "\n";
+
+	public string Visit(UntypedCheck check)
+	{
+		throw new NotImplementedException();
+	}
 }

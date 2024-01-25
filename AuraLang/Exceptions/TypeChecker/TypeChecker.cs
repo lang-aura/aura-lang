@@ -138,3 +138,8 @@ public class DirectoryCannotContainMultipleModulesException : TypeCheckerExcepti
 {
 	public DirectoryCannotContainMultipleModulesException(int line) : base("Directory cannot contain multiple modules", line) { }
 }
+
+public class InvalidUseOfCheckKeywordException : TypeCheckerException
+{
+	public InvalidUseOfCheckKeywordException(int line) : base("Invalid use of `check` keyword", line) { }
+}

@@ -14,6 +14,7 @@ public class TypeCheckerTest
 {
 	private readonly Mock<IGlobalSymbolsTable> _symbolsTable = new();
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
+	private readonly Mock<IEnclosingFunctionDeclarationStore> _enclosingFunctionDeclarationStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
 
@@ -1824,7 +1825,7 @@ public class TypeCheckerTest
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
 				_enclosingStmtStore.Object, "Test", "Test")
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
@@ -1832,7 +1833,7 @@ public class TypeCheckerTest
 	{
 		try
 		{
-			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
 					_enclosingStmtStore.Object, "Test", "Test")
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();

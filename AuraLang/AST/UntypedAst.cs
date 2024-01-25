@@ -17,7 +17,6 @@ public interface IUntypedAuraExpression : IUntypedAuraAstNode, IUntypedAuraExprV
 /// </summary>
 public interface IUntypedAuraStatement : IUntypedAuraAstNode, IUntypedAuraStmtVisitable { }
 
-// TODO Should this inherit from IUntypedAuraExpression?
 public interface IUntypedAuraCallable
 {
 	string GetName();
@@ -480,6 +479,11 @@ public record UntypedYield(IUntypedAuraExpression Value, int Line) : IUntypedAur
 }
 
 public record UntypedNewLine(int Line) : IUntypedAuraStatement
+{
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+}
+
+public record UntypedCheck(IUntypedAuraCallable Call, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 }

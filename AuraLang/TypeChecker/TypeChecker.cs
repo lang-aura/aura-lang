@@ -15,6 +15,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 {
 	private readonly IGlobalSymbolsTable _symbolsTable;
 	private readonly IEnclosingClassStore _enclosingClassStore;
+	private readonly IEnclosingFunctionDeclarationStore _enclosingFunctionDeclarationStore;
 	private readonly AuraStdlib _stdlib = new();
 	private readonly TypeCheckerExceptionContainer _exContainer;
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
@@ -24,12 +25,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private readonly AuraPrelude _prelude = new();
 
 	public AuraTypeChecker(IGlobalSymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
+		IEnclosingFunctionDeclarationStore enclosingFunctionDeclarationStore,
 		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
 		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore,
 		string filePath, string projectName)
 	{
 		_symbolsTable = symbolsTable;
 		_enclosingClassStore = enclosingClassStore;
+		_enclosingFunctionDeclarationStore = enclosingFunctionDeclarationStore;
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
@@ -173,7 +176,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return WithEnclosingStmt(
 			f: () =>
 			{
-				//var typedCall = CallExpr((UntypedCall)defer.Call);
 				var typedCall = Visit((UntypedCall)defer.Call);
 				return new TypedDefer((TypedCall)typedCall, defer.Line);
 			},
@@ -261,6 +263,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// the same type as specified in the function's signature</exception>
 	public ITypedAuraStatement Visit(UntypedNamedFunction f, string modName)
 	{
+		_enclosingFunctionDeclarationStore.Push(f);
 		return WithEnclosingStmt(
 			f: () =>
 			{
@@ -1392,5 +1395,20 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		var typ = _prelude.GetPrelude().Get(symbolName);
 		if (typ is null) return false;
 		else return true;
+	}
+
+	public ITypedAuraStatement Visit(UntypedCheck check)
+	{
+		var typedCall = Visit((UntypedCall)check.Call);
+		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
+		// type of `error`
+		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ?? throw new InvalidUseOfCheckKeywordException(check.Line);
+		if (enclosingFuncDeclaration.ReturnType?.Value != "error") throw new InvalidUseOfCheckKeywordException(check.Line);
+		if (typedCall.Typ is not AuraError) throw new InvalidUseOfCheckKeywordException(check.Line);
+
+		return new TypedCheck(
+			Call: (ITypedAuraCallable)typedCall,
+			Line: check.Line
+		);
 	}
 }
