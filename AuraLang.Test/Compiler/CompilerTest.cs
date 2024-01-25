@@ -1075,6 +1075,39 @@ public class CompilerTest
 		MakeAssertions(output, "x = 5");
 	}
 
+	[Test]
+	public void TestCompile_Check()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedCheck(
+				Call: new TypedCall(
+					Callee: new TypedVariable(
+						Name: new Tok(
+							Typ: TokType.Identifier,
+							Value: "f",
+							Line: 1
+						),
+						Typ: new AuraNamedFunction(
+							name: "f",
+							pub: Visibility.Public,
+							f: new AuraFunction(
+								fParams: new List<Param>(),
+								returnType: new AuraError()
+							)
+						),
+						Line: 1
+					),
+					Arguments: new List<ITypedAuraExpression>(),
+					Typ: new AuraError(),
+					Line: 1
+				),
+				Line: 1
+			)
+		});
+		MakeAssertions(output, "e := f()\nif e != nil {\nreturn e\n}");
+	}
+
 	private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)
 	{
 		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
