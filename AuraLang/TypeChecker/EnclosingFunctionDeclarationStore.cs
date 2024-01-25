@@ -1,4 +1,4 @@
-using AuraLang.AST;
+﻿using AuraLang.AST;
 
 namespace AuraLang.TypeChecker;
 
