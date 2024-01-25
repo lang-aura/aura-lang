@@ -688,8 +688,5 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		throw new NotImplementedException();
 	}
 
-	public string Visit(TypedCheck check)
-	{
-		return $"e := {Visit(check.Call)}\nif e != nil {{\nreturn e\n}}";
-	}
+	public string Visit(TypedCheck check) => $"e := {Visit(check.Call)}\nif e != nil {{\nreturn e\n}}";
 }
