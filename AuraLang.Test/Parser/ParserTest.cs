@@ -1028,6 +1028,31 @@ public class ParserTest
 			1));
 	}
 
+	[Test]
+	public void TestParse_Check()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new Tok(TokType.Check, "check", 1),
+			new Tok(TokType.Identifier, "f", 1),
+			new Tok(TokType.LeftParen, "(", 1),
+			new Tok(TokType.RightParen, ")", 1),
+			new Tok(TokType.Semicolon, ";", 1),
+			new Tok(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedCheck(
+			Call: new UntypedCall(
+				Callee: new UntypedVariable(
+					Name: new Tok(TokType.Identifier, "f", 1),
+					Line: 1
+				),
+				Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
+				Line: 1
+			),
+			Line: 1
+		));
+	}
+
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange

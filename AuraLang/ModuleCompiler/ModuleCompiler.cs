@@ -27,6 +27,7 @@ public class AuraModuleCompiler
 		TypeChecker = new AuraTypeChecker(
 			new GlobalSymbolsTable(),
 			new EnclosingClassStore(),
+			new EnclosingFunctionDeclarationStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
 			new EnclosingNodeStore<IUntypedAuraStatement>(),
 			path,

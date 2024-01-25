@@ -84,7 +84,7 @@ public class IntegrationTest_SingleFile
 	public async Task TestIntegration_Error()
 	{
 		var output = await ArrangeAndAct_SingleFile("src/error.aura");
-		MakeAssertions(output, "Helpful error message\n");
+		MakeAssertions(output, "Helpful error message\nHelpful error message\n");
 	}
 
 	[Test]
@@ -104,7 +104,7 @@ public class IntegrationTest_SingleFile
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
-		var typeChecker = new AuraTypeChecker(new GlobalSymbolsTable(), new EnclosingClassStore(),
+		var typeChecker = new AuraTypeChecker(new GlobalSymbolsTable(), new EnclosingClassStore(), new EnclosingFunctionDeclarationStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
 			path, "Test");
 		var compiler = new AuraFileCompiler(path, "Examples");

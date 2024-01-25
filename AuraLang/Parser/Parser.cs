@@ -467,6 +467,7 @@ public class AuraParser
 		if (Match(TokType.Break)) return new UntypedBreak(Previous().Line);
 		if (Match(TokType.Yield)) return Yield();
 		if (Match(TokType.Newline)) return new UntypedNewLine(Peek().Line);
+		if (Match(TokType.Check)) return CheckStatement();
 
 		var line = Peek().Line;
 		// If the statement doesn't begin with any of the Aura statement identifiers, parse it as an expression and
@@ -627,6 +628,20 @@ public class AuraParser
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
 		return new UntypedYield(value, Previous().Line);
+	}
+
+	private IUntypedAuraStatement CheckStatement()
+	{
+		var line = Previous().Line;
+
+		// Parse the expression to be checked
+		var expression = Expression();
+		// Make sure the checked expression is a function call
+		if (expression is not UntypedCall callableExpr)
+			throw new CanOnlyCheckFunctionCallException(Peek().Line);
+
+		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
+		return new UntypedCheck(callableExpr, line);
 	}
 
 	private IUntypedAuraStatement ExpressionStatement()

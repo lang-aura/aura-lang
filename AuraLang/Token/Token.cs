@@ -71,6 +71,7 @@ public enum TokType
 	Interface, // interface
 	Is, // is
 	Error, // error
+	Check, // check
 	Identifier,
 	StringLiteral,
 	CharLiteral,

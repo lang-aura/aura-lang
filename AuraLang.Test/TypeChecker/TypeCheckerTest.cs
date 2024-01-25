@@ -14,6 +14,7 @@ public class TypeCheckerTest
 {
 	private readonly Mock<IGlobalSymbolsTable> _symbolsTable = new();
 	private readonly Mock<IEnclosingClassStore> _enclosingClassStore = new();
+	private readonly Mock<IEnclosingFunctionDeclarationStore> _enclosingFunctionDeclarationStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraExpression>> _enclosingExprStore = new();
 	private readonly Mock<EnclosingNodeStore<IUntypedAuraStatement>> _enclosingStmtStore = new();
 
@@ -1823,8 +1824,90 @@ public class TypeCheckerTest
 			1));
 	}
 
+	[Test]
+	public void TestTypeCheck_Check()
+	{
+		_enclosingFunctionDeclarationStore.Setup(f => f.Peek()).Returns(
+			new UntypedNamedFunction(
+				Name: new Tok(
+					Typ: TokType.Identifier,
+					Value: "f",
+					Line: 1
+				),
+				Params: new List<Param>(),
+				Body: new UntypedBlock(
+					Statements: new List<IUntypedAuraStatement>(),
+					Line: 1
+				),
+				ReturnType: new Tok(
+					Typ: TokType.Error,
+					Value: "error",
+					Line: 1
+				),
+				Public: Visibility.Public,
+				Line: 1
+			)
+		);
+		_symbolsTable.Setup(st => st.GetSymbol("c", It.IsAny<string>())).Returns(
+			new AuraSymbol(
+				Name: "c",
+				Kind: new AuraNamedFunction(
+					name: "c",
+					pub: Visibility.Public,
+					f: new AuraFunction(
+						fParams: new List<Param>(),
+						returnType: new AuraError()
+					)
+				)
+			)
+		);
+
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedCheck(
+				Call: new UntypedCall(
+					Callee: new UntypedVariable(
+						Name: new Tok(
+							Typ: TokType.Identifier,
+							Value: "c",
+							Line: 1
+						),
+						Line: 1
+					),
+					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
+					Line: 1
+				),
+				Line: 1
+			)
+		});
+		MakeAssertions(typedAst, new TypedCheck(
+			Call: new TypedCall(
+				Callee: new TypedVariable(
+					Name: new Tok(
+						Typ: TokType.Identifier,
+						Value: "c",
+						Line: 1
+					),
+					Typ: new AuraNamedFunction(
+						name: "c",
+						pub: Visibility.Public,
+						f: new AuraFunction(
+							fParams: new List<Param>(),
+							returnType: new AuraError()
+						)
+					),
+					Line: 1
+				),
+				Arguments: new List<ITypedAuraExpression>(),
+				Typ: new AuraError(),
+				Line: 1
+			),
+			Line: 1
+		));
+	}
+
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
 				_enclosingStmtStore.Object, "Test", "Test")
 			.CheckTypes(AddModStmtIfNecessary(untypedAst));
 
@@ -1832,7 +1915,7 @@ public class TypeCheckerTest
 	{
 		try
 		{
-			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingExprStore.Object,
+			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
 					_enclosingStmtStore.Object, "Test", "Test")
 				.CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();

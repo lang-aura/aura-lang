@@ -340,6 +340,13 @@ public class ScannerTest
 		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Error, "error", 1));
 	}
 
+	[Test]
+	public void TestScan_Check()
+	{
+		var tokens = ArrangeAndAct("check");
+		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Check, "check", 1));
+	}
+
 	private static void ArrangeAndAct_Invalid(string source, Type expected)
 	{
 		// Arrange
