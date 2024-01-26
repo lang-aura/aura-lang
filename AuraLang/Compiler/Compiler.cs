@@ -692,6 +692,9 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedStruct @struct)
 	{
-		throw new NotImplementedException();
+		var @params = CompileParams(@struct.Params, "\n");
+		return @params != string.Empty
+			? $"type {@struct.Name.Value} struct {{\n{@params}\n}}"
+			: $"type {@struct.Name.Value} struct {{}}";
 	}
 }

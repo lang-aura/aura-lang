@@ -1108,6 +1108,56 @@ public class CompilerTest
 		MakeAssertions(output, "e := f()\nif e != nil {\nreturn e\n}");
 	}
 
+	[Test]
+	public void TestCompile_Struct_NoParams()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedStruct(
+				Name: new Tok(
+					Typ: TokType.Identifier,
+					Value: "s",
+					Line: 1
+				),
+				Params: new List<Param>(),
+				Line: 1
+			)
+		});
+		MakeAssertions(output, "type s struct {}");
+	}
+
+	[Test]
+	public void TestCompile_Struct_OneParam()
+	{
+		var output = ArrangeAndAct(new List<ITypedAuraStatement>
+		{
+			new TypedStruct(
+				Name: new Tok(
+					Typ: TokType.Identifier,
+					Value: "s",
+					Line: 1
+				),
+				Params: new List<Param>
+				{
+					new(
+						Name: new Tok(
+							Typ: TokType.Identifier,
+							Value: "i",
+							Line: 1
+						),
+						ParamType: new(
+							Typ: new AuraInt(),
+							Variadic: false,
+							DefaultValue: null
+						)
+					)
+				},
+				Line: 1
+			)
+		});
+		MakeAssertions(output, "type s struct {\ni int\n}");
+	}
+
 	private string ArrangeAndAct(List<ITypedAuraStatement> typedAst)
 	{
 		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
