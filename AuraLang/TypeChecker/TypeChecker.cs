@@ -75,6 +75,20 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							symbolsNamespace: ModuleName
 						);
 						break;
+					case UntypedStruct @struct:
+						var s = (TypedStruct)Visit(@struct);
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: s.Name.Value,
+								Kind: new AuraStruct(
+									name: s.Name.Value,
+									parameters: s.Params,
+									pub: Visibility.Private
+								)
+							),
+							symbolsNamespace: ModuleName
+						);
+						break;
 					case UntypedInterface interface_:
 						_symbolsTable.TryAddSymbol(
 							symbol: new AuraSymbol(

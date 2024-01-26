@@ -489,7 +489,7 @@ public class AuraError : AuraType, IGettable, IImportableModule
 	public string GetModuleName() => "errors";
 }
 
-public class AuraStruct : AuraType
+public class AuraStruct : AuraType, ICallable, IGettable
 {
 	public Visibility Public { get; }
 	public string Name { get; init; }
@@ -505,4 +505,16 @@ public class AuraStruct : AuraType
 	public override bool IsSameType(AuraType other) => other is AuraStruct;
 
 	public override string ToString() => "struct";
+
+	public List<Param> GetParams() => Parameters;
+
+	public List<ParamType> GetParamTypes() => Parameters.Select(p => p.ParamType).ToList();
+
+	public AuraType GetReturnType() => this;
+
+	public int GetParamIndex(string name) => Parameters.FindIndex(p => p.Name.Value == name);
+
+	public bool HasVariadicParam() => Parameters.Any(p => p.ParamType.Variadic);
+
+	public AuraType? Get(string attribute) => Parameters.First(p => p.Name.Value == attribute).ParamType.Typ;
 }
