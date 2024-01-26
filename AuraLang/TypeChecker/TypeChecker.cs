@@ -1400,7 +1400,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 	public ITypedAuraStatement Visit(UntypedCheck check)
 	{
-		var typedCall = Visit((UntypedCall)check.Call);
+		var typedCall = Visit(check.Call);
 		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
 		// type of `error`
 		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ?? throw new InvalidUseOfCheckKeywordException(check.Line);
@@ -1415,6 +1415,22 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 	public ITypedAuraStatement Visit(UntypedStruct @struct)
 	{
-		throw new NotImplementedException();
+		return WithEnclosingStmt(
+			f: () =>
+			{
+				var typedParams = @struct.Params.Select(p =>
+				{
+					var typedDefaultValue = p.ParamType.DefaultValue is not null
+						? (ILiteral)Expression(p.ParamType.DefaultValue)
+						: null;
+					var paramTyp = p.ParamType.Typ;
+					return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+				});
+
+				return new TypedStruct(@struct.Name, typedParams.ToList(), @struct.Line);
+			},
+			node: @struct,
+			symbolNamespace: ModuleName!
+		);
 	}
 }

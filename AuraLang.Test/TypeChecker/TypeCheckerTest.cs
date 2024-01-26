@@ -1906,6 +1906,32 @@ public class TypeCheckerTest
 		));
 	}
 
+	[Test]
+	public void TestTypeCheck_Struct()
+	{
+		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
+		{
+			new UntypedStruct(
+				Name: new Tok(
+					Typ: TokType.Identifier,
+					Value: "s",
+					Line: 1
+				),
+				Params: new List<Param>(),
+				Line: 1
+			)
+		});
+		MakeAssertions(typedAst, new TypedStruct(
+			Name: new Tok(
+				Typ: TokType.Identifier,
+				Value: "s",
+				Line: 1
+			),
+			Params: new List<Param>(),
+			Line: 1
+		));
+	}
+
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
 		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
 				_enclosingStmtStore.Object, "Test", "Test")
