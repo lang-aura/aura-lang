@@ -348,7 +348,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		var params_ = string.Join("\n", @struct!.GetParams()
 			.Zip(c.Arguments)
 			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
-		
+
 		return $"{@struct.Name.ToLower()}{{\n{params_}\n}}";
 	}
 
