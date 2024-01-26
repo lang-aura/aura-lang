@@ -75,6 +75,20 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							symbolsNamespace: ModuleName
 						);
 						break;
+					case UntypedStruct @struct:
+						var s = (TypedStruct)Visit(@struct);
+						_symbolsTable.TryAddSymbol(
+							symbol: new AuraSymbol(
+								Name: s.Name.Value,
+								Kind: new AuraStruct(
+									name: s.Name.Value,
+									parameters: s.Params,
+									pub: Visibility.Private
+								)
+							),
+							symbolsNamespace: ModuleName
+						);
+						break;
 					case UntypedInterface interface_:
 						_symbolsTable.TryAddSymbol(
 							symbol: new AuraSymbol(
@@ -1400,7 +1414,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 	public ITypedAuraStatement Visit(UntypedCheck check)
 	{
-		var typedCall = Visit((UntypedCall)check.Call);
+		var typedCall = Visit(check.Call);
 		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
 		// type of `error`
 		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ?? throw new InvalidUseOfCheckKeywordException(check.Line);
@@ -1410,6 +1424,27 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return new TypedCheck(
 			Call: (TypedCall)typedCall,
 			Line: check.Line
+		);
+	}
+
+	public ITypedAuraStatement Visit(UntypedStruct @struct)
+	{
+		return WithEnclosingStmt(
+			f: () =>
+			{
+				var typedParams = @struct.Params.Select(p =>
+				{
+					var typedDefaultValue = p.ParamType.DefaultValue is not null
+						? (ILiteral)Expression(p.ParamType.DefaultValue)
+						: null;
+					var paramTyp = p.ParamType.Typ;
+					return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
+				});
+
+				return new TypedStruct(@struct.Name, typedParams.ToList(), @struct.Line);
+			},
+			node: @struct,
+			symbolNamespace: ModuleName!
 		);
 	}
 }

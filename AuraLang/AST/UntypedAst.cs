@@ -378,6 +378,15 @@ public record UntypedReturn(IUntypedAuraExpression? Value, int Line) : IUntypedA
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 }
 
+public record UntypedStruct(Tok Name, List<Param> Params, int Line) : IUntypedAuraStatement, IUntypedFunction
+{
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+
+	public List<Param> GetParams() => Params;
+
+	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+}
+
 /// <summary>
 /// Represents a class declaration, which follows the syntax:
 /// <code>class <c>class_name</c>(<c>param</c>: <c>param_type</c>[,...]) { ... }</code>

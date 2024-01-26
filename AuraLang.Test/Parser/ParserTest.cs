@@ -1053,6 +1053,25 @@ public class ParserTest
 		));
 	}
 
+	[Test]
+	public void TestParse_Struct()
+	{
+		var untypedAst = ArrangeAndAct(new List<Tok>
+		{
+			new Tok(TokType.Struct, "struct", 1),
+			new Tok(TokType.Identifier, "s", 1),
+			new Tok(TokType.LeftParen, "(", 1),
+			new Tok(TokType.RightParen, ")", 1),
+			new Tok(TokType.Semicolon, ";", 1),
+			new Tok(TokType.Eof, "eof", 1)
+		});
+		MakeAssertions(untypedAst, new UntypedStruct(
+			Name: new Tok(TokType.Identifier, "s", 1),
+			Params: new List<Param>(),
+			Line: 1
+		));
+	}
+
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange

@@ -321,7 +321,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	public string Visit(TypedCall c)
 	{
 		if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
-		if (c.Callee is TypedVariable v && v.Typ is AuraClass) return CallExpr_Class(c);
+		if (c.Callee is TypedVariable cv && cv.Typ is AuraClass) return CallExpr_Class(c);
+		if (c.Callee is TypedVariable sv && sv.Typ is AuraStruct) return CallExpr_Struct(c);
 		var callee = Expression((ITypedAuraExpression)c.Callee);
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
@@ -337,6 +338,18 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
 		return
 			$"{(class_.Public is Visibility.Public ? class_.Name.ToUpper() : class_.Name.ToLower())}{{\n{params_}\n}}";
+	}
+
+	private string CallExpr_Struct(TypedCall c)
+	{
+		var v = c.Callee as TypedVariable;
+		var @struct = v!.Typ as AuraStruct;
+
+		var params_ = string.Join("\n", @struct!.GetParams()
+			.Zip(c.Arguments)
+			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
+
+		return $"{@struct.Name.ToLower()}{{\n{params_}\n}}";
 	}
 
 	private string CallExpr_GetCallee(TypedCall c)
@@ -689,4 +702,12 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	}
 
 	public string Visit(TypedCheck check) => $"e := {Visit(check.Call)}\nif e != nil {{\nreturn e\n}}";
+
+	public string Visit(TypedStruct @struct)
+	{
+		var @params = CompileParams(@struct.Params, "\n");
+		return @params != string.Empty
+			? $"type {@struct.Name.Value} struct {{\n{@params}\n}}"
+			: $"type {@struct.Name.Value} struct {{}}";
+	}
 }

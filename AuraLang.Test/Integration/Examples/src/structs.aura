@@ -1,0 +1,14 @@
+mod main
+
+import aura/io
+
+// Structs in Aura are similar to classes, but they do not support methods. Instead, they are designed to only contain data. They are declared with the `struct`
+// keyword followed by the struct's name and then the struct's parameters surrounded by parentheses.
+struct str(i: int)
+
+fn main() {
+	// Structs can be instantiated in the same way as classes, by converting the struct's name into a function call, with any parameters passed in as arguments
+	s := str(5)
+	// Once instantiated, the struct's fields can be accessed using the familiar `get`-style access.
+	io.printf("%d\n", s.i)
+}

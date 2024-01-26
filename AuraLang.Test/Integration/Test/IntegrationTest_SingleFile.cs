@@ -101,6 +101,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "First index = Hello\nHello\nworld\nContains hello\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_Structs()
+	{
+		var output = await ArrangeAndAct_SingleFile("src/structs.aura");
+		MakeAssertions(output, "5\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFile(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

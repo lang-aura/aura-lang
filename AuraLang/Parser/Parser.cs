@@ -160,6 +160,7 @@ public class AuraParser
 			switch (Peek().Typ)
 			{
 				case TokType.Class:
+				case TokType.Struct:
 				case TokType.Fn:
 				case TokType.Let:
 				case TokType.For:
@@ -293,6 +294,7 @@ public class AuraParser
 
 		if (Match(TokType.Interface)) return InterfaceDeclaration(Visibility.Private);
 		if (Match(TokType.Class)) return ClassDeclaration(Visibility.Private);
+		if (Match(TokType.Struct)) return StructDeclaration();
 		if (Check(TokType.Fn) && PeekNext().Typ == TokType.Identifier)
 		{
 			// Since we only check for the `fn` keyword, we need to advance past it here before entering the NamedFunction() call
@@ -403,6 +405,20 @@ public class AuraParser
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
 		return new UntypedClass(name, paramz, body, pub, interfaceNames, line);
+	}
+
+	private IUntypedAuraStatement StructDeclaration()
+	{
+		var line = Previous().Line;
+		// Consume the struct name
+		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
+		Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, Peek().Line));
+		// Parse parameters
+		var paramz = ParseParameters();
+		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
+		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
+
+		return new UntypedStruct(name, paramz, line);
 	}
 
 	private List<Tok> ParseImplementingInterfaces()
