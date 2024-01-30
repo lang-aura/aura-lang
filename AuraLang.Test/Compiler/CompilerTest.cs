@@ -71,11 +71,12 @@ public class CompilerTest
 					new List<ITypedAuraStatement>
 					{
 						new TypedLet(
-							new Tok(TokType.Identifier, "i", 2),
-							true,
-							false,
-							new IntLiteral(5, 2),
-							2),
+							Names: new List<Tok>{ new(TokType.Identifier, "i", 2) },
+							TypeAnnotation: true,
+							Mutable: false,
+							Initializer: new IntLiteral(5, 2),
+							Line: 2
+						),
 					},
 					new AuraNil(),
 					1),
@@ -643,7 +644,7 @@ public class CompilerTest
 		{
 			new TypedFor(
 				new TypedLet(
-					new Tok(TokType.Identifier, "i", 1),
+					new List<Tok>{ new(TokType.Identifier, "i", 1) },
 					false,
 					true,
 					new IntLiteral(0, 1),
@@ -671,7 +672,7 @@ public class CompilerTest
 		{
 			new TypedFor(
 				new TypedLet(
-					new Tok(TokType.Identifier, "i", 1),
+					new List<Tok>{ new(TokType.Identifier, "i", 1) },
 					false,
 					true,
 					new IntLiteral(0, 1),
@@ -689,7 +690,7 @@ public class CompilerTest
 				new List<ITypedAuraStatement>
 				{
 					new TypedLet(
-						new Tok(TokType.Identifier, "name", 2),
+						new List<Tok>{ new(TokType.Identifier, "name", 2) },
 						false,
 						false,
 						new StringLiteral("Bob", 2),
@@ -731,7 +732,7 @@ public class CompilerTest
 				new List<ITypedAuraStatement>
 				{
 					new TypedLet(
-						new Tok(TokType.Identifier, "i", 1),
+						new List<Tok>{ new(TokType.Identifier, "i", 1) },
 						true,
 						false,
 						new IntLiteral(5, 1),
@@ -780,7 +781,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedLet(
-				new Tok(TokType.Identifier, "i", 1),
+				new List<Tok>{ new(TokType.Identifier, "i", 1) },
 				true,
 				false,
 				new IntLiteral(5, 1),
@@ -795,7 +796,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedLet(
-				new Tok(TokType.Identifier, "i", 1),
+				new List<Tok>{ new(TokType.Identifier, "i", 1) },
 				false,
 				false,
 				new IntLiteral(5, 1),
@@ -951,7 +952,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedLet(
-				new Tok(TokType.Identifier, "b", 1),
+				new List<Tok>{ new(TokType.Identifier, "b", 1) },
 				false,
 				false,
 				new TypedIs(

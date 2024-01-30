@@ -208,7 +208,7 @@ public class ParserTest
 					new List<IUntypedAuraStatement>
 					{
 						new UntypedReturn(
-							new IntLiteral(1, 2),
+							new List<IUntypedAuraExpression>{ new IntLiteral(1, 2) },
 							2),
 					},
 					1),
@@ -539,8 +539,8 @@ public class ParserTest
 		});
 		MakeAssertions(untypedAst, new UntypedFor(
 			new UntypedLet(
-				new Tok(TokType.Identifier, "i", 1),
-				null,
+				new List<Tok> { new(TokType.Identifier, "i", 1) },
+				new List<AuraType?>(),
 				false,
 				new IntLiteral(0, 1),
 				1),
@@ -595,7 +595,7 @@ public class ParserTest
 			new Tok(TokType.Identifier, "f", 1),
 			new List<Param>(),
 			new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-			new Tok(TokType.Error, "error", 1),
+			new List<Tok> { new(TokType.Error, "error", 1) },
 			Visibility.Private,
 			1));
 	}
@@ -682,8 +682,8 @@ public class ParserTest
 			new(TokType.Eof, "eof", 1)
 		});
 		MakeAssertions(untypedAst, new UntypedLet(
-			new Tok(TokType.Identifier, "i", 1),
-			new AuraInt(),
+			new List<Tok> { new(TokType.Identifier, "i", 1) },
+			new List<AuraType?> { new AuraInt() },
 			false,
 			new IntLiteral(5, 1),
 			1));
@@ -701,8 +701,8 @@ public class ParserTest
 			new(TokType.Eof, "eof", 1)
 		});
 		MakeAssertions(untypedAst, new UntypedLet(
-			new Tok(TokType.Identifier, "i", 1),
-			null,
+			new List<Tok> { new(TokType.Identifier, "i", 1) },
+			new List<AuraType?>(),
 			false,
 			new IntLiteral(5, 1),
 			1));
@@ -732,7 +732,7 @@ public class ParserTest
 			new(TokType.Eof, "eof", 1)
 		});
 		MakeAssertions(untypedAst, new UntypedReturn(
-			new IntLiteral(5, 1),
+			new List<IUntypedAuraExpression> { new IntLiteral(5, 1) },
 			1));
 	}
 

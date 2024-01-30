@@ -57,6 +57,7 @@ public interface ITypedAuraExprVisitor<T>
 		where TV : IAuraAstNode;
 	public abstract T Visit(BoolLiteral boolLiteral);
 	public abstract T Visit(CharLiteral charLiteral);
+	public abstract T Visit(TypedAnonymousStruct anonymousStruct);
 }
 
 public interface IUntypedAuraStmtVisitor<T>
@@ -113,4 +114,5 @@ public interface IUntypedAuraExprVisitor<T>
 		where TV : IAuraAstNode;
 	public abstract T Visit(BoolLiteral boolLiteral);
 	public abstract T Visit(CharLiteral charLiteral);
+	public abstract T Visit(UntypedAnonymousStruct anonymousStruct);
 }

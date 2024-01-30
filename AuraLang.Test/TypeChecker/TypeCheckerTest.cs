@@ -102,8 +102,8 @@ public class TypeCheckerTest
 					new List<IUntypedAuraStatement>
 					{
 						new UntypedLet(
-							new Tok(TokType.Identifier, "i", 2),
-							new AuraInt(),
+							new List<Tok>{ new(TokType.Identifier, "i", 2) },
+							new List<AuraType?>{ new AuraInt() },
 							false,
 							new IntLiteral(5, 2),
 							2)
@@ -116,7 +116,7 @@ public class TypeCheckerTest
 				new List<ITypedAuraStatement>
 				{
 					new TypedLet(
-						new Tok(TokType.Identifier, "i", 2),
+						new List<Tok>{ new(TokType.Identifier, "i", 2) },
 						true,
 						false,
 						new IntLiteral(5, 2),
@@ -906,8 +906,8 @@ public class TypeCheckerTest
 		{
 			new UntypedFor(
 				new UntypedLet(
-					new Tok(TokType.Identifier, "i", 1),
-					null,
+					new List<Tok>{ new(TokType.Identifier, "i", 1) },
+					new List<AuraType?>(),
 					false,
 					new IntLiteral(0, 1),
 					1),
@@ -924,7 +924,7 @@ public class TypeCheckerTest
 		});
 		MakeAssertions(typedAst, new TypedFor(
 			new TypedLet(
-				new Tok(TokType.Identifier, "i", 1),
+				new List<Tok> { new(TokType.Identifier, "i", 1) },
 				false,
 				false,
 				new IntLiteral(0, 1),
@@ -1012,25 +1012,28 @@ public class TypeCheckerTest
 				Body: new UntypedBlock(new List<IUntypedAuraStatement>
 				{
 					new UntypedReturn(
-						Value: new UntypedCall(
-							Callee: new UntypedVariable(
-								Name: new Tok(
-									Typ: TokType.Identifier,
-									Value: "error",
+						Value: new List<IUntypedAuraExpression>
+						{
+							new UntypedCall(
+								Callee: new UntypedVariable(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: "error",
+										Line: 1
+									),
 									Line: 1
 								),
+								Arguments: new List<(Tok?, IUntypedAuraExpression)>
+								{
+									(null, new StringLiteral("Helpful error message", 1))
+								},
 								Line: 1
-							),
-							Arguments: new List<(Tok?, IUntypedAuraExpression)>
-							{
-								(null, new StringLiteral("Helpful error message", 1))
-							},
-							Line: 1
-						),
+							)
+						},
 						Line: 1
 					)
 				}, 1),
-				ReturnType: new Tok(TokType.Error, "error", 1),
+				ReturnType: new List<Tok>{ new(TokType.Error, "error", 1) },
 				Public: Visibility.Public,
 				Line: 1)
 		});
@@ -1142,14 +1145,14 @@ public class TypeCheckerTest
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedLet(
-				new Tok(TokType.Identifier, "i", 1),
-				new AuraInt(),
+				new List<Tok>{ new(TokType.Identifier, "i", 1) },
+				new List<AuraType?>{ new AuraInt() },
 				false,
 				new IntLiteral(1, 1),
 				1)
 		});
 		MakeAssertions(typedAst, new TypedLet(
-			new Tok(TokType.Identifier, "i", 1),
+			new List<Tok> { new(TokType.Identifier, "i", 1) },
 			true,
 			false,
 			new IntLiteral(1, 1),
@@ -1162,14 +1165,14 @@ public class TypeCheckerTest
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedLet(
-				new Tok(TokType.Identifier, "i", 1),
-				new AuraInt(),
+				new List<Tok>{ new(TokType.Identifier, "i", 1) },
+				new List<AuraType?>{ new AuraInt() },
 				false,
 				null,
 				1)
 		});
 		MakeAssertions(typedAst, new TypedLet(
-			new Tok(TokType.Identifier, "i", 1),
+			new List<Tok> { new(TokType.Identifier, "i", 1) },
 			true,
 			false,
 			new IntLiteral(0, 1),
@@ -1182,8 +1185,8 @@ public class TypeCheckerTest
 		ArrangeAndAct_Invalid(new List<IUntypedAuraStatement>
 		{
 			new UntypedLet(
-				new Tok(TokType.Identifier, "c", 1),
-				new AuraChar(),
+				new List<Tok>{ new(TokType.Identifier, "c", 1) },
+				new List<AuraType?>{ new AuraChar() },
 				false,
 				null,
 				1)
@@ -1196,14 +1199,14 @@ public class TypeCheckerTest
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedLet(
-				new Tok(TokType.Identifier, "i", 1),
-				null,
+				new List<Tok>{ new(TokType.Identifier, "i", 1) },
+				new List<AuraType?>(),
 				false,
 				new IntLiteral(1, 1),
 				1)
 		});
 		MakeAssertions(typedAst, new TypedLet(
-			new Tok(TokType.Identifier, "i", 1),
+			new List<Tok> { new(TokType.Identifier, "i", 1) },
 			false,
 			false,
 			new IntLiteral(1, 1),
@@ -1230,7 +1233,7 @@ public class TypeCheckerTest
 		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
 		{
 			new UntypedReturn(
-				new IntLiteral(5, 1),
+				new List<IUntypedAuraExpression>{ new IntLiteral(5, 1) },
 				1)
 		});
 		MakeAssertions(typedAst, new TypedReturn(
@@ -1584,13 +1587,13 @@ public class TypeCheckerTest
 							Statements: new List<IUntypedAuraStatement>
 							{
 								new UntypedReturn(
-									Value: new IntLiteral(I: 5, Line: 1),
+									Value: new List<IUntypedAuraExpression>{ new IntLiteral(I: 5, Line: 1) },
 									Line: 1
 								)
 							},
 							Line: 1
 						),
-						ReturnType: new Tok(TokType.Int, "int", 1),
+						ReturnType: new List<Tok>{ new(TokType.Int, "int", 1) },
 						Public: Visibility.Private,
 						Line: 1
 					)
@@ -1658,13 +1661,13 @@ public class TypeCheckerTest
 							Statements: new List<IUntypedAuraStatement>
 							{
 								new UntypedReturn(
-									Value: new IntLiteral(I: 5, Line: 1),
+									Value: new List<IUntypedAuraExpression>{ new IntLiteral(I: 5, Line: 1) },
 									Line: 1
 								)
 							},
 							Line: 1
 						),
-						ReturnType: new Tok(TokType.Int, "int", 1),
+						ReturnType: new List<Tok>{ new(TokType.Int, "int", 1) },
 						Public: Visibility.Public,
 						Line: 1
 					)
@@ -1839,11 +1842,13 @@ public class TypeCheckerTest
 					Statements: new List<IUntypedAuraStatement>(),
 					Line: 1
 				),
-				ReturnType: new Tok(
-					Typ: TokType.Error,
-					Value: "error",
-					Line: 1
-				),
+				ReturnType: new List<Tok>{
+					new(
+						Typ: TokType.Error,
+						Value: "error",
+						Line: 1
+					)
+				},
 				Public: Visibility.Public,
 				Line: 1
 			)

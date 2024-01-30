@@ -297,8 +297,31 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					}
 
 					var typedBody = (TypedBlock)Visit(f.Body);
+					// Type check function's return type
+					AuraType returnType = new AuraNil();
+					if (f.ReturnType?.Count == 1) returnType = TypeCheckReturnTypeTok(f.ReturnType[0]);
+					else if (f.ReturnType?.Count > 1)
+					{
+						returnType = new AuraAnonymousStruct(
+							parameters: f.ReturnType.Select((tok, i) =>
+							{
+								return new Param(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: i.ToString(),
+										Line: f.Line
+									),
+									ParamType: new(
+										Typ: TypeTokenToType(tok),
+										Variadic: false,
+										DefaultValue: null
+									)
+								);
+							}).ToList(),
+							pub: Visibility.Private
+						);
+					}
 					// Ensure the function's body returns the type specified in its signature
-					var returnType = TypeCheckReturnTypeTok(f.ReturnType);
 					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
 						throw new TypeMismatchException(f.Line);
 					// Add function as local variable
@@ -310,7 +333,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 								f.Public,
 								new AuraFunction(
 									TypeCheckParams(f.Params),
-									returnType)
+									returnType
+								)
 							)
 						),
 						symbolsNamespace: ModuleName!
@@ -353,8 +377,31 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					}
 
 					var typedBody = (TypedBlock)Visit(f.Body);
+					// Parse the function's return type
+					AuraType returnType = new AuraNil();
+					if (f.ReturnType?.Count == 1) returnType = TypeTokenToType(f.ReturnType![0]);
+					else if (f.ReturnType?.Count > 1)
+					{
+						returnType = new AuraAnonymousStruct(
+							parameters: f.ReturnType!.Select((tok, i) =>
+							{
+								return new Param(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: i.ToString(),
+										Line: f.Line
+									),
+									ParamType: new(
+										Typ: TypeTokenToType(tok),
+										Variadic: false,
+										DefaultValue: null
+									)
+								);
+							}).ToList(),
+							pub: Visibility.Private
+						);
+					}
 					// Ensure the function's body returns the type specified in its signature
-					var returnType = TypeCheckReturnTypeTok(f.ReturnType);
 					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
 						throw new TypeMismatchException(f.Line);
 
@@ -368,7 +415,30 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private AuraNamedFunction ParseFunctionSignature(UntypedNamedFunction f)
 	{
 		var typedParams = TypeCheckParams(f.Params);
-		var returnType = TypeCheckReturnTypeTok(f.ReturnType);
+		AuraType returnType = new AuraNil();
+		if (f.ReturnType?.Count == 1) returnType = TypeTokenToType(f.ReturnType![0]);
+		if (f.ReturnType?.Count > 1)
+		{
+			returnType = new AuraAnonymousStruct(
+				parameters: f.ReturnType!.Select((tok, i) =>
+				{
+					return new Param(
+						Name: new Tok(
+							Typ: TokType.Identifier,
+							Value: i.ToString(),
+							Line: f.Line
+						),
+						ParamType: new(
+							Typ: TypeTokenToType(tok),
+							Variadic: false,
+							DefaultValue: null
+						)
+					);
+				}).ToList(),
+				pub: Visibility.Private
+			);
+		}
+		//var returnType = TypeCheckReturnTypeTok(f.ReturnType);
 		return new AuraNamedFunction(f.Name.Value, f.Public, new AuraFunction(typedParams, returnType));
 	}
 
@@ -376,9 +446,29 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		_enclosingFunctionDeclarationStore.Push(f);
 		var typedParams = TypeCheckParams(f.Params);
-		var returnType = f.ReturnType is not null
-			? TypeTokenToType(f.ReturnType!.Value)
-			: new AuraNil();
+		AuraType returnType = new AuraNil();
+		if (f.ReturnType?.Count == 1) returnType = TypeTokenToType(f.ReturnType![0]);
+		if (f.ReturnType?.Count > 1)
+		{
+			returnType = new AuraAnonymousStruct(
+				parameters: f.ReturnType!.Select((tok, i) =>
+				{
+					return new Param(
+						Name: new Tok(
+							Typ: TokType.Identifier,
+							Value: i.ToString(),
+							Line: f.Line
+						),
+						ParamType: new(
+							Typ: TypeTokenToType(tok),
+							Variadic: false,
+							DefaultValue: null
+						)
+					);
+				}).ToList(),
+				pub: Visibility.Private
+			);
+		}
 		// Add parameters as local variables
 		foreach (var param in f.Params)
 		{
@@ -402,13 +492,24 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 	private void AddLetStmtToSymbolsTable(UntypedLet let)
 	{
-		if (let.NameTyp is null)
+		// Ensure that all variables being created either have a type annotation or a missing a type annotation (they cannot mix)
+		var annotations = let.NameTyps.All(nt => nt is not null);
+		var missingAnnotations = let.NameTyps.All(nt => nt is null);
+		if (!annotations && !missingAnnotations) throw new CannotMixTypeAnnotationsException(let.Line);
+
+		if (missingAnnotations)
 		{
 			AddShortLetStmtToSymbolsTable(let);
 			return;
 		}
 
-		var nameTyp = let.NameTyp;
+		if (let.Names.Count > 1)
+		{
+			TypeCheckMultipleVariablesInLetStmt(let);
+			return;
+		}
+
+		var nameTyp = let.NameTyps[0]!;
 		// Type check initializer
 		var defaultable = nameTyp as IDefaultable;
 		if (let.Initializer is null && defaultable is null)
@@ -419,25 +520,84 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
-				Name: let.Name.Value,
+				Name: let.Names[0].Value,
 				Kind: typedInit?.Typ ?? new AuraNil()
 			),
 			symbolsNamespace: ModuleName!
 		);
 	}
 
+	private void TypeCheckMultipleVariablesInLetStmt(UntypedLet let)
+	{
+		// Package the let statement's variable names into an anonymous struct
+		var names = new AuraAnonymousStruct(
+			parameters: let.Names!.Select((name, i) =>
+			{
+				return new Param(
+					Name: new Tok(
+						Typ: TokType.Identifier,
+						Value: i.ToString(),
+						Line: let.Line
+					),
+					ParamType: new(
+						Typ: let.NameTyps[i]!,
+						Variadic: false,
+						DefaultValue: null
+					)
+				);
+			}).ToList(),
+			pub: Visibility.Private
+		);
+		// Type check initializer
+		var typedInit = ExpressionAndConfirm(let.Initializer!, names);
+		// Add new variables to list of locals
+		foreach (var (name, typ) in let.Names.Zip(let.NameTyps))
+		{
+			_symbolsTable.TryAddSymbol(
+				symbol: new AuraSymbol(
+					Name: name.Value,
+					Kind: typ!
+				),
+				symbolsNamespace: ModuleName!
+			);
+		}
+	}
+
 	private void AddShortLetStmtToSymbolsTable(UntypedLet let)
 	{
+		if (let.Names.Count > 1)
+		{
+			TypeCheckMultipleVariablesInShortLetStmt(let);
+			return;
+		}
+
 		// Type check initializer
 		var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
-				Name: let.Name.Value,
+				Name: let.Names[0].Value,
 				Kind: typedInit?.Typ ?? new AuraNil()
 			),
 			symbolsNamespace: ModuleName!
 		);
+	}
+
+	private void TypeCheckMultipleVariablesInShortLetStmt(UntypedLet let)
+	{
+		// Type check initializer
+		var typedInit = Expression(let.Initializer!);
+		// Add new variables to list of locals
+		foreach (var (name, typ) in let.Names.Zip(((AuraAnonymousStruct)typedInit.Typ).Parameters.Select(p => p.ParamType.Typ)))
+		{
+			_symbolsTable.TryAddSymbol(
+				symbol: new AuraSymbol(
+					Name: name.Value,
+					Kind: typ!
+				),
+				symbolsNamespace: ModuleName!
+			);
+		}
 	}
 
 	/// <summary>
@@ -447,12 +607,19 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// <returns>A valid, type checked let statement</returns>
 	public ITypedAuraStatement Visit(UntypedLet let)
 	{
-		if (let.NameTyp is null) return ShortLetStmt(let);
+		// Ensure that all variables being created either have a type annotation or a missing a type annotation (they cannot mix)
+		var annotations = let.NameTyps.All(nt => nt is not null);
+		var missingAnnotations = let.NameTyps.All(nt => nt is null);
+		if (!annotations && !missingAnnotations) throw new CannotMixTypeAnnotationsException(let.Line);
+
+		if (missingAnnotations) return ShortLetStmt(let);
+
+		if (let.Names.Count > 1) return LetStmtMultipleNames(let);
 
 		var typedLet = WithEnclosingStmt(
 			f: () =>
 			{
-				var nameTyp = let.NameTyp;
+				var nameTyp = let.NameTyps[0]!;
 				// Type check initializer
 				var defaultable = nameTyp as IDefaultable;
 				if (let.Initializer is null && defaultable is null)
@@ -461,7 +628,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					? ExpressionAndConfirm(let.Initializer, nameTyp)
 					: defaultable!.Default(let.Line);
 
-				return new TypedLet(let.Name, true, let.Mutable, typedInit, let.Line);
+				return new TypedLet(let.Names, true, let.Mutable, typedInit, let.Line);
 			},
 			node: let,
 			symbolNamespace: ModuleName!
@@ -470,11 +637,65 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
-				Name: typedLet.Name.Value,
+				Name: typedLet.Names[0].Value,
 				Kind: typedLet.Initializer?.Typ ?? new AuraNone()
 			),
 			symbolsNamespace: ModuleName!
 		);
+
+		return typedLet;
+	}
+
+	private TypedLet LetStmtMultipleNames(UntypedLet let)
+	{
+		var typedLet = WithEnclosingStmt(
+			f: () =>
+			{
+				// Package the let statement's variable names into an anonymous struct
+				var names = new AuraAnonymousStruct(
+					parameters: let.Names!.Select((name, i) =>
+					{
+						return new Param(
+							Name: new Tok(
+								Typ: TokType.Identifier,
+								Value: i.ToString(),
+								Line: let.Line
+							),
+							ParamType: new(
+								Typ: let.NameTyps[i]!,
+								Variadic: false,
+								DefaultValue: null
+							)
+						);
+					}).ToList(),
+					pub: Visibility.Private
+				);
+				// Type check initializer
+				var typedInit = ExpressionAndConfirm(let.Initializer!, names);
+
+				return new TypedLet(
+					Names: let.Names,
+					TypeAnnotation: true,
+					Mutable: false,
+					Initializer: typedInit,
+					Line: let.Line
+				);
+			},
+			node: let,
+			symbolNamespace: ModuleName!
+		);
+
+		// Add new variables to list of locals
+		foreach (var (name, typ) in let.Names.Zip(let.NameTyps))
+		{
+			_symbolsTable.TryAddSymbol(
+				symbol: new AuraSymbol(
+					Name: name.Value,
+					Kind: typ!
+				),
+				symbolsNamespace: ModuleName!
+			);
+		}
 
 		return typedLet;
 	}
@@ -486,12 +707,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// <returns>A valid, type checked short let statement</returns>
 	private TypedLet ShortLetStmt(UntypedLet let)
 	{
+		if (let.Names.Count > 1) return ShortLetStmtMultipleNames(let);
+
 		var typedShortLet = WithEnclosingStmt(
 			f: () =>
 			{
 				// Type check initializer
 				var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
-				return new TypedLet(let.Name, false, let.Mutable, typedInit, let.Line);
+				return new TypedLet(let.Names, false, let.Mutable, typedInit, let.Line);
 			},
 			node: let,
 			symbolNamespace: ModuleName!
@@ -500,13 +723,48 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
-				Name: typedShortLet.Name.Value,
+				Name: typedShortLet.Names[0].Value,
 				Kind: typedShortLet.Initializer!.Typ
 			),
 			symbolsNamespace: ModuleName!
 		);
 
 		return typedShortLet;
+	}
+
+	private TypedLet ShortLetStmtMultipleNames(UntypedLet let)
+	{
+		var typedLet = WithEnclosingStmt(
+			f: () =>
+			{
+				// Type check initializer
+				var typedInit = Expression(let.Initializer!);
+
+				return new TypedLet(
+					Names: let.Names,
+					TypeAnnotation: false,
+					Mutable: false,
+					Initializer: typedInit,
+					Line: let.Line
+				);
+			},
+			node: let,
+			symbolNamespace: ModuleName!
+		);
+
+		// Add new variables to list of locals
+		foreach (var (name, typ) in let.Names.Zip(((AuraAnonymousStruct)typedLet.Initializer!.Typ).Parameters.Select(p => p.ParamType.Typ)))
+		{
+			_symbolsTable.TryAddSymbol(
+				symbol: new AuraSymbol(
+					Name: name.Value,
+					Kind: typ!
+				),
+				symbolsNamespace: ModuleName!
+			);
+		}
+
+		return typedLet;
 	}
 
 	/// <summary>
@@ -530,8 +788,31 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return WithEnclosingStmt(
 			f: () =>
 			{
-				var typedVal = r.Value is not null ? Expression(r.Value) : null;
-				return new TypedReturn(typedVal, r.Line);
+				if (r.Value is null) return new TypedReturn(null, r.Line);
+				if (r.Value!.Count == 1) return new TypedReturn(Expression(r.Value[0]), r.Line);
+				// If the return statement contains more than one expression, we package the expressions up as a struct
+				var typedReturnValues = r.Value.Select(Expression);
+				return new TypedReturn(
+					Value: new TypedAnonymousStruct(
+						Params: typedReturnValues.Select((v, i) =>
+						{
+							return new Param(
+								Name: new Tok(
+									Typ: TokType.Identifier,
+									Value: i.ToString(),
+									Line: r.Line
+								),
+								ParamType: new(
+									Typ: v.Typ,
+									Variadic: false,
+									DefaultValue: null
+								)
+							);
+						}).ToList(),
+						Values: typedReturnValues.ToList(),
+						Line: r.Line
+					),
+					Line: r.Line);
 			},
 			node: r,
 			symbolNamespace: ModuleName!
@@ -713,7 +994,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				publicFunctions: exportedTypes.methods.ToList(),
 				publicInterfaces: exportedTypes.interfaces.ToList(),
 				publicClasses: exportedTypes.classes.ToList(),
-				publicVariables: exportedTypes.variables.ToDictionary(v => v.Name.Value, v => v.Initializer!)
+				publicVariables: exportedTypes.variables.ToDictionary(v => v.Names[0].Value, v => v.Initializer!)
 			);
 			// Add module to list of local variables
 			_symbolsTable.AddModule(importedModule);
@@ -861,6 +1142,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					var lastStmt = typedStmts.Last();
 					blockTyp = lastStmt switch
 					{
+						// TODO When a block returns multiple types, it should be packaged up in a tuple so that it still returns one type
 						TypedReturn r => r.Value is not null ? r.Value.Typ : new AuraNil(),
 						TypedYield y => y.Value.Typ,
 						_ => lastStmt.Typ is not AuraNone ? lastStmt.Typ : new AuraNil()
@@ -1418,7 +1700,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
 		// type of `error`
 		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ?? throw new InvalidUseOfCheckKeywordException(check.Line);
-		if (enclosingFuncDeclaration.ReturnType?.Value != "error") throw new InvalidUseOfCheckKeywordException(check.Line);
+		if (!enclosingFuncDeclaration.ReturnType?.Select(rt => rt.Value).Contains("error") ?? false) throw new InvalidUseOfCheckKeywordException(check.Line);
 		if (typedCall.Typ is not AuraError) throw new InvalidUseOfCheckKeywordException(check.Line);
 
 		return new TypedCheck(
@@ -1446,5 +1728,10 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			node: @struct,
 			symbolNamespace: ModuleName!
 		);
+	}
+
+	public ITypedAuraExpression Visit(UntypedAnonymousStruct anonymousStruct)
+	{
+		throw new NotImplementedException();
 	}
 }

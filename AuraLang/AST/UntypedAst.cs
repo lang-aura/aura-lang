@@ -318,7 +318,7 @@ public record UntypedForEach(Tok EachName, IUntypedAuraExpression Iterable, List
 /// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
 /// been type checked yet.</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, Tok? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, List<Tok>? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
@@ -333,7 +333,7 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
 /// /// been type checked yet.</param>
-public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, Tok? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
+public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, List<Tok>? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
@@ -347,12 +347,12 @@ public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, To
 /// where the variable's type annotation is required. For a shorter syntax, one can write:
 /// <code>i := 5</code>
 /// </summary>
-/// <param name="Name">The name of the newly-declared variable</param>
-/// <param name="NameTyp">The variable's type, if it was declared with an explicit type annotation. If not, the value of this field will
+/// <param name="Names">The name(s) of the newly-declared variable(s)</param>
+/// <param name="NameTyps">The variable(s)'s types, if they were declared with an explicit type annotation. If not, the value of this field will
 /// be <see cref="AuraUnknown"/></param>
 /// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">The initializer expression whose result will be assigned to the new variable. This expression may be omitted.</param>
-public record UntypedLet(Tok Name, AuraType? NameTyp, bool Mutable, IUntypedAuraExpression? Initializer, int Line) : IUntypedAuraStatement
+public record UntypedLet(List<Tok> Names, List<AuraType?> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 }
@@ -373,18 +373,19 @@ public record UntypedMod(Tok Value, int Line) : IUntypedAuraStatement
 /// circumstances, implicit.
 /// </summary>
 /// <param name="Value">The value to be returned</param>
-public record UntypedReturn(IUntypedAuraExpression? Value, int Line) : IUntypedAuraStatement
+public record UntypedReturn(List<IUntypedAuraExpression>? Value, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 }
 
-public record UntypedStruct(Tok Name, List<Param> Params, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedStruct(Tok Name, List<Param> Params, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+}
 
-	public List<Param> GetParams() => Params;
-
-	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+public record UntypedAnonymousStruct(List<Param> Params, List<IUntypedAuraExpression> Values, int Line) : IUntypedAuraExpression
+{
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 }
 
 /// <summary>

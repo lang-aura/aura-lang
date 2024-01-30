@@ -280,12 +280,11 @@ public record TypedAnonymousFunction(List<Param> Params, TypedBlock Body, AuraTy
 /// <summary>
 /// Represents a valid type-checked variable declaration
 /// </summary>
-/// <param name="Name">The variable's name</param>
-/// <param name="TypeAnnotation">Indicates whether the variable was declared with a type annotation</param>
+/// <param name="Names">The name(s) of the newly-declared variable(s)</param>
+/// <param name="TypeAnnotation">Indicates whether the variables were declared with a type annotation</param>
 /// <param name="Mutable">Indicates whether the variable was declared as mutable</param>
 /// <param name="Initializer">The initializer expression. This can be omitted.</param>
-public record TypedLet
-	(Tok Name, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer, int Line) : ITypedAuraStatement
+public record TypedLet(List<Tok> Names, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer, int Line) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -329,6 +328,17 @@ public record TypedStruct(Tok Name, List<Param> Params, int Line) : ITypedAuraSt
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public string GetName() => Name.Value;
+	public List<Param> GetParams() => Params;
+	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+}
+
+public record TypedAnonymousStruct(List<Param> Params, List<ITypedAuraExpression> Values, int Line) : ITypedAuraExpression, ITypedFunction
+{
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public AuraType Typ => new AuraAnonymousStruct(
+		parameters: Params,
+		pub: Visibility.Private
+	);
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
 }

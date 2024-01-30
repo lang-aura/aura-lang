@@ -122,7 +122,17 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			_declaredVariables[f.Name.Value] = f.Public;
 			var funcName = f.Public is Visibility.Public ? f.Name.Value.ToUpper() : f.Name.Value.ToLower();
 			var compiledParams = CompileParams(f.Params, ",");
-			var returnValue = f.ReturnType is not AuraNil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
+			// Compile return type
+			string returnValue = string.Empty;
+			if (f.ReturnType is AuraAnonymousStruct st)
+			{
+				var items = string.Join(", ", st.Parameters.Select(p => p.ParamType.Typ));
+				returnValue = $"({items})";
+			}
+			else if (f.ReturnType is not AuraNil)
+			{
+				returnValue = AuraTypeToGoType(f.ReturnType);
+			}
 			var body = Expression(f.Body);
 			return $"func {funcName}({compiledParams}){returnValue} {body}";
 		}, f);
@@ -141,17 +151,18 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedLet let)
 	{
+		if (let.Names.Count > 1) return LetStmtMultipleNames(let);
 		// Since Go's `if` statements and blocks are not expressions like they are in Aura, the compiler will first declare the variable without an initializer,
 		// and then convert the `return` statement in the block or `if` expression into an assignment where the value that would be returned is instead assigned
 		// to the declared variable.
 		switch (let.Initializer)
 		{
 			case TypedBlock block:
-				var decl = $"var {let.Name.Value} {AuraTypeToGoType(let.Typ)}";
-				var body = ParseReturnableBody(block.Statements, let.Name.Value);
+				var decl = $"var {let.Names[0].Value} {AuraTypeToGoType(let.Typ)}";
+				var body = ParseReturnableBody(block.Statements, let.Names[0].Value);
 				return $"{decl}\n{{{body}\n}}";
 			case TypedIf if_:
-				var varName = let.Name.Value;
+				var varName = let.Names[0].Value;
 				var decl_ = $"var {varName} {AuraTypeToGoType(let.Initializer.Typ)}";
 				var init = Expression(if_.Condition);
 				var then = ParseReturnableBody(if_.Then.Statements, varName);
@@ -165,7 +176,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				return $"{decl_}\nif {init} {{{then}\n}} else {{{else_}\n}}";
 			case TypedIs is_:
 				var typedIs = Expression(is_);
-				return $"_, {let.Name.Value} := {typedIs}";
+				return $"_, {let.Names[0].Value} := {typedIs}";
 			default:
 				var value = let.Initializer is not null ? Expression(let.Initializer) : string.Empty;
 				// We check to see if we are inside a `for` loop because Aura and Go differ in whether a a long variable initialization is allowed
@@ -177,24 +188,32 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 					var b = _enclosingType.TryPeek(out var for_);
 					if (!b || for_ is not TypedFor)
 					{
-						return $"var {let.Name.Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
+						return $"var {let.Names[0].Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}
 				}
 
-				return $"{let.Name.Value} := {value}";
+				return $"{let.Names[0].Value} := {value}";
 		}
 	}
 
-	public string Visit(TypedMod mod)
+	private string LetStmtMultipleNames(TypedLet let)
 	{
-		return $"package {mod.Value.Value}";
+		var names = string.Join(", ", let.Names.Select(n => n.Value));
+		return $"{names} := {Expression(let.Initializer!)}";
 	}
+
+	public string Visit(TypedMod mod) => $"package {mod.Value.Value}";
 
 	public string Visit(TypedReturn r)
 	{
-		return r.Value is not null
-			? $"return {Expression(r.Value)}"
-			: "return";
+		if (r.Value is null) return "return";
+
+		if (r.Value.Typ is AuraAnonymousStruct)
+		{
+			var values = string.Join(", ", ((TypedAnonymousStruct)r.Value).Values.Select(Expression));
+			return $"return {values}";
+		}
+		else return $"return {Expression(r.Value)}";
 	}
 
 	public string Visit(FullyTypedClass c)
@@ -709,5 +728,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return @params != string.Empty
 			? $"type {@struct.Name.Value} struct {{\n{@params}\n}}"
 			: $"type {@struct.Name.Value} struct {{}}";
+	}
+
+	public string Visit(TypedAnonymousStruct anonymousStruct)
+	{
+		var items = string.Join(", ", anonymousStruct.Params.Select(p => p.Name.Value));
+		return $"{items}";
 	}
 }

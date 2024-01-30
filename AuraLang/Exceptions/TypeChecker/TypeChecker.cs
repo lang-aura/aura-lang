@@ -143,3 +143,8 @@ public class InvalidUseOfCheckKeywordException : TypeCheckerException
 {
 	public InvalidUseOfCheckKeywordException(int line) : base("Invalid use of `check` keyword", line) { }
 }
+
+public class CannotMixTypeAnnotationsException : TypeCheckerException
+{
+	public CannotMixTypeAnnotationsException(int line) : base("Cannot mix type annotations", line) { }
+}
