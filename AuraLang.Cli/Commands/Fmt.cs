@@ -111,18 +111,18 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	public string Visit(UntypedLet let)
 	{
-		if (let.NameTyp is null) return ShortLetStmt(let);
+		if (let.NameTyps.Count == 0) return ShortLetStmt(let);
 		var mut = let.Mutable ? "mut " : string.Empty;
 		return let.Initializer is not null
-			? $"let {mut}{let.Name.Value}: {let.NameTyp!} = {Expression(let.Initializer)}"
-			: $"let {mut}{let.Name.Value}: {let.NameTyp!}";
+			? $"let {mut}{let.Names[0].Value}: {let.NameTyps[0]!} = {Expression(let.Initializer)}"
+			: $"let {mut}{let.Names[0].Value}: {let.NameTyps[0]!}";
 	}
 
 	private string ShortLetStmt(UntypedLet let)
 	{
 		var mut = let.Mutable ? "mut " : string.Empty;
 		var init = Expression(let.Initializer!);
-		return $"{mut}{let.Name.Value} := {init}";
+		return $"{mut}{let.Names[0].Value} := {init}";
 	}
 
 	public string Visit(UntypedMod mod) => $"mod {mod.Value.Value}";
@@ -130,7 +130,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	public string Visit(UntypedReturn r)
 	{
 		var value = r.Value is not null
-			? $" {Expression(r.Value)}"
+			? $" {Expression(r.Value[0])}"
 			: string.Empty;
 		return $"return{value}";
 	}
@@ -284,7 +284,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	{
 		var paramz = af.Params.Select(p => $"{p.Name}: {p.ParamType.Typ}");
 		var returnType = af.ReturnType is not null
-			? $" -> {af.ReturnType.Value.Value}"
+			? $" -> {af.ReturnType[0].Value}"
 			: string.Empty;
 		var body = Expression(af.Body);
 		return $"fn({paramz}){returnType} {body}";
@@ -310,6 +310,11 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	}
 
 	public string Visit(UntypedStruct @struct)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string Visit(UntypedAnonymousStruct anonymousStruct)
 	{
 		throw new NotImplementedException();
 	}

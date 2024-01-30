@@ -466,7 +466,7 @@ public class AuraMap : AuraType, IIndexable, IDefaultable
 			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
 }
 
-public class AuraError : AuraType, IGettable, IImportableModule
+public class AuraError : AuraType, IGettable, IImportableModule, INilable
 {
 	public string? Message { get; }
 
@@ -502,7 +502,13 @@ public class AuraStruct : AuraType, ICallable, IGettable
 		Parameters = parameters;
 	}
 
-	public override bool IsSameType(AuraType other) => other is AuraStruct;
+	public override bool IsSameType(AuraType other)
+	{
+		if (other is not AuraStruct st) return false;
+		return Parameters.Zip(st.Parameters)
+			.Select(pair => pair.First.ParamType.Typ.IsSameOrInheritingType(pair.Second.ParamType.Typ))
+			.Any(b => b is true);
+	}
 
 	public override string ToString() => "struct";
 
@@ -517,4 +523,25 @@ public class AuraStruct : AuraType, ICallable, IGettable
 	public bool HasVariadicParam() => Parameters.Any(p => p.ParamType.Variadic);
 
 	public AuraType? Get(string attribute) => Parameters.First(p => p.Name.Value == attribute).ParamType.Typ;
+}
+
+public class AuraAnonymousStruct : AuraType
+{
+	public Visibility Public { get; }
+	public List<Param> Parameters { get; }
+
+	public AuraAnonymousStruct(List<Param> parameters, Visibility pub)
+	{
+		Public = pub;
+		Parameters = parameters;
+	}
+	public override bool IsSameType(AuraType other)
+	{
+		if (other is not AuraAnonymousStruct st) return false;
+		return Parameters.Zip(st.Parameters)
+			.Select(pair => pair.First.ParamType.Typ.IsSameOrInheritingType(pair.Second.ParamType.Typ))
+			.Any(b => b is true);
+	}
+
+	public override string ToString() => "struct";
 }

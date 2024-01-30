@@ -477,7 +477,7 @@ public class AuraParser
 		if (Match(TokType.Return)) return ReturnStatement();
 		if (Match(TokType.While)) return WhileStatement();
 		if (Match(TokType.Defer)) return DeferStatement();
-		if (Peek().Typ is TokType.Identifier && PeekNext().Typ is TokType.ColonEqual) return ShortLetDeclaration(false);
+		if (Peek().Typ is TokType.Identifier && (PeekNext().Typ is TokType.ColonEqual || PeekNext().Typ is TokType.Comma)) return ShortLetDeclaration(false);
 		if (Match(TokType.Comment)) return Comment();
 		if (Match(TokType.Continue)) return new UntypedContinue(Previous().Line);
 		if (Match(TokType.Break)) return new UntypedBreak(Previous().Line);
@@ -551,12 +551,18 @@ public class AuraParser
 
 		// The return keyword does not need to be followed by an expression, in which case the return statement
 		// will return a value of `nil`
-		IUntypedAuraExpression? value = null;
-		if (!Check(TokType.Semicolon)) value = Expression();
+		if (Match(TokType.Semicolon)) return new UntypedReturn(null, line);
+
+		var returnTypes = new List<IUntypedAuraExpression>();
+		while (!IsAtEnd())
+		{
+			returnTypes.Add(Expression());
+			if (!Match(TokType.Comma)) break;
+		}
 		// Parse the trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedReturn(value, line);
+		return new UntypedReturn(returnTypes, line);
 	}
 
 	private IUntypedAuraStatement WhileStatement()
@@ -599,33 +605,60 @@ public class AuraParser
 		var line = Previous().Line;
 		// Check if the variable is declared as mutable
 		var isMutable = Match(TokType.Mut);
-		// Parse the variable's name
-		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
-		// When declaring a new variable with the full `let` syntax, the variable's name must be followed
-		// by a colon and the variable's type
-		Consume(TokType.Colon, new ExpectColonException(Peek().Value, Peek().Line));
-		var nameType = TypeTokenToType(Advance());
+		// Parse the variable's name(s)
+		var names = ParseLongVariableNames();
 		// Parse the variable's initializer (if there is one)
 		IUntypedAuraExpression? initializer = null;
 		if (Match(TokType.Equal)) initializer = Expression();
 		// Parse the trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedLet(name, nameType, isMutable, initializer, line);
+		return new UntypedLet(names.Select(n => n.Item1).ToList(), names.Select(n => n.Item2).ToList(), isMutable, initializer, line);
 	}
 
 	private IUntypedAuraStatement ShortLetDeclaration(bool isMutable)
 	{
 		var line = Peek().Line;
 		// Parse the variable's name
-		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
+		var names = ParseShortVariableNames();
 		Consume(TokType.ColonEqual, new ExpectColonEqualException(Peek().Value, Peek().Line));
 		// Parse the variable's initializer
 		var initializer = Expression();
 		// Consume trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedLet(name, null, isMutable, initializer, line);
+		return new UntypedLet(names, new List<AuraType?>(), isMutable, initializer, line);
+	}
+
+	private List<(Tok, AuraType)> ParseLongVariableNames()
+	{
+		var names = new List<(Tok, AuraType)>();
+		while (!IsAtEnd())
+		{
+			var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
+			Consume(TokType.Colon, new ExpectColonAfterParameterName(Peek().Value, Peek().Line));
+			var nameType = TypeTokenToType(Advance());
+			names.Add((name, nameType));
+
+			if (Peek().Typ != TokType.Equal && Peek().Typ != TokType.Semicolon) Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Line));
+			else break;
+		}
+
+		return names;
+	}
+
+	private List<Tok> ParseShortVariableNames()
+	{
+		var names = new List<Tok>();
+		while (true)
+		{
+			names.Add(Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line)));
+
+			if (Peek().Typ != TokType.ColonEqual) Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Line));
+			else break;
+		}
+
+		return names;
 	}
 
 	private IUntypedAuraStatement Comment()
@@ -681,13 +714,13 @@ public class AuraParser
 		var paramz = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
 		// Parse the function's return type
-		Tok? returnType = Match(TokType.Arrow) ? Advance() : null;
+		var returnTypes = ParseFunctionReturnTypes();
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
 		// Parse body
 		var body = Block();
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedNamedFunction(name, paramz, body, returnType, pub, line);
+		return new UntypedNamedFunction(name, paramz, body, returnTypes, pub, line);
 	}
 
 	private UntypedAnonymousFunction AnonymousFunction()
@@ -699,12 +732,34 @@ public class AuraParser
 		var paramz = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
 		// Parse function's return type
-		Tok? returnType = Match(TokType.Arrow) ? Advance() : null;
+		var returnTypes = ParseFunctionReturnTypes();
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
 		// Parse body
 		var body = Block();
 
-		return new UntypedAnonymousFunction(paramz, body, returnType, line);
+		return new UntypedAnonymousFunction(paramz, body, returnTypes, line);
+	}
+
+	private List<Tok>? ParseFunctionReturnTypes()
+	{
+		if (!Match(TokType.Arrow)) return null;
+		return Match(TokType.LeftParen)
+			? ParseMultipleFunctionReturnTypes()
+			: new List<Tok> { Advance() };
+	}
+
+	private List<Tok> ParseMultipleFunctionReturnTypes()
+	{
+		var returnTypes = new List<Tok>();
+		while (!IsAtEnd())
+		{
+			returnTypes.Add(Advance());
+			if (Peek().Typ != TokType.RightParen) Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Line));
+			else break;
+		}
+
+		Advance(); // Advance past closing right parenthesis
+		return returnTypes;
 	}
 
 	private IUntypedAuraExpression Expression()

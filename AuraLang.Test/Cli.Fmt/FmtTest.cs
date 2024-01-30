@@ -42,7 +42,7 @@ public class FmtTest
 	}
 
 	[Test]
-	public void TestFmt_Let_Long_NoInit_NoChange()
+	public void TestFmt_NoChange()
 	{
 		var source = "let i: int\n";
 		var formatted = ArrangeAndAct_AddModStmt(source);

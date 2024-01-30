@@ -1,0 +1,15 @@
+mod main
+
+import aura/io
+
+fn main() {
+	s, e := f("Hello world")
+	io.printf("s = %s; e = %v\n", s, e)
+
+	let st: string, er: error = f("Hello world")
+	io.printf("st = %s; er = %v\n", st, er)
+}
+
+fn f(s: string) -> (string, error) {
+	return s.to_upper(), nil
+}
