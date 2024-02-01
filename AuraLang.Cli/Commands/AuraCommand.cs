@@ -22,7 +22,7 @@ public abstract class AuraCommand
 		Verbose = opts.Verbose ?? false;
 	}
 
-	public int Execute()
+	public virtual int Execute()
 	{
 		try
 		{

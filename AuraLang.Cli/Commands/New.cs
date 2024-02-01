@@ -16,6 +16,8 @@ public class New : AuraCommand
 		Name = opts.Name!;
 	}
 
+	public override int Execute() => ExecuteCommand();
+
 	/// <summary>
 	/// Creates a new Aura project
 	/// </summary>
