@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using AuraLang.Cli.Exceptions;
 using AuraLang.Cli.Options;
 using AuraLang.Cli.Toml;
 
@@ -21,7 +22,18 @@ public class New : AuraCommand
 		ProjectDirectory = opts.OutputPath;
 	}
 
-	public override int Execute() => ExecuteCommand();
+	public override int Execute()
+	{
+		try
+		{
+			return ExecuteCommand();
+		}
+		catch (NewParentDirectoryMustBeEmpty ex)
+		{
+			Console.WriteLine(ex.Message);
+			return 1;
+		}
+	}
 
 	/// <summary>
 	/// Creates a new Aura project
@@ -33,6 +45,9 @@ public class New : AuraCommand
 		var projPath = $"{projDir}/{Name}";
 
 		Directory.CreateDirectory(projPath);
+		// Ensure that the project's parent directory is empty
+		if (Directory.GetFileSystemEntries(projPath).Length > 0) throw new NewParentDirectoryMustBeEmpty();
+
 		Directory.CreateDirectory($"{projPath}/src");
 		File.WriteAllText($"{projPath}/src/{Name}.aura", "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world!\")\n}\n");
 		Directory.CreateDirectory($"{projPath}/test");
