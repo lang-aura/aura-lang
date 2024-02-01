@@ -30,7 +30,7 @@ public abstract class AuraCommand
 		}
 		catch (TomlFileNotFoundException ex)
 		{
-			Console.WriteLine(ex.Message);
+			Console.Error.WriteLine(ex.Message);
 			return 1;
 		}
 		return ExecuteCommand();
