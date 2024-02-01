@@ -10,10 +10,15 @@ public class New : AuraCommand
 	/// The project's name. Provided as an argument to `aura new`
 	/// </summary>
 	private string Name { get; }
+	/// <summary>
+	/// The project's directory
+	/// </summary>
+	private string? ProjectDirectory { get; }
 
 	public New(NewOptions opts) : base(opts)
 	{
 		Name = opts.Name!;
+		ProjectDirectory = opts.OutputPath;
 	}
 
 	public override int Execute() => ExecuteCommand();
@@ -24,7 +29,9 @@ public class New : AuraCommand
 	/// <returns>An integer status indicating if the process succeeded</returns>
 	protected override int ExecuteCommand()
 	{
-		var projPath = $"./{Name}";
+		var projDir = ProjectDirectory ?? ".";
+		var projPath = $"{projDir}/{Name}";
+
 		Directory.CreateDirectory(projPath);
 		Directory.CreateDirectory($"{projPath}/src");
 		File.WriteAllText($"{projPath}/src/{Name}.aura", "mod main\n\nimport aura/io\n\nfn main() {\n\tio.println(\"Hello world!\")\n}\n");
@@ -61,7 +68,7 @@ public class New : AuraCommand
 		File.WriteAllText($"{projPath}/aura.toml", string.Empty);
 		new AuraToml(projPath).InitProject(Name);
 
-		Directory.SetCurrentDirectory($"./{projPath}/build/pkg");
+		Directory.SetCurrentDirectory($"{projPath}/build/pkg");
 
 		var modInit = new Process
 		{
