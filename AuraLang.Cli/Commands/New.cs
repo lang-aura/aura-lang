@@ -30,7 +30,7 @@ public class New : AuraCommand
 		}
 		catch (NewParentDirectoryMustBeEmpty ex)
 		{
-			Console.WriteLine(ex.Message);
+			Console.Error.WriteLine(ex.Message);
 			return 1;
 		}
 	}
