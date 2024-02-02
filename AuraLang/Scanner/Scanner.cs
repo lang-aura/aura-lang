@@ -439,7 +439,18 @@ public class AuraScanner
 			case 'p':
 				return CheckKeywordToken(TokType.Pub, tok, "pub");
 			case 'r':
-				return CheckKeywordToken(TokType.Return, tok, "return");
+				if (tok.Length >= 3)
+				{
+					switch (tok[2])
+					{
+						case 't':
+							return CheckKeywordToken(TokType.Return, tok, "return");
+						case 's':
+							return CheckKeywordToken(TokType.Result, tok, "result");
+					}
+				}
+
+				break;
 			case 's':
 				if (tok.Length >= 4)
 				{

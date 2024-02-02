@@ -315,10 +315,9 @@ public record UntypedForEach(Tok EachName, IUntypedAuraExpression Iterable, List
 /// <param name="Name">The function's name</param>
 /// <param name="Params">The function's parameters</param>
 /// <param name="Body">The function's body</param>
-/// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
-/// been type checked yet.</param>
+/// <param name="ReturnType">The function's return type(s).</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, List<Tok>? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
@@ -333,7 +332,7 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
 /// /// been type checked yet.</param>
-public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, List<Tok>? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
+public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;

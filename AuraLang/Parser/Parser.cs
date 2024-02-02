@@ -234,7 +234,7 @@ public class AuraParser
 			case TokType.Identifier:
 				return new AuraUnknown(Previous().Value);
 			case TokType.Map:
-				Consume(TokType.LeftBracket, new ExpectLeftBracketAfterMapKeywordException(Peek().Value, tok.Line));
+				Consume(TokType.LeftBracket, new ExpectLeftBracketException(Peek().Value, tok.Line));
 				var key = TypeTokenToType(Advance());
 				Consume(TokType.Colon, new ExpectColonException(Peek().Value, tok.Line));
 				var value = TypeTokenToType(Advance());
@@ -242,6 +242,12 @@ public class AuraParser
 				return new AuraMap(key, value);
 			case TokType.Error:
 				return new AuraError();
+			case TokType.Result:
+				// Parse result's success type
+				Consume(TokType.LeftBracket, new ExpectLeftBracketException(Peek().Value, tok.Line));
+				var success = TypeTokenToType(Advance());
+				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, tok.Line));
+				return new AuraResult(success, new AuraError());
 			default:
 				throw new UnexpectedTypeException(tok.Value, tok.Line);
 		}
@@ -740,20 +746,20 @@ public class AuraParser
 		return new UntypedAnonymousFunction(paramz, body, returnTypes, line);
 	}
 
-	private List<Tok>? ParseFunctionReturnTypes()
+	private List<AuraType>? ParseFunctionReturnTypes()
 	{
 		if (!Match(TokType.Arrow)) return null;
 		return Match(TokType.LeftParen)
 			? ParseMultipleFunctionReturnTypes()
-			: new List<Tok> { Advance() };
+			: new List<AuraType> { TypeTokenToType(Advance()) };
 	}
 
-	private List<Tok> ParseMultipleFunctionReturnTypes()
+	private List<AuraType> ParseMultipleFunctionReturnTypes()
 	{
-		var returnTypes = new List<Tok>();
+		var returnTypes = new List<AuraType>();
 		while (!IsAtEnd())
 		{
-			returnTypes.Add(Advance());
+			returnTypes.Add(TypeTokenToType(Advance()));
 			if (Peek().Typ != TokType.RightParen) Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Line));
 			else break;
 		}
@@ -1063,7 +1069,7 @@ public class AuraParser
 		if (Match(TokType.Map))
 		{
 			// Parse map's type signature
-			Consume(TokType.LeftBracket, new ExpectLeftBracketAfterMapKeywordException(Peek().Value, Peek().Line));
+			Consume(TokType.LeftBracket, new ExpectLeftBracketException(Peek().Value, Peek().Line));
 			var keyType = TypeTokenToType(Advance());
 			Consume(TokType.Colon, new ExpectColonException(Peek().Value, Peek().Line));
 			var valueType = TypeTokenToType(Advance());

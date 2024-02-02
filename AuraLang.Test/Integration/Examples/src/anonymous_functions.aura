@@ -11,8 +11,8 @@ fn main() {
     }
     // The variable storing the anonymous function can then be called like normal, with a set of parentheses after the variable's
     // name containing any necessary arguments.
-    result := f(5)
-    io.printf("%d\n", result)
+    r := f(5)
+    io.printf("%d\n", r)
     
     // Here, we pass in an anonymous function to match the expected first parameter to the `f2` function
     f2(fn(i: int) -> int {
@@ -22,6 +22,6 @@ fn main() {
 
 // Functions can also be used as function parameters
 fn f2(fun: fn(i: int) -> int) {
-    result := fun(10)
-    io.printf("%d\n", result)
+    r := fun(10)
+    io.printf("%d\n", r)
 }

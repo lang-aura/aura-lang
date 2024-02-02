@@ -520,6 +520,221 @@ public class AuraStdlib
 				publicClasses: new List<AuraClass>(),
 				publicVariables: new Dictionary<string, ITypedAuraExpression>()
 			)
+		},
+		{
+			"aura/results", new AuraModule(
+				name: "results",
+				publicFunctions: new List<AuraNamedFunction>
+				{
+					new(
+						name: "is_success",
+						pub: Visibility.Public,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: "st",
+										Line: 1
+									),
+									ParamType: new(
+										Typ: new AuraAnonymousStruct(
+											parameters: new List<Param>
+											{
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "success",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraAny(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												),
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "failure",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraError(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												)
+											},
+											pub: Visibility.Private
+										),
+										Variadic: false,
+										DefaultValue: null
+									)
+								)
+							},
+							returnType: new AuraBool()
+						)
+					),
+					new(
+						name: "success",
+						pub: Visibility.Public,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: "st",
+										Line: 1
+									),
+									ParamType: new(
+										Typ: new AuraAnonymousStruct(
+											parameters: new List<Param>
+											{
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "success",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraAny(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												),
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "failure",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraError(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												)
+											},
+											pub: Visibility.Private
+										),
+										Variadic: false,
+										DefaultValue: null
+									)
+								)
+							},
+							returnType: new AuraAny()
+						)
+					),
+					new(
+						name: "is_failure",
+						pub: Visibility.Public,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: "st",
+										Line: 1
+									),
+									ParamType: new(
+										Typ: new AuraAnonymousStruct(
+											parameters: new List<Param>
+											{
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "success",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraAny(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												),
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "failure",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraError(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												)
+											},
+											pub: Visibility.Private
+										),
+										Variadic: false,
+										DefaultValue: null
+									)
+								)
+							},
+							returnType: new AuraBool()
+						)
+					),
+					new(
+						name: "failure",
+						pub: Visibility.Public,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(
+									Name: new Tok(
+										Typ: TokType.Identifier,
+										Value: "st",
+										Line: 1
+									),
+									ParamType: new(
+										Typ: new AuraAnonymousStruct(
+											parameters: new List<Param>
+											{
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "success",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraAny(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												),
+												new(
+													Name: new Tok(
+														Typ: TokType.Identifier,
+														Value: "failure",
+														Line: 1
+													),
+													ParamType: new(
+														Typ: new AuraError(),
+														Variadic: false,
+														DefaultValue: null
+													)
+												)
+											},
+											pub: Visibility.Private
+										),
+										Variadic: false,
+										DefaultValue: null
+									)
+								)
+							},
+							returnType: new AuraError()
+						)
+					),
+				},
+				publicInterfaces: new List<AuraInterface>(),
+				publicClasses: new List<AuraClass>(),
+				publicVariables: new Dictionary<string, ITypedAuraExpression>()
+			)
 		}
 	};
 

@@ -595,7 +595,7 @@ public class ParserTest
 			new Tok(TokType.Identifier, "f", 1),
 			new List<Param>(),
 			new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-			new List<Tok> { new(TokType.Error, "error", 1) },
+			new List<AuraType> { new AuraError() },
 			Visibility.Private,
 			1));
 	}

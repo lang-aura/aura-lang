@@ -545,3 +545,27 @@ public class AuraAnonymousStruct : AuraType
 
 	public override string ToString() => "struct";
 }
+
+public class AuraResult : AuraType, IGettable, IImportableModule
+{
+	public AuraType Success { get; }
+	public AuraError Failure { get; }
+
+	public AuraResult(AuraType success, AuraError failure)
+	{
+		Success = success;
+		Failure = failure;
+	}
+
+	public override bool IsSameType(AuraType other) => other is AuraResult r && r.Success.IsSameOrInheritingType(Success);
+
+	public override string ToString() => $"struct{{\nSuccess {Success}\nFailure {Failure}\n}}";
+
+	public AuraType? Get(string attribute)
+	{
+		var stringMod = new AuraStdlib().GetAllModules()["aura/results"];
+		return stringMod.PublicFunctions.First(f => f.Name == attribute);
+	}
+
+	public string GetModuleName() => "results";
+}
