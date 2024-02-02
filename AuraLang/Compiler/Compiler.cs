@@ -46,15 +46,17 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	private string ProjectName { get; }
 	private readonly CompiledOutputWriter _outputWriter;
 	private readonly AuraModule _prelude;
+	private Stack<TypedNamedFunction> _enclosingFunctionDeclarationStore;
 
 	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName,
-		CompiledOutputWriter outputWriter, string filePath)
+		CompiledOutputWriter outputWriter, Stack<TypedNamedFunction> enclosingFunctionDeclarationStore, string filePath)
 	{
 		_typedAst = typedAst;
 		ProjectName = projectName;
 		_outputWriter = outputWriter;
 		_exContainer = new CompilerExceptionContainer(filePath);
 		_prelude = new AuraPrelude().GetPrelude();
+		_enclosingFunctionDeclarationStore = enclosingFunctionDeclarationStore;
 	}
 
 	public string Compile()
@@ -117,7 +119,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedNamedFunction f)
 	{
-		return InNewEnclosingType(() =>
+		_enclosingFunctionDeclarationStore.Push(f);
+		var s = InNewEnclosingType(() =>
 		{
 			_declaredVariables[f.Name.Value] = f.Public;
 			var funcName = f.Public is Visibility.Public ? f.Name.Value.ToUpper() : f.Name.Value.ToLower();
@@ -136,6 +139,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			var body = Expression(f.Body);
 			return $"func {funcName}({compiledParams}){returnValue} {body}";
 		}, f);
+		_enclosingFunctionDeclarationStore.Pop();
+		return s;
 	}
 
 	public string Visit(TypedAnonymousFunction f)
@@ -207,6 +212,13 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	public string Visit(TypedReturn r)
 	{
 		if (r.Value is null) return "return";
+
+		if (_enclosingFunctionDeclarationStore.Count > 0 &&
+			_enclosingFunctionDeclarationStore.Peek().ReturnType is AuraResult res)
+		{
+			if (r.Value.Typ.IsSameOrInheritingType(res.Success)) return $"return {res}{{\nSuccess: {Expression(r.Value)},\n}}";
+			return $"return {res}{{\nFailure: {Expression(r.Value)},\n}}";
+		}
 
 		if (r.Value.Typ is AuraAnonymousStruct)
 		{
@@ -387,7 +399,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				),
 				Alias: new Tok(
 					Typ: TokType.Identifier,
-					Value: "errors",
+					Value: AuraTypeToString(get.Obj.Typ),
 					Line: 1
 				),
 				Line: 1
@@ -401,7 +413,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				),
 				Alias: new Tok(
 					Typ: TokType.Identifier,
-					Value: "errors",
+					Value: AuraTypeToString(get.Obj.Typ),
 					Line: 1
 				),
 				Line: 1
@@ -600,7 +612,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return typ switch
 		{
-			AuraString or AuraList or AuraError => true,
+			AuraString or AuraList or AuraError or AuraResult => true,
 			_ => false
 		};
 	}
@@ -612,6 +624,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			AuraString => "strings",
 			AuraList => "lists",
 			AuraError => "errors",
+			AuraResult => "results",
 			_ => string.Empty
 		};
 	}
@@ -629,7 +642,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return pkg switch
 		{
-			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" => true,
+			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" or "aura/results" => true,
 			_ => false
 		};
 	}
@@ -720,7 +733,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		throw new NotImplementedException();
 	}
 
-	public string Visit(TypedCheck check) => $"e := {Visit(check.Call)}\nif e != nil {{\nreturn e\n}}";
+	public string Visit(TypedCheck check) => $"e := {Visit(check.Call)}\nif e.Failure != nil {{\nreturn e\n}}";
 
 	public string Visit(TypedStruct @struct)
 	{
@@ -734,5 +747,16 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		var items = string.Join(", ", anonymousStruct.Params.Select(p => p.Name.Value));
 		return $"{items}";
+	}
+
+	private string GoTypeDefaultValue(AuraType typ)
+	{
+		return typ switch
+		{
+			AuraString => "\"\"",
+			AuraInt => "0",
+			AuraFloat => "0.0",
+			_ => string.Empty
+		};
 	}
 }

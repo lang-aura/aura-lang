@@ -4,6 +4,7 @@ using AuraLang.ModuleCompiler;
 using AuraLang.Prelude;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
+using AuraLang.Stores;
 using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.Types;
@@ -267,86 +268,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		);
 	}
 
-	/// <summary>
-	/// Type checks a named function declaration
-	/// </summary>
-	/// <param name="f">The named function to type check</param>
-	/// <param name="modName">The module name where the function is declared</param>
-	/// <returns>A valid, type checked named function declaration</returns>
-	/// <exception cref="TypeMismatchException">Thrown if the function's body doesn't return
-	/// the same type as specified in the function's signature</exception>
-	public ITypedAuraStatement Visit(UntypedNamedFunction f, string modName)
-	{
-		_enclosingFunctionDeclarationStore.Push(f);
-		return WithEnclosingStmt(
-			f: () =>
-			{
-				return InNewScope(() =>
-				{
-					var typedParams = TypeCheckParams(f.Params);
-					// Add parameters as local variables
-					foreach (var param in typedParams)
-					{
-						_symbolsTable.TryAddSymbol(
-							symbol: new AuraSymbol(
-								Name: param.Name.Value,
-								Kind: param.ParamType.Typ
-							),
-							symbolsNamespace: ModuleName!
-						);
-					}
-
-					var typedBody = (TypedBlock)Visit(f.Body);
-					// Type check function's return type
-					AuraType returnType = new AuraNil();
-					if (f.ReturnType?.Count == 1) returnType = TypeCheckReturnTypeTok(f.ReturnType[0]);
-					else if (f.ReturnType?.Count > 1)
-					{
-						returnType = new AuraAnonymousStruct(
-							parameters: f.ReturnType.Select((tok, i) =>
-							{
-								return new Param(
-									Name: new Tok(
-										Typ: TokType.Identifier,
-										Value: i.ToString(),
-										Line: f.Line
-									),
-									ParamType: new(
-										Typ: TypeTokenToType(tok),
-										Variadic: false,
-										DefaultValue: null
-									)
-								);
-							}).ToList(),
-							pub: Visibility.Private
-						);
-					}
-					// Ensure the function's body returns the type specified in its signature
-					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
-						throw new TypeMismatchException(f.Line);
-					// Add function as local variable
-					_symbolsTable.TryAddSymbol(
-						symbol: new AuraSymbol(
-							Name: f.Name.Value,
-							Kind: new AuraNamedFunction(
-								f.Name.Value,
-								f.Public,
-								new AuraFunction(
-									TypeCheckParams(f.Params),
-									returnType
-								)
-							)
-						),
-						symbolsNamespace: ModuleName!
-					);
-					return new TypedNamedFunction(f.Name, typedParams.ToList(), typedBody, returnType, f.Public, f.Line);
-				});
-			},
-			node: f,
-			symbolNamespace: ModuleName!
-		);
-	}
-
 	public ITypedAuraStatement Visit(UntypedNewLine nl) => throw new NotImplementedException();
 
 	/// <summary>
@@ -379,11 +300,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					var typedBody = (TypedBlock)Visit(f.Body);
 					// Parse the function's return type
 					AuraType returnType = new AuraNil();
-					if (f.ReturnType?.Count == 1) returnType = TypeTokenToType(f.ReturnType![0]);
+					if (f.ReturnType?.Count == 1) returnType = f.ReturnType![0];
 					else if (f.ReturnType?.Count > 1)
 					{
 						returnType = new AuraAnonymousStruct(
-							parameters: f.ReturnType!.Select((tok, i) =>
+							parameters: f.ReturnType!.Select((typ, i) =>
 							{
 								return new Param(
 									Name: new Tok(
@@ -392,7 +313,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 										Line: f.Line
 									),
 									ParamType: new(
-										Typ: TypeTokenToType(tok),
+										Typ: typ,
 										Variadic: false,
 										DefaultValue: null
 									)
@@ -416,11 +337,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		var typedParams = TypeCheckParams(f.Params);
 		AuraType returnType = new AuraNil();
-		if (f.ReturnType?.Count == 1) returnType = TypeTokenToType(f.ReturnType![0]);
+		if (f.ReturnType?.Count == 1) returnType = f.ReturnType![0];
 		if (f.ReturnType?.Count > 1)
 		{
 			returnType = new AuraAnonymousStruct(
-				parameters: f.ReturnType!.Select((tok, i) =>
+				parameters: f.ReturnType!.Select((typ, i) =>
 				{
 					return new Param(
 						Name: new Tok(
@@ -429,7 +350,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							Line: f.Line
 						),
 						ParamType: new(
-							Typ: TypeTokenToType(tok),
+							Typ: typ,
 							Variadic: false,
 							DefaultValue: null
 						)
@@ -438,7 +359,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				pub: Visibility.Private
 			);
 		}
-		//var returnType = TypeCheckReturnTypeTok(f.ReturnType);
 		return new AuraNamedFunction(f.Name.Value, f.Public, new AuraFunction(typedParams, returnType));
 	}
 
@@ -447,11 +367,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingFunctionDeclarationStore.Push(f);
 		var typedParams = TypeCheckParams(f.Params);
 		AuraType returnType = new AuraNil();
-		if (f.ReturnType?.Count == 1) returnType = TypeTokenToType(f.ReturnType![0]);
+		if (f.ReturnType?.Count == 1) returnType = f.ReturnType![0];
 		if (f.ReturnType?.Count > 1)
 		{
 			returnType = new AuraAnonymousStruct(
-				parameters: f.ReturnType!.Select((tok, i) =>
+				parameters: f.ReturnType!.Select((typ, i) =>
 				{
 					return new Param(
 						Name: new Tok(
@@ -460,7 +380,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							Line: f.Line
 						),
 						ParamType: new(
-							Typ: TypeTokenToType(tok),
+							Typ: typ,
 							Variadic: false,
 							DefaultValue: null
 						)
@@ -485,7 +405,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 		var typedBody = (TypedBlock)Visit(f.Body);
 		// Ensure the function's body returns the same type specified in its signature
-		if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
+		if (returnType is AuraResult r)
+		{
+			if (!r.Success.IsSameOrInheritingType(typedBody.Typ) && !r.Failure.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
+		}
+		else
+		{
+			if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
+		}
 
 		return new TypedNamedFunction(f.Name, typedParams, typedBody, returnType, f.Public, f.Line);
 	}
@@ -1312,6 +1239,22 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					Line: 1
 				));
 			}
+			if (g is AuraResult)
+			{
+				Visit(new UntypedImport(
+					Package: new Tok(
+						Typ: TokType.Identifier,
+						Value: "aura/results",
+						Line: 1
+					),
+					Alias: new Tok(
+						Typ: TokType.Identifier,
+						Value: "results",
+						Line: 1
+					),
+					Line: 1
+				));
+			}
 			// Fetch the gettable's attribute
 			var attrTyp = g.Get(get.Name.Value) ?? throw new ClassAttributeDoesNotExistException(objExpr.ToString()!, get.GetName(), get.Line);
 			return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
@@ -1563,22 +1506,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return typedNode;
 	}
 
-
-	private AuraType TypeTokenToType(Tok tok)
-	{
-		return tok.Typ switch
-		{
-			TokType.Int => new AuraInt(),
-			TokType.Float => new AuraFloat(),
-			TokType.String => new AuraString(),
-			TokType.Bool => new AuraBool(),
-			TokType.Any => new AuraAny(),
-			TokType.Char => new AuraChar(),
-			TokType.Error => new AuraError(),
-			_ => throw new UnexpectedTypeException(tok.Line)
-		};
-	}
-
 	private List<Param> TypeCheckParams(List<Param> untypedParams)
 	{
 		return untypedParams.Select(p =>
@@ -1591,13 +1518,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				: FindOrThrow(u.Name, ModuleName!, p.Name.Line).Kind;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 		}).ToList();
-	}
-
-	private List<ParamType> TypeCheckParamTypes(List<Param> untypedParams)
-	{
-		return TypeCheckParams(untypedParams)
-			.Select(p => p.ParamType)
-			.ToList();
 	}
 
 	private List<ITypedAuraExpression> TypeCheckArguments(List<IUntypedAuraExpression> arguments, List<Param> parameters, int line)
@@ -1674,9 +1594,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return new TypedCall(typedCallee!, typedArgs, declaration.GetReturnType(), call.Line);
 	}
 
-	private AuraType TypeCheckReturnTypeTok(Tok? returnTok) =>
-		returnTok is not null ? TypeTokenToType(returnTok.Value) : new AuraNil();
-
 	private TU WithEnclosingStmt<TU, T>(Func<TU> f, T node, string symbolNamespace)
 		where TU : ITypedAuraStatement
 		where T : IUntypedAuraStatement
@@ -1698,10 +1615,10 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		var typedCall = Visit(check.Call);
 		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
-		// type of `error`
+		// type of `result`
 		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ?? throw new InvalidUseOfCheckKeywordException(check.Line);
-		if (!enclosingFuncDeclaration.ReturnType?.Select(rt => rt.Value).Contains("error") ?? false) throw new InvalidUseOfCheckKeywordException(check.Line);
-		if (typedCall.Typ is not AuraError) throw new InvalidUseOfCheckKeywordException(check.Line);
+		if (enclosingFuncDeclaration.ReturnType?.First() is not AuraResult) throw new InvalidUseOfCheckKeywordException(check.Line);
+		if (typedCall.Typ is not AuraResult) throw new InvalidUseOfCheckKeywordException(check.Line);
 
 		return new TypedCheck(
 			Call: (TypedCall)typedCall,

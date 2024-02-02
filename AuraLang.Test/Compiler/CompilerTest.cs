@@ -1106,7 +1106,7 @@ public class CompilerTest
 				Line: 1
 			)
 		});
-		MakeAssertions(output, "e := f()\nif e != nil {\nreturn e\n}");
+		MakeAssertions(output, "e := f()\nif e.Failure != nil {\nreturn e\n}");
 	}
 
 	[Test]
@@ -1164,7 +1164,7 @@ public class CompilerTest
 		_outputWriter.Setup(ow => ow.CreateDirectory(It.IsAny<string>()));
 		_outputWriter.Setup(ow => ow.WriteOutput(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 		// Arrange
-		var compiler = new AuraCompiler(typedAst, "test", _outputWriter.Object, "Test");
+		var compiler = new AuraCompiler(typedAst, "test", _outputWriter.Object, new Stack<TypedNamedFunction>(), "Test");
 		// Act
 		return compiler.Compile();
 	}

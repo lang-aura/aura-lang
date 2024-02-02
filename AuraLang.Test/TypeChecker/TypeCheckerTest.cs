@@ -1,6 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Shared;
+using AuraLang.Stores;
 using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
@@ -1033,7 +1034,7 @@ public class TypeCheckerTest
 						Line: 1
 					)
 				}, 1),
-				ReturnType: new List<Tok>{ new(TokType.Error, "error", 1) },
+				ReturnType: new List<AuraType>{ new AuraError() },
 				Public: Visibility.Public,
 				Line: 1)
 		});
@@ -1593,7 +1594,7 @@ public class TypeCheckerTest
 							},
 							Line: 1
 						),
-						ReturnType: new List<Tok>{ new(TokType.Int, "int", 1) },
+						ReturnType: new List<AuraType>{ new AuraInt() },
 						Public: Visibility.Private,
 						Line: 1
 					)
@@ -1667,7 +1668,7 @@ public class TypeCheckerTest
 							},
 							Line: 1
 						),
-						ReturnType: new List<Tok>{ new(TokType.Int, "int", 1) },
+						ReturnType: new List<AuraType>{ new AuraInt() },
 						Public: Visibility.Public,
 						Line: 1
 					)
@@ -1842,13 +1843,7 @@ public class TypeCheckerTest
 					Statements: new List<IUntypedAuraStatement>(),
 					Line: 1
 				),
-				ReturnType: new List<Tok>{
-					new(
-						Typ: TokType.Error,
-						Value: "error",
-						Line: 1
-					)
-				},
+				ReturnType: new List<AuraType> { new AuraResult(new AuraString(), new AuraError()) },
 				Public: Visibility.Public,
 				Line: 1
 			)
@@ -1861,7 +1856,7 @@ public class TypeCheckerTest
 					pub: Visibility.Public,
 					f: new AuraFunction(
 						fParams: new List<Param>(),
-						returnType: new AuraError()
+						returnType: new AuraResult(new AuraString(), new AuraError())
 					)
 				)
 			)
@@ -1898,13 +1893,13 @@ public class TypeCheckerTest
 						pub: Visibility.Public,
 						f: new AuraFunction(
 							fParams: new List<Param>(),
-							returnType: new AuraError()
+							returnType: new AuraResult(new AuraString(), new AuraError())
 						)
 					),
 					Line: 1
 				),
 				Arguments: new List<ITypedAuraExpression>(),
-				Typ: new AuraError(),
+				Typ: new AuraResult(new AuraString(), new AuraError()),
 				Line: 1
 			),
 			Line: 1

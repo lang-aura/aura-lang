@@ -1,6 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.FileCompiler;
+using AuraLang.Stores;
 using AuraLang.Symbol;
 using AuraLang.TypeChecker;
 

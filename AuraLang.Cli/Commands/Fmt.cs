@@ -284,7 +284,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	{
 		var paramz = af.Params.Select(p => $"{p.Name}: {p.ParamType.Typ}");
 		var returnType = af.ReturnType is not null
-			? $" -> {af.ReturnType[0].Value}"
+			? $" -> {af.ReturnType[0]}"
 			: string.Empty;
 		var body = Expression(af.Body);
 		return $"fn({paramz}){returnType} {body}";

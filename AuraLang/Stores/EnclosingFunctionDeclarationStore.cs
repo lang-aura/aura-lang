@@ -1,6 +1,6 @@
 ﻿using AuraLang.AST;
 
-namespace AuraLang.TypeChecker;
+namespace AuraLang.Stores;
 
 public interface IEnclosingFunctionDeclarationStore
 {

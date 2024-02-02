@@ -354,6 +354,13 @@ public class ScannerTest
 		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Struct, "struct", 1));
 	}
 
+	[Test]
+	public void TestScan_Result()
+	{
+		var tokens = ArrangeAndAct("result");
+		MakeAssertions_Valid(tokens, 2, new Tok(TokType.Result, "result", 1));
+	}
+
 	private static void ArrangeAndAct_Invalid(string source, Type expected)
 	{
 		// Arrange

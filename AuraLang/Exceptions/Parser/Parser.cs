@@ -41,9 +41,9 @@ public class UnterminatedListLiteralException : ParserException
 	public UnterminatedListLiteralException(int line) : base("Unterminated list literal", line) { }
 }
 
-public class ExpectLeftBracketAfterMapKeywordException : ParserException
+public class ExpectLeftBracketException : ParserException
 {
-	public ExpectLeftBracketAfterMapKeywordException(string found, int line)
+	public ExpectLeftBracketException(string found, int line)
 		: base($"Expected `[` after map keyword, but found `{found}` instead", line) { }
 }
 
