@@ -113,7 +113,7 @@ public class IntegrationTest_SingleFile
 	public async Task TestIntegration_ReturnTuple()
 	{
 		var output = await ArrangeAndAct_SingleFile("src/return_tuple.aura");
-		MakeAssertions(output, "s = HELLO WORLD; e = <nil>\nst = HELLO WORLD; er = <nil>\n");
+		MakeAssertions(output, "s = HELLO WORLD; e = <nil>\nst = HELLO WORLD; er = <nil>\nupper = HELLO WORLD; lower = hello world; n = <nil>\n");
 	}
 
 	private async Task<string> ArrangeAndAct_SingleFile(string path)

@@ -3,13 +3,34 @@ mod main
 import aura/io
 
 fn main() {
+	// When calling a function with a return type of `tuple` as the initializer in a `let` statement, the left side of the `let` statement
+	// must contain the same number of values as are returned by the function call.
 	s, e := f("Hello world")
 	io.printf("s = %s; e = %v\n", s, e)
 
+	// Typically, using the short `let` declaration with multiple variables is easier, but Aura also supports declaring multiple variables
+	// with the longer `let` syntax as well. However, all declared variables must have the same syntax - i.e. you cannot mix variable declarations
+	// with something like this: `let st: string, er := f("Hello world")`
 	let st: string, er: error = f("Hello world")
 	io.printf("st = %s; er = %v\n", st, er)
+
+	// In this case, `f2` returns a tuple with three values, so the left side of the `let` statement must also contain three variables
+	upper, lower, n := f2("Hello world")
+	io.printf("upper = %s; lower = %s; n = %v\n", upper, lower, n)
 }
 
+// Even though Aura does not support tuples as first-class data types, functions can return pseudo-tuples containing multiple values.
+// This is typically used to return both a success value and an error value, since errors in Aura are treated as a normal type (i.e. Aura
+// does not support exceptions). In this case, the function's body must return the same number of values as defined in the function's
+// signature (in this case, 2), which can be done by separating them with a comma in the `return` statement. Aura also supports the `result`
+// type to streamline error handling - see `error.aura` in this directory for an example.
 fn f(s: string) -> (string, error) {
+	// The `nil` value is used to indicate that no error occurred
 	return s.to_upper(), nil
+}
+
+// Tuples returned by a function are not limited to two values. In this case, a tuple with three values is returned. Just like any other tuple,
+// this function's return statement must contain the same number of values as are declared in the return type (in this case, 3).
+fn f2(s: string) -> (string, string, error) {
+	return s.to_upper(), s.to_lower(), nil
 }
