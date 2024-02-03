@@ -1617,7 +1617,10 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
 		// type of `result`
 		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ?? throw new InvalidUseOfCheckKeywordException(check.Line);
+		// When using the `check` keyword, the enclosing function must return a `result` type as its only return value
+		if (enclosingFuncDeclaration.ReturnType?.Count != 1) throw new InvalidUseOfCheckKeywordException(check.Line);
 		if (enclosingFuncDeclaration.ReturnType?.First() is not AuraResult) throw new InvalidUseOfCheckKeywordException(check.Line);
+		// The function call must also return a `result` as its only return value
 		if (typedCall.Typ is not AuraResult) throw new InvalidUseOfCheckKeywordException(check.Line);
 
 		return new TypedCheck(
