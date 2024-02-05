@@ -1,4 +1,5 @@
 ﻿using AuraLang.Cli.Exceptions;
+using AuraLang.Cli.Logger;
 using AuraLang.Cli.Options;
 using AuraLang.Cli.Toml;
 using AuraLang.Exceptions;
@@ -11,6 +12,7 @@ public abstract class AuraCommand
 	/// Indicates whether the command's output is verbose
 	/// </summary>
 	protected bool Verbose { get; init; }
+	protected AuraCliLogger logger { get; }
 
 	/// <summary>
 	/// Used to read the TOML config file located in the project's root
@@ -20,6 +22,7 @@ public abstract class AuraCommand
 	protected AuraCommand(AuraOptions opts)
 	{
 		Verbose = opts.Verbose ?? false;
+		logger = new AuraCliLogger(Verbose);
 	}
 
 	public virtual int Execute()
