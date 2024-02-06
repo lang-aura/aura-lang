@@ -2,11 +2,11 @@
 using AuraLang.Cli.Options;
 using CommandLine;
 
-return Parser.Default.ParseArguments<NewOptions, BuildOptions, RunOptions, FmtOptions, LspOptions>(args)
+return await Parser.Default.ParseArguments<NewOptions, BuildOptions, RunOptions, FmtOptions, LspOptions>(args)
 		.MapResult(
-			(NewOptions opts) => new New(opts).ExecuteAsync().Result,
-			(BuildOptions opts) => new Build(opts).ExecuteAsync().Result,
-			(RunOptions opts) => new Run(opts).ExecuteAsync().Result,
-			(FmtOptions opts) => new AuraFmt(opts).ExecuteAsync().Result,
-			(LspOptions opts) => new Lsp(opts).ExecuteAsync().Result,
-			errs => 1);
+			async (NewOptions opts) => await new New(opts).ExecuteAsync(),
+			async (BuildOptions opts) => await new Build(opts).ExecuteAsync(),
+			async (RunOptions opts) => await new Run(opts).ExecuteAsync(),
+			async (FmtOptions opts) => await new AuraFmt(opts).ExecuteAsync(),
+			async (LspOptions opts) => await new Lsp(opts).ExecuteAsync(),
+			errs => Task.FromResult(1));
