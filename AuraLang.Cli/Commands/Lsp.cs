@@ -16,8 +16,9 @@ public class Lsp : AuraCommand
 
 	protected async Task<int> ExecuteCommandAsync()
 	{
-		logger.LogSuccinct("Starting LSP server...");
-		await AuraLanguageServer.InitAsync();
+		//logger.LogSuccinct("Starting new LSP server...");
+		var server = new AuraLanguageServer(true);
+		await server.InitAsync();
 		return 0;
 	}
 }
