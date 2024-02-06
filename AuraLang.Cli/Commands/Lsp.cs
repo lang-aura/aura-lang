@@ -1,4 +1,4 @@
-using AuraLang.Cli.Options;
+﻿using AuraLang.Cli.Options;
 using AuraLang.Lsp.LanguageServerProtocol;
 
 namespace AuraLang.Cli.Commands;
@@ -7,9 +7,9 @@ public class Lsp : AuraCommand
 {
 	public Lsp(LspOptions opts) : base(opts) { }
 
-	public override int Execute() => ExecuteCommandAsync().Result;
+	public override async Task<int> ExecuteAsync() => await ExecuteCommandAsync();
 
-	protected override int ExecuteCommand()
+	protected override int ExecuteCommandAsync()
 	{
 		throw new NotImplementedException();
 	}

@@ -25,7 +25,7 @@ public abstract class AuraCommand
 		logger = new AuraCliLogger(Verbose);
 	}
 
-	public virtual int Execute()
+	public virtual async Task<int> ExecuteAsync()
 	{
 		try
 		{
@@ -36,10 +36,10 @@ public abstract class AuraCommand
 			Console.Error.WriteLine(ex.Message);
 			return 1;
 		}
-		return ExecuteCommand();
+		return await ExecuteCommandAsync();
 	}
 
-	protected abstract int ExecuteCommand();
+	protected abstract int ExecuteCommandAsync();
 
 	/// <summary>
 	/// Traverses the project's Aura source files and calls the supplied Action on each file

@@ -25,98 +25,98 @@ public class IntegrationTest_SingleFile
 	}
 
 	[Test]
-	public async Task TestIntegration_HelloWorld()
+	public async Task TestIntegration_HelloWorldAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/hello_world.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/hello_world.aura");
 		MakeAssertions(output, "Hello world!\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_Yield()
+	public async Task TestIntegration_YieldAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/yield.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/yield.aura");
 		MakeAssertions(output, "0\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_Functions()
+	public async Task TestIntegration_FunctionsAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/functions.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/functions.aura");
 		MakeAssertions(output,
 			"Hello from f!\nYou provided the number 5 and the string Hello world\nYou provided the number 5 and the string Hello world\n5\nThe value of i is 10\nThe value of i is 5\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_AnonymousFunctions()
+	public async Task TestIntegration_AnonymousFunctionsAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/anonymous_functions.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/anonymous_functions.aura");
 		MakeAssertions(output, "10\n20\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_Interfaces()
+	public async Task TestIntegration_InterfacesAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/interfaces.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/interfaces.aura");
 		MakeAssertions(output, "Hi, Bob!\nHi, Bob!\nHow about this overcast weather, huh?\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_LocalImport()
+	public async Task TestIntegration_LocalImportAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/local_imports.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/local_imports.aura");
 		MakeAssertions(output, "HelloHello\n10\ntrue\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_ImportModuleWithTwoSourceFiles()
+	public async Task TestIntegration_ImportModuleWithTwoSourceFilesAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/multiple_source_files.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/multiple_source_files.aura");
 		MakeAssertions(output, "10\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_ImportModuleWithTwoModuleNames()
+	public async Task TestIntegration_ImportModuleWithTwoModuleNamesAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/multiple_mod_names.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/multiple_mod_names.aura");
 		MakeAssertions(output, "[src/multiple_mod_names.aura line 1] Directory cannot contain multiple modules");
 	}
 
 	[Test]
-	public async Task TestIntegration_Error()
+	public async Task TestIntegration_ErrorAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/error.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/error.aura");
 		MakeAssertions(output, "Helpful error message\nHelpful error message\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_Strings()
+	public async Task TestIntegration_StringsAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/strings.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/strings.aura");
 		MakeAssertions(output, "HELLO WORLD\nhello world\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_Lists()
+	public async Task TestIntegration_ListsAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/lists.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/lists.aura");
 		MakeAssertions(output, "First index = Hello\nHello\nworld\nContains hello\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_Structs()
+	public async Task TestIntegration_StructsAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/structs.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/structs.aura");
 		MakeAssertions(output, "5\n");
 	}
 
 	[Test]
-	public async Task TestIntegration_ReturnTuple()
+	public async Task TestIntegration_ReturnTupleAsync()
 	{
-		var output = await ArrangeAndAct_SingleFile("src/return_tuple.aura");
+		var output = await ArrangeAndAct_SingleFileAsync("src/return_tuple.aura");
 		MakeAssertions(output, "s = HELLO WORLD; e = <nil>\nst = HELLO WORLD; er = <nil>\nupper = HELLO WORLD; lower = hello world; n = <nil>\n");
 	}
 
-	private async Task<string> ArrangeAndAct_SingleFile(string path)
+	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
 		var typeChecker = new AuraTypeChecker(new GlobalSymbolsTable(), new EnclosingClassStore(), new EnclosingFunctionDeclarationStore(),

@@ -1,4 +1,4 @@
-namespace AuraLang.Cli.Logger;
+﻿namespace AuraLang.Cli.Logger;
 
 public class AuraCliLogger
 {

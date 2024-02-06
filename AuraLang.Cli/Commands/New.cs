@@ -22,11 +22,11 @@ public class New : AuraCommand
 		ProjectDirectory = opts.OutputPath;
 	}
 
-	public override int Execute()
+	public override int ExecuteAsync()
 	{
 		try
 		{
-			return ExecuteCommand();
+			return ExecuteCommandAsync();
 		}
 		catch (NewParentDirectoryMustBeEmpty ex)
 		{
@@ -39,7 +39,7 @@ public class New : AuraCommand
 	/// Creates a new Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the process succeeded</returns>
-	protected override int ExecuteCommand()
+	protected override int ExecuteCommandAsync()
 	{
 		var projDir = ProjectDirectory ?? ".";
 		var projPath = $"{projDir}/{Name}";
