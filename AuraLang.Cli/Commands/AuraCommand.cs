@@ -33,13 +33,13 @@ public abstract class AuraCommand
 		}
 		catch (TomlFileNotFoundException ex)
 		{
-			Console.Error.WriteLine(ex.Message);
+			await Console.Error.WriteLineAsync(ex.Message);
 			return 1;
 		}
 		return await ExecuteCommandAsync();
 	}
 
-	protected abstract int ExecuteCommandAsync();
+	protected abstract Task<int> ExecuteCommandAsync();
 
 	/// <summary>
 	/// Traverses the project's Aura source files and calls the supplied Action on each file

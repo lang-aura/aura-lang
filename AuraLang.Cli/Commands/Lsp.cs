@@ -9,12 +9,7 @@ public class Lsp : AuraCommand
 
 	public override async Task<int> ExecuteAsync() => await ExecuteCommandAsync();
 
-	protected override int ExecuteCommandAsync()
-	{
-		throw new NotImplementedException();
-	}
-
-	protected async Task<int> ExecuteCommandAsync()
+	protected override async Task<int> ExecuteCommandAsync()
 	{
 		//logger.LogSuccinct("Starting new LSP server...");
 		var server = new AuraLanguageServer(true);
