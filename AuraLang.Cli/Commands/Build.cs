@@ -24,7 +24,7 @@ public class Build : AuraCommand
 	/// Builds the entire Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the process succeeded</returns>
-	protected override int ExecuteCommand()
+	protected async override Task<int> ExecuteCommandAsync()
 	{
 		// Before building the project, clear out all Go files from the `build` directory. This will prevent issues arising
 		// from, for example, old Go files previously built from Aura source files that have since been deleted.

@@ -1,4 +1,5 @@
 ﻿using AuraLang.Cli.Exceptions;
+using AuraLang.Cli.Logger;
 using AuraLang.Cli.Options;
 using AuraLang.Cli.Toml;
 using AuraLang.Exceptions;
@@ -11,6 +12,7 @@ public abstract class AuraCommand
 	/// Indicates whether the command's output is verbose
 	/// </summary>
 	protected bool Verbose { get; init; }
+	protected AuraCliLogger logger { get; }
 
 	/// <summary>
 	/// Used to read the TOML config file located in the project's root
@@ -20,9 +22,10 @@ public abstract class AuraCommand
 	protected AuraCommand(AuraOptions opts)
 	{
 		Verbose = opts.Verbose ?? false;
+		logger = new AuraCliLogger(Verbose);
 	}
 
-	public virtual int Execute()
+	public virtual async Task<int> ExecuteAsync()
 	{
 		try
 		{
@@ -30,13 +33,13 @@ public abstract class AuraCommand
 		}
 		catch (TomlFileNotFoundException ex)
 		{
-			Console.Error.WriteLine(ex.Message);
+			await Console.Error.WriteLineAsync(ex.Message);
 			return 1;
 		}
-		return ExecuteCommand();
+		return await ExecuteCommandAsync();
 	}
 
-	protected abstract int ExecuteCommand();
+	protected abstract Task<int> ExecuteCommandAsync();
 
 	/// <summary>
 	/// Traverses the project's Aura source files and calls the supplied Action on each file

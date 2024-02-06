@@ -22,15 +22,15 @@ public class New : AuraCommand
 		ProjectDirectory = opts.OutputPath;
 	}
 
-	public override int Execute()
+	public override async Task<int> ExecuteAsync()
 	{
 		try
 		{
-			return ExecuteCommand();
+			return await ExecuteCommandAsync();
 		}
 		catch (NewParentDirectoryMustBeEmpty ex)
 		{
-			Console.Error.WriteLine(ex.Message);
+			await Console.Error.WriteLineAsync(ex.Message);
 			return 1;
 		}
 	}
@@ -39,7 +39,7 @@ public class New : AuraCommand
 	/// Creates a new Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the process succeeded</returns>
-	protected override int ExecuteCommand()
+	protected override async Task<int> ExecuteCommandAsync()
 	{
 		var projDir = ProjectDirectory ?? ".";
 		var projPath = $"{projDir}/{Name}";
@@ -99,7 +99,7 @@ public class New : AuraCommand
 		modInit.WaitForExit();
 		if (modInit.ExitCode > 0)
 		{
-			Console.WriteLine(modInit.StandardError.ReadToEnd());
+			Console.WriteLine(await modInit.StandardError.ReadToEndAsync());
 		}
 		else
 		{

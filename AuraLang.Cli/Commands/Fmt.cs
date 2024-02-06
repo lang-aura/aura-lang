@@ -20,7 +20,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	/// Formats the entire Aura project
 	/// </summary>
 	/// <returns>An integer status indicating if the command succeeded</returns>
-	protected override int ExecuteCommand()
+	protected async override Task<int> ExecuteCommandAsync()
 	{
 		TraverseProject(FormatFile);
 		return 0;
