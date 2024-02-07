@@ -106,6 +106,7 @@ public class AuraLanguageServer : IDisposable
 	[JsonRpcMethod(Methods.TextDocumentDidChangeName)]
 	public void DidChangeTextDocument(JToken jToken)
 	{
+		Console.Error.WriteLine("Received `didChange` notification!");
 		var @params = DeserializeJToken<DidChangeTextDocumentParams>(jToken);
 		_documents.UpdateDocument(@params!.TextDocument.Uri.LocalPath, @params.ContentChanges.First().Text);
 		Console.Error.WriteLine($"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.ContentChanges.First().Text}");

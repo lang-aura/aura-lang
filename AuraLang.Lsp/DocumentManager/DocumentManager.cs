@@ -1,4 +1,12 @@
 ﻿using System.Collections.Concurrent;
+using AuraLang.AST;
+using AuraLang.Exceptions;
+using AuraLang.Parser;
+using AuraLang.Scanner;
+using AuraLang.Stores;
+using AuraLang.Symbol;
+using AuraLang.Token;
+using AuraLang.TypeChecker;
 
 namespace AuraLang.Lsp.DocumentManager;
 
@@ -9,18 +17,42 @@ public class AuraDocumentManager
 	public void UpdateDocument(string path, string contents)
 	{
 		var (module, file) = GetModuleAndFileNames(path);
+		// Store file's new contents
 		var modDict = _documents.GetOrAdd(module, (_) => new ConcurrentDictionary<string, string>());
 		modDict.AddOrUpdate(file, contents, (k, v) => v);
 		_documents.AddOrUpdate(module, modDict, (k, dict) => dict);
 		_documents[module] = modDict;
-		foreach (var pair in _documents)
+		// Compile file's new contents
+		Console.Error.WriteLine("Type checking document");
+		try
 		{
-			Console.Error.WriteLine($"Module: {pair.Key}");
-			foreach (var files in pair.Value)
-			{
-				Console.Error.WriteLine($"File '{files.Key}' with content: {files.Value}");
-			}
+			var tokens = new AuraScanner(contents, path).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
+			var untypedAst = new AuraParser(tokens, path).Parse();
+			var typeChecker = new AuraTypeChecker(
+				new GlobalSymbolsTable(),
+				new EnclosingClassStore(),
+				new EnclosingFunctionDeclarationStore(),
+				new EnclosingNodeStore<IUntypedAuraExpression>(),
+				new EnclosingNodeStore<IUntypedAuraStatement>(),
+				path,
+				"Test Project Name");
+			typeChecker.BuildSymbolsTable(untypedAst);
+			var typedAst = typeChecker.CheckTypes(untypedAst);
 		}
+		catch (AuraExceptionContainer e)
+		{
+			foreach (var ex in e.Exs)
+			{
+				Console.Error.WriteLine($"Caught Aura container exception: {ex.Message}");
+			}
+			return;
+		}
+		catch (Exception e)
+		{
+			Console.Error.WriteLine($"Caught exception {e}: {e.Message}");
+			return;
+		}
+		Console.Error.WriteLine("File type checked successfully!");
 	}
 
 	public void DeleteDocument(string path)
