@@ -50,9 +50,9 @@ public class AuraDocumentManager
 		var moduleName = path[(startIndex + 4)..];
 		var module = Path.GetDirectoryName(moduleName);
 		var name = Path.GetFileName(moduleName);
-        module = (module is null || module == string.Empty)
-            ? "src"
-            : module;
+		module = (module is null || module == string.Empty)
+			? "src"
+			: module;
 		return (module, name);
 	}
 }
