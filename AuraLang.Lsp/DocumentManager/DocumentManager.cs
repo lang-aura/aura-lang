@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using AuraLang.AST;
 using AuraLang.Exceptions;
+using AuraLang.Lsp.SynchronizedFileProvider;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Stores;
@@ -34,6 +35,7 @@ public class AuraDocumentManager
 				new EnclosingFunctionDeclarationStore(),
 				new EnclosingNodeStore<IUntypedAuraExpression>(),
 				new EnclosingNodeStore<IUntypedAuraStatement>(),
+				new AuraSynchronizedFileProvider(this),
 				path,
 				"Test Project Name");
 			typeChecker.BuildSymbolsTable(untypedAst);
@@ -74,6 +76,15 @@ public class AuraDocumentManager
 	{
 		var (module, file) = GetModuleAndFileNames(path);
 		return _documents[module][file];
+	}
+
+	public List<(string, string)> GetModule(string module)
+	{
+		if (_documents.TryGetValue(module, out var value))
+		{
+			return value.Select(item => (item.Key, item.Value)).ToList();
+		}
+		return new List<(string, string)>();
 	}
 
 	private (string, string) GetModuleAndFileNames(string path)
