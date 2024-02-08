@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using AuraLang.AST;
+using AuraLang.Cli.LocalFileSystemModuleProvider;
 using AuraLang.Exceptions;
 using AuraLang.FileCompiler;
 using AuraLang.Stores;
@@ -121,7 +122,7 @@ public class IntegrationTest_SingleFile
 		var fileName = Path.GetFileNameWithoutExtension(path);
 		var typeChecker = new AuraTypeChecker(new GlobalSymbolsTable(), new EnclosingClassStore(), new EnclosingFunctionDeclarationStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(), new EnclosingNodeStore<IUntypedAuraStatement>(),
-			path, "Test");
+			new AuraLocalFileSystemImportedModuleProvider(), path, "Test");
 		var compiler = new AuraFileCompiler(path, "Examples");
 
 		try

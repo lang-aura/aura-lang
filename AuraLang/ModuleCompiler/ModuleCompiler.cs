@@ -1,6 +1,8 @@
 ﻿using AuraLang.AST;
+using AuraLang.Cli.LocalFileSystemModuleProvider;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.FileCompiler;
+using AuraLang.ImportedFileProvider;
 using AuraLang.Stores;
 using AuraLang.Symbol;
 using AuraLang.TypeChecker;
@@ -13,8 +15,8 @@ public class AuraModuleCompiler
 	/// The path of the module
 	/// </summary>
 	private string Path { get; }
-
 	private string ProjectName { get; }
+	private IImportedModuleProvider _importedModuleProvider { get; }
 
 	/// <summary>
 	/// The same type checker will be used for all Aura source files in the module
@@ -25,12 +27,15 @@ public class AuraModuleCompiler
 	{
 		Path = path;
 		ProjectName = projectName;
+		var importedModuleProvider = new AuraLocalFileSystemImportedModuleProvider();
+		_importedModuleProvider = importedModuleProvider;
 		TypeChecker = new AuraTypeChecker(
 			new GlobalSymbolsTable(),
 			new EnclosingClassStore(),
 			new EnclosingFunctionDeclarationStore(),
 			new EnclosingNodeStore<IUntypedAuraExpression>(),
 			new EnclosingNodeStore<IUntypedAuraStatement>(),
+			importedModuleProvider,
 			path,
 			ProjectName);
 	}
@@ -39,6 +44,7 @@ public class AuraModuleCompiler
 	{
 		Path = path;
 		ProjectName = projectName;
+		_importedModuleProvider = typeChecker._importedFileProvider;
 		TypeChecker = typeChecker;
 	}
 

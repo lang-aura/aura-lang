@@ -1,5 +1,6 @@
 ﻿using AuraLang.AST;
 using AuraLang.Exceptions.TypeChecker;
+using AuraLang.ImportedFileProvider;
 using AuraLang.ModuleCompiler;
 using AuraLang.Prelude;
 using AuraLang.Shared;
@@ -24,12 +25,13 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private string ProjectName { get; }
 	private string? ModuleName { get; set; }
 	private readonly AuraPrelude _prelude = new();
+	public IImportedModuleProvider _importedFileProvider { get; }
 
 	public AuraTypeChecker(IGlobalSymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		IEnclosingFunctionDeclarationStore enclosingFunctionDeclarationStore,
 		EnclosingNodeStore<IUntypedAuraExpression> enclosingExpressionStore,
 		EnclosingNodeStore<IUntypedAuraStatement> enclosingStatementStore,
-		string filePath, string projectName)
+		IImportedModuleProvider importedFileProvider, string filePath, string projectName)
 	{
 		_symbolsTable = symbolsTable;
 		_enclosingClassStore = enclosingClassStore;
@@ -37,6 +39,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
+		_importedFileProvider = importedFileProvider;
 		ProjectName = projectName;
 	}
 
