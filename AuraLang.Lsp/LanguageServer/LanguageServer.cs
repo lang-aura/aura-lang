@@ -3,17 +3,18 @@ using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
+using Range = Microsoft.VisualStudio.LanguageServer.Protocol.Range;
 
-namespace AuraLang.Lsp.LanguageServerProtocol;
+namespace AuraLang.Lsp.LanguageServer;
 
 public class AuraLanguageServer : IDisposable
 {
-	private JsonRpc? rpc;
-	private readonly ManualResetEvent disconnectEvent = new(false);
-	private bool isDisposed;
-	private static readonly object _object = new();
+	private JsonRpc? _rpc;
+	private readonly ManualResetEvent _disconnectEvent = new(false);
+	private bool _isDisposed;
+	private static readonly object Object = new();
 	private bool Verbose { get; }
-	private AuraDocumentManager _documents = new();
+	private readonly AuraDocumentManager _documents = new();
 
 	public AuraLanguageServer(bool verbose)
 	{
@@ -22,31 +23,29 @@ public class AuraLanguageServer : IDisposable
 
 	public async Task InitAsync()
 	{
-		rpc = JsonRpc.Attach(Console.OpenStandardOutput(), Console.OpenStandardInput(), this);
-		rpc.Disconnected += OnRpcDisconnected;
-		await rpc.Completion;
+		_rpc = JsonRpc.Attach(Console.OpenStandardOutput(), Console.OpenStandardInput(), this);
+		_rpc.Disconnected += OnRpcDisconnected;
+		await _rpc.Completion;
 	}
 
 	[JsonRpcMethod(Methods.InitializeName)]
 	public InitializeResult Initialize(JToken arg)
 	{
-		lock (_object)
+		lock (Object)
 		{
 			if (Verbose) Console.Error.WriteLine("<-- Initialize");
 
 			var capabilities = new ServerCapabilities
 			{
-				TextDocumentSync = new TextDocumentSyncOptions
-				{
-					Change = TextDocumentSyncKind.Full,
-					OpenClose = true,
-					Save = new SaveOptions
+				TextDocumentSync =
+					new TextDocumentSyncOptions
 					{
-						IncludeText = true
+						Change = TextDocumentSyncKind.Full,
+						OpenClose = true,
+						Save = new SaveOptions { IncludeText = true },
+						WillSave = true,
+						WillSaveWaitUntil = true
 					},
-					WillSave = true,
-					WillSaveWaitUntil = true
-				},
 				CompletionProvider = null,
 				HoverProvider = false,
 				SignatureHelpProvider = null,
@@ -66,10 +65,7 @@ public class AuraLanguageServer : IDisposable
 				SemanticTokensOptions = null,
 			};
 
-			InitializeResult result = new InitializeResult
-			{
-				Capabilities = capabilities
-			};
+			InitializeResult result = new InitializeResult { Capabilities = capabilities };
 
 			var json = JsonConvert.SerializeObject(result);
 			if (Verbose) Console.Error.WriteLine("--> " + json);
@@ -80,7 +76,7 @@ public class AuraLanguageServer : IDisposable
 	[JsonRpcMethod(Methods.InitializedName)]
 	public void InitializedName(JToken arg)
 	{
-		lock (_object)
+		lock (Object)
 		{
 			try
 			{
@@ -91,7 +87,8 @@ public class AuraLanguageServer : IDisposable
 				}
 			}
 			catch (Exception)
-			{ }
+			{
+			}
 		}
 	}
 
@@ -100,30 +97,47 @@ public class AuraLanguageServer : IDisposable
 	{
 		var @params = DeserializeJToken<DidOpenTextDocumentParams>(jToken);
 		_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.TextDocument.Text);
-		Console.Error.WriteLine($"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.TextDocument.Text}");
+		Console.Error.WriteLine(
+			$"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.TextDocument.Text}");
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidChangeName)]
-	public void DidChangeTextDocument(JToken jToken)
+	public List<Diagnostic>? DidChangeTextDocument(JToken jToken)
 	{
 		Console.Error.WriteLine("Received `didChange` notification!");
 		var @params = DeserializeJToken<DidChangeTextDocumentParams>(jToken);
 		_documents.UpdateDocument(@params!.TextDocument.Uri.LocalPath, @params.ContentChanges.First().Text);
-		Console.Error.WriteLine($"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.ContentChanges.First().Text}");
+		Console.Error.WriteLine(
+			$"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.ContentChanges.First().Text}");
+		var d = new Diagnostic
+		{
+			Code = "Warning",
+			Message = "Test message",
+			Severity = DiagnosticSeverity.Error,
+			Range = new Range
+			{
+				Start = new Position { Line = 6, Character = 4 },
+				End = new Position { Line = 6, Character = 10 }
+			}
+		};
+		Console.Error.WriteLine("writing diagnostic");
+		return new List<Diagnostic> { d };
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentWillSaveName)]
 	public void WillSaveTextDocument(JToken jToken)
 	{
 		var @params = DeserializeJToken<WillSaveTextDocumentParams>(jToken);
-		Console.Error.WriteLine($"Received `willSave` notification: {@params.TextDocument.Uri.LocalPath} with reason {@params.Reason}");
+		Console.Error.WriteLine(
+			$"Received `willSave` notification: {@params.TextDocument.Uri.LocalPath} with reason {@params.Reason}");
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentWillSaveWaitUntilName)]
 	public TextEdit[]? WillSaveWaitUntilTextDocument(JToken jToken)
 	{
 		var @params = DeserializeJToken<WillSaveTextDocumentParams>(jToken);
-		Console.Error.WriteLine($"Received `willSaveWaitUntil` notification: {@params.TextDocument.Uri.LocalPath} with reason {@params.Reason}");
+		Console.Error.WriteLine(
+			$"Received `willSaveWaitUntil` notification: {@params.TextDocument.Uri.LocalPath} with reason {@params.Reason}");
 		return null;
 	}
 
@@ -132,7 +146,8 @@ public class AuraLanguageServer : IDisposable
 	{
 		var @params = DeserializeJToken<DidSaveTextDocumentParams>(jToken);
 		_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.Text!);
-		Console.Error.WriteLine($"Received `didSave` notification for file '{@params.TextDocument.Uri.LocalPath}' with content {@params.Text!}");
+		Console.Error.WriteLine(
+			$"Received `didSave` notification for file '{@params.TextDocument.Uri.LocalPath}' with content {@params.Text!}");
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidCloseName)]
@@ -146,7 +161,7 @@ public class AuraLanguageServer : IDisposable
 	[JsonRpcMethod(Methods.ShutdownName)]
 	public JToken? ShutdownName()
 	{
-		lock (_object)
+		lock (Object)
 		{
 			if (Verbose) Console.Error.WriteLine("<-- Shutdown");
 			return null;
@@ -156,7 +171,7 @@ public class AuraLanguageServer : IDisposable
 	[JsonRpcMethod(Methods.ExitName)]
 	public void ExitName()
 	{
-		lock (_object)
+		lock (Object)
 		{
 			try
 			{
@@ -174,7 +189,7 @@ public class AuraLanguageServer : IDisposable
 
 	public void Start()
 	{
-		disconnectEvent.WaitOne();
+		_disconnectEvent.WaitOne();
 	}
 
 	private void OnRpcDisconnected(object? sender, JsonRpcDisconnectedEventArgs e) => Exit();
@@ -192,12 +207,13 @@ public class AuraLanguageServer : IDisposable
 
 	private void Dispose(bool disposing)
 	{
-		if (isDisposed) return;
+		if (_isDisposed) return;
 		if (disposing)
 		{
-			disconnectEvent.Dispose();
+			_disconnectEvent.Dispose();
 		}
-		isDisposed = true;
+
+		_isDisposed = true;
 	}
 
 	private T DeserializeJToken<T>(JToken jToken)

@@ -1,5 +1,5 @@
-﻿using AuraLang.Cli.Options;
-using AuraLang.Lsp.LanguageServerProtocol;
+using AuraLang.Cli.Options;
+using AuraLang.Lsp.LanguageServer;
 
 namespace AuraLang.Cli.Commands;
 
