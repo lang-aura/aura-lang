@@ -1,4 +1,4 @@
-using AuraLang.Cli.Options;
+﻿using AuraLang.Cli.Options;
 using AuraLang.Lsp.LanguageServer;
 
 namespace AuraLang.Cli.Commands;

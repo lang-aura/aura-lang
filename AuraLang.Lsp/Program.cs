@@ -1,4 +1,4 @@
-using AuraLang.Lsp.LanguageServer;
+﻿using AuraLang.Lsp.LanguageServer;
 
 class Program
 {
