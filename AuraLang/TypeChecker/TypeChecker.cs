@@ -1,4 +1,5 @@
 ﻿using AuraLang.AST;
+using AuraLang.Cli.LocalFileSystemModuleProvider;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.ImportedFileProvider;
 using AuraLang.ModuleCompiler;
@@ -25,7 +26,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private string ProjectName { get; }
 	private string? ModuleName { get; set; }
 	private readonly AuraPrelude _prelude = new();
-	public IImportedModuleProvider _importedFileProvider { get; }
+	public IImportedModuleProvider _importedModuleProvider { get; }
 
 	public AuraTypeChecker(IGlobalSymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		IEnclosingFunctionDeclarationStore enclosingFunctionDeclarationStore,
@@ -39,7 +40,43 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
-		_importedFileProvider = importedFileProvider;
+		_importedModuleProvider = importedFileProvider;
+		ProjectName = projectName;
+	}
+
+	public AuraTypeChecker(IGlobalSymbolsTable symbolsTable, IImportedModuleProvider importedModuleProvider, string filePath, string projectName)
+	{
+		_symbolsTable = symbolsTable;
+		_enclosingClassStore = new EnclosingClassStore();
+		_enclosingFunctionDeclarationStore = new EnclosingFunctionDeclarationStore();
+		_enclosingExpressionStore = new EnclosingNodeStore<IUntypedAuraExpression>();
+		_enclosingStatementStore = new EnclosingNodeStore<IUntypedAuraStatement>();
+		_exContainer = new TypeCheckerExceptionContainer(filePath);
+		_importedModuleProvider = importedModuleProvider;
+		ProjectName = projectName;
+	}
+
+	public AuraTypeChecker(IImportedModuleProvider importedModuleProvider, string filePath, string projectName)
+	{
+		_symbolsTable = new GlobalSymbolsTable();
+		_enclosingClassStore = new EnclosingClassStore();
+		_enclosingFunctionDeclarationStore = new EnclosingFunctionDeclarationStore();
+		_enclosingExpressionStore = new EnclosingNodeStore<IUntypedAuraExpression>();
+		_enclosingStatementStore = new EnclosingNodeStore<IUntypedAuraStatement>();
+		_exContainer = new TypeCheckerExceptionContainer(filePath);
+		_importedModuleProvider = importedModuleProvider;
+		ProjectName = projectName;
+	}
+
+	public AuraTypeChecker(string filePath, string projectName)
+	{
+		_symbolsTable = new GlobalSymbolsTable();
+		_enclosingClassStore = new EnclosingClassStore();
+		_enclosingFunctionDeclarationStore = new EnclosingFunctionDeclarationStore();
+		_enclosingExpressionStore = new EnclosingNodeStore<IUntypedAuraExpression>();
+		_enclosingStatementStore = new EnclosingNodeStore<IUntypedAuraStatement>();
+		_exContainer = new TypeCheckerExceptionContainer(filePath);
+		_importedModuleProvider = new AuraLocalFileSystemImportedModuleProvider();
 		ProjectName = projectName;
 	}
 

@@ -1,11 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using AuraLang.AST;
 using AuraLang.Exceptions;
 using AuraLang.Lsp.SynchronizedFileProvider;
 using AuraLang.Parser;
 using AuraLang.Scanner;
-using AuraLang.Stores;
-using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
 
@@ -30,14 +27,10 @@ public class AuraDocumentManager
 			var tokens = new AuraScanner(contents, path).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
 			var untypedAst = new AuraParser(tokens, path).Parse();
 			var typeChecker = new AuraTypeChecker(
-				new GlobalSymbolsTable(),
-				new EnclosingClassStore(),
-				new EnclosingFunctionDeclarationStore(),
-				new EnclosingNodeStore<IUntypedAuraExpression>(),
-				new EnclosingNodeStore<IUntypedAuraStatement>(),
-				new AuraSynchronizedFileProvider(this),
-				path,
-				"Test Project Name");
+				importedModuleProvider: new AuraSynchronizedFileProvider(this),
+				filePath: path,
+				projectName: "Test Project Name"
+			);
 			typeChecker.BuildSymbolsTable(untypedAst);
 			var typedAst = typeChecker.CheckTypes(untypedAst);
 		}

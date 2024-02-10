@@ -3,8 +3,6 @@ using AuraLang.Cli.LocalFileSystemModuleProvider;
 using AuraLang.Exceptions.TypeChecker;
 using AuraLang.FileCompiler;
 using AuraLang.ImportedFileProvider;
-using AuraLang.Stores;
-using AuraLang.Symbol;
 using AuraLang.TypeChecker;
 
 namespace AuraLang.ModuleCompiler;
@@ -30,21 +28,17 @@ public class AuraModuleCompiler
 		var importedModuleProvider = new AuraLocalFileSystemImportedModuleProvider();
 		_importedModuleProvider = importedModuleProvider;
 		TypeChecker = new AuraTypeChecker(
-			new GlobalSymbolsTable(),
-			new EnclosingClassStore(),
-			new EnclosingFunctionDeclarationStore(),
-			new EnclosingNodeStore<IUntypedAuraExpression>(),
-			new EnclosingNodeStore<IUntypedAuraStatement>(),
-			importedModuleProvider,
-			path,
-			ProjectName);
+			importedModuleProvider: importedModuleProvider,
+			filePath: path,
+			projectName: ProjectName
+		);
 	}
 
 	public AuraModuleCompiler(string path, string projectName, AuraTypeChecker typeChecker)
 	{
 		Path = path;
 		ProjectName = projectName;
-		_importedModuleProvider = typeChecker._importedFileProvider;
+		_importedModuleProvider = typeChecker._importedModuleProvider;
 		TypeChecker = typeChecker;
 	}
 
