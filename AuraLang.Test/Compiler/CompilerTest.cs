@@ -1085,9 +1085,9 @@ public class CompilerTest
 				Call: new TypedCall(
 					Callee: new TypedVariable(
 						Name: new Tok(
-							Typ: TokType.Identifier,
-							Value: "f",
-							Line: 1
+							typ: TokType.Identifier,
+							value: "f",
+							line: 1
 						),
 						Typ: new AuraNamedFunction(
 							name: "f",
@@ -1116,9 +1116,9 @@ public class CompilerTest
 		{
 			new TypedStruct(
 				Name: new Tok(
-					Typ: TokType.Identifier,
-					Value: "s",
-					Line: 1
+					typ: TokType.Identifier,
+					value: "s",
+					line: 1
 				),
 				Params: new List<Param>(),
 				Line: 1
@@ -1134,17 +1134,17 @@ public class CompilerTest
 		{
 			new TypedStruct(
 				Name: new Tok(
-					Typ: TokType.Identifier,
-					Value: "s",
-					Line: 1
+					typ: TokType.Identifier,
+					value: "s",
+					line: 1
 				),
 				Params: new List<Param>
 				{
 					new(
 						Name: new Tok(
-							Typ: TokType.Identifier,
-							Value: "i",
-							Line: 1
+							typ: TokType.Identifier,
+							value: "i",
+							line: 1
 						),
 						ParamType: new(
 							Typ: new AuraInt(),

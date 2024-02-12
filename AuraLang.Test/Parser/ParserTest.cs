@@ -1076,24 +1076,24 @@ public class ParserTest
 	{
 		// Arrange
 		tokens.Insert(0, new Tok(
-			Typ: TokType.Newline,
-			Value: "\n",
-			Line: 1
+			typ: TokType.Newline,
+			value: "\n",
+			line: 1
 		));
 		tokens.Insert(0, new Tok(
-			Typ: TokType.Semicolon,
-			Value: ";",
-			Line: 1
+			typ: TokType.Semicolon,
+			value: ";",
+			line: 1
 		));
 		tokens.Insert(0, new Tok(
-			Typ: TokType.Identifier,
-			Value: "main",
-			Line: 1
+			typ: TokType.Identifier,
+			value: "main",
+			line: 1
 		));
 		tokens.Insert(0, new Tok(
-			Typ: TokType.Mod,
-			Value: "mod",
-			Line: 1
+			typ: TokType.Mod,
+			value: "mod",
+			line: 1
 		));
 		var parser = new AuraParser(tokens, "Test");
 		// Act

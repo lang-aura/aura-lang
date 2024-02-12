@@ -989,9 +989,9 @@ public class TypeCheckerTest
 						{
 							new(
 								Name: new Tok(
-									Typ: TokType.Identifier,
-									Value: "message",
-									Line: 1
+									typ: TokType.Identifier,
+									value: "message",
+									line: 1
 								),
 								ParamType: new ParamType(
 									Typ: new AuraString(),
@@ -1019,9 +1019,9 @@ public class TypeCheckerTest
 							new UntypedCall(
 								Callee: new UntypedVariable(
 									Name: new Tok(
-										Typ: TokType.Identifier,
-										Value: "error",
-										Line: 1
+										typ: TokType.Identifier,
+										value: "error",
+										line: 1
 									),
 									Line: 1
 								),
@@ -1049,9 +1049,9 @@ public class TypeCheckerTest
 							Value: new TypedCall(
 								Callee: new TypedVariable(
 									Name: new Tok(
-										Typ: TokType.Identifier,
-										Value: "error",
-										Line: 1
+										typ: TokType.Identifier,
+										value: "error",
+										line: 1
 									),
 									Typ: new AuraNamedFunction(
 										name: "error",
@@ -1061,9 +1061,9 @@ public class TypeCheckerTest
 											{
 												new(
 													Name: new Tok(
-														Typ: TokType.Identifier,
-														Value: "message",
-														Line: 1
+														typ: TokType.Identifier,
+														value: "message",
+														line: 1
 													),
 													ParamType: new ParamType(
 														Typ: new AuraString(),
@@ -1835,9 +1835,9 @@ public class TypeCheckerTest
 		_enclosingFunctionDeclarationStore.Setup(f => f.Peek()).Returns(
 			new UntypedNamedFunction(
 				Name: new Tok(
-					Typ: TokType.Identifier,
-					Value: "f",
-					Line: 1
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
 				),
 				Params: new List<Param>(),
 				Body: new UntypedBlock(
@@ -1869,9 +1869,9 @@ public class TypeCheckerTest
 				Call: new UntypedCall(
 					Callee: new UntypedVariable(
 						Name: new Tok(
-							Typ: TokType.Identifier,
-							Value: "c",
-							Line: 1
+							typ: TokType.Identifier,
+							value: "c",
+							line: 1
 						),
 						Line: 1
 					),
@@ -1885,9 +1885,9 @@ public class TypeCheckerTest
 			Call: new TypedCall(
 				Callee: new TypedVariable(
 					Name: new Tok(
-						Typ: TokType.Identifier,
-						Value: "c",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "c",
+						line: 1
 					),
 					Typ: new AuraNamedFunction(
 						name: "c",
@@ -1914,9 +1914,9 @@ public class TypeCheckerTest
 		{
 			new UntypedStruct(
 				Name: new Tok(
-					Typ: TokType.Identifier,
-					Value: "s",
-					Line: 1
+					typ: TokType.Identifier,
+					value: "s",
+					line: 1
 				),
 				Params: new List<Param>(),
 				Line: 1
@@ -1924,9 +1924,9 @@ public class TypeCheckerTest
 		});
 		MakeAssertions(typedAst, new TypedStruct(
 			Name: new Tok(
-				Typ: TokType.Identifier,
-				Value: "s",
-				Line: 1
+				typ: TokType.Identifier,
+				value: "s",
+				line: 1
 			),
 			Params: new List<Param>(),
 			Line: 1

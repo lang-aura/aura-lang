@@ -393,28 +393,28 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		{
 			_goDocument.WriteStmt(Visit(new TypedImport(
 				Package: new Tok(
-					Typ: TokType.Identifier,
-					Value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
-					Line: 1
+					typ: TokType.Identifier,
+					value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
+					line: 1
 				),
 				Alias: new Tok(
-					Typ: TokType.Identifier,
-					Value: AuraTypeToString(get.Obj.Typ),
-					Line: 1
+					typ: TokType.Identifier,
+					value: AuraTypeToString(get.Obj.Typ),
+					line: 1
 				),
 				Line: 1
 			)),
 			1,
 			new TypedImport(
 				Package: new Tok(
-					Typ: TokType.Identifier,
-					Value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
-					Line: 1
+					typ: TokType.Identifier,
+					value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
+					line: 1
 				),
 				Alias: new Tok(
-					Typ: TokType.Identifier,
-					Value: AuraTypeToString(get.Obj.Typ),
-					Line: 1
+					typ: TokType.Identifier,
+					value: AuraTypeToString(get.Obj.Typ),
+					line: 1
 				),
 				Line: 1
 			));
@@ -707,14 +707,14 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		var typedImport = new TypedImport(
 			Package: new Tok(
-				Typ: TokType.Identifier,
-				Value: $"{ProjectName}/prelude",
-				Line: 1
+				typ: TokType.Identifier,
+				value: $"{ProjectName}/prelude",
+				line: 1
 			),
 			Alias: new Tok(
-				Typ: TokType.Identifier,
-				Value: "prelude",
-				Line: 1
+				typ: TokType.Identifier,
+				value: "prelude",
+				line: 1
 			),
 			Line: 1
 		);

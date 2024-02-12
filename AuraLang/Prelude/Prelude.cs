@@ -2,6 +2,7 @@
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
+using Range = AuraLang.Location.Range;
 
 namespace AuraLang.Prelude;
 
@@ -19,9 +20,10 @@ public class AuraPrelude
 					{
 						new(
 							Name: new Tok(
-								Typ: TokType.Identifier,
-								Value: "message",
-								Line: 1
+								typ: TokType.Identifier,
+								value: "message",
+								range: new Range(),
+								line: 1
 							),
 							ParamType: new ParamType(
 								Typ: new AuraString(),

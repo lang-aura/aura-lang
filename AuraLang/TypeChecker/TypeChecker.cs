@@ -348,9 +348,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							{
 								return new Param(
 									Name: new Tok(
-										Typ: TokType.Identifier,
-										Value: i.ToString(),
-										Line: f.Line
+										typ: TokType.Identifier,
+										value: i.ToString(),
+										line: f.Line
 									),
 									ParamType: new(
 										Typ: typ,
@@ -385,9 +385,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				{
 					return new Param(
 						Name: new Tok(
-							Typ: TokType.Identifier,
-							Value: i.ToString(),
-							Line: f.Line
+							typ: TokType.Identifier,
+							value: i.ToString(),
+							line: f.Line
 						),
 						ParamType: new(
 							Typ: typ,
@@ -415,9 +415,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				{
 					return new Param(
 						Name: new Tok(
-							Typ: TokType.Identifier,
-							Value: i.ToString(),
-							Line: f.Line
+							typ: TokType.Identifier,
+							value: i.ToString(),
+							line: f.Line
 						),
 						ParamType: new(
 							Typ: typ,
@@ -502,9 +502,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				return new Param(
 					Name: new Tok(
-						Typ: TokType.Identifier,
-						Value: i.ToString(),
-						Line: let.Line
+						typ: TokType.Identifier,
+						value: i.ToString(),
+						line: let.Line
 					),
 					ParamType: new(
 						Typ: let.NameTyps[i]!,
@@ -624,9 +624,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					{
 						return new Param(
 							Name: new Tok(
-								Typ: TokType.Identifier,
-								Value: i.ToString(),
-								Line: let.Line
+								typ: TokType.Identifier,
+								value: i.ToString(),
+								line: let.Line
 							),
 							ParamType: new(
 								Typ: let.NameTyps[i]!,
@@ -765,9 +765,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						{
 							return new Param(
 								Name: new Tok(
-									Typ: TokType.Identifier,
-									Value: i.ToString(),
-									Line: r.Line
+									typ: TokType.Identifier,
+									value: i.ToString(),
+									line: r.Line
 								),
 								ParamType: new(
 									Typ: v.Typ,
@@ -1213,9 +1213,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					return new TypedGet(
 						Obj: new TypedVariable(
 							Name: new Tok(
-								Typ: TokType.Identifier,
-								Value: v.Name.Value,
-								Line: get.Line
+								typ: TokType.Identifier,
+								value: v.Name.Value,
+								line: get.Line
 							),
 							Typ: n.ParseAsModule(),
 							Line: get.Line
@@ -1235,14 +1235,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				Visit(new UntypedImport(
 					Package: new Tok(
-						Typ: TokType.Identifier,
-						Value: "aura/strings",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "aura/strings",
+						line: 1
 					),
 					Alias: new Tok(
-						Typ: TokType.Identifier,
-						Value: "strings",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "strings",
+						line: 1
 					),
 					Line: 1
 				));
@@ -1251,14 +1251,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				Visit(new UntypedImport(
 					Package: new Tok(
-						Typ: TokType.Identifier,
-						Value: "aura/lists",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "aura/lists",
+						line: 1
 					),
 					Alias: new Tok(
-						Typ: TokType.Identifier,
-						Value: "lists",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "lists",
+						line: 1
 					),
 					Line: 1
 				));
@@ -1267,14 +1267,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				Visit(new UntypedImport(
 					Package: new Tok(
-						Typ: TokType.Identifier,
-						Value: "aura/errors",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "aura/errors",
+						line: 1
 					),
 					Alias: new Tok(
-						Typ: TokType.Identifier,
-						Value: "errors",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "errors",
+						line: 1
 					),
 					Line: 1
 				));
@@ -1283,14 +1283,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				Visit(new UntypedImport(
 					Package: new Tok(
-						Typ: TokType.Identifier,
-						Value: "aura/results",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "aura/results",
+						line: 1
 					),
 					Alias: new Tok(
-						Typ: TokType.Identifier,
-						Value: "results",
-						Line: 1
+						typ: TokType.Identifier,
+						value: "results",
+						line: 1
 					),
 					Line: 1
 				));
