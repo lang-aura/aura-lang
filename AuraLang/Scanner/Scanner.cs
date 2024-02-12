@@ -1,5 +1,7 @@
 ﻿using AuraLang.Exceptions.Scanner;
+using AuraLang.Location;
 using AuraLang.Token;
+using Range = AuraLang.Location.Range;
 
 namespace AuraLang.Scanner;
 
@@ -12,28 +14,31 @@ public class AuraScanner
 	/// The Aura source code
 	/// </summary>
 	private readonly string _source;
-
 	/// <summary>
 	/// The starting index of the token currently being scanned
 	/// </summary>
 	private int _start;
-
+	/// <summary>
+	/// The starting character position on the current line of the token currently being scanned
+	/// </summary>
+	private int _startCharPos;
 	/// <summary>
 	/// The current index in the source code
 	/// </summary>
 	private int _current;
-
+	/// <summary>
+	/// The current character position on the current line of the token currently being scanned
+	/// </summary>
+	private int _currentCharPos;
 	/// <summary>
 	/// The current line in the Aura source code
 	/// </summary>
 	private int _line;
-
 	/// <summary>
 	/// Helps determine if an implicit semicolon should be added at the end of the current line. No semicolons
 	/// are added at the end of a blank line.
 	/// </summary>
 	private bool _isLineBlank;
-
 	private readonly List<Tok> _tokens;
 	private readonly ScannerExceptionContainer _exContainer;
 	private string FilePath { get; }
@@ -42,7 +47,9 @@ public class AuraScanner
 	{
 		_source = source;
 		_start = 0;
+		_startCharPos = 0;
 		_current = 0;
+		_currentCharPos = 0;
 		_line = 1;
 		_isLineBlank = true;
 		_tokens = new List<Tok>();
@@ -61,6 +68,7 @@ public class AuraScanner
 			// At the beginning of each token, we ensure that the `start` and `current` indices both point to the beginning
 			// of the token
 			_start = _current;
+			_startCharPos = _currentCharPos;
 			// Scan the first character of the next token
 			var c = Advance();
 			// Now that we have scanned a non-blank character, we know the current line isn't blank
@@ -78,7 +86,20 @@ public class AuraScanner
 
 		if (!_exContainer.IsEmpty()) throw _exContainer;
 		// We append an EOF token to the end of the returned list of tokens to clearly delineate the end of the source
-		_tokens.Add(new Tok(TokType.Eof, "eof", _line));
+		_tokens.Add(new Tok(
+			typ: TokType.Eof,
+			value: "eof",
+			range: new Range(
+				start: new Position(
+					character: _currentCharPos,
+					line: _line
+				),
+				end: new Position(
+					character: _currentCharPos,
+					line: _line
+				)
+			),
+			line: _line));
 		return _tokens;
 	}
 
@@ -94,6 +115,7 @@ public class AuraScanner
 				_tokens.Add(MakeSingleCharToken(TokType.Newline, '\n'));
 				_isLineBlank = true;
 				_line++;
+				_currentCharPos = 0;
 			}
 		}
 	}
@@ -146,16 +168,7 @@ public class AuraScanner
 
 					while (!IsAtEnd() && Peek() != '\n') Advance();
 					return MakeToken(TokType.Comment, _start, _current - 1);
-					// Advance past the newline character
-					/*if (!IsAtEnd())
-                    {
-                        Advance();
-                        tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
-                        _line++;
-                        _isLineBlank = true;
-                    }*/
 				}
-
 				if (!IsAtEnd() && Peek() == '*')
 				{
 					Advance(); // Advance past the `*` character
@@ -165,9 +178,12 @@ public class AuraScanner
 						if (Peek() == '\n')
 						{
 							_tokens.Add(MakeToken(TokType.Comment, _start, _current - 1));
+							_startCharPos = _currentCharPos - 1;
 							_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 							Advance();
 							_line++;
+							_startCharPos = 0;
+							_currentCharPos = 0;
 							_start = _current;
 						}
 					}
@@ -233,6 +249,7 @@ public class AuraScanner
 	{
 		var c = Peek();
 		_current++;
+		_currentCharPos++;
 		return c;
 	}
 
@@ -245,7 +262,17 @@ public class AuraScanner
 	private Tok MakeSingleCharToken(TokType tokType, char c)
 	{
 		var s = "" + c;
-		return new Tok(tokType, s, _line);
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
+		return new Tok(tokType, s, range, _line);
 	}
 
 	/// <summary>
@@ -257,9 +284,20 @@ public class AuraScanner
 	/// <returns>A token encapsulating the supplied information</returns>
 	private Tok MakeToken(TokType tokType, int start, int end)
 	{
+		_currentCharPos++;
 		var s = _source[start..(end + 1)];
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
 		_current = end + 1;
-		return new Tok(tokType, s, _line);
+		return new Tok(tokType, s, range, _line);
 	}
 
 	/// <summary>
@@ -274,7 +312,17 @@ public class AuraScanner
 	private Tok CheckKeywordToken(TokType tokType, string actual, string expected)
 	{
 		if (actual != expected) tokType = TokType.Identifier;
-		return new Tok(tokType, actual, _line);
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
+		return new Tok(tokType, actual, range, _line);
 	}
 
 	private Tok CheckIdentifier(char c)
@@ -483,7 +531,23 @@ public class AuraScanner
 				return CheckKeywordToken(TokType.Yield, tok, "yield");
 		}
 
-		return new Tok(TokType.Identifier, tok, _line);
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
+
+		return new Tok(
+			typ: TokType.Identifier,
+			value: tok,
+			range: range,
+			line: _line
+		);
 	}
 
 	/// <summary>
@@ -497,10 +561,27 @@ public class AuraScanner
 		while (!IsAtEnd() && Peek() != '"') s += Advance();
 		// If we've reached the end of the file without encountering the closing ", we throw an exception
 		if (IsAtEnd()) throw new UnterminatedStringException(_line);
+
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
+
 		// Advance past the closing "
 		Advance();
 
-		return new Tok(TokType.StringLiteral, s, _line);
+		return new Tok(
+			typ: TokType.StringLiteral,
+			value: s,
+			range: range,
+			line: _line
+		);
 	}
 
 	private Tok ParseChar()
@@ -516,7 +597,23 @@ public class AuraScanner
 		if (s.Length == 0) throw new EmptyCharException(_line);
 		if (s.Length > 1) throw new CharLengthGreaterThanOneException(_line);
 
-		return new Tok(TokType.CharLiteral, s, _line);
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
+
+		return new Tok(
+			typ: TokType.CharLiteral,
+			value: s,
+			range: range,
+			line: _line
+		);
 	}
 
 	private Tok ParseNumber(char c)
@@ -536,7 +633,23 @@ public class AuraScanner
 			ttype = TokType.FloatLiteral;
 		}
 
-		return new Tok(ttype, s, _line);
+		var range = new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line
+			),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line
+			)
+		);
+
+		return new Tok(
+			typ: ttype,
+			value: s,
+			range: range,
+			line: _line
+		);
 	}
 
 	/// <summary>
