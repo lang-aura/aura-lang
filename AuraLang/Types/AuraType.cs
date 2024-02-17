@@ -1,6 +1,7 @@
 ﻿using AuraLang.AST;
 using AuraLang.Shared;
 using AuraLang.Stdlib;
+using AuraLang.Token;
 
 namespace AuraLang.Types;
 
@@ -70,7 +71,15 @@ public class AuraInt : AuraType, IDefaultable
 	public override bool IsSameType(AuraType other) => other is AuraInt;
 
 	public override string ToString() => "int";
-	public ITypedAuraExpression Default(int line) => new IntLiteral(0, line);
+	public ITypedAuraExpression Default(int line)
+		=> new IntLiteral(
+			Int: new Tok(
+				typ: TokType.IntLiteral,
+				value: "0",
+				line: line
+			),
+			Line: line
+		);
 }
 
 /// <summary>
@@ -81,7 +90,15 @@ public class AuraFloat : AuraType, IDefaultable
 	public override bool IsSameType(AuraType other) => other is AuraFloat;
 
 	public override string ToString() => "float";
-	public ITypedAuraExpression Default(int line) => new FloatLiteral(0.0, line);
+	public ITypedAuraExpression Default(int line)
+		=> new FloatLiteral(
+			Float: new Tok(
+				typ: TokType.Float,
+				value: "0.0",
+				line: line
+			),
+			Line: line
+		);
 }
 
 /// <summary>
@@ -96,7 +113,15 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 	public AuraType IndexingType() => new AuraInt();
 	public AuraType GetIndexedType() => new AuraChar();
 	public AuraType GetRangeIndexedType() => new AuraString();
-	public ITypedAuraExpression Default(int line) => new StringLiteral(string.Empty, line);
+	public ITypedAuraExpression Default(int line)
+		=> new StringLiteral(
+			String: new Tok(
+				typ: TokType.String,
+				value: string.Empty,
+				line: line
+			),
+			Line: line
+		);
 
 	public AuraType? Get(string attribute)
 	{
@@ -115,7 +140,15 @@ public class AuraBool : AuraType, IDefaultable
 	public override bool IsSameType(AuraType other) => other is AuraBool;
 
 	public override string ToString() => "bool";
-	public ITypedAuraExpression Default(int line) => new BoolLiteral(false, line);
+	public ITypedAuraExpression Default(int line)
+		=> new BoolLiteral(
+			Bool: new Tok(
+				typ: TokType.Bool,
+				value: "false",
+				line: line
+			),
+			Line: line
+		);
 }
 
 /// <summary>
@@ -144,7 +177,21 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 	public AuraType GetRangeIndexedType() => new AuraList(Kind);
 
 	public ITypedAuraExpression Default(int line) =>
-		new ListLiteral<ITypedAuraExpression>(new List<ITypedAuraExpression>(), new AuraList(Kind), line);
+		new ListLiteral<ITypedAuraExpression>(
+			OpeningBracket: new Tok(
+				typ: TokType.LeftBracket,
+				value: "[",
+				line: line
+			),
+			L: new List<ITypedAuraExpression>(),
+			Kind: new AuraList(Kind),
+			ClosingBrace: new Tok(
+				typ: TokType.RightBrace,
+				value: "}",
+				line: line
+			),
+			Line: line
+		);
 
 	public AuraType? Get(string attribute)
 	{
@@ -463,7 +510,21 @@ public class AuraMap : AuraType, IIndexable, IDefaultable
 
 	public ITypedAuraExpression Default(int line) =>
 		new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
-			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(), Key, Value, line);
+			Map: new Tok(
+				typ: TokType.Map,
+				value: "map",
+				line: line
+			),
+			M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(),
+			KeyType: Key,
+			ValueType: Value,
+			ClosingBrace: new Tok(
+				typ: TokType.RightBrace,
+				value: "}",
+				line: line
+			),
+			Line: line
+		);
 }
 
 public class AuraError : AuraType, IGettable, IImportableModule, INilable

@@ -244,11 +244,11 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"if {cond} {then}{elsee}";
 	}
 
-	public string Visit(IntLiteral i) => $"{i.I}";
+	public string Visit(IntLiteral i) => $"{i.Value}";
 
-	public string Visit(FloatLiteral f) => $"{f.F}";
+	public string Visit(FloatLiteral f) => $"{f.Value}";
 
-	public string Visit(StringLiteral s) => $"\"{s.S}\"";
+	public string Visit(StringLiteral s) => $"\"{s.Value}\"";
 
 	public string Visit<U>(ListLiteral<U> l) where U : IAuraAstNode
 	{
@@ -264,11 +264,11 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"map[{m.KeyType} : {m.ValueType}]{{ {values} }}";
 	}
 
-	public string Visit(BoolLiteral b) => $"{b.B}";
+	public string Visit(BoolLiteral b) => $"{b.Value}";
 
 	public string Visit(UntypedNil n) => "nil";
 
-	public string Visit(CharLiteral c) => $"'{c.C}'";
+	public string Visit(CharLiteral c) => $"'{c.Value}'";
 
 	public string Visit(UntypedLogical lo) => $"{Expression(lo.Left)} {lo.Operator.Value} {Expression(lo.Right)}";
 

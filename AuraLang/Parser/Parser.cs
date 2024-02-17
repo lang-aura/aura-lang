@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using AuraLang.AST;
+﻿using AuraLang.AST;
 using AuraLang.Exceptions.Parser;
 using AuraLang.Shared;
 using AuraLang.Token;
@@ -312,7 +311,7 @@ public class AuraParser
 		if (Match(TokType.Mod)) return ModDeclaration();
 		if (Match(TokType.Import))
 		{
-			var line = Previous().Line;
+			var import = Previous();
 			if (Match(TokType.LeftParen))
 			{
 				Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
@@ -326,18 +325,19 @@ public class AuraParser
 						var alias = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 						// Parse trailing semicolon
 						Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
-						packages.Add(new UntypedImport(tok_, alias, line));
+						packages.Add(new UntypedImport(import, tok_, alias, import.Line));
 					}
 					else
 					{
 						Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 						Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Line));
-						packages.Add(new UntypedImport(tok_, null, line));
+						packages.Add(new UntypedImport(import, tok_, null, import.Line));
 					}
 				}
+				var rightParen = Previous(); // Store the closing right parenthesis
 				Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 				Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Line));
-				return new UntypedMultipleImport(packages, line);
+				return new UntypedMultipleImport(import, packages, rightParen, import.Line);
 			}
 
 			var tok = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
@@ -347,12 +347,12 @@ public class AuraParser
 				var alias = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 				// Parse trailing semicolon
 				Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
-				return new UntypedImport(tok, alias, line);
+				return new UntypedImport(import, tok, alias, import.Line);
 			}
 
 			// Parse trailing semicolon
 			Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
-			return new UntypedImport(tok, null, line);
+			return new UntypedImport(import, tok, null, import.Line);
 		}
 
 		if (Match(TokType.Mut))
@@ -371,7 +371,7 @@ public class AuraParser
 
 	private IUntypedAuraStatement InterfaceDeclaration(Visibility pub)
 	{
-		var line = Previous().Line;
+		var @interface = Previous();
 		// Consume the interface name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
@@ -386,15 +386,15 @@ public class AuraParser
 			Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 		}
 
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
+		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedInterface(name, methods, pub, line);
+		return new UntypedInterface(@interface, name, methods, pub, closingBrace, @interface.Line);
 	}
 
 	private IUntypedAuraStatement ClassDeclaration(Visibility pub)
 	{
-		var line = Previous().Line;
+		var @class = Previous();
 		// Consume the class name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, Peek().Line));
@@ -407,24 +407,24 @@ public class AuraParser
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
 		var body = ParseClassBody();
 
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
+		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedClass(name, paramz, body, pub, interfaceNames, line);
+		return new UntypedClass(@class, name, paramz, body, pub, interfaceNames, closingBrace, @class.Line);
 	}
 
 	private IUntypedAuraStatement StructDeclaration()
 	{
-		var line = Previous().Line;
+		var @struct = Previous();
 		// Consume the struct name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, Peek().Line));
 		// Parse parameters
-		var paramz = ParseParameters();
-		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
+		var @params = ParseParameters();
+		var closingBrace = Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedStruct(name, paramz, line);
+		return new UntypedStruct(@struct, name, @params, closingBrace, @struct.Line);
 	}
 
 	private List<Tok> ParseImplementingInterfaces()
@@ -469,11 +469,11 @@ public class AuraParser
 
 	private IUntypedAuraStatement ModDeclaration()
 	{
-		var line = Previous().Line;
+		var mod = Previous();
 		var val = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedMod(val, line);
+		return new UntypedMod(mod, val, mod.Line);
 	}
 
 	private IUntypedAuraStatement Statement()
@@ -485,10 +485,10 @@ public class AuraParser
 		if (Match(TokType.Defer)) return DeferStatement();
 		if (Peek().Typ is TokType.Identifier && (PeekNext().Typ is TokType.ColonEqual || PeekNext().Typ is TokType.Comma)) return ShortLetDeclaration(false);
 		if (Match(TokType.Comment)) return Comment();
-		if (Match(TokType.Continue)) return new UntypedContinue(Previous().Line);
-		if (Match(TokType.Break)) return new UntypedBreak(Previous().Line);
+		if (Match(TokType.Continue)) return new UntypedContinue(Previous(), Previous().Line);
+		if (Match(TokType.Break)) return new UntypedBreak(Previous(), Previous().Line);
 		if (Match(TokType.Yield)) return Yield();
-		if (Match(TokType.Newline)) return new UntypedNewLine(Peek().Line);
+		if (Match(TokType.Newline)) return new UntypedNewLine(Previous(), Previous().Line);
 		if (Match(TokType.Check)) return CheckStatement();
 
 		var line = Peek().Line;
@@ -503,7 +503,7 @@ public class AuraParser
 
 	private IUntypedAuraStatement ForStatement()
 	{
-		var line = Previous().Line;
+		var @for = Previous();
 
 		// Parse initializer
 		IUntypedAuraStatement? initializer;
@@ -526,16 +526,16 @@ public class AuraParser
 		// Parse body
 		var body = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd() && !Check(TokType.RightBrace)) body.Add(Declaration());
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
+		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 		// Consume trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedFor(initializer, condition, increment, body, line);
+		return new UntypedFor(@for, initializer, condition, increment, body, closingBrace, @for.Line);
 	}
 
 	private IUntypedAuraStatement ForEachStatement()
 	{
-		var line = Previous().Line;
+		var @foreach = Previous();
 		// The first identifier will be attached to the current item on each iteration
 		var eachName = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.In, new ExpectInKeywordException(Peek().Value, Peek().Line));
@@ -545,19 +545,19 @@ public class AuraParser
 		// Parse body
 		var body = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd() && !Check(TokType.RightBrace)) body.Add(Declaration());
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
+		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedForEach(eachName, iter, body, line);
+		return new UntypedForEach(@foreach, eachName, iter, body, closingBrace, @foreach.Line);
 	}
 
 	private UntypedReturn ReturnStatement()
 	{
-		var line = Previous().Line;
+		var @return = Previous();
 
 		// The return keyword does not need to be followed by an expression, in which case the return statement
 		// will return a value of `nil`
-		if (Match(TokType.Semicolon)) return new UntypedReturn(null, line);
+		if (Match(TokType.Semicolon)) return new UntypedReturn(@return, null, @return.Line);
 
 		var returnTypes = new List<IUntypedAuraExpression>();
 		while (!IsAtEnd())
@@ -568,13 +568,13 @@ public class AuraParser
 		// Parse the trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedReturn(returnTypes, line);
+		return new UntypedReturn(@return, returnTypes, @return.Line);
 	}
 
 	private IUntypedAuraStatement WhileStatement()
 	{
-		var line = Previous().Line;
-
+		// Store while keyword
+		var @while = Previous();
 		// Parse condition
 		var condition = Expression();
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
@@ -586,15 +586,15 @@ public class AuraParser
 			body.Add(stmt);
 		}
 
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
+		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 		// Parse trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
-		return new UntypedWhile(condition, body, line);
+		return new UntypedWhile(@while, condition, body, closingBrace, @while.Line);
 	}
 
 	private UntypedDefer DeferStatement()
 	{
-		var line = Previous().Line;
+		var defer = Previous();
 
 		// Parse the expression to be deferred
 		var expression = Expression();
@@ -603,12 +603,12 @@ public class AuraParser
 			throw new CanOnlyDeferFunctionCallException(Peek().Line);
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
-		return new UntypedDefer(callableExpr, line);
+		return new UntypedDefer(defer, callableExpr, defer.Line);
 	}
 
 	private IUntypedAuraStatement LetDeclaration()
 	{
-		var line = Previous().Line;
+		var let = Previous();
 		// Check if the variable is declared as mutable
 		var isMutable = Match(TokType.Mut);
 		// Parse the variable's name(s)
@@ -619,7 +619,7 @@ public class AuraParser
 		// Parse the trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedLet(names.Select(n => n.Item1).ToList(), names.Select(n => n.Item2).ToList(), isMutable, initializer, line);
+		return new UntypedLet(let, names.Select(n => n.Item1).ToList(), names.Select(n => n.Item2).ToList(), isMutable, initializer, let.Line);
 	}
 
 	private IUntypedAuraStatement ShortLetDeclaration(bool isMutable)
@@ -633,7 +633,7 @@ public class AuraParser
 		// Consume trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedLet(names, new List<AuraType?>(), isMutable, initializer, line);
+		return new UntypedLet(null, names, new List<AuraType?>(), isMutable, initializer, line);
 	}
 
 	private List<(Tok, AuraType)> ParseLongVariableNames()
@@ -678,17 +678,20 @@ public class AuraParser
 
 	private IUntypedAuraStatement Yield()
 	{
+		// Store the yield keyword
+		var yield = Previous();
+		// Parse the expression to be yielded
 		var value = Expression();
 		// Consume the trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedYield(value, Previous().Line);
+		return new UntypedYield(yield, value, yield.Line);
 	}
 
 	private IUntypedAuraStatement CheckStatement()
 	{
-		var line = Previous().Line;
-
+		// Store the check keyword
+		var check = Previous();
 		// Parse the expression to be checked
 		var expression = Expression();
 		// Make sure the checked expression is a function call
@@ -696,7 +699,7 @@ public class AuraParser
 			throw new CanOnlyCheckFunctionCallException(Peek().Line);
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
-		return new UntypedCheck(callableExpr, line);
+		return new UntypedCheck(check, callableExpr, check.Line);
 	}
 
 	private IUntypedAuraStatement ExpressionStatement()
@@ -712,12 +715,12 @@ public class AuraParser
 
 	private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility pub)
 	{
-		var line = Previous().Line;
+		var fn = Previous();
 		// Parse the function's name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Line));
 		Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, Peek().Line));
 		// Parse the function's parameters
-		var paramz = ParseParameters();
+		var @params = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
 		// Parse the function's return type
 		var returnTypes = ParseFunctionReturnTypes();
@@ -726,16 +729,15 @@ public class AuraParser
 		var body = Block();
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Line));
 
-		return new UntypedNamedFunction(name, paramz, body, returnTypes, pub, line);
+		return new UntypedNamedFunction(fn, name, @params, body, returnTypes, pub, fn.Line);
 	}
 
 	private UntypedAnonymousFunction AnonymousFunction()
 	{
-		var line = Previous().Line;
-
+		var fn = Previous();
 		Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, Peek().Line));
 		// Parse function's parameters
-		var paramz = ParseParameters();
+		var @params = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
 		// Parse function's return type
 		var returnTypes = ParseFunctionReturnTypes();
@@ -743,7 +745,7 @@ public class AuraParser
 		// Parse body
 		var body = Block();
 
-		return new UntypedAnonymousFunction(paramz, body, returnTypes, line);
+		return new UntypedAnonymousFunction(fn, @params, body, returnTypes, fn.Line);
 	}
 
 	private List<AuraType>? ParseFunctionReturnTypes()
@@ -787,12 +789,12 @@ public class AuraParser
 		else if (Match(TokType.PlusPlus))
 		{
 			var variable = expression as UntypedVariable;
-			if (variable is not null) return new UntypedPlusPlusIncrement(new UntypedVariable(variable.Name, variable.Line), variable.Line);
+			if (variable is not null) return new UntypedPlusPlusIncrement(new UntypedVariable(variable.Name, variable.Line), Previous(), variable.Line);
 		}
 		else if (Match(TokType.MinusMinus))
 		{
 			var variable = expression as UntypedVariable;
-			if (variable is not null) return new UntypedMinusMinusDecrement(new UntypedVariable(variable.Name, variable.Line), variable.Line);
+			if (variable is not null) return new UntypedMinusMinusDecrement(new UntypedVariable(variable.Name, variable.Line), Previous(), variable.Line);
 		}
 
 		return expression;
@@ -800,7 +802,7 @@ public class AuraParser
 
 	private IUntypedAuraExpression IfExpr()
 	{
-		var line = Previous().Line;
+		var @if = Previous();
 		// Parse the condition
 		var condition = Expression();
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
@@ -812,22 +814,22 @@ public class AuraParser
 			if (Match(TokType.If))
 			{
 				var elseBranch = IfExpr();
-				return new UntypedIf(condition, thenBranch, elseBranch, line);
+				return new UntypedIf(@if, condition, thenBranch, elseBranch, @if.Line);
 			}
 			else
 			{
 				Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Line));
 				var elseBranch = Block();
-				return new UntypedIf(condition, thenBranch, elseBranch, line);
+				return new UntypedIf(@if, condition, thenBranch, elseBranch, @if.Line);
 			}
 		}
 
-		return new UntypedIf(condition, thenBranch, null, line);
+		return new UntypedIf(@if, condition, thenBranch, null, @if.Line);
 	}
 
 	private UntypedBlock Block()
 	{
-		var line = Previous().Line;
+		var openingBrace = Previous();
 		var statements = new List<IUntypedAuraStatement>();
 
 		while (!IsAtEnd() && !Check(TokType.RightBrace))
@@ -843,9 +845,9 @@ public class AuraParser
 			statements.Add(decl);
 		}
 
-		Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
+		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Line));
 
-		return new UntypedBlock(statements, line);
+		return new UntypedBlock(openingBrace, statements, closingBrace, openingBrace.Line);
 	}
 
 	private IUntypedAuraExpression Or()
@@ -982,8 +984,8 @@ public class AuraParser
 			}
 		}
 
-		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
-		return new UntypedCall((IUntypedAuraCallable)callee, arguments, line);
+		var closingParen = Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
+		return new UntypedCall((IUntypedAuraCallable)callee, arguments, closingParen, line);
 	}
 
 	private UntypedIs Is(IUntypedAuraExpression expr)
@@ -997,23 +999,23 @@ public class AuraParser
 	{
 		var line = Peek().Line;
 
-		if (Match(TokType.False)) return new BoolLiteral(false, line);
-		if (Match(TokType.True)) return new BoolLiteral(true, line);
-		if (Match(TokType.Nil)) return new UntypedNil(line);
-		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous().Value, line);
-		if (Match(TokType.CharLiteral)) return new CharLiteral(Previous().Value[0], line);
+		if (Match(TokType.False)) return new BoolLiteral(new Tok(TokType.False, "false", line), line);
+		if (Match(TokType.True)) return new BoolLiteral(new Tok(TokType.True, "true", line), line);
+		if (Match(TokType.Nil)) return new UntypedNil(Previous(), line);
+		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous(), line);
+		if (Match(TokType.CharLiteral)) return new CharLiteral(Previous(), line);
 		if (Match(TokType.IntLiteral))
 		{
 			return new IntLiteral(
-				int.Parse(Previous().Value),
-				line);
+				Int: Previous(),
+				Line: line);
 		}
 
 		if (Match(TokType.FloatLiteral))
 		{
 			return new FloatLiteral(
-				double.Parse(Previous().Value, CultureInfo.InvariantCulture),
-				line);
+				Float: Previous(),
+				Line: line);
 		}
 
 		if (Match(TokType.This)) return new UntypedThis(Previous(), line);
@@ -1029,9 +1031,10 @@ public class AuraParser
 
 		if (Match(TokType.LeftParen))
 		{
+			var openingParen = Previous();
 			var expression = Expression();
-			Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
-			return new UntypedGrouping(expression, line);
+			var closingParen = Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Line));
+			return new UntypedGrouping(openingParen, expression, closingParen, line);
 		}
 
 		if (Match(TokType.LeftBrace))
@@ -1041,6 +1044,7 @@ public class AuraParser
 
 		if (Match(TokType.LeftBracket))
 		{
+			var leftBracket = Previous();
 			// Parse list's type
 			var typ = TypeTokenToType(Advance());
 			Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, Peek().Line));
@@ -1057,7 +1061,8 @@ public class AuraParser
 				}
 			}
 
-			var listExpr = new ListLiteral<IUntypedAuraExpression>(items, typ, line);
+			var closingBrace = Previous();
+			var listExpr = new ListLiteral<IUntypedAuraExpression>(leftBracket, items, typ, closingBrace, line);
 			return Match(TokType.LeftBracket) ? ParseGetAccess(listExpr) : listExpr;
 		}
 
@@ -1068,6 +1073,7 @@ public class AuraParser
 
 		if (Match(TokType.Map))
 		{
+			var map = Previous();
 			// Parse map's type signature
 			Consume(TokType.LeftBracket, new ExpectLeftBracketException(Peek().Value, Peek().Line));
 			var keyType = TypeTokenToType(Advance());
@@ -1088,7 +1094,8 @@ public class AuraParser
 				d[key] = value;
 			}
 
-			var mapExpr = new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(d, keyType, valueType, line);
+			var closingBrace = Previous();
+			var mapExpr = new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(map, d, keyType, valueType, closingBrace, line);
 			return Match(TokType.LeftBracket) ? ParseSingleGetAccess(mapExpr) : mapExpr;
 		}
 
@@ -1105,8 +1112,8 @@ public class AuraParser
 	{
 		var line = obj.Line;
 		var index = ParseIndex();
-		Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, line));
-		return new UntypedGetIndex(obj, index, line);
+		var closingBracket = Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, line));
+		return new UntypedGetIndex(obj, index, closingBracket, line);
 	}
 
 	private IUntypedAuraExpression ParseGetAccess(IUntypedAuraExpression obj)
@@ -1115,27 +1122,26 @@ public class AuraParser
 
 		if (Match(TokType.Colon))
 		{
-			var upper = Match(TokType.RightBracket) ? new IntLiteral(-1, line) : ParseIndex();
-			Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, obj.Line));
-			return new UntypedGetIndexRange(obj, new IntLiteral(0, line), upper,
-				line);
+			var upper = Match(TokType.RightBracket) ? new IntLiteral(new Tok(TokType.IntLiteral, "-1", line), line) : ParseIndex();
+			var closingBracket = Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, obj.Line));
+			return new UntypedGetIndexRange(obj, new IntLiteral(new Tok(TokType.IntLiteral, "0", line), line), upper, closingBracket, line);
 		}
 
 		if (!Match(TokType.RightBracket))
 		{
 			var lower = ParseIndex();
-			if (Match(TokType.RightBracket)) return new UntypedGetIndex(obj, lower, line);
+			if (Match(TokType.RightBracket)) return new UntypedGetIndex(obj, lower, Previous(), line);
 			Consume(TokType.Colon, new ExpectColonException(Peek().Value, line));
 
 			IUntypedAuraExpression upper;
-			if (Match(TokType.RightBracket)) upper = new IntLiteral(-1, line);
+			if (Match(TokType.RightBracket)) upper = new IntLiteral(new Tok(TokType.IntLiteral, "-1", line), line);
 			else
 			{
 				upper = ParseIndex();
 				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, line));
 			}
 
-			return new UntypedGetIndexRange(obj, lower, upper, line);
+			return new UntypedGetIndexRange(obj, lower, upper, Previous(), line);
 		}
 
 		throw new PostfixIndexCannotBeEmptyException(line);
@@ -1147,14 +1153,14 @@ public class AuraParser
 
 		if (Match(TokType.IntLiteral))
 		{
-			return new IntLiteral(int.Parse(Previous().Value), line);
+			return new IntLiteral(Previous(), line);
 		}
 
 		if (Match(TokType.Minus))
 		{
 			var intLiteral = Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Value, line));
 			var i = int.Parse(intLiteral.Value);
-			return new IntLiteral(-i, line);
+			return new IntLiteral(new Tok(TokType.IntLiteral, $"-{i}", line), line);
 		}
 
 		if (Match(TokType.Identifier))
@@ -1164,7 +1170,7 @@ public class AuraParser
 
 		if (Match(TokType.StringLiteral))
 		{
-			return new StringLiteral(Previous().Value, line);
+			return new StringLiteral(Previous(), line);
 		}
 
 		throw new InvalidIndexTypeException(line);
