@@ -4,6 +4,7 @@ using AuraLang.Exceptions.TypeChecker;
 using AuraLang.FileCompiler;
 using AuraLang.ImportedFileProvider;
 using AuraLang.TypeChecker;
+using Range = AuraLang.Location.Range;
 
 namespace AuraLang.ModuleCompiler;
 
@@ -55,7 +56,8 @@ public class AuraModuleCompiler
 		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod));
 		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
 		{
-			throw new DirectoryCannotContainMultipleModulesException(1);
+			// TODO get the name of the file whose module name doesn't match
+			throw new DirectoryCannotContainMultipleModulesException(new Range());
 		}
 
 		// Build symbols table
@@ -77,7 +79,8 @@ public class AuraModuleCompiler
 		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod));
 		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
 		{
-			throw new DirectoryCannotContainMultipleModulesException(1);
+			// TODO get the name of the file whose module name doesn't match
+			throw new DirectoryCannotContainMultipleModulesException(new Range());
 		}
 
 		// Build symbols table

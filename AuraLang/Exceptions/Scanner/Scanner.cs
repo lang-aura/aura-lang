@@ -1,8 +1,10 @@
-﻿namespace AuraLang.Exceptions.Scanner;
+﻿using Range = AuraLang.Location.Range;
+
+namespace AuraLang.Exceptions.Scanner;
 
 public abstract class ScannerException : AuraException
 {
-	protected ScannerException(string message, int line) : base(message, line) { }
+	protected ScannerException(string message, Range range) : base(message, range) { }
 }
 
 /// <summary>
@@ -10,7 +12,7 @@ public abstract class ScannerException : AuraException
 /// </summary>
 public class UnterminatedStringException : ScannerException
 {
-	public UnterminatedStringException(int line) : base("Unterminated string", line) { }
+	public UnterminatedStringException(Range range) : base("Unterminated string", range) { }
 }
 
 /// <summary>
@@ -18,7 +20,7 @@ public class UnterminatedStringException : ScannerException
 /// </summary>
 public class UnterminatedCharException : ScannerException
 {
-	public UnterminatedCharException(int line) : base("Unterminated char", line) { }
+	public UnterminatedCharException(Range range) : base("Unterminated char", range) { }
 }
 
 /// <summary>
@@ -26,7 +28,7 @@ public class UnterminatedCharException : ScannerException
 /// </summary>
 public class CharLengthGreaterThanOneException : ScannerException
 {
-	public CharLengthGreaterThanOneException(int line) : base("Char length greater than 1", line) { }
+	public CharLengthGreaterThanOneException(Range range) : base("Char length greater than 1", range) { }
 }
 
 /// <summary>
@@ -34,7 +36,7 @@ public class CharLengthGreaterThanOneException : ScannerException
 /// </summary>
 public class EmptyCharException : ScannerException
 {
-	public EmptyCharException(int line) : base("Empty char", line) { }
+	public EmptyCharException(Range range) : base("Empty char", range) { }
 }
 
 /// <summary>
@@ -42,5 +44,5 @@ public class EmptyCharException : ScannerException
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {
-	public InvalidCharacterException(char found, int line) : base($"Invalid character: `{found}`", line) { }
+	public InvalidCharacterException(char found, Range range) : base($"Invalid character: `{found}`", range) { }
 }

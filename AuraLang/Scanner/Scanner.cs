@@ -223,7 +223,15 @@ public class AuraScanner
 			default:
 				// If the character isn't an alphabetical or numeric character, and it isn't a valid symbol,
 				// then it must be an invalid character
-				throw new InvalidCharacterException(c, _line);
+				throw new InvalidCharacterException(
+					found: c,
+					range: new Range(
+						start: new Position(
+							character: _startCharPos,
+							line: _line),
+						end: new Position(
+							character: _currentCharPos,
+							line: _line)));
 		}
 	}
 
@@ -560,7 +568,13 @@ public class AuraScanner
 		// Scan the entire token, up until the closing double quote
 		while (!IsAtEnd() && Peek() != '"') s += Advance();
 		// If we've reached the end of the file without encountering the closing ", we throw an exception
-		if (IsAtEnd()) throw new UnterminatedStringException(_line);
+		if (IsAtEnd()) throw new UnterminatedStringException(new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line)));
 
 		var range = new Range(
 			start: new Position(
@@ -590,12 +604,30 @@ public class AuraScanner
 		// Scan the entire token, up until the closing single quote
 		while (!IsAtEnd() && Peek() != '\'') s += Advance();
 		// If we've reached the end of the file without encountering the closing ', we throw an exception
-		if (IsAtEnd()) throw new UnterminatedCharException(_line);
+		if (IsAtEnd()) throw new UnterminatedCharException(new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line)));
 		// Advance past the closing '
 		Advance();
 		// Ensure that the char is a single character
-		if (s.Length == 0) throw new EmptyCharException(_line);
-		if (s.Length > 1) throw new CharLengthGreaterThanOneException(_line);
+		if (s.Length == 0) throw new EmptyCharException(new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line)));
+		if (s.Length > 1) throw new CharLengthGreaterThanOneException(new Range(
+			start: new Position(
+				character: _startCharPos,
+				line: _line),
+			end: new Position(
+				character: _currentCharPos,
+				line: _line)));
 
 		var range = new Range(
 			start: new Position(

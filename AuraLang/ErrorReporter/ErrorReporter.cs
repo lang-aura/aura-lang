@@ -1,11 +1,11 @@
 ﻿using AuraLang.Exceptions;
 
-namespace AuraLang.Parser;
+namespace AuraLang.ErrorReporter;
 
 public class ErrorReporter
 {
 	private readonly List<AuraException> _errors = new();
-	private readonly string _sep = "\n\n\n";
+	private const string Sep = "\n\n\n";
 
 	public void Report(TextWriter tw)
 	{
@@ -15,8 +15,8 @@ public class ErrorReporter
 	public string Format()
 	{
 		return _errors
-			.Select(e => $"[{e.Line}] {e.Message}")
-			.Aggregate("", (prev, curr) => prev + _sep + curr);
+			.Select(e => $"[{e.Range.Start.Line}] {e.Message}")
+			.Aggregate("", (prev, curr) => prev + Sep + curr);
 	}
 
 	public void Add(AuraException ex)
