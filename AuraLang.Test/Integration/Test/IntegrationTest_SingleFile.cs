@@ -79,7 +79,7 @@ public class IntegrationTest_SingleFile
 	public async Task TestIntegration_ImportModuleWithTwoModuleNamesAsync()
 	{
 		var output = await ArrangeAndAct_SingleFileAsync("src/multiple_mod_names.aura");
-		MakeAssertions(output, "[src/multiple_mod_names.aura line 1] Directory cannot contain multiple modules");
+		MakeAssertions(output, "[src/multiple_mod_names.aura line 1] Directory cannot contain multiple modules. Expected only one module name, but found [one, two]");
 	}
 
 	[Test]

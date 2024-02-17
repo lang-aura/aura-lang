@@ -57,7 +57,7 @@ public class AuraModuleCompiler
 		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
 		{
 			// TODO get the name of the file whose module name doesn't match
-			throw new DirectoryCannotContainMultipleModulesException(new Range());
+			throw new DirectoryCannotContainMultipleModulesException(modNames.Select(name => ((UntypedMod)name!).Value.Value).ToList(), new Range());
 		}
 
 		// Build symbols table
@@ -80,7 +80,7 @@ public class AuraModuleCompiler
 		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
 		{
 			// TODO get the name of the file whose module name doesn't match
-			throw new DirectoryCannotContainMultipleModulesException(new Range());
+			throw new DirectoryCannotContainMultipleModulesException(modNames.Select(name => ((UntypedMod)name!).Value.Value).ToList(), new Range());
 		}
 
 		// Build symbols table

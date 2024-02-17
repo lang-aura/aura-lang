@@ -198,7 +198,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private ITypedAuraExpression ExpressionAndConfirm(IUntypedAuraExpression expr, AuraType expected)
 	{
 		var typedExpr = Expression(expr);
-		if (!expected.IsSameOrInheritingType(typedExpr.Typ)) throw new UnexpectedTypeException(expr.Range);
+		if (!expected.IsSameOrInheritingType(typedExpr.Typ)) throw new UnexpectedTypeException(expected, typedExpr.Typ, expr.Range);
 		return typedExpr;
 	}
 
@@ -212,7 +212,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private T FindAndConfirm<T>(string symbolName, string symbolNamespace, T expected, Range range) where T : AuraType
 	{
 		var local = _symbolsTable.GetSymbol(symbolName, symbolNamespace) ?? throw new UnknownVariableException(symbolName, range);
-		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(range);
+		if (!expected.IsSameOrInheritingType(local.Kind)) throw new UnexpectedTypeException(expected, local.Kind, range);
 		return (T)local.Kind;
 	}
 
@@ -292,7 +292,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				{
 					// Type check iterable
 					var iter = Expression(forEachStmt.Iterable);
-					if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(forEachStmt.Range);
+					if (iter.Typ is not IIterable typedIter) throw new ExpectIterableException(iter.Typ, forEachStmt.Range);
 					// Add current element variable to list of local variables
 					_symbolsTable.TryAddSymbol(
 						symbol: new AuraSymbol(
@@ -365,7 +365,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					}
 					// Ensure the function's body returns the type specified in its signature
 					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
-						throw new TypeMismatchException(f.Range);
+						throw new TypeMismatchException(returnType, typedBody.Typ, f.Range);
 
 					return new TypedAnonymousFunction(f.Fn, typedParams, typedBody, returnType);
 				});
@@ -448,11 +448,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// Ensure the function's body returns the same type specified in its signature
 		if (returnType is AuraResult r)
 		{
-			if (!r.Success.IsSameOrInheritingType(typedBody.Typ) && !r.Failure.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Range);
+			if (!r.Success.IsSameOrInheritingType(typedBody.Typ) && !r.Failure.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(r.Failure, typedBody.Typ, f.Range);
 		}
 		else
 		{
-			if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Range);
+			if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(returnType, typedBody.Typ, f.Range);
 		}
 
 		return new TypedNamedFunction(f.Fn, f.Name, typedParams, typedBody, returnType, f.Public);
@@ -1066,7 +1066,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		var name = Expression(inc.Name);
 		// Ensure that expression has type of either int or float
-		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotIncrementNonNumberException(inc.Range);
+		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotIncrementNonNumberException(name.Typ, inc.Range);
 
 		return new TypedPlusPlusIncrement(name, inc.PlusPlus, name.Typ);
 	}
@@ -1075,7 +1075,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		var name = Expression(dec.Name);
 		// Ensure that expression has type of either int or float
-		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotDecrementNonNumberException(dec.Range);
+		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotDecrementNonNumberException(name.Typ, dec.Range);
 
 		return new TypedMinusMinusDecrement(name, dec.MinusMinus, name.Typ);
 	}
@@ -1330,7 +1330,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			var typedObj = Expression(set.Obj);
-			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(set.Range);
+			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(typedObj.Typ, set.Range);
 			var typedValue = Expression(set.Value);
 			return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ);
 		}, set);
@@ -1352,9 +1352,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var expr = Expression(getIndex.Obj);
 			var indexExpr = Expression(getIndex.Index);
 			// Ensure that the object is indexable
-			if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(getIndex.Range);
+			if (expr.Typ is not IIndexable indexableExpr) throw new ExpectIndexableException(expr.Typ, getIndex.Range);
 			if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ))
-				throw new TypeMismatchException(getIndex.Range);
+				throw new TypeMismatchException(indexableExpr.IndexingType(), indexExpr.Typ, getIndex.Range);
 
 			return new TypedGetIndex(expr, indexExpr, getIndex.ClosingBracket, indexableExpr.GetIndexedType());
 		}, getIndex);
@@ -1378,11 +1378,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var upper = Expression(getIndexRange.Upper);
 			// Ensure that the object is range indexable
 			if (expr.Typ is not IRangeIndexable rangeIndexableExpr)
-				throw new ExpectRangeIndexableException(getIndexRange.Range);
+				throw new ExpectRangeIndexableException(expr.Typ, getIndexRange.Range);
 			if (!rangeIndexableExpr.IndexingType().IsSameType(lower.Typ))
-				throw new TypeMismatchException(getIndexRange.Range);
+				throw new TypeMismatchException(rangeIndexableExpr.IndexingType(), lower.Typ, getIndexRange.Range);
 			if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ))
-				throw new TypeMismatchException(getIndexRange.Range);
+				throw new TypeMismatchException(rangeIndexableExpr.IndexingType(), upper.Typ, getIndexRange.Range);
 
 			return new TypedGetIndexRange(expr, lower, upper, getIndexRange.ClosingBracket, expr.Typ);
 		}, getIndexRange);
