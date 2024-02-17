@@ -25,39 +25,45 @@ public interface ITypedAuraCallable : ITypedAuraAstNode
 /// </summary>
 /// <param name="Name">The variable's name</param>
 /// <param name="Value">the variable's new value</param>
-public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Name.Range.Start,
 		end: Value.Range.End
 	);
+
+	public int Line => Name.Line;
 }
 
 /// <summary>
 /// Represents an increment operation where the value of the variable is incremented by 1.
 /// </summary>
 /// <param name="Name">The variable being incremented</param>
-public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Name.Range.Start,
 		end: PlusPlus.Range.End
 	);
+
+	public int Line => Name.Line;
 }
 
 /// <summary>
 /// Represents a decrement operation where the value of the variable is decremented by 1.
 /// </summary>
 /// <param name="Name">The variable being decremented</param>
-public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Name.Range.Start,
 		end: MinusMinus.Range.End
 	);
+
+	public int Line => Name.Line;
 }
 
 /// <summary>
@@ -66,26 +72,30 @@ public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus
 /// <param name="Left">The expression on the left side of the binary expression</param>
 /// <param name="Operator">The binary expression's operator</param>
 /// <param name="Right">The expression on the right side of the binary expression</param>
-public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExpression Right, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExpression Right, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
+
+	public int Line => Left.Line;
 }
 
 /// <summary>
 /// Represents a typed block expression
 /// </summary>
 /// <param name="Statements">A collection of statements</param>
-public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements, Tok ClosingBrace, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements, Tok ClosingBrace, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: OpeningBrace.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => OpeningBrace.Line;
 }
 
 /// <summary>
@@ -93,13 +103,15 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 /// </summary>
 /// <param name="Callee">The callee expressions</param>
 /// <param name="Arguments">The call's arguments</param>
-public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Callee.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public int Line => Callee.Line;
 }
 
 /// <summary>
@@ -107,7 +119,7 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 /// </summary>
 /// <param name="Obj">The compound object being queried. It will have an attribute matching the <see cref="Name"/> parameter</param>
 /// <param name="Name">The name of the attribute to get</param>
-public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ, int Line) : ITypedAuraExpression, ITypedAuraCallable
+public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ) : ITypedAuraExpression, ITypedAuraCallable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public string GetName() => Name.Value;
@@ -115,6 +127,8 @@ public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ, int Lin
 		start: Obj.Range.Start,
 		end: Name.Range.End
 	);
+
+	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -122,13 +136,15 @@ public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ, int Lin
 /// </summary>
 /// <param name="Obj">The collection object being queried.</param>
 /// <param name="Index">The index in the collection to fetch</param>
-public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index, Tok ClosingBracket, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index, Tok ClosingBracket, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
+
+	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -137,13 +153,15 @@ public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index
 /// <param name="Obj">The collection object being queried</param>
 /// <param name="Lower">The lower bound of the range being fetched. This bound is inclusive.</param>
 /// <param name="Upper">The upper bound of the range being fetched. This bound is exclusive.</param>
-public record TypedGetIndexRange(ITypedAuraExpression Obj, ITypedAuraExpression Lower, ITypedAuraExpression Upper, Tok ClosingBracket, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedGetIndexRange(ITypedAuraExpression Obj, ITypedAuraExpression Lower, ITypedAuraExpression Upper, Tok ClosingBracket, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
+
+	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -152,13 +170,15 @@ public record TypedGetIndexRange(ITypedAuraExpression Obj, ITypedAuraExpression 
 /// <param name="Condition">The condition that will determine which branch is executed</param>
 /// <param name="Then">The branch that will be executed if the <see cref="Condition"/> evaluates to true</param>
 /// <param name="Else">The branch that will be executed if the <see cref="Condition"/> evalutes to false</param>
-public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, ITypedAuraExpression? Else, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, ITypedAuraExpression? Else, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: If.Range.Start,
 		end: Else is not null ? Else.Range.End : Then.Range.End
 	);
+
+	public int Line => If.Line;
 }
 
 /// <summary>
@@ -167,13 +187,15 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 /// <param name="Left">The expression on the left side of the logical expression</param>
 /// <param name="Operator">The logical expression's operator</param>
 /// <param name="Right">The expression on the right side of the logical expression</param>
-public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraExpression Right, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraExpression Right, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
+
+	public int Line => Left.Line;
 }
 
 /// <summary>
@@ -182,23 +204,26 @@ public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraEx
 /// <param name="Obj">The compound object whose attribute is being assigned a new value</param>
 /// <param name="Name">The name of the attribute that is being assigned a new value</param>
 /// <param name="Value">The new value</param>
-public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression Value, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression Value, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Obj.Range.Start,
 		end: Value.Range.End
 	);
+
+	public int Line => Obj.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>this</c> token
 /// </summary>
 /// <param name="This">The <c>this</c> token</param>
-public record TypedThis(Tok This, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => This.Range;
+	public int Line => This.Line;
 }
 
 /// <summary>
@@ -206,32 +231,35 @@ public record TypedThis(Tok This, AuraType Typ, int Line) : ITypedAuraExpression
 /// </summary>
 /// <param name="Operator">The unary expression's operator. Will be one of <c>!</c> or <c>-</c></param>
 /// <param name="Right">The expression onto which the operator will be applied</param>
-public record TypedUnary(Tok Operator, ITypedAuraExpression Right, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedUnary(Tok Operator, ITypedAuraExpression Right, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Operator.Range.Start,
 		end: Right.Range.End
 	);
+
+	public int Line => Operator.Line;
 }
 
 /// <summary>
 /// Represents a type-checked variable
 /// </summary>
 /// <param name="Name">The variable's name</param>
-public record TypedVariable(Tok Name, AuraType Typ, int Line) : ITypedAuraExpression, ITypedAuraCallable
+public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITypedAuraCallable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public string GetName() => Name.Value;
 	public Range Range => Name.Range;
+	public int Line => Name.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>is</c> expression
 /// </summary>
-/// <param name="expr">The expression whose type will be checked against the expected type</param>
-/// <param name="expected">The expected type</param>
-public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected, int Line) : ITypedAuraExpression
+/// <param name="Expr">The expression whose type will be checked against the expected type</param>
+/// <param name="Expected">The expected type</param>
+public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	/// <summary>
@@ -242,26 +270,30 @@ public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected, int Lin
 		start: Expr.Range.Start,
 		end: new Location.Position() // TODO add range to AuraInterface
 	);
+
+	public int Line => Expr.Line;
 }
 
 /// <summary>
 /// Represents a type-checked grouping expression
 /// </summary>
 /// <param name="Expr">The expression contained in the grouping expression</param>
-public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok ClosingParen, AuraType Typ, int Line) : ITypedAuraExpression
+public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok ClosingParen, AuraType Typ) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: OpeningParen.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public int Line => OpeningParen.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>defer</c> statement
 /// </summary>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function's scope</param>
-public record TypedDefer(Tok Defer, TypedCall Call, int Line) : ITypedAuraStatement
+public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -269,17 +301,20 @@ public record TypedDefer(Tok Defer, TypedCall Call, int Line) : ITypedAuraStatem
 		start: Defer.Range.Start,
 		end: Call.Range.End
 	);
+
+	public int Line => Defer.Line;
 }
 
 /// <summary>
 /// Represents a type-checked expression statement
 /// </summary>
 /// <param name="Expression">The enclosed expression</param>
-public record TypedExpressionStmt(ITypedAuraExpression Expression, int Line) : ITypedAuraStatement
+public record TypedExpressionStmt(ITypedAuraExpression Expression) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Expression.Range;
+	public int Line => Expression.Line;
 }
 
 /// <summary>
@@ -289,7 +324,7 @@ public record TypedExpressionStmt(ITypedAuraExpression Expression, int Line) : I
 /// <param name="Condition">The loop's condition. The loop will exit when the condition evaluates to false.</param>
 /// <param name="Body">Collection of statements that will be executed once per iteration.</param>
 public record TypedFor(Tok For, ITypedAuraStatement? Initializer, ITypedAuraExpression? Condition, ITypedAuraExpression? Increment,
-	List<ITypedAuraStatement> Body, Tok ClosingBrace, int Line) : ITypedAuraStatement
+	List<ITypedAuraStatement> Body, Tok ClosingBrace) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -297,6 +332,8 @@ public record TypedFor(Tok For, ITypedAuraStatement? Initializer, ITypedAuraExpr
 		start: For.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => For.Line;
 }
 
 /// <summary>
@@ -306,7 +343,7 @@ public record TypedFor(Tok For, ITypedAuraStatement? Initializer, ITypedAuraExpr
 /// <param name="Iterable">The collection being iterated over</param>
 /// <param name="Body">Collection of statements that will be executed once per iteration</param>
 public record TypedForEach
-	(Tok ForEach, Tok EachName, ITypedAuraExpression Iterable, List<ITypedAuraStatement> Body, Tok ClosingBrace, int Line) : ITypedAuraStatement
+	(Tok ForEach, Tok EachName, ITypedAuraExpression Iterable, List<ITypedAuraStatement> Body, Tok ClosingBrace) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -314,6 +351,8 @@ public record TypedForEach
 		start: ForEach.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => ForEach.Line;
 }
 
 /// <summary>
@@ -324,7 +363,7 @@ public record TypedForEach
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
 public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
-	Visibility Public, int Line) : ITypedAuraStatement, ITypedFunction
+	Visibility Public) : ITypedAuraStatement, ITypedFunction
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType));
@@ -341,6 +380,8 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
+
+	public int Line => Fn.Line;
 }
 
 /// <summary>
@@ -349,7 +390,7 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 /// <param name="Params">The anonymous function's parameters</param>
 /// <param name="Body">The anonymous function's body</param>
 /// <param name="ReturnType">The anonymous function's return type</param>
-public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body, AuraType ReturnType, int Line) : ITypedAuraExpression, ITypedFunction
+public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body, AuraType ReturnType) : ITypedAuraExpression, ITypedFunction
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraFunction(Params, ReturnType);
@@ -359,6 +400,8 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
+
+	public int Line => Fn.Line;
 }
 
 /// <summary>
@@ -368,7 +411,7 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 /// <param name="TypeAnnotation">Indicates whether the variables were declared with a type annotation</param>
 /// <param name="Mutable">Indicates whether the variable was declared as mutable</param>
 /// <param name="Initializer">The initializer expression. This can be omitted.</param>
-public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer, int Line) : ITypedAuraStatement
+public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -376,13 +419,15 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 		start: Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
 		end: Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
 	);
+
+	public int Line => Let is not null ? Let.Value.Line : Names.First().Line;
 }
 
 /// <summary>
 /// Represents a type-checked module declaration
 /// </summary>
 /// <param name="Value">The module's name</param>
-public record TypedMod(Tok Mod, Tok Value, int Line) : ITypedAuraStatement
+public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -390,13 +435,15 @@ public record TypedMod(Tok Mod, Tok Value, int Line) : ITypedAuraStatement
 		start: Mod.Range.Start,
 		end: Value.Range.End
 	);
+
+	public int Line => Mod.Line;
 }
 
 /// <summary>
 /// Represents a valid type-checked <c>return</c> statement
 /// </summary>
 /// <param name="Value">The value to return</param>
-public record TypedReturn(Tok Return, ITypedAuraExpression? Value, int Line) : ITypedAuraStatement
+public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -404,6 +451,8 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value, int Line) : I
 		start: Return.Range.Start,
 		end: Value is not null ? Value.Range.End : Return.Range.End
 	);
+
+	public int Line => Return.Line;
 }
 
 /// <summary>
@@ -413,7 +462,7 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value, int Line) : I
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record TypedInterface
-	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, int Line) : ITypedAuraStatement
+	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -423,9 +472,11 @@ public record TypedInterface
 			: Interface.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => Interface.Line;
 }
 
-public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, int Line) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
+public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -436,9 +487,11 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public int Line => Struct.Line;
 }
 
-public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen, int Line) : ITypedAuraExpression, ITypedFunction
+public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen) : ITypedAuraExpression, ITypedFunction
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraAnonymousStruct(
@@ -451,6 +504,8 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public int Line => Struct.Line;
 }
 
 /// <summary>
@@ -461,7 +516,7 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<AuraInterface> Implementing,
-	Tok ClosingBrace, int Line) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
+	Tok ClosingBrace) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -472,6 +527,8 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 		start: Class.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => Class.Line;
 }
 
 /// <summary>
@@ -479,7 +536,7 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 /// </summary>
 /// <param name="Condition">The loop's condition. The loop will exit when the condition evaluates to false</param>
 /// <param name="Body">Collection of statements executed once per iteration</param>
-public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedAuraStatement> Body, Tok ClosingBrace, int Line) : ITypedAuraStatement
+public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedAuraStatement> Body, Tok ClosingBrace) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -487,6 +544,8 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 		start: While.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => While.Line;
 }
 
 /// <summary>
@@ -494,7 +553,7 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 /// </summary>
 /// <param name="Package">The name of the package being imported</param>
 /// <param name="Alias">Will have a value if the package is being imported under an alias</param>
-public record TypedImport(Tok Import, Tok Package, Tok? Alias, int Line) : ITypedAuraStatement
+public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -502,9 +561,11 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias, int Line) : IType
 		start: Import.Range.Start,
 		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
 	);
+
+	public int Line => Import.Line;
 }
 
-public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen, int Line) : ITypedAuraStatement
+public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -512,54 +573,60 @@ public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok Cl
 		start: Import.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public int Line => Import.Line;
 }
 
 /// <summary>
 /// Represents a type-checked comment
 /// </summary>
 /// <param name="Text">The text of the comment</param>
-public record TypedComment(Tok Text, int Line) : ITypedAuraStatement
+public record TypedComment(Tok Text) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Text.Range;
+	public int Line => Text.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>continue</c> statement
 /// </summary>
-public record TypedContinue(Tok Continue, int Line) : ITypedAuraStatement
+public record TypedContinue(Tok Continue) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Continue.Range;
+	public int Line => Continue.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>break</c> statement
 /// </summary>
-public record TypedBreak(Tok Break, int Line) : ITypedAuraStatement
+public record TypedBreak(Tok Break) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Break.Range;
+	public int Line => Break.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>nil</c> keyword
 /// </summary>
-public record TypedNil(Tok Nil, int Line) : ITypedAuraExpression
+public record TypedNil(Tok Nil) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNil();
 	public Range Range => Nil.Range;
+	public int Line => Nil.Line;
 }
 
 /// <summary>
 /// Represents a type-checked <c>yield</c> statement
 /// </summary>
 /// <param name="Value">The value to be yielded from the enclosing expression</param>
-public record TypedYield(Tok Yield, ITypedAuraExpression Value, int Line) : ITypedAuraStatement
+public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -567,9 +634,11 @@ public record TypedYield(Tok Yield, ITypedAuraExpression Value, int Line) : ITyp
 		start: Yield.Range.Start,
 		end: Value.Range.End
 	);
+
+	public int Line => Yield.Line;
 }
 
-public record TypedCheck(Tok Check, TypedCall Call, int Line) : ITypedAuraStatement
+public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -577,4 +646,6 @@ public record TypedCheck(Tok Check, TypedCall Call, int Line) : ITypedAuraStatem
 		start: Check.Range.Start,
 		end: Call.Range.End
 	);
+
+	public int Line => Check.Line;
 }

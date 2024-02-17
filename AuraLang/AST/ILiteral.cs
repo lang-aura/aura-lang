@@ -16,8 +16,8 @@ public interface ILiteral<out T> : ILiteral
 /// <summary>
 /// Represents an integer literal
 /// </summary>
-/// <param name="I">The integer value</param>
-public record IntLiteral(Tok Int, int Line) : ILiteral<long>
+/// <param name="Int">The integer value</param>
+public record IntLiteral(Tok Int) : ILiteral<long>
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
@@ -25,13 +25,14 @@ public record IntLiteral(Tok Int, int Line) : ILiteral<long>
 	public long Value => int.Parse(Int.Value);
 	public override string ToString() => $"{Value}";
 	public Range Range => Int.Range;
+	public int Line => Int.Line;
 }
 
 /// <summary>
 /// Represents a float literal
 /// </summary>
-/// <param name="F">The float value</param>
-public record FloatLiteral(Tok Float, int Line) : ILiteral<double>
+/// <param name="Float">The float value</param>
+public record FloatLiteral(Tok Float) : ILiteral<double>
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
@@ -39,13 +40,14 @@ public record FloatLiteral(Tok Float, int Line) : ILiteral<double>
 	public double Value => float.Parse(Float.Value, CultureInfo.InvariantCulture);
 	public override string ToString() => $"{Value}";
 	public Range Range => Float.Range;
+	public int Line => Float.Line;
 }
 
 /// <summary>
 /// Represents a string literal
 /// </summary>
-/// <param name="S">The string value</param>
-public record StringLiteral(Tok String, int Line) : ILiteral<string>
+/// <param name="String">The string value</param>
+public record StringLiteral(Tok String) : ILiteral<string>
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
@@ -53,13 +55,14 @@ public record StringLiteral(Tok String, int Line) : ILiteral<string>
 	public string Value => String.Value;
 	public override string ToString() => $"{Value}";
 	public Range Range => String.Range;
+	public int Line => String.Line;
 }
 
 /// <summary>
 /// Represents a list literal
 /// </summary>
 /// <param name="L">The list value</param>
-public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok ClosingBrace, int Line) : ILiteral<List<T>>
+public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok ClosingBrace) : ILiteral<List<T>>
 	where T : IAuraAstNode
 {
 	public U Accept<U>(IUntypedAuraExprVisitor<U> visitor) => visitor.Visit(this);
@@ -71,6 +74,8 @@ public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok C
 		start: OpeningBracket.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => OpeningBracket.Line;
 }
 
 /// <summary>
@@ -87,7 +92,7 @@ public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok C
 /// match their expected type.
 /// </summary>
 /// <param name="M">The map value</param>
-public record MapLiteral<TK, TV>(Tok Map, Dictionary<TK, TV> M, AuraType KeyType, AuraType ValueType, Tok ClosingBrace, int Line) : ILiteral<Dictionary<TK, TV>>
+public record MapLiteral<TK, TV>(Tok Map, Dictionary<TK, TV> M, AuraType KeyType, AuraType ValueType, Tok ClosingBrace) : ILiteral<Dictionary<TK, TV>>
 	where TK : IAuraAstNode
 	where TV : IAuraAstNode
 {
@@ -100,13 +105,15 @@ public record MapLiteral<TK, TV>(Tok Map, Dictionary<TK, TV> M, AuraType KeyType
 		start: Map.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => Map.Line;
 }
 
 /// <summary>
 /// Represents a boolean literal
 /// </summary>
-/// <param name="B">The boolean value</param>
-public record BoolLiteral(Tok Bool, int Line) : ILiteral<bool>
+/// <param name="Bool">The boolean value</param>
+public record BoolLiteral(Tok Bool) : ILiteral<bool>
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
@@ -114,13 +121,14 @@ public record BoolLiteral(Tok Bool, int Line) : ILiteral<bool>
 	public bool Value => bool.Parse(Bool.Value);
 	public override string ToString() => $"{Value}";
 	public Range Range => Bool.Range;
+	public int Line => Bool.Line;
 }
 
 /// <summary>
 /// Represents a char literal
 /// </summary>
-/// <param name="C">The char value</param>
-public record CharLiteral(Tok Char, int Line) : ILiteral<char>
+/// <param name="Char">The char value</param>
+public record CharLiteral(Tok Char) : ILiteral<char>
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
@@ -128,4 +136,5 @@ public record CharLiteral(Tok Char, int Line) : ILiteral<char>
 	public char Value => char.Parse(Char.Value);
 	public override string ToString() => $"{Value}";
 	public Range Range => Char.Range;
+	public int Line => Char.Line;
 }

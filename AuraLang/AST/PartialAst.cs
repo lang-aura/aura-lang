@@ -13,7 +13,7 @@ namespace AuraLang.AST;
 /// <param name="Params">The partially type function's parameters</param>
 /// <param name="Body">The partially typed function's body</param>
 /// <param name="ReturnType">The partially typed function's return type</param>
-public record PartiallyTypedFunction(Tok Fn, Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public, int Line) : ITypedAuraStatement, IUntypedFunction
+public record PartiallyTypedFunction(Tok Fn, Tok Name, List<Param> Params, UntypedBlock Body, AuraType ReturnType, Visibility Public) : ITypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => ReturnType;
@@ -23,6 +23,8 @@ public record PartiallyTypedFunction(Tok Fn, Tok Name, List<Param> Params, Untyp
 		start: Public == Visibility.Public ? Fn.Range.Start with { Character = Fn.Range.Start.Character - 4 } : Fn.Range.Start,
 		end: Body.Range.End
 	);
+
+	public int Line => Fn.Line;
 }
 
 /// <summary>
@@ -32,7 +34,7 @@ public record PartiallyTypedFunction(Tok Fn, Tok Name, List<Param> Params, Untyp
 /// <param name="Params">The partially typed class's parameters</param>
 /// <param name="Methods">The partially typed class's methods</param>
 /// <param name="Public">Indicates if the partially typed class is public or not</param>
-public record PartiallyTypedClass(Tok Class, Tok Name, List<Param> Params, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, AuraType Typ, int Line) : ITypedAuraStatement, IUntypedFunction
+public record PartiallyTypedClass(Tok Class, Tok Name, List<Param> Params, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, AuraType Typ) : ITypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
@@ -41,4 +43,6 @@ public record PartiallyTypedClass(Tok Class, Tok Name, List<Param> Params, List<
 		start: Class.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public int Line => Class.Line;
 }

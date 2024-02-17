@@ -46,11 +46,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "6",
 								line: 1
-							),
-							Line: 1
-						),
-						1),
-					1)
+							))))
 			});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new TypedAssignment(
@@ -60,12 +56,9 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "6",
 						line: 1
-					),
-					Line: 1
+					)
 				),
-				new AuraInt(),
-				1),
-			1));
+				new AuraInt())));
 	}
 
 	[Test]
@@ -75,20 +68,16 @@ public class TypeCheckerTest
 		{
 			new UntypedExpressionStmt(
 				new UntypedBinary(
-					new BoolLiteral(new Tok(TokType.True, "true", 1), 1),
+					new BoolLiteral(new Tok(TokType.True, "true", 1)),
 					new Tok(TokType.And, "and", 1),
-					new BoolLiteral(new Tok(TokType.True, "false", 1), 1),
-					1),
-				1)
+					new BoolLiteral(new Tok(TokType.True, "false", 1))))
 		});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new TypedBinary(
-				new BoolLiteral(new Tok(TokType.True, "true", 1), 1),
+				new BoolLiteral(new Tok(TokType.True, "true", 1)),
 				new Tok(TokType.And, "and", 1),
-				new BoolLiteral(new Tok(TokType.True, "false", 1), 1),
-				new AuraInt(),
-				1),
-			1));
+				new BoolLiteral(new Tok(TokType.True, "false", 1)),
+				new AuraInt())));
 	}
 
 	[Test]
@@ -109,10 +98,7 @@ public class TypeCheckerTest
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -131,10 +117,7 @@ public class TypeCheckerTest
 						value: "}",
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil())
 			)
 		);
 	}
@@ -168,20 +151,14 @@ public class TypeCheckerTest
 										typ: TokType.IntLiteral,
 										value: "5",
 										line: 2
-									),
-									Line: 2
-								),
-								Line: 2
+									))
 							)
 						},
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -210,10 +187,7 @@ public class TypeCheckerTest
 									typ: TokType.IntLiteral,
 									value: "5",
 									line: 2
-								),
-								Line: 2
-							),
-							Line: 2
+								))
 						)
 					},
 					ClosingBrace: new Tok(
@@ -221,10 +195,8 @@ public class TypeCheckerTest
 						value: "}",
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil()
+				)
 			)
 		);
 	}
@@ -256,8 +228,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "f",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 						ClosingParen: new Tok(
@@ -274,10 +245,7 @@ public class TypeCheckerTest
 								)
 							),
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -287,8 +255,7 @@ public class TypeCheckerTest
 				Expression: new TypedCall(
 					Callee: new TypedVariable(
 						new Tok(TokType.Identifier, "f", 1),
-						new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())),
-						1),
+						new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil()))),
 					Arguments: new List<ITypedAuraExpression>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
@@ -305,10 +272,7 @@ public class TypeCheckerTest
 						),
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil())
 			)
 		);
 	}
@@ -366,8 +330,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "f",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
 						{
@@ -382,8 +345,7 @@ public class TypeCheckerTest
 										typ: TokType.StringLiteral,
 										value: "Hello world",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							),
 							(
@@ -397,8 +359,7 @@ public class TypeCheckerTest
 										typ: TokType.IntLiteral,
 										value: "5",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							)
 						},
@@ -406,10 +367,7 @@ public class TypeCheckerTest
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -430,8 +388,7 @@ public class TypeCheckerTest
 								fParams: new List<Param>(),
 								returnType: new AuraNil()
 							)
-						),
-						Line: 1
+						)
 					),
 					Arguments: new List<ITypedAuraExpression>
 					{
@@ -440,16 +397,14 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "5",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
 								value: "Hello world",
 								line: 1
-							),
-							Line: 1
+							)
 						)
 					},
 					ClosingParen: new Tok(
@@ -457,10 +412,7 @@ public class TypeCheckerTest
 						value: ")",
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil())
 			)
 		);
 	}
@@ -491,8 +443,7 @@ public class TypeCheckerTest
 											typ: TokType.IntLiteral,
 											value: "10",
 											line: 1
-										),
-										Line: 1
+										)
 									)
 								)
 							),
@@ -525,8 +476,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "f",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
 						{
@@ -541,8 +491,7 @@ public class TypeCheckerTest
 										typ: TokType.StringLiteral,
 										value: "Hello world",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							)
 						},
@@ -550,10 +499,7 @@ public class TypeCheckerTest
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -574,8 +520,7 @@ public class TypeCheckerTest
 								fParams: new List<Param>(),
 								returnType: new AuraNil()
 							)
-						),
-						Line: 1
+						)
 					),
 					Arguments: new List<ITypedAuraExpression>
 					{
@@ -584,16 +529,14 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "10",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
 								value: "Hello world",
 								line: 1
-							),
-							Line: 1
+							)
 						)
 					},
 					ClosingParen: new Tok(
@@ -601,10 +544,7 @@ public class TypeCheckerTest
 						value: ")",
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil())
 			)
 		);
 	}
@@ -647,8 +587,7 @@ public class TypeCheckerTest
 											typ: TokType.StringLiteral,
 											value: "Hello world",
 											line: 1
-										),
-										Line: 1
+										)
 									)
 								)
 							)
@@ -668,8 +607,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "f",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
 						{
@@ -684,8 +622,7 @@ public class TypeCheckerTest
 										typ: TokType.StringLiteral,
 										value: "Hello world",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							)
 						},
@@ -693,10 +630,7 @@ public class TypeCheckerTest
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			},
 			expected: typeof(MustSpecifyValueForArgumentWithoutDefaultValueException)
@@ -756,8 +690,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "f",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
 						{
@@ -772,8 +705,7 @@ public class TypeCheckerTest
 										typ: TokType.StringLiteral,
 										value: "Hello world",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							),
 							(
@@ -783,8 +715,7 @@ public class TypeCheckerTest
 										typ: TokType.IntLiteral,
 										value: "5",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							)
 						},
@@ -792,10 +723,7 @@ public class TypeCheckerTest
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			},
 			expected: typeof(CannotMixNamedAndUnnamedArgumentsException)
@@ -842,17 +770,13 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "greeter",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
 							value: "name",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -886,18 +810,14 @@ public class TypeCheckerTest
 							methods: new List<AuraNamedFunction>(),
 							implementing: new List<AuraInterface>(),
 							pub: Visibility.Private
-						),
-						Line: 1
+						)
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
 						value: "name",
 						line: 1
 					),
-					Typ: new AuraString(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraString())
 			)
 		);
 	}
@@ -922,25 +842,20 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "names",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Index: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
 								value: "0",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						ClosingBracket: new Tok(
 							typ: TokType.RightBracket,
 							value: "]",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -954,26 +869,21 @@ public class TypeCheckerTest
 							value: "names",
 							line: 1
 						),
-						Typ: new AuraList(kind: new AuraString()),
-						Line: 1
+						Typ: new AuraList(kind: new AuraString())
 					),
 					Index: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "0",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
 						value: "]",
 						line: 1
 					),
-					Typ: new AuraString(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraString())
 			)
 		);
 	}
@@ -998,33 +908,27 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "names",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Lower: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
 								value: "0",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Upper: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
 								value: "2",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						ClosingBracket: new Tok(
 							typ: TokType.RightBracket,
 							value: "]",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1038,34 +942,28 @@ public class TypeCheckerTest
 							value: "names",
 							line: 1
 						),
-						Typ: new AuraList(kind: new AuraString()),
-						Line: 1
+						Typ: new AuraList(kind: new AuraString())
 					),
 					Lower: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "0",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Upper: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "2",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
 						value: "]",
 						line: 1
 					),
-					Typ: new AuraList(new AuraString()),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraList(new AuraString()))
 			)
 		);
 	}
@@ -1088,17 +986,13 @@ public class TypeCheckerTest
 								typ: TokType.StringLiteral,
 								value: "Hello world",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1116,18 +1010,14 @@ public class TypeCheckerTest
 							typ: TokType.StringLiteral,
 							value: "Hello world",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
 						value: ")",
 						line: 1
 					),
-					Typ: new AuraString(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraString())
 			)
 		);
 	}
@@ -1150,8 +1040,7 @@ public class TypeCheckerTest
 								typ: TokType.True,
 								value: "true",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Then: new UntypedBlock(
 							OpeningBrace: new Tok(
@@ -1164,13 +1053,9 @@ public class TypeCheckerTest
 								typ: TokType.RightBrace,
 								value: "}",
 								line: 1
-							),
-							Line: 1
+							)
 						),
-						Else: null,
-						Line: 1
-					),
-					Line: 1
+						Else: null)
 				)
 			}
 		);
@@ -1188,8 +1073,7 @@ public class TypeCheckerTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Then: new TypedBlock(
 						OpeningBrace: new Tok(
@@ -1203,14 +1087,10 @@ public class TypeCheckerTest
 							value: "}",
 							line: 1
 						),
-						Typ: new AuraNil(),
-						Line: 1
+						Typ: new AuraNil()
 					),
 					Else: null,
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil())
 			)
 		);
 	}
@@ -1227,10 +1107,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1242,10 +1119,7 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1262,10 +1136,7 @@ public class TypeCheckerTest
 							typ: TokType.FloatLiteral,
 							value: "5.1",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1277,10 +1148,7 @@ public class TypeCheckerTest
 						typ: TokType.FloatLiteral,
 						value: "5.1",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1297,10 +1165,7 @@ public class TypeCheckerTest
 							typ: TokType.StringLiteral,
 							value: "Hello world",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1312,10 +1177,8 @@ public class TypeCheckerTest
 						typ: TokType.StringLiteral,
 						value: "Hello world",
 						line: 1
-					),
-					Line: 1
-				),
-				1
+					)
+				)
 			)
 		);
 	}
@@ -1340,8 +1203,7 @@ public class TypeCheckerTest
 									typ: TokType.IntLiteral,
 									value: "1",
 									line: 1
-								),
-								Line: 1
+								)
 							)
 						},
 						Kind: new AuraInt(),
@@ -1349,10 +1211,7 @@ public class TypeCheckerTest
 							typ: TokType.RightBrace,
 							value: "]",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1372,8 +1231,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "1",
 								line: 1
-							),
-							Line: 1
+							)
 						)
 					},
 					Kind: new AuraInt(),
@@ -1381,10 +1239,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "]",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1410,16 +1265,14 @@ public class TypeCheckerTest
 										typ: TokType.StringLiteral,
 										value: "Hello",
 										line: 1
-									),
-									Line: 1
+									)
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
 										value: "1",
 										line: 1
-									),
-									Line: 1
+									)
 								)
 							}
 						},
@@ -1429,10 +1282,7 @@ public class TypeCheckerTest
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1453,16 +1303,14 @@ public class TypeCheckerTest
 									typ: TokType.StringLiteral,
 									value: "Hello",
 									line: 1
-								),
-								Line: 1
+								)
 							),
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
 									value: "1",
 									line: 1
-								),
-								Line: 1
+								)
 							)
 						}
 					},
@@ -1472,10 +1320,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1492,10 +1337,7 @@ public class TypeCheckerTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1507,10 +1349,7 @@ public class TypeCheckerTest
 						typ: TokType.True,
 						value: "true",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1527,10 +1366,7 @@ public class TypeCheckerTest
 							typ: TokType.Nil,
 							value: "nil",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1542,10 +1378,7 @@ public class TypeCheckerTest
 						typ: TokType.Nil,
 						value: "nil",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1562,10 +1395,7 @@ public class TypeCheckerTest
 							typ: TokType.CharLiteral,
 							value: "a",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1577,10 +1407,7 @@ public class TypeCheckerTest
 						typ: TokType.CharLiteral,
 						value: "a",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1598,8 +1425,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "5",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Operator: new Tok(
 							typ: TokType.Less,
@@ -1611,12 +1437,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "10",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+							)))
 				)
 			}
 		);
@@ -1629,8 +1450,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Operator: new Tok(
 						typ: TokType.Less,
@@ -1642,13 +1462,9 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "10",
 							line: 1
-						),
-						Line: 1
+						)
 					),
-					Typ: new AuraBool(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraBool())
 			)
 		);
 	}
@@ -1693,8 +1509,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "greeter",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
@@ -1706,12 +1521,7 @@ public class TypeCheckerTest
 								typ: TokType.StringLiteral,
 								value: "Bob",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+							)))
 				)
 			}
 		);
@@ -1745,8 +1555,7 @@ public class TypeCheckerTest
 							methods: new List<AuraNamedFunction>(),
 							implementing: new List<AuraInterface>(),
 							pub: Visibility.Private
-						),
-						1),
+						)),
 					Name: new Tok(
 						typ: TokType.Identifier,
 						value: "name",
@@ -1757,13 +1566,9 @@ public class TypeCheckerTest
 							typ: TokType.StringLiteral,
 							value: "Bob",
 							line: 1
-						),
-						Line: 1
+						)
 					),
-					Typ: new AuraString(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraString())
 			)
 		);
 	}
@@ -1797,8 +1602,7 @@ public class TypeCheckerTest
 					methods: new List<AuraNamedFunction>(),
 					implementing: new List<AuraInterface>(),
 					pub: Visibility.Private
-				),
-				Line: 1
+				)
 			)
 		);
 
@@ -1811,10 +1615,7 @@ public class TypeCheckerTest
 							typ: TokType.This,
 							value: "this",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1833,10 +1634,7 @@ public class TypeCheckerTest
 						methods: new List<AuraNamedFunction>(),
 						implementing: new List<AuraInterface>(),
 						pub: Visibility.Private
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1859,12 +1657,7 @@ public class TypeCheckerTest
 								typ: TokType.True,
 								value: "true",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+							)))
 				)
 			}
 		);
@@ -1882,13 +1675,9 @@ public class TypeCheckerTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
+						)
 					),
-					Typ: new AuraBool(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraBool())
 			)
 		);
 	}
@@ -1911,12 +1700,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "5",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+							)))
 				)
 			}
 		);
@@ -1934,13 +1718,9 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
+						)
 					),
-					Typ: new AuraInt(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraInt())
 			)
 		);
 	}
@@ -1964,10 +1744,7 @@ public class TypeCheckerTest
 							typ: TokType.Identifier,
 							value: "name",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -1980,10 +1757,8 @@ public class TypeCheckerTest
 						value: "name",
 						line: 1
 					),
-					Typ: new AuraString(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraString()
+				)
 			)
 		);
 	}
@@ -2016,17 +1791,13 @@ public class TypeCheckerTest
 					),
 					Call: new UntypedCall(
 						Callee: new UntypedVariable(
-							new Tok(TokType.Identifier, "f", 1),
-							1),
+							new Tok(TokType.Identifier, "f", 1)),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -2048,8 +1819,7 @@ public class TypeCheckerTest
 								new List<Param>(),
 								new AuraNil()
 							)
-						),
-						1
+						)
 					),
 					Arguments: new List<ITypedAuraExpression>(),
 					ClosingParen: new Tok(
@@ -2057,10 +1827,7 @@ public class TypeCheckerTest
 						value: ")",
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					Typ: new AuraNil())
 			)
 		);
 	}
@@ -2101,10 +1868,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "0",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
+							))
 					),
 					Condition: new UntypedLogical(
 						Left: new UntypedVariable(
@@ -2112,8 +1876,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "i",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Operator: new Tok(
 							typ: TokType.Less,
@@ -2125,10 +1888,7 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "10",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
+							))
 					),
 					Increment: null,
 					Body: new List<IUntypedAuraStatement>(),
@@ -2136,8 +1896,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -2166,10 +1925,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "0",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				),
 				Condition: new TypedLogical(
 					Left: new TypedVariable(
@@ -2178,8 +1934,7 @@ public class TypeCheckerTest
 							value: "i",
 							line: 1
 						),
-						Typ: new AuraInt(),
-						Line: 1
+						Typ: new AuraInt()
 					),
 					Operator: new Tok(
 						typ: TokType.Less,
@@ -2191,11 +1946,9 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "10",
 							line: 1
-						),
-						Line: 1
+						)
 					),
-					Typ: new AuraBool(),
-					Line: 1
+					Typ: new AuraBool()
 				),
 				Increment: null,
 				Body: new List<ITypedAuraStatement>(),
@@ -2203,8 +1956,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2238,16 +1990,14 @@ public class TypeCheckerTest
 							typ: TokType.Identifier,
 							value: "names",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Body: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -2270,16 +2020,14 @@ public class TypeCheckerTest
 						value: "names",
 						line: 1
 					),
-					Typ: new AuraList(kind: new AuraString()),
-					Line: 1
+					Typ: new AuraList(kind: new AuraString())
 				),
 				Body: new List<ITypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2352,8 +2100,7 @@ public class TypeCheckerTest
 												typ: TokType.Identifier,
 												value: "error",
 												line: 1
-											),
-											Line: 1
+											)
 										),
 										Arguments: new List<(Tok?, IUntypedAuraExpression)>
 										{
@@ -2364,8 +2111,7 @@ public class TypeCheckerTest
 														typ: TokType.StringLiteral,
 														value: "Helpful error message",
 														line: 1
-													),
-													Line: 1
+													)
 												)
 											)
 										},
@@ -2373,23 +2119,19 @@ public class TypeCheckerTest
 											typ: TokType.RightParen,
 											value: ")",
 											line: 1
-										),
-										Line: 1
+										)
 									)
-								},
-								Line: 1
+								}
 							)
 						},
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ReturnType: new List<AuraType>{ new AuraError() },
-					Public: Visibility.Public,
-					Line: 1
+					Public: Visibility.Public
 				)
 			}
 		);
@@ -2449,8 +2191,7 @@ public class TypeCheckerTest
 											},
 											returnType: new AuraError()
 										)
-									),
-									Line: 1
+									)
 								),
 								Arguments: new List<ITypedAuraExpression>
 								{
@@ -2459,8 +2200,7 @@ public class TypeCheckerTest
 											typ: TokType.StringLiteral,
 											value: "Helpful error message",
 											line: 1
-										),
-										Line: 1
+										)
 									)
 								},
 								ClosingParen: new Tok(
@@ -2468,10 +2208,7 @@ public class TypeCheckerTest
 									value: ")",
 									line: 1
 								),
-								Typ: new AuraError(),
-								Line: 1
-							),
-							Line: 1
+								Typ: new AuraError())
 						)
 					},
 					ClosingBrace: new Tok(
@@ -2479,12 +2216,10 @@ public class TypeCheckerTest
 						value: "}",
 						line: 1
 					),
-					Typ: new AuraError(),
-					Line: 1
+					Typ: new AuraError()
 				),
 				ReturnType: new AuraError(),
-				Public: Visibility.Public,
-				Line: 1
+				Public: Visibility.Public
 			)
 		);
 	}
@@ -2518,12 +2253,10 @@ public class TypeCheckerTest
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ReturnType: null,
-					Public: Visibility.Public,
-					Line: 1
+					Public: Visibility.Public
 				)
 			}
 		);
@@ -2552,12 +2285,10 @@ public class TypeCheckerTest
 						value: "}",
 						line: 1
 					),
-					Typ: new AuraNil(),
-					Line: 1
+					Typ: new AuraNil()
 				),
 				ReturnType: new AuraNil(),
-				Public: Visibility.Public,
-				Line: 1
+				Public: Visibility.Public
 			)
 		);
 	}
@@ -2587,13 +2318,9 @@ public class TypeCheckerTest
 								typ: TokType.RightBrace,
 								value: "}",
 								line: 1
-							),
-							Line: 1
+							)
 						),
-						ReturnType: null,
-						Line: 1
-					),
-					Line: 1
+						ReturnType: null)
 				)
 			}
 		);
@@ -2619,13 +2346,9 @@ public class TypeCheckerTest
 							value: "}",
 							line: 1
 						),
-						Typ: new AuraNil(),
-						Line: 1
+						Typ: new AuraNil()
 					),
-					ReturnType: new AuraNil(),
-					Line: 1
-				),
-				Line: 1
+					ReturnType: new AuraNil())
 			)
 		);
 	}
@@ -2657,10 +2380,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "1",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -2687,10 +2407,7 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "1",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -2717,8 +2434,7 @@ public class TypeCheckerTest
 					},
 					NameTyps: new List<AuraType?>{ new AuraInt() },
 					Mutable: false,
-					Initializer: null,
-					Line: 1
+					Initializer: null
 				)
 			}
 		);
@@ -2745,10 +2461,7 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "0",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -2775,8 +2488,7 @@ public class TypeCheckerTest
 					},
 					NameTyps: new List<AuraType?>{ new AuraChar() },
 					Mutable: false,
-					Initializer: null,
-					Line: 1
+					Initializer: null
 				)
 			},
 			expected: typeof(MustSpecifyInitialValueForNonDefaultableTypeException));
@@ -2805,10 +2517,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "1",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -2831,10 +2540,7 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "1",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -2851,8 +2557,7 @@ public class TypeCheckerTest
 						value: "return",
 						line: 1
 					),
-					Value: null,
-					Line: 1
+					Value: null
 				)
 			}
 		);
@@ -2864,8 +2569,7 @@ public class TypeCheckerTest
 					value: "return",
 					line: 1
 				),
-				Value: null,
-				Line: 1
+				Value: null
 			)
 		);
 	}
@@ -2889,11 +2593,9 @@ public class TypeCheckerTest
 								typ: TokType.IntLiteral,
 								value: "5",
 								line: 1
-							),
-							Line: 1
+							)
 						)
-					},
-					Line: 1
+					}
 				)
 			}
 		);
@@ -2910,10 +2612,7 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -2939,8 +2638,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -2961,8 +2659,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2984,16 +2681,14 @@ public class TypeCheckerTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Body: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3010,16 +2705,14 @@ public class TypeCheckerTest
 						typ: TokType.True,
 						value: "true",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				Body: new List<ITypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3035,8 +2728,7 @@ public class TypeCheckerTest
 						typ: TokType.Comment,
 						value: "// this is a comment",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3047,8 +2739,7 @@ public class TypeCheckerTest
 					typ: TokType.Comment,
 					value: "// this is a comment",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3068,8 +2759,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 
@@ -3087,10 +2777,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -3107,10 +2794,7 @@ public class TypeCheckerTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -3124,8 +2808,7 @@ public class TypeCheckerTest
 					typ: TokType.Nil,
 					value: "nil",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 
@@ -3143,10 +2826,7 @@ public class TypeCheckerTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			},
 			expected: typeof(InvalidUseOfYieldKeywordException)
@@ -3168,16 +2848,14 @@ public class TypeCheckerTest
 						typ: TokType.True,
 						value: "true",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 
@@ -3189,8 +2867,7 @@ public class TypeCheckerTest
 						typ: TokType.Break,
 						value: "break",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3201,8 +2878,7 @@ public class TypeCheckerTest
 					typ: TokType.Break,
 					value: "break",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3217,10 +2893,7 @@ public class TypeCheckerTest
 						typ: TokType.Nil,
 						value: "nil",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 
@@ -3232,8 +2905,7 @@ public class TypeCheckerTest
 						typ: TokType.Break,
 						value: "break",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			},
 			expected: typeof(InvalidUseOfBreakKeywordException)
@@ -3255,16 +2927,14 @@ public class TypeCheckerTest
 						typ: TokType.True,
 						value: "true",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 
@@ -3276,8 +2946,7 @@ public class TypeCheckerTest
 						typ: TokType.Continue,
 						value: "continue",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			});
 		MakeAssertions(
@@ -3287,8 +2956,7 @@ public class TypeCheckerTest
 					typ: TokType.Continue,
 					value: "continue",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3303,10 +2971,7 @@ public class TypeCheckerTest
 						typ: TokType.Nil,
 						value: "nil",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 
@@ -3318,8 +2983,7 @@ public class TypeCheckerTest
 						typ: TokType.Continue,
 						value: "continue",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			},
 			expected: typeof(InvalidUseOfContinueKeywordException)
@@ -3345,8 +3009,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3369,8 +3032,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3418,8 +3080,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3466,8 +3127,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3530,8 +3190,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3564,8 +3223,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3637,8 +3295,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			},
 			expected: typeof(MissingInterfaceMethodException)
@@ -3747,23 +3404,19 @@ public class TypeCheckerTest
 													typ: TokType.IntLiteral,
 													value: "5",
 													line: 1
-												),
-												Line: 1
+												)
 											)
-										},
-										Line: 1
+										}
 									)
 								},
 								ClosingBrace: new Tok(
 									typ: TokType.RightBrace,
 									value: "}",
 									line: 1
-								),
-								Line: 1
+								)
 							),
 							ReturnType: new List<AuraType>{ new AuraInt() },
-							Public: Visibility.Private,
-							Line: 1
+							Public: Visibility.Private
 						)
 					},
 					Public: Visibility.Private,
@@ -3779,8 +3432,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			},
 			expected: typeof(MissingInterfaceMethodException)
@@ -3889,23 +3541,19 @@ public class TypeCheckerTest
 													typ: TokType.IntLiteral,
 													value: "5",
 													line: 1
-												),
-												Line: 1
+												)
 											)
-										},
-										Line: 1
+										}
 									)
 								},
 								ClosingBrace: new Tok(
 									typ: TokType.RightBrace,
 									value: "}",
 									line: 1
-								),
-								Line: 1
+								)
 							),
 							ReturnType: new List<AuraType>{ new AuraInt() },
-							Public: Visibility.Public,
-							Line: 1
+							Public: Visibility.Public
 						)
 					},
 					Public: Visibility.Private,
@@ -3921,8 +3569,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -3987,10 +3634,8 @@ public class TypeCheckerTest
 											typ: TokType.IntLiteral,
 											value: "5",
 											line: 1
-										),
-										Line: 1
-									),
-									Line: 1
+										)
+									)
 								)
 							},
 							ClosingBrace: new Tok(
@@ -3998,12 +3643,10 @@ public class TypeCheckerTest
 								value: "}",
 								line: 1
 							),
-							Typ: new AuraInt(),
-							Line: 1
+							Typ: new AuraInt()
 						),
 						ReturnType: new AuraInt(),
-						Public: Visibility.Public,
-						Line: 1
+						Public: Visibility.Public
 					)
 				},
 				Public: Visibility.Private,
@@ -4043,8 +3686,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -4092,8 +3734,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -4125,8 +3766,7 @@ public class TypeCheckerTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -4151,8 +3791,7 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "v",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
@@ -4164,12 +3803,7 @@ public class TypeCheckerTest
 								typ: TokType.StringLiteral,
 								value: "Bob",
 								line: 1
-							),
-							Line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+							)))
 				)
 			},
 			expected: typeof(CannotSetOnNonClassException)
@@ -4196,17 +3830,13 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "v",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Expected: new Tok(
 							typ: TokType.Identifier,
 							value: "IGreeter",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -4220,17 +3850,13 @@ public class TypeCheckerTest
 							value: "v",
 							line: 1
 						),
-						Typ: new AuraInt(),
-						Line: 1
+						Typ: new AuraInt()
 					),
 					Expected: new AuraInterface(
 						name: "IGreeter",
 						functions: new List<AuraNamedFunction>(),
 						pub: Visibility.Private
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -4262,8 +3888,7 @@ public class TypeCheckerTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				ReturnType: new List<AuraType>
 				{
@@ -4272,8 +3897,7 @@ public class TypeCheckerTest
 						failure: new AuraError()
 					)
 				},
-				Public: Visibility.Public,
-				Line: 1
+				Public: Visibility.Public
 			)
 		);
 		_symbolsTable.Setup(st => st.GetSymbol("c", It.IsAny<string>())).Returns(
@@ -4308,18 +3932,14 @@ public class TypeCheckerTest
 								typ: TokType.Identifier,
 								value: "c",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
 							value: ")",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				)
 			}
 		);
@@ -4348,8 +3968,7 @@ public class TypeCheckerTest
 									failure: new AuraError()
 								)
 							)
-						),
-						Line: 1
+						)
 					),
 					Arguments: new List<ITypedAuraExpression>(),
 					ClosingParen: new Tok(
@@ -4360,10 +3979,7 @@ public class TypeCheckerTest
 					Typ: new AuraResult(
 						success: new AuraString(),
 						failure: new AuraError()
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -4390,8 +4006,7 @@ public class TypeCheckerTest
 						typ: TokType.RightParen,
 						value: ")",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			}
 		);
@@ -4413,8 +4028,7 @@ public class TypeCheckerTest
 					typ: TokType.RightParen,
 					value: ")",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -4458,8 +4072,7 @@ public class TypeCheckerTest
 						typ: TokType.Identifier,
 						value: "main",
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			};
 			untypedAstWithMod.AddRange(untypedAst);

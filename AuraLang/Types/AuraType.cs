@@ -77,8 +77,7 @@ public class AuraInt : AuraType, IDefaultable
 				typ: TokType.IntLiteral,
 				value: "0",
 				line: line
-			),
-			Line: line
+			)
 		);
 }
 
@@ -96,8 +95,7 @@ public class AuraFloat : AuraType, IDefaultable
 				typ: TokType.Float,
 				value: "0.0",
 				line: line
-			),
-			Line: line
+			)
 		);
 }
 
@@ -119,8 +117,7 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 				typ: TokType.String,
 				value: string.Empty,
 				line: line
-			),
-			Line: line
+			)
 		);
 
 	public AuraType? Get(string attribute)
@@ -146,8 +143,7 @@ public class AuraBool : AuraType, IDefaultable
 				typ: TokType.Bool,
 				value: "false",
 				line: line
-			),
-			Line: line
+			)
 		);
 }
 
@@ -189,8 +185,7 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 				typ: TokType.RightBrace,
 				value: "}",
 				line: line
-			),
-			Line: line
+			)
 		);
 
 	public AuraType? Get(string attribute)
@@ -522,8 +517,7 @@ public class AuraMap : AuraType, IIndexable, IDefaultable
 				typ: TokType.RightBrace,
 				value: "}",
 				line: line
-			),
-			Line: line
+			)
 		);
 }
 
