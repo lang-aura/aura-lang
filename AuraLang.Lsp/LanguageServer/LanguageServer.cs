@@ -96,12 +96,20 @@ public class AuraLanguageServer : IDisposable
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidOpenName)]
-	public void DidOpenTextDocument(JToken jToken)
+	public async Task DidOpenTextDocumentAsync(JToken jToken)
 	{
 		var @params = DeserializeJToken<DidOpenTextDocumentParams>(jToken);
-		_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.TextDocument.Text);
-		Console.Error.WriteLine(
-			$"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.TextDocument.Text}");
+		try
+		{
+			_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.TextDocument.Text);
+		}
+		catch (AuraExceptionContainer e)
+		{
+			foreach (var ex in e.Exs)
+			{
+				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
+			}
+		}
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidChangeName)]
