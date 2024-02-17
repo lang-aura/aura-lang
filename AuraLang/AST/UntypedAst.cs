@@ -2,6 +2,7 @@
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
+using Range = AuraLang.Location.Range;
 
 namespace AuraLang.AST;
 
@@ -17,7 +18,7 @@ public interface IUntypedAuraExpression : IUntypedAuraAstNode, IUntypedAuraExprV
 /// </summary>
 public interface IUntypedAuraStatement : IUntypedAuraAstNode, IUntypedAuraStmtVisitable { }
 
-public interface IUntypedAuraCallable
+public interface IUntypedAuraCallable : IUntypedAuraAstNode
 {
 	string GetName();
 }
@@ -32,24 +33,36 @@ public interface IUntypedAuraCallable
 public record UntypedAssignment(Tok Name, IUntypedAuraExpression Value, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Name.Range.Start,
+		end: Value.Range.End
+	);
 }
 
 /// <summary>
 /// Represents an increment operation where the value of the variable is incremented by 1.
 /// </summary>
 /// <param name="Name">The variable being incremented</param>
-public record UntypedPlusPlusIncrement(IUntypedAuraExpression Name, int Line) : IUntypedAuraExpression
+public record UntypedPlusPlusIncrement(IUntypedAuraExpression Name, Tok PlusPlus, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Name.Range.Start,
+		end: PlusPlus.Range.End
+	);
 }
 
 /// <summary>
 /// Represents a decrement operation where the value of the variable is decremented by 1.
 /// </summary>
 /// <param name="Name">The variable being decremented</param>
-public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, int Line) : IUntypedAuraExpression
+public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, Tok MinusMinus, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Name.Range.Start,
+		end: MinusMinus.Range.End
+	);
 }
 
 /// <summary>
@@ -68,6 +81,10 @@ public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, int Line) 
 public record UntypedBinary(IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Left.Range.Start,
+		end: Right.Range.End
+	);
 }
 
 /// <summary>
@@ -80,9 +97,13 @@ public record UntypedBinary(IUntypedAuraExpression Left, Tok Operator, IUntypedA
 /// that blocks are used. For example, <c>while</c> and <c>for</c> loops do not return a value.
 /// </summary>
 /// <param name="Statements">The block's statements</param>
-public record UntypedBlock(List<IUntypedAuraStatement> Statements, int Line) : IUntypedAuraExpression
+public record UntypedBlock(Tok OpeningBrace, List<IUntypedAuraStatement> Statements, Tok ClosingBrace, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: OpeningBrace.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -95,11 +116,15 @@ public record UntypedBlock(List<IUntypedAuraStatement> Statements, int Line) : I
 /// were defined. For example, the stdlib's <c>printf</c> function could be called with tags like so:
 /// <code>printf(a: 5, format: "%d\n")</code></param>
 public record UntypedCall
-	(IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, int Line) : IUntypedAuraExpression,
+	(IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, Tok ClosingParen, int Line) : IUntypedAuraExpression,
 		IUntypedAuraCallable
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public string GetName() => Callee.GetName();
+	public Range Range => new(
+		start: Callee.Range.Start,
+		end: ClosingParen.Range.End
+	);
 }
 
 /// <summary>
@@ -116,6 +141,10 @@ public record UntypedGet(IUntypedAuraExpression Obj, Tok Name, int Line) : IUnty
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public string GetName() => Name.Value;
+	public Range Range => new(
+		start: Obj.Range.Start,
+		end: Name.Range.End
+	);
 }
 
 /// <summary>
@@ -123,9 +152,13 @@ public record UntypedGet(IUntypedAuraExpression Obj, Tok Name, int Line) : IUnty
 /// </summary>
 /// <param name="Obj">The compound object being queried</param>
 /// <param name="Index">The index being fetched</param>
-public record UntypedGetIndex(IUntypedAuraExpression Obj, IUntypedAuraExpression Index, int Line) : IUntypedAuraExpression
+public record UntypedGetIndex(IUntypedAuraExpression Obj, IUntypedAuraExpression Index, Tok ClosingBracket, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Obj.Range.Start,
+		end: ClosingBracket.Range.End
+	);
 }
 
 /// <summary>
@@ -134,9 +167,13 @@ public record UntypedGetIndex(IUntypedAuraExpression Obj, IUntypedAuraExpression
 /// <param name="Obj">The compound object being queried</param>
 /// <param name="Lower">The lower bound of the range. This value is inclusive.</param>
 /// <param name="Upper">The upper bound of the range. This value is exclusive.</param>
-public record UntypedGetIndexRange(IUntypedAuraExpression Obj, IUntypedAuraExpression Lower, IUntypedAuraExpression Upper, int Line) : IUntypedAuraExpression
+public record UntypedGetIndexRange(IUntypedAuraExpression Obj, IUntypedAuraExpression Lower, IUntypedAuraExpression Upper, Tok ClosingBracket, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Obj.Range.Start,
+		end: ClosingBracket.Range.End
+	);
 }
 
 /// <summary>
@@ -145,9 +182,13 @@ public record UntypedGetIndexRange(IUntypedAuraExpression Obj, IUntypedAuraExpre
 /// <code>(5 + 5)</code>
 /// </summary>
 /// <param name="Expr">The grouped expression</param>
-public record UntypedGrouping(IUntypedAuraExpression Expr, int Line) : IUntypedAuraExpression
+public record UntypedGrouping(Tok OpeningParen, IUntypedAuraExpression Expr, Tok ClosingParen, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: OpeningParen.Range.Start,
+		end: ClosingParen.Range.End
+	);
 }
 
 /// <summary>
@@ -168,17 +209,22 @@ public record UntypedGrouping(IUntypedAuraExpression Expr, int Line) : IUntypedA
 /// to true, the <see cref="Then"/> branch will be executed.</param>
 /// <param name="Then">The branch that will be executed if the <see cref="Condition"/> evaluates to true</param>
 /// <param name="Else">The branch that will be executed if the <see cref="Condition"/> evalutes to false</param>
-public record UntypedIf(IUntypedAuraExpression Condition, UntypedBlock Then, IUntypedAuraExpression? Else, int Line) : IUntypedAuraExpression
+public record UntypedIf(Tok If, IUntypedAuraExpression Condition, UntypedBlock Then, IUntypedAuraExpression? Else, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: If.Range.Start,
+		end: Else?.Range.End ?? Then.Range.End
+	);
 }
 
 /// <summary>
 /// Represents Aura's <c>nil</c> keyword.
 /// </summary>
-public record UntypedNil(int Line) : IUntypedAuraExpression
+public record UntypedNil(Tok Nil, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => Nil.Range;
 }
 
 /// <summary>
@@ -191,6 +237,10 @@ public record UntypedNil(int Line) : IUntypedAuraExpression
 public record UntypedLogical(IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Left.Range.Start,
+		end: Right.Range.End
+	);
 }
 
 /// <summary>
@@ -209,15 +259,20 @@ public record UntypedLogical(IUntypedAuraExpression Left, Tok Operator, IUntyped
 public record UntypedSet(IUntypedAuraExpression Obj, Tok Name, IUntypedAuraExpression Value, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Obj.Range.Start,
+		end: Value.Range.End
+	);
 }
 
 /// <summary>
 /// Represents the <c>this</c> keyword when it's used inside of a class's declaration body
 /// </summary>
-/// <param name="Keyword">The <c>this</c> keyword</param>
-public record UntypedThis(Tok Keyword, int Line) : IUntypedAuraExpression
+/// <param name="This">The <c>this</c> keyword</param>
+public record UntypedThis(Tok This, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => This.Range;
 }
 
 /// <summary>
@@ -232,6 +287,10 @@ public record UntypedThis(Tok Keyword, int Line) : IUntypedAuraExpression
 public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Operator.Range.Start,
+		end: Right.Range.End
+	);
 }
 
 /// <summary>
@@ -243,6 +302,10 @@ public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUnt
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public string GetName() => Name.Value;
+	public Range Range => new(
+		start: Name.Range.Start,
+		end: Name.Range.End
+	);
 }
 
 /// <summary>
@@ -253,6 +316,10 @@ public record UntypedVariable(Tok Name, int Line) : IUntypedAuraExpression, IUnt
 public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Expr.Range.Start,
+		end: Expected.Range.End
+	);
 }
 
 /// <summary>
@@ -260,9 +327,13 @@ public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected, int Line) : I
 /// until the end of the enclosing function's execution.
 /// </summary>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function scope</param>
-public record UntypedDefer(IUntypedAuraCallable Call, int Line) : IUntypedAuraStatement
+public record UntypedDefer(Tok Defer, IUntypedAuraCallable Call, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Defer.Range.Start,
+		end: Call.Range.End
+	);
 }
 
 /// <summary>
@@ -273,6 +344,7 @@ public record UntypedDefer(IUntypedAuraCallable Call, int Line) : IUntypedAuraSt
 public record UntypedExpressionStmt(IUntypedAuraExpression Expression, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => Expression.Range;
 }
 
 /// <summary>
@@ -289,9 +361,13 @@ public record UntypedExpressionStmt(IUntypedAuraExpression Expression, int Line)
 /// <param name="Condition">The condition that will be evaluated after each iteration. If the condition evaluates to false, the loop
 /// will exit</param>
 /// <param name="Body">Collection of statements that will be executed on each iteration</param>
-public record UntypedFor(IUntypedAuraStatement? Initializer, IUntypedAuraExpression? Condition, IUntypedAuraExpression? Increment, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement
+public record UntypedFor(Tok For, IUntypedAuraStatement? Initializer, IUntypedAuraExpression? Condition, IUntypedAuraExpression? Increment, List<IUntypedAuraStatement> Body, Tok ClosingBrace, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: For.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -303,9 +379,13 @@ public record UntypedFor(IUntypedAuraStatement? Initializer, IUntypedAuraExpress
 /// in the iterable</param>
 /// <param name="Iterable">The collection being iterated over</param>
 /// <param name="Body">Collection of statements that will be executed on each iteration</param>
-public record UntypedForEach(Tok EachName, IUntypedAuraExpression Iterable, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement
+public record UntypedForEach(Tok ForEach, Tok EachName, IUntypedAuraExpression Iterable, List<IUntypedAuraStatement> Body, Tok ClosingBrace, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: ForEach.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -317,11 +397,15 @@ public record UntypedForEach(Tok EachName, IUntypedAuraExpression Iterable, List
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type(s).</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, Visibility Public, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+	public Range Range => new(
+		start: Fn.Range.Start,
+		end: Body.Range.End
+	);
 }
 
 /// <summary>
@@ -332,11 +416,15 @@ public record UntypedNamedFunction(Tok Name, List<Param> Params, UntypedBlock Bo
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type. This struct stores it as a token instead of a type because it hasn't
 /// /// been type checked yet.</param>
-public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
+public record UntypedAnonymousFunction(Tok Fn, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, int Line) : IUntypedAuraExpression, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(p => p.ParamType).ToList();
+	public Range Range => new(
+		start: Fn.Range.Start,
+		end: Body.Range.End
+	);
 }
 
 /// <summary>
@@ -351,9 +439,13 @@ public record UntypedAnonymousFunction(List<Param> Params, UntypedBlock Body, Li
 /// be <see cref="AuraUnknown"/></param>
 /// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">The initializer expression whose result will be assigned to the new variable. This expression may be omitted.</param>
-public record UntypedLet(List<Tok> Names, List<AuraType?> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer, int Line) : IUntypedAuraStatement
+public record UntypedLet(Tok? Let, List<Tok> Names, List<AuraType?> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
+		end: Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
+	);
 }
 
 /// <summary>
@@ -362,9 +454,13 @@ public record UntypedLet(List<Tok> Names, List<AuraType?> NameTyps, bool Mutable
 /// <code>mod <c>mod_name</c></code>
 /// </summary>
 /// <param name="Value">The module's name</param>
-public record UntypedMod(Tok Value, int Line) : IUntypedAuraStatement
+public record UntypedMod(Tok Mod, Tok Value, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Mod.Range.Start,
+		end: Value.Range.End
+	);
 }
 
 /// <summary>
@@ -372,19 +468,31 @@ public record UntypedMod(Tok Value, int Line) : IUntypedAuraStatement
 /// circumstances, implicit.
 /// </summary>
 /// <param name="Value">The value to be returned</param>
-public record UntypedReturn(List<IUntypedAuraExpression>? Value, int Line) : IUntypedAuraStatement
+public record UntypedReturn(Tok Return, List<IUntypedAuraExpression>? Value, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Return.Range.Start,
+		end: Value is not null ? Value.Last().Range.End : Return.Range.End
+	);
 }
 
-public record UntypedStruct(Tok Name, List<Param> Params, int Line) : IUntypedAuraStatement
+public record UntypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Struct.Range.End,
+		end: ClosingParen.Range.End
+	);
 }
 
-public record UntypedAnonymousStruct(List<Param> Params, List<IUntypedAuraExpression> Values, int Line) : IUntypedAuraExpression
+public record UntypedAnonymousStruct(Tok Struct, List<Param> Params, List<IUntypedAuraExpression> Values, Tok ClosingParen, int Line) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Struct.Range.Start,
+		end: ClosingParen.Range.End
+	);
 }
 
 /// <summary>
@@ -395,7 +503,7 @@ public record UntypedAnonymousStruct(List<Param> Params, List<IUntypedAuraExpres
 /// <param name="Params">The class's parameters</param>
 /// <param name="Body">The class's body</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Name, List<Param> Params, List<IUntypedAuraStatement> Body, Visibility Public, List<Tok> Implementing, int Line) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedClass(Tok Class, Tok Name, List<Param> Params, List<IUntypedAuraStatement> Body, Visibility Public, List<Tok> Implementing, Tok ClosingBrace, int Line) : IUntypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
@@ -404,6 +512,10 @@ public record UntypedClass(Tok Name, List<Param> Params, List<IUntypedAuraStatem
 		.Where(item => item is not UntypedComment)
 		.Select(m => (UntypedNamedFunction)m)
 		.ToList();
+	public Range Range => new(
+		start: Class.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -414,9 +526,15 @@ public record UntypedClass(Tok Name, List<Param> Params, List<IUntypedAuraStatem
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates if the interface is public or not</param>
 public record UntypedInterface
-	(Tok Name, List<AuraNamedFunction> Methods, Visibility Public, int Line) : IUntypedAuraStatement
+	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Public == Visibility.Public
+			? Interface.Range.Start with { Character = Interface.Range.Start.Character - 4 }
+			: Interface.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -427,9 +545,13 @@ public record UntypedInterface
 /// <param name="Condition">The condition to be evaluated on each iteration of the loop. The loop will exit when the condition
 /// evaluates to false.</param>
 /// <param name="Body">Collection of statements executed once per iteration</param>
-public record UntypedWhile(IUntypedAuraExpression Condition, List<IUntypedAuraStatement> Body, int Line) : IUntypedAuraStatement
+public record UntypedWhile(Tok While, IUntypedAuraExpression Condition, List<IUntypedAuraStatement> Body, Tok ClosingBrace, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: While.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -437,14 +559,22 @@ public record UntypedWhile(IUntypedAuraExpression Condition, List<IUntypedAuraSt
 /// </summary>
 /// <param name="Package">The name of the package being imported</param>
 /// <param name="Alias">Will contain a value if the import has an alias</param>
-public record UntypedImport(Tok Package, Tok? Alias, int Line) : IUntypedAuraStatement
+public record UntypedImport(Tok Import, Tok Package, Tok? Alias, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Import.Range.Start,
+		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
+	);
 }
 
-public record UntypedMultipleImport(List<UntypedImport> Packages, int Line) : IUntypedAuraStatement
+public record UntypedMultipleImport(Tok Import, List<UntypedImport> Packages, Tok ClosingBrace, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Import.Range.Start,
+		end: ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -457,24 +587,27 @@ public record UntypedMultipleImport(List<UntypedImport> Packages, int Line) : IU
 public record UntypedComment(Tok Text, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => Text.Range;
 }
 
 /// <summary>
 /// Represents a <c>continue</c> statement that is used as a control flow construct inside a loop. The
 /// <c>continue</c> keyword will advance execution to the next iteration in the loop.
 /// </summary>
-public record UntypedContinue(int Line) : IUntypedAuraStatement
+public record UntypedContinue(Tok Continue, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => Continue.Range;
 }
 
 /// <summary>
 /// Represents a <c>break</c> statement that is used as a control flow construct inside a loop. The <c>break</c>
 /// keyword will immediately break out of the enclosing loop.
 /// </summary>
-public record UntypedBreak(int Line) : IUntypedAuraStatement
+public record UntypedBreak(Tok Break, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => Break.Range;
 }
 
 /// <summary>
@@ -482,17 +615,26 @@ public record UntypedBreak(int Line) : IUntypedAuraStatement
 /// returning from the enclosing function.
 /// </summary>
 /// <param name="Value">The value to be yielded from the enclosing scope</param>
-public record UntypedYield(IUntypedAuraExpression Value, int Line) : IUntypedAuraStatement
+public record UntypedYield(Tok Yield, IUntypedAuraExpression Value, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Yield.Range.Start,
+		end: Value.Range.End
+	);
 }
 
-public record UntypedNewLine(int Line) : IUntypedAuraStatement
+public record UntypedNewLine(Tok Newline, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => Newline.Range;
 }
 
-public record UntypedCheck(UntypedCall Call, int Line) : IUntypedAuraStatement
+public record UntypedCheck(Tok Check, UntypedCall Call, int Line) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
+	public Range Range => new(
+		start: Check.Range.Start,
+		end: Call.Range.End
+	);
 }

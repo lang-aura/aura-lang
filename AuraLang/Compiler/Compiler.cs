@@ -391,33 +391,47 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		string callee;
 		if (IsStdlibPkgType(get.Obj.Typ))
 		{
-			_goDocument.WriteStmt(Visit(new TypedImport(
-				Package: new Tok(
-					typ: TokType.Identifier,
-					value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
-					line: 1
+			_goDocument.WriteStmt(
+				s: Visit(
+					i: new TypedImport(
+						Import: new Tok(
+							typ: TokType.Import,
+							value: "import",
+							line: 1
+						),
+						Package: new Tok(
+							typ: TokType.Identifier,
+							value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
+							line: 1
+						),
+						Alias: new Tok(
+							typ: TokType.Identifier,
+							value: AuraTypeToString(get.Obj.Typ),
+							line: 1
+						),
+						Line: 1
+					)
 				),
-				Alias: new Tok(
-					typ: TokType.Identifier,
-					value: AuraTypeToString(get.Obj.Typ),
-					line: 1
-				),
-				Line: 1
-			)),
-			1,
-			new TypedImport(
-				Package: new Tok(
-					typ: TokType.Identifier,
-					value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
-					line: 1
-				),
-				Alias: new Tok(
-					typ: TokType.Identifier,
-					value: AuraTypeToString(get.Obj.Typ),
-					line: 1
-				),
-				Line: 1
-			));
+				line: 1,
+				typ: new TypedImport(
+					Import: new Tok(
+						typ: TokType.Import,
+						value: "import",
+						line: 1
+					),
+					Package: new Tok(
+						typ: TokType.Identifier,
+						value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
+						line: 1
+					),
+					Alias: new Tok(
+						typ: TokType.Identifier,
+						value: AuraTypeToString(get.Obj.Typ),
+						line: 1
+					),
+					Line: 1
+				)
+			);
 			callee = $"{AuraTypeToString(get.Obj.Typ)}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}";
 		}
 		else
@@ -479,7 +493,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	public string Visit(IntLiteral literal) => $"{literal.Value}";
 
 	public string Visit(FloatLiteral literal) =>
-		string.Format(CultureInfo.InvariantCulture, "{0:0.0######}", literal.Value);
+		string.Format(CultureInfo.InvariantCulture, "{0:0.0}", literal.Value);
 
 	public string Visit(BoolLiteral literal) => literal.Value ? "true" : "false";
 
@@ -706,6 +720,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	private string AddPreludePrefix(string name)
 	{
 		var typedImport = new TypedImport(
+			Import: new Tok(
+				typ: TokType.Import,
+				value: "import",
+				line: 1
+			),
 			Package: new Tok(
 				typ: TokType.Identifier,
 				value: $"{ProjectName}/prelude",

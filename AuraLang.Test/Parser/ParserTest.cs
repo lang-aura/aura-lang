@@ -13,268 +13,895 @@ public class ParserTest
 	[Test]
 	public void TestParse_Assignment()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "i", 1),
-			new(TokType.Equal, "=", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst,
-			new UntypedExpressionStmt(
-				new UntypedAssignment(
-					new Tok(TokType.Identifier, "i", 1),
-					new IntLiteral(5, 1),
-					1
-				), 1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.Equal,
+					value: "=",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedAssignment(
+					Name: new Tok(
+						typ: TokType.Identifier,
+						value: "i",
+						line: 1
+					),
+					Value: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "5",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Binary()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.IntLiteral, "1", 1),
-			new(TokType.Plus, "+", 1),
-			new(TokType.IntLiteral, "2", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst,
-			new UntypedExpressionStmt(
-				new UntypedBinary(
-					new IntLiteral(1, 1),
-					new Tok(TokType.Plus, "+", 1),
-					new IntLiteral(2, 1),
-					1
-				), 1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.IntLiteral,
+					value: "1",
+					line: 1
+				),
+				new(
+					typ: TokType.Plus,
+					value: "+",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "2",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedBinary(
+					Left: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "1",
+							line: 1
+						),
+						Line: 1
+					),
+					Operator: new Tok(
+						typ: TokType.Plus,
+						value: "+",
+						line: 1
+					),
+					Right: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "2",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Block()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.IntLiteral, "1", 2),
-			new(TokType.Semicolon, ";", 2),
-			new(TokType.RightBrace, "}", 3),
-			new(TokType.Semicolon, ";", 3),
-			new(TokType.Eof, "eof", 3)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedBlock(
-				new List<IUntypedAuraStatement>
-				{
-					new UntypedExpressionStmt(
-						new IntLiteral(1, 2),
-						2)
-				},
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "1",
+					line: 2
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 2
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 3
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 3
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 3
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedBlock(
+					OpeningBrace: new Tok(
+						typ: TokType.LeftBrace,
+						value: "{",
+						line: 1
+					),
+					Statements: new List<IUntypedAuraStatement>
+					{
+						new UntypedExpressionStmt(
+							Expression: new IntLiteral(
+								Int: new Tok(
+									typ: TokType.IntLiteral,
+									value: "1",
+									line: 2
+								),
+								Line: 2
+							),
+							Line: 2
+						)
+					},
+					ClosingBrace: new Tok(
+						typ: TokType.RightBrace,
+						value: "}",
+						line: 3
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Call()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "f", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedCall(new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-				new List<(Tok?, IUntypedAuraExpression)>(), 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedCall(
+					Callee: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "f",
+							line: 1
+						),
+						Line: 1
+					),
+					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
+					ClosingParen: new Tok(
+						typ: TokType.RightParen,
+						value: ")",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Get()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "greeter", 1),
-			new(TokType.Dot, ".", 1),
-			new(TokType.Identifier, "name", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1),
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedGet(
-				new UntypedVariable(new Tok(TokType.Identifier, "greeter", 1), 1),
-				new Tok(TokType.Identifier, "name", 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "greeter",
+					line: 1
+				),
+				new(
+					typ: TokType.Dot,
+					value: ".",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "name",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				),
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedGet(
+					Obj: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "greeter",
+							line: 1),
+						Line: 1
+					),
+					Name: new Tok(
+						typ: TokType.Identifier,
+						value: "name",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_GetIndex()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "collection", 1),
-			new(TokType.LeftBracket, "[", 1),
-			new(TokType.IntLiteral, "0", 1),
-			new(TokType.RightBracket, "]", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedGetIndex(
-				new UntypedVariable(new Tok(TokType.Identifier, "collection", 1), 1),
-				new IntLiteral(0, 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "collection",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBracket,
+					value: "[",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "0",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBracket,
+					value: "]",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedGetIndex(
+					Obj: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "collection",
+							line: 1
+						),
+						Line: 1
+					),
+					Index: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "0",
+							line: 1
+						),
+						Line: 1
+					),
+					ClosingBracket: new Tok(
+						typ: TokType.RightBracket,
+						value: "]",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_GetIndex_Empty()
 	{
 		ArrangeAndAct_Invalid(
-			new List<Tok>
-			{
-				new(TokType.Identifier, "collection", 1),
-				new(TokType.LeftBracket, "[", 1),
-				new(TokType.RightBracket, "]", 1),
-				new(TokType.Semicolon, ";", 1),
-				new(TokType.Eof, "eof", 1)
-			}, typeof(PostfixIndexCannotBeEmptyException));
+			tokens: new List<Tok>
+				{
+					new(
+						typ: TokType.Identifier,
+						value: "collection",
+						line: 1
+					),
+					new(
+						typ: TokType.LeftBracket,
+						value: "[",
+						line: 1
+					),
+					new(
+						typ: TokType.RightBracket,
+						value: "]",
+						line: 1
+					),
+					new(
+						typ: TokType.Semicolon,
+						value: ";",
+						line: 1
+					),
+					new(
+						typ: TokType.Eof,
+						value: "eof",
+						line: 1
+					)
+				},
+			expected: typeof(PostfixIndexCannotBeEmptyException)
+		);
 	}
 
 	[Test]
 	public void TestParse_GetIndexRange()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "collection", 1),
-			new(TokType.LeftBracket, "[", 1),
-			new(TokType.IntLiteral, "0", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.IntLiteral, "1", 1),
-			new(TokType.RightBracket, "]", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedGetIndexRange(
-				new UntypedVariable(new Tok(TokType.Identifier, "collection", 1), 1),
-				new IntLiteral(0, 1),
-				new IntLiteral(1, 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "collection",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBracket,
+					value: "[",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "0",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "1",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBracket,
+					value: "]",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedGetIndexRange(
+					Obj: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "collection",
+							line: 1
+						),
+						Line: 1
+					),
+					Lower: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "0",
+							line: 1
+						),
+						Line: 1
+					),
+					Upper: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "1",
+							line: 1
+						),
+						Line: 1
+					),
+					ClosingBracket: new Tok(
+						typ: TokType.RightBracket,
+						value: "]",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Grouping()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.IntLiteral, "1", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedGrouping(
-				new IntLiteral(1, 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "1",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedGrouping(
+					OpeningParen: new Tok(
+						typ: TokType.LeftParen,
+						value: "(",
+						line: 1
+					),
+					Expr: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "1",
+							line: 1
+						),
+						Line: 1
+					),
+					ClosingParen: new Tok(
+						typ: TokType.RightParen,
+						value: ")",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_If()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.If, "if", 1),
-			new(TokType.True, "true", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.Return, "return", 2),
-			new(TokType.IntLiteral, "1", 2),
-			new(TokType.Semicolon, ";", 2),
-			new(TokType.RightBrace, "}", 3),
-			new(TokType.Semicolon, ";", 3),
-			new(TokType.Eof, "eof", 3)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedIf(
-				new BoolLiteral(true, 1),
-				new UntypedBlock(
-					new List<IUntypedAuraStatement>
-					{
-						new UntypedReturn(
-							new List<IUntypedAuraExpression>{ new IntLiteral(1, 2) },
-							2),
-					},
-					1),
-				null,
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.If,
+					value: "if",
+					line: 1
+				),
+				new(
+					typ: TokType.True,
+					value: "true",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.Return,
+					value: "return",
+					line: 2
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "1",
+					line: 2
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 2
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 3
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 3
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 3
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedIf(
+					If: new Tok(
+						typ: TokType.If,
+						value: "if",
+						line: 1
+					),
+					Condition: new BoolLiteral(
+						Bool: new Tok(
+							typ: TokType.True,
+							value: "true",
+							line: 1
+						),
+						Line: 1
+					),
+					Then: new UntypedBlock(
+						OpeningBrace: new Tok(
+							typ: TokType.LeftBrace,
+							value: "{",
+							line: 1
+						),
+						Statements: new List<IUntypedAuraStatement>
+						{
+							new UntypedReturn(
+								Return: new Tok(
+									typ: TokType.Return,
+									value: "return",
+									line: 2
+								),
+								Value: new List<IUntypedAuraExpression>
+								{
+									new IntLiteral(
+										Int: new Tok(
+											typ: TokType.IntLiteral,
+											value: "1",
+											line: 2
+										),
+										Line: 2
+									)
+								},
+								Line: 2
+							),
+						},
+						ClosingBrace: new Tok(
+							typ: TokType.RightBrace,
+							value: "}",
+							line: 3
+						),
+						Line: 1
+					),
+					Else: null,
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_IntLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.IntLiteral, "5", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new IntLiteral(5, 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new IntLiteral(
+					Int: new Tok(
+						typ: TokType.IntLiteral,
+						value: "5",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_FloatLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.FloatLiteral, "5.0", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new FloatLiteral(5.0, 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.FloatLiteral,
+					value: "5.0",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new FloatLiteral(
+					Float: new Tok(
+						typ: TokType.FloatLiteral,
+						value: "5.0",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_StringLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.StringLiteral, "Hello", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new StringLiteral("Hello", 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.StringLiteral,
+					value: "Hello",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new StringLiteral(
+					String: new Tok(
+						typ: TokType.StringLiteral,
+						value: "Hello",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_ListLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.LeftBracket, "[", 1),
-			new(TokType.Int, "int", 1),
-			new(TokType.RightBracket, "]", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Comma, ",", 1),
-			new(TokType.IntLiteral, "6", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new ListLiteral<ITypedAuraExpression>(
-				new List<ITypedAuraExpression> { new IntLiteral(5, 1), new IntLiteral(6, 1) },
-				new AuraInt(),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.LeftBracket,
+					value: "[",
+					line: 1
+				),
+				new(
+					typ: TokType.Int,
+					value: "int",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBracket,
+					value: "]",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Comma,
+					value: ",",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "6",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new ListLiteral<ITypedAuraExpression>(
+					OpeningBracket: new Tok(
+						typ: TokType.LeftBracket,
+						value: "[",
+						line: 1
+					),
+					L: new List<ITypedAuraExpression>
+					{
+						new IntLiteral(
+							Int: new Tok(
+								typ: TokType.IntLiteral,
+								value: "5",
+								line: 1
+							),
+							Line: 1
+						),
+						new IntLiteral(
+							Int: new Tok(
+								typ: TokType.IntLiteral,
+								value: "6",
+								line: 1
+							),
+							Line: 1
+						)
+					},
+					Kind: new AuraInt(),
+					ClosingBrace: new Tok(
+						typ: TokType.RightBrace,
+						value: "}",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
@@ -282,819 +909,2829 @@ public class ParserTest
 	{
 		var untypedAst = ArrangeAndAct(new List<Tok>
 		{
-			new(TokType.Map, "map", 1),
-			new(TokType.LeftBracket, "[", 1),
-			new(TokType.String, "string", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Int, "int", 1),
-			new(TokType.RightBracket, "]", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.StringLiteral, "Hello", 2),
-			new(TokType.Colon, ":", 2),
-			new(TokType.IntLiteral, "1", 2),
-			new(TokType.Comma, ",", 2),
-			new(TokType.Semicolon, ";", 2),
-			new(TokType.StringLiteral, "World", 3),
-			new(TokType.Colon, ":", 3),
-			new(TokType.IntLiteral, "2", 3),
-			new(TokType.Comma, ",", 3),
-			new(TokType.Semicolon, ";", 3),
-			new(TokType.RightBrace, "}", 4),
-			new(TokType.LeftBracket, "[", 4),
-			new(TokType.StringLiteral, "Hello", 4),
-			new(TokType.RightBracket, "]", 4),
-			new(TokType.Semicolon, ";", 4),
-			new(TokType.Eof, "eof", 4)
+			new(
+				typ: TokType.Map,
+				value: "map",
+				line: 1
+			),
+			new(
+				typ: TokType.LeftBracket,
+				value: "[",
+				line: 1
+			),
+			new(
+				typ: TokType.String,
+				value: "string",
+				line: 1
+			),
+			new(
+				typ: TokType.Colon,
+				value: ":",
+				line: 1
+			),
+			new(
+				typ: TokType.Int,
+				value: "int",
+				line: 1
+			),
+			new(
+				typ: TokType.RightBracket,
+				value: "]",
+				line: 1
+			),
+			new(
+				typ: TokType.LeftBrace,
+				value: "{",
+				line: 1
+			),
+			new(
+				typ: TokType.StringLiteral,
+				value: "Hello",
+				line: 2
+			),
+			new(
+				typ: TokType.Colon,
+				value: ":",
+				line: 2
+			),
+			new(
+				typ: TokType.IntLiteral,
+				value: "1",
+				line: 2
+			),
+			new(
+				typ: TokType.Comma,
+				value: ",",
+				line: 2
+			),
+			new(
+				typ: TokType.Semicolon,
+				value: ";",
+				line: 2
+			),
+			new(
+				typ: TokType.StringLiteral,
+				value: "World",
+				line: 3
+			),
+			new(
+				typ: TokType.Colon,
+				value: ":",
+				line: 3
+			),
+			new(
+				typ: TokType.IntLiteral,
+				value: "2",
+				line: 3
+			),
+			new(
+				typ: TokType.Comma,
+				value: ",",
+				line: 3
+			),
+			new(
+				typ: TokType.Semicolon,
+				value: ";",
+				line: 3
+			),
+			new(
+				typ: TokType.RightBrace,
+				value: "}",
+				line: 4
+			),
+			new(
+				typ: TokType.LeftBracket,
+				value: "[",
+				line: 4
+			),
+			new(
+				typ: TokType.StringLiteral,
+				value: "Hello",
+				line: 4
+			),
+			new(
+				typ: TokType.RightBracket,
+				value: "]",
+				line: 4
+			),
+			new(
+				typ: TokType.Semicolon,
+				value: ";",
+				line: 4
+			),
+			new(
+				typ: TokType.Eof,
+				value: "eof",
+				line: 4
+			)
 		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedGetIndex(new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
-				new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
-				{
-					{ new StringLiteral("Hello", 2), new IntLiteral(1, 2) },
-					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
-				},
-				new AuraString(),
-				new AuraInt(),
-				1), new StringLiteral("Hello", 4), 1),
-			1));
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedGetIndex(
+					Obj: new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+						Map: new Tok(
+							typ: TokType.Map,
+							value: "map",
+							line: 1
+						),
+						M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
+						{
+							{
+								new StringLiteral(
+									String: new Tok(
+										typ: TokType.StringLiteral,
+										value: "Hello",
+										line: 2
+									),
+									Line: 2
+								),
+								new IntLiteral(
+									Int: new Tok(
+										typ: TokType.IntLiteral,
+										value: "1",
+										line: 2
+									),
+									Line: 2
+								)
+							},
+							{
+								new StringLiteral(
+									String: new Tok(
+										typ: TokType.StringLiteral,
+										value: "World",
+										line: 3
+									),
+									Line: 3
+								),
+								new IntLiteral(
+									Int: new Tok(
+										typ: TokType.IntLiteral,
+										value: "2",
+										line: 3
+									),
+									Line: 3
+								)
+							}
+						},
+						KeyType: new AuraString(),
+						ValueType: new AuraInt(),
+						ClosingBrace: new Tok(
+							typ: TokType.RightBrace,
+							value: "}",
+							line: 4
+						),
+						Line: 1
+					),
+					Index: new StringLiteral(
+						String: new Tok(
+							typ: TokType.StringLiteral,
+							value: "Hello",
+							line: 4
+						),
+						Line: 4
+					),
+					ClosingBracket: new Tok(
+						typ: TokType.RightBracket,
+						value: "]",
+						line: 4
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_MapLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Map, "map", 1),
-			new(TokType.LeftBracket, "[", 1),
-			new(TokType.String, "string", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Int, "int", 1),
-			new(TokType.RightBracket, "]", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.StringLiteral, "Hello", 2),
-			new(TokType.Colon, ":", 2),
-			new(TokType.IntLiteral, "1", 2),
-			new(TokType.Comma, ",", 2),
-			new(TokType.Semicolon, ";", 2),
-			new(TokType.StringLiteral, "World", 3),
-			new(TokType.Colon, ":", 3),
-			new(TokType.IntLiteral, "2", 3),
-			new(TokType.Comma, ",", 3),
-			new(TokType.Semicolon, ";", 3),
-			new(TokType.RightBrace, "}", 4),
-			new(TokType.Semicolon, ";", 4),
-			new(TokType.Eof, "eof", 4)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
-				new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
-				{
-					{ new StringLiteral("Hello", 2), new IntLiteral(1, 2) },
-					{ new StringLiteral("World", 3), new IntLiteral(2, 3) }
-				},
-				new AuraString(),
-				new AuraInt(),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Map,
+					value: "map",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBracket,
+					value: "[",
+					line: 1
+				),
+				new(
+					typ: TokType.String,
+					value: "string",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Int,
+					value: "int",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBracket,
+					value: "]",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.StringLiteral,
+					value: "Hello",
+					line: 2
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 2
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "1",
+					line: 2
+				),
+				new(
+					typ: TokType.Comma,
+					value: ",",
+					line: 2
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 2
+				),
+				new(
+					typ: TokType.StringLiteral,
+					value: "World",
+					line: 3
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 3
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "2",
+					line: 3
+				),
+				new(
+					typ: TokType.Comma,
+					value: ",",
+					line: 3
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 3
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 4
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 4
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 4
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+					Map: new Tok(
+						typ: TokType.Map,
+						value: "map",
+						line: 1
+					),
+					M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
+					{
+						{
+							new StringLiteral(
+								String: new Tok(
+									typ: TokType.StringLiteral,
+									value: "Hello",
+									line: 2
+								),
+								Line: 2
+							),
+							new IntLiteral(
+								Int: new Tok(
+									typ: TokType.IntLiteral,
+									value: "1",
+									line: 2
+								),
+								Line: 2
+							)
+						},
+						{
+							new StringLiteral(
+								String: new Tok(
+									typ: TokType.StringLiteral,
+									value: "World",
+									line: 3
+								),
+								Line: 3
+							),
+							new IntLiteral(
+								Int: new Tok(
+									typ: TokType.IntLiteral,
+									value: "2",
+									line: 3
+								),
+								Line: 3
+							)
+						}
+					},
+					KeyType: new AuraString(),
+					ValueType: new AuraInt(),
+					ClosingBrace: new Tok(
+						typ: TokType.RightBrace,
+						value: "}",
+						line: 4
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_BoolLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.True, "true", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1),
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new BoolLiteral(true, 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.True,
+					value: "true",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				),
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new BoolLiteral(
+					Bool: new Tok(
+						typ: TokType.True,
+						value: "true",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Nil()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Nil, "nil", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedNil(1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Nil,
+					value: "nil",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedNil(
+					Nil: new Tok(
+						typ: TokType.Nil,
+						value: "nil",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_CharLiteral()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.CharLiteral, "c", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new CharLiteral('c', 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.CharLiteral,
+					value: "c",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new CharLiteral(
+					Char: new Tok(
+						typ: TokType.CharLiteral,
+						value: "c",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Logical()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.True, "true", 1),
-			new(TokType.Or, "or", 1),
-			new(TokType.False, "false", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedLogical(
-				new BoolLiteral(true, 1),
-				new Tok(TokType.Or, "or", 1),
-				new BoolLiteral(false, 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.True,
+					value: "true",
+					line: 1
+				),
+				new(
+					typ: TokType.Or,
+					value: "or",
+					line: 1
+				),
+				new(
+					typ: TokType.False,
+					value: "false",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedLogical(
+					Left: new BoolLiteral(
+						Bool: new Tok(
+							typ: TokType.True,
+							value: "true",
+							line: 1
+						),
+						Line: 1
+					),
+					Operator: new Tok(
+						typ: TokType.Or,
+						value: "or",
+						line: 1
+					),
+					Right: new BoolLiteral(
+						Bool: new Tok(
+							typ: TokType.False,
+							value: "false",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Set()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "greeter", 1),
-			new(TokType.Dot, ".", 1),
-			new(TokType.Identifier, "name", 1),
-			new(TokType.Equal, "=", 1),
-			new(TokType.StringLiteral, "Bob", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedSet(
-				new UntypedVariable(new Tok(TokType.Identifier, "greeter", 1), 1),
-				new Tok(TokType.Identifier, "name", 1),
-				new StringLiteral("Bob", 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "greeter",
+					line: 1
+				),
+				new(
+					typ: TokType.Dot,
+					value: ".",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "name",
+					line: 1
+				),
+				new(
+					typ: TokType.Equal,
+					value: "=",
+					line: 1
+				),
+				new(
+					typ: TokType.StringLiteral,
+					value: "Bob",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedSet(
+					Obj: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "greeter",
+							line: 1
+						),
+						Line: 1
+					),
+					Name: new Tok(
+						typ: TokType.Identifier,
+						value: "name",
+						line: 1
+					),
+					Value: new StringLiteral(
+						String: new Tok(
+							typ: TokType.StringLiteral,
+							value: "Bob",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_This()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.This, "this", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedThis(new Tok(TokType.This, "this", 1), 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.This,
+					value: "this",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedThis(
+					This: new Tok(
+						typ: TokType.This,
+						value: "this",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Unary_Bang()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Bang, "!", 1),
-			new(TokType.True, "true", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedUnary(
-				new Tok(TokType.Bang, "!", 1),
-				new BoolLiteral(true, 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Bang,
+					value: "!",
+					line: 1
+				),
+				new(
+					typ: TokType.True,
+					value: "true",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedUnary(
+					Operator: new Tok(
+						typ: TokType.Bang,
+						value: "!",
+						line: 1
+					),
+					Right: new BoolLiteral(
+						Bool: new Tok(
+							typ: TokType.True,
+							value: "true",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Unary_Minus()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Minus, "-", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedUnary(
-				new Tok(TokType.Minus, "-", 1),
-				new IntLiteral(5, 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Minus,
+					value: "-",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedUnary(
+					Operator: new Tok(
+						typ: TokType.Minus,
+						value: "-",
+						line: 1
+					),
+					Right: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "5",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Variable()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "variable", 1), new(TokType.Semicolon, ";", 1), new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedVariable(new Tok(TokType.Identifier, "variable", 1), 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "variable",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedVariable(
+					Name: new Tok(
+						typ: TokType.Identifier,
+						value: "variable",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Defer()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Defer, "defer", 1),
-			new(TokType.Identifier, "f", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedDefer(
-			new UntypedCall(
-				new UntypedVariable(new Tok(TokType.Identifier, "f", 1), 1),
-				new List<(Tok?, IUntypedAuraExpression)>(),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Defer,
+					value: "defer",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedDefer(
+				Defer: new Tok(
+					typ: TokType.Defer,
+					value: "defer",
+					line: 1
+				),
+				Call: new UntypedCall(
+					Callee: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "f",
+							line: 1
+						),
+						Line: 1
+					),
+					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
+					ClosingParen: new Tok(
+						typ: TokType.RightParen,
+						value: ")",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_For()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.For, "for", 1),
-			new(TokType.Identifier, "i", 1),
-			new(TokType.ColonEqual, ":=", 1),
-			new(TokType.IntLiteral, "0", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Identifier, "i", 1),
-			new(TokType.Less, "<", 1),
-			new(TokType.IntLiteral, "10", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Identifier, "i", 1),
-			new(TokType.PlusPlus, "++", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedFor(
-			new UntypedLet(
-				new List<Tok> { new(TokType.Identifier, "i", 1) },
-				new List<AuraType?>(),
-				false,
-				new IntLiteral(0, 1),
-				1),
-			new UntypedBinary(
-				new UntypedVariable(new Tok(TokType.Identifier, "i", 1), 1),
-				new Tok(TokType.Less, "<", 1),
-				new IntLiteral(10, 1),
-				1),
-			new UntypedPlusPlusIncrement(new UntypedVariable(new Tok(TokType.Identifier, "i", 1), 1), 1),
-			new List<IUntypedAuraStatement> { },
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.For,
+					value: "for",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.ColonEqual,
+					value: ":=",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "0",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.Less,
+					value: "<",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "10",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.PlusPlus,
+					value: "++",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedFor(
+				For: new Tok(
+					typ: TokType.For,
+					value: "for",
+					line: 1
+				),
+				Initializer: new UntypedLet(
+					Let: null,
+					Names: new List<Tok>
+					{
+						new(
+							typ: TokType.Identifier,
+							value: "i",
+							line: 1
+						)
+					},
+					NameTyps: new List<AuraType?>(),
+					Mutable: false,
+					Initializer: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "0",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Condition: new UntypedBinary(
+					Left: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "i",
+							line: 1
+						),
+						Line: 1
+					),
+					Operator: new Tok(
+						typ: TokType.Less,
+						value: "<",
+						line: 1
+					),
+					Right: new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "10",
+							line: 1
+						),
+						Line: 1
+					),
+					Line: 1
+				),
+				Increment: new UntypedPlusPlusIncrement(
+					Name: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "i",
+							line: 1
+						),
+						Line: 1
+					),
+					PlusPlus: new Tok(
+						typ: TokType.PlusPlus,
+						value: "++",
+						line: 1
+					),
+					Line: 1
+				),
+				Body: new List<IUntypedAuraStatement> { },
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_ForEach()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.ForEach, "foreach", 1),
-			new(TokType.Identifier, "i", 1),
-			new(TokType.In, "in", 1),
-			new(TokType.Identifier, "iter", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedForEach(
-			new Tok(TokType.Identifier, "i", 1),
-			new UntypedVariable(new Tok(TokType.Identifier, "iter", 1), 1),
-			new List<IUntypedAuraStatement>(),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.ForEach,
+					value: "foreach",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.In,
+					value: "in",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "iter",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedForEach(
+				ForEach: new Tok(
+					typ: TokType.ForEach,
+					value: "foreach",
+					line: 1
+				),
+				EachName: new Tok(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				Iterable: new UntypedVariable(
+					Name: new Tok(
+						typ: TokType.Identifier,
+						value: "iter",
+						line: 1
+					),
+					Line: 1
+				),
+				Body: new List<IUntypedAuraStatement>(),
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_NamedFunction_ReturnError()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Fn, "fn", 1),
-			new(TokType.Identifier, "f", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Arrow, "->", 1),
-			new(TokType.Error, "error", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedNamedFunction(
-			new Tok(TokType.Identifier, "f", 1),
-			new List<Param>(),
-			new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-			new List<AuraType> { new AuraError() },
-			Visibility.Private,
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Arrow,
+					value: "->",
+					line: 1
+				),
+				new(
+					typ: TokType.Error,
+					value: "error",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedNamedFunction(
+				Fn: new Tok(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				Params: new List<Param>(),
+				Body: new UntypedBlock(
+					OpeningBrace: new Tok(
+						typ: TokType.LeftBrace,
+						value: "{",
+						line: 1
+					),
+					Statements: new List<IUntypedAuraStatement>(),
+					ClosingBrace: new Tok(
+						typ: TokType.RightBrace,
+						value: "}",
+						line: 1
+					),
+					Line: 1
+				),
+				ReturnType: new List<AuraType> { new AuraError() },
+				Public: Visibility.Private,
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_NamedFunction_ParamDefaultValue_Invalid()
 	{
 		ArrangeAndAct_Invalid(
-			new List<Tok>
+			tokens: new List<Tok>
 			{
-				new(TokType.Fn, "fn", 1),
-				new(TokType.Identifier, "f", 1),
-				new(TokType.LeftParen, "(", 1),
-				new(TokType.Identifier, "i", 1),
-				new(TokType.Colon, ":", 1),
-				new(TokType.Int, "int", 1),
-				new(TokType.Equal, "=", 1),
-				new(TokType.Identifier, "var", 1),
-				new(TokType.RightParen, ")", 1),
-				new(TokType.LeftBrace, "{", 1),
-				new(TokType.RightBrace, "}", 1),
-				new(TokType.Semicolon, ";", 1),
-				new(TokType.Eof, "eof", 1)
-			}, typeof(ParameterDefaultValueMustBeALiteralException));
+				new(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Int,
+					value: "int",
+					line: 1
+				),
+				new(
+					typ: TokType.Equal,
+					value: "=",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "var",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			},
+			expected: typeof(ParameterDefaultValueMustBeALiteralException)
+		);
 	}
 
 	[Test]
 	public void TestParse_NamedFunction_NoParams_NoReturnType_NoBody()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Fn, "fn", 1),
-			new(TokType.Identifier, "f", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedNamedFunction(
-			new Tok(TokType.Identifier, "f", 1),
-			new List<Param>(),
-			new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-			null,
-			Visibility.Private,
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedNamedFunction(
+				Fn: new Tok(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				Params: new List<Param>(),
+				Body: new UntypedBlock(
+					OpeningBrace: new Tok(
+						typ: TokType.LeftBrace,
+						value: "{",
+						line: 1
+					),
+					Statements: new List<IUntypedAuraStatement>(),
+					ClosingBrace: new Tok(
+						typ: TokType.RightBrace,
+						value: "}",
+						line: 1
+					),
+					Line: 1
+				),
+				ReturnType: null,
+				Public: Visibility.Private,
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_AnonymousFunction_NoParams_NoReturnType_NoBody()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Fn, "fn", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedAnonymousFunction(
-				new List<Param>(),
-				new UntypedBlock(new List<IUntypedAuraStatement>(), 1),
-				null,
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedAnonymousFunction(
+					Fn: new Tok(
+						typ: TokType.Fn,
+						value: "fn",
+						line: 1
+					),
+					Params: new List<Param>(),
+					Body: new UntypedBlock(
+						OpeningBrace: new Tok(
+							typ: TokType.LeftBrace,
+							value: "{",
+							line: 1
+						),
+						Statements: new List<IUntypedAuraStatement>(),
+						ClosingBrace: new Tok(
+							typ: TokType.RightBrace,
+							value: "}",
+							line: 1
+						),
+						Line: 1
+					),
+					ReturnType: null,
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Let_Long()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Let, "let", 1),
-			new(TokType.Identifier, "i", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Int, "int", 1),
-			new(TokType.Equal, "=", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedLet(
-			new List<Tok> { new(TokType.Identifier, "i", 1) },
-			new List<AuraType?> { new AuraInt() },
-			false,
-			new IntLiteral(5, 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Let,
+					value: "let",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Int,
+					value: "int",
+					line: 1
+				),
+				new(
+					typ: TokType.Equal,
+					value: "=",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedLet(
+				Let: new Tok(
+					typ: TokType.Let,
+					value: "let",
+					line: 1
+				),
+				Names: new List<Tok>
+				{
+					new(
+						typ: TokType.Identifier,
+						value: "i",
+						line: 1
+					)
+				},
+				NameTyps: new List<AuraType?> { new AuraInt() },
+				Mutable: false,
+				Initializer: new IntLiteral(
+					Int: new Tok(
+						typ: TokType.IntLiteral,
+						value: "5",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Let_Short()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Identifier, "i", 1),
-			new(TokType.ColonEqual, ":=", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedLet(
-			new List<Tok> { new(TokType.Identifier, "i", 1) },
-			new List<AuraType?>(),
-			false,
-			new IntLiteral(5, 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 1
+				),
+				new(
+					typ: TokType.ColonEqual,
+					value: ":=",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedLet(
+				Let: null,
+				Names: new List<Tok>
+				{
+					new(
+						typ: TokType.Identifier,
+						value: "i",
+						line: 1
+					)
+				},
+				NameTyps: new List<AuraType?>(),
+				Mutable: false,
+				Initializer: new IntLiteral(
+					Int: new Tok(
+						typ: TokType.IntLiteral,
+						value: "5",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Mod()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Mod, "mod", 1),
-			new(TokType.Identifier, "main", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedMod(new Tok(TokType.Identifier, "main", 1), 1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Mod,
+					value: "mod",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "main",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedMod(
+				Mod: new Tok(
+					typ: TokType.Mod,
+					value: "mod",
+					line: 1
+				),
+				Value: new Tok(
+					typ: TokType.Identifier,
+					value: "main",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Return()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Return, "return", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedReturn(
-			new List<IUntypedAuraExpression> { new IntLiteral(5, 1) },
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Return,
+					value: "return",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedReturn(
+				Return: new Tok(
+					typ: TokType.Return,
+					value: "return",
+					line: 1
+				),
+				Value: new List<IUntypedAuraExpression>
+				{
+					new IntLiteral(
+						Int: new Tok(
+							typ: TokType.IntLiteral,
+							value: "5",
+							line: 1
+						),
+						Line: 1
+					)
+				},
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Interface_NoMethods()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Interface, "interface", 1),
-			new(TokType.Identifier, "Greeter", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedInterface(
-			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<AuraNamedFunction>(),
-			Visibility.Private,
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Interface,
+					value: "interface",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedInterface(
+				Interface: new Tok(
+					typ: TokType.Interface,
+					value: "interface",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				Methods: new List<AuraNamedFunction>(),
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Public: Visibility.Private,
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Interface_OneMethod_NoParams_NoReturnType()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Interface, "interface", 1),
-			new(TokType.Identifier, "Greeter", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.Fn, "fn", 2),
-			new(TokType.Identifier, "say_hi", 2),
-			new(TokType.LeftParen, "(", 2),
-			new(TokType.RightParen, ")", 2),
-			new(TokType.Semicolon, ";", 2),
-			new(TokType.RightBrace, "}", 3),
-			new(TokType.Semicolon, ";", 3),
-			new(TokType.Eof, "eof", 3)
-		});
-		MakeAssertions(untypedAst, new UntypedInterface(
-			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<AuraNamedFunction> { new("say_hi", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())) },
-			Visibility.Private,
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Interface,
+					value: "interface",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 2
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "say_hi",
+					line: 2
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 2
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 2
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 2
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 3
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 3
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 3
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedInterface(
+				Interface: new Tok(
+					typ: TokType.Interface,
+					value: "interface",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				Methods: new List<AuraNamedFunction>
+				{
+					new(
+						name: "say_hi",
+						pub: Visibility.Private,
+						f: new AuraFunction(
+							fParams: new List<Param>(),
+							returnType: new AuraNil()
+						)
+					)
+				},
+				Public: Visibility.Private,
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 3
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Interface_OneMethod()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Interface, "interface", 1),
-			new(TokType.Identifier, "Greeter", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.Fn, "fn", 2),
-			new(TokType.Identifier, "say_hi", 2),
-			new(TokType.LeftParen, "(", 2),
-			new(TokType.Identifier, "i", 2),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Int, "int", 1),
-			new(TokType.RightParen, ")", 2),
-			new(TokType.Arrow, "->", 2),
-			new(TokType.String, "string", 2),
-			new(TokType.Semicolon, ";", 2),
-			new(TokType.RightBrace, "}", 3),
-			new(TokType.Semicolon, ";", 3),
-			new(TokType.Eof, "eof", 3)
-		});
-		MakeAssertions(untypedAst, new UntypedInterface(
-			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<AuraNamedFunction>
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
 			{
 				new(
-					"say_hi",
-					Visibility.Private,
-					new AuraFunction(
-						new List<Param>
-						{
-							new(
-								new Tok(TokType.Identifier, "i", 2),
-								new ParamType(
-									new AuraInt(),
-									false,
-									null))
-						},
-						new AuraString())
+					typ: TokType.Interface,
+					value: "interface",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.Fn,
+					value: "fn",
+					line: 2
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "say_hi",
+					line: 2
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 2
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "i",
+					line: 2
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Int,
+					value: "int",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 2
+				),
+				new(
+					typ: TokType.Arrow,
+					value: "->",
+					line: 2
+				),
+				new(
+					typ: TokType.String,
+					value: "string",
+					line: 2
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 2
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 3
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 3
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 3
 				)
-			},
-			Visibility.Private,
-			1));
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedInterface(
+				Interface: new Tok(
+					typ: TokType.Interface,
+					value: "interface",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				Methods: new List<AuraNamedFunction>
+				{
+					new(
+						name: "say_hi",
+						pub: Visibility.Private,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(
+									Name: new Tok(
+										typ: TokType.Identifier,
+										value: "i",
+										line: 2
+									),
+									ParamType: new(
+										Typ: new AuraInt(),
+										Variadic: false,
+										DefaultValue: null
+									)
+								)
+							},
+							returnType: new AuraString()
+						)
+					)
+				},
+				Public: Visibility.Private,
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 3
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Class_ImplementingTwoInterfaces()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Class, "class", 1),
-			new(TokType.Identifier, "c", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Identifier, "IClass", 1),
-			new(TokType.Comma, ",", 1),
-			new(TokType.Identifier, "IClass2", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedClass(
-			new Tok(TokType.Identifier, "c", 1),
-			new List<Param>(),
-			new List<IUntypedAuraStatement>(),
-			Visibility.Private,
-			new List<Tok> { new(TokType.Identifier, "IClass", 1), new(TokType.Identifier, "IClass2", 1) },
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "c",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "IClass",
+					line: 1
+				),
+				new(
+					typ: TokType.Comma,
+					value: ",",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "IClass2",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedClass(
+				Class: new Tok(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "c",
+					line: 1
+				),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>(),
+				Public: Visibility.Private,
+				Implementing: new List<Tok>
+				{
+					new(
+						typ: TokType.Identifier,
+						value: "IClass",
+						line: 1
+					),
+					new(
+						typ: TokType.Identifier,
+						value: "IClass2",
+						line: 1
+					)
+				},
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Class_ImplementingOneInterface()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Class, "class", 1),
-			new(TokType.Identifier, "c", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Identifier, "IClass", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedClass(
-			new Tok(TokType.Identifier, "c", 1),
-			new List<Param>(),
-			new List<IUntypedAuraStatement>(),
-			Visibility.Private,
-			new List<Tok> { new(TokType.Identifier, "IClass", 1) },
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "c",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "IClass",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedClass(
+				Class: new Tok(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "c",
+					line: 1
+				),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>(),
+				Public: Visibility.Private,
+				Implementing: new List<Tok>
+				{
+					new(
+						typ: TokType.Identifier,
+						value: "IClass",
+						line: 1
+					)
+				},
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Class_NoParams_NoMethods()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Class, "class", 1),
-			new(TokType.Identifier, "c", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedClass(
-			new Tok(TokType.Identifier, "c", 1),
-			new List<Param>(),
-			new List<IUntypedAuraStatement>(),
-			Visibility.Private,
-			new List<Tok>(),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "c",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedClass(
+				Class: new Tok(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "c",
+					line: 1
+				),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>(),
+				Public: Visibility.Private,
+				Implementing: new List<Tok>(),
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_While_EmptyBody()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.While, "while", 1),
-			new(TokType.True, "true", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedWhile(
-			new BoolLiteral(true, 1),
-			new List<IUntypedAuraStatement>(),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.While,
+					value: "while",
+					line: 1
+				),
+				new(
+					typ: TokType.True,
+					value: "true",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedWhile(
+				While: new Tok(
+					typ: TokType.While,
+					value: "while",
+					line: 1
+				),
+				Condition: new BoolLiteral(
+					Bool: new Tok(
+						typ: TokType.True,
+						value: "true",
+						line: 1
+					),
+					Line: 1
+				),
+				Body: new List<IUntypedAuraStatement>(),
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Import_NoAlias()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Import, "import", 1),
-			new(TokType.Identifier, "external_pkg", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedImport(
-			new Tok(TokType.Identifier, "external_pkg", 1),
-			null,
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Import,
+					value: "import",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "external_pkg",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedImport(
+				Import: new Tok(
+					typ: TokType.Import,
+					value: "import",
+					line: 1
+				),
+				Package: new Tok(
+					typ: TokType.Identifier,
+					value: "external_pkg",
+					line: 1
+				),
+				Alias: null,
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Import_Alias()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Import, "import", 1),
-			new(TokType.Identifier, "external_pkg", 1),
-			new(TokType.As, "as", 1),
-			new(TokType.Identifier, "ep", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedImport(
-			new Tok(TokType.Identifier, "external_pkg", 1),
-			new Tok(TokType.Identifier, "ep", 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Import,
+					value: "import",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "external_pkg",
+					line: 1
+				),
+				new(
+					typ: TokType.As,
+					value: "as",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "ep",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedImport(
+				Import: new Tok(
+					typ: TokType.Import,
+					value: "import",
+					line: 1
+				),
+				Package: new Tok(
+					typ: TokType.Identifier,
+					value: "external_pkg",
+					line: 1
+				),
+				Alias: new Tok(
+					typ: TokType.Identifier,
+					value: "ep",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Comment()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Comment, "// this is a comment", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedComment(
-			new Tok(TokType.Comment, "// this is a comment", 1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Comment,
+					value: "// this is a comment",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedComment(
+				Text: new Tok(
+					typ: TokType.Comment,
+					value: "// this is a comment",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Yield()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Yield, "yield", 1),
-			new(TokType.IntLiteral, "5", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedYield(new IntLiteral(5, 1), 1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Yield,
+					value: "yield",
+					line: 1
+				),
+				new(
+					typ: TokType.IntLiteral,
+					value: "5",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedYield(
+				Yield: new Tok(
+					typ: TokType.Yield,
+					value: "yield",
+					line: 1
+				),
+				new IntLiteral(
+					Int: new Tok(
+						typ: TokType.IntLiteral,
+						value: "5",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_ClassImplementingInterface()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new(TokType.Class, "class", 1),
-			new(TokType.Identifier, "Greeter", 1),
-			new(TokType.LeftParen, "(", 1),
-			new(TokType.RightParen, ")", 1),
-			new(TokType.Colon, ":", 1),
-			new(TokType.Identifier, "IGreeter", 1),
-			new(TokType.LeftBrace, "{", 1),
-			new(TokType.RightBrace, "}", 1),
-			new(TokType.Semicolon, ";", 1),
-			new(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedClass(
-			new Tok(TokType.Identifier, "Greeter", 1),
-			new List<Param>(),
-			new List<IUntypedAuraStatement>(),
-			Visibility.Private,
-			new List<Tok> { new(TokType.Identifier, "IGreeter", 1) },
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Colon,
+					value: ":",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "IGreeter",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftBrace,
+					value: "{",
+					line: 1
+				),
+				new(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedClass(
+				Class: new Tok(
+					typ: TokType.Class,
+					value: "class",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "Greeter",
+					line: 1
+				),
+				Params: new List<Param>(),
+				Body: new List<IUntypedAuraStatement>(),
+				Public: Visibility.Private,
+				Implementing: new List<Tok>
+				{
+					new(
+						typ: TokType.Identifier,
+						value: "IGreeter",
+						line: 1
+					)
+				},
+				ClosingBrace: new Tok(
+					typ: TokType.RightBrace,
+					value: "}",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Is()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new Tok(TokType.Identifier, "v", 1),
-			new Tok(TokType.Is, "is", 1),
-			new Tok(TokType.Identifier, "IGreeter", 1),
-			new Tok(TokType.Semicolon, ";", 1),
-			new Tok(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedExpressionStmt(
-			new UntypedIs(
-				new UntypedVariable(
-					new Tok(
-						TokType.Identifier,
-						"v",
-						1),
-					1),
-				new Tok(TokType.Identifier, "IGreeter", 1),
-				1),
-			1));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Identifier,
+					value: "v",
+					line: 1
+				),
+				new(
+					typ: TokType.Is,
+					value: "is",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "IGreeter",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedExpressionStmt(
+				Expression: new UntypedIs(
+					Expr: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "v",
+							line: 1
+						),
+						Line: 1
+					),
+					Expected: new Tok(
+						typ: TokType.Identifier,
+						value: "IGreeter",
+						line: 1
+					),
+					Line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Check()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new Tok(TokType.Check, "check", 1),
-			new Tok(TokType.Identifier, "f", 1),
-			new Tok(TokType.LeftParen, "(", 1),
-			new Tok(TokType.RightParen, ")", 1),
-			new Tok(TokType.Semicolon, ";", 1),
-			new Tok(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedCheck(
-			Call: new UntypedCall(
-				Callee: new UntypedVariable(
-					Name: new Tok(TokType.Identifier, "f", 1),
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Check,
+					value: "check",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "f",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedCheck(
+				Check: new Tok(
+					typ: TokType.Check,
+					value: "check",
+					line: 1
+				),
+				Call: new UntypedCall(
+					Callee: new UntypedVariable(
+						Name: new Tok(
+							typ: TokType.Identifier,
+							value: "f",
+							line: 1
+						),
+						Line: 1
+					),
+					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
+					ClosingParen: new Tok(
+						typ: TokType.RightParen,
+						value: ")",
+						line: 1
+					),
 					Line: 1
 				),
-				Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 				Line: 1
-			),
-			Line: 1
-		));
+			)
+		);
 	}
 
 	[Test]
 	public void TestParse_Struct()
 	{
-		var untypedAst = ArrangeAndAct(new List<Tok>
-		{
-			new Tok(TokType.Struct, "struct", 1),
-			new Tok(TokType.Identifier, "s", 1),
-			new Tok(TokType.LeftParen, "(", 1),
-			new Tok(TokType.RightParen, ")", 1),
-			new Tok(TokType.Semicolon, ";", 1),
-			new Tok(TokType.Eof, "eof", 1)
-		});
-		MakeAssertions(untypedAst, new UntypedStruct(
-			Name: new Tok(TokType.Identifier, "s", 1),
-			Params: new List<Param>(),
-			Line: 1
-		));
+		var untypedAst = ArrangeAndAct(
+			tokens: new List<Tok>
+			{
+				new(
+					typ: TokType.Struct,
+					value: "struct",
+					line: 1
+				),
+				new(
+					typ: TokType.Identifier,
+					value: "s",
+					line: 1
+				),
+				new(
+					typ: TokType.LeftParen,
+					value: "(",
+					line: 1
+				),
+				new(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				new(
+					typ: TokType.Semicolon,
+					value: ";",
+					line: 1
+				),
+				new(
+					typ: TokType.Eof,
+					value: "eof",
+					line: 1
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst: untypedAst,
+			expected: new UntypedStruct(
+				Struct: new Tok(
+					typ: TokType.Struct,
+					value: "struct",
+					line: 1
+				),
+				Name: new Tok(
+					typ: TokType.Identifier,
+					value: "s",
+					line: 1
+				),
+				Params: new List<Param>(),
+				ClosingParen: new Tok(
+					typ: TokType.RightParen,
+					value: ")",
+					line: 1
+				),
+				Line: 1
+			)
+		);
 	}
 
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange
-		tokens.Insert(0, new Tok(
-			typ: TokType.Newline,
-			value: "\n",
-			line: 1
-		));
-		tokens.Insert(0, new Tok(
-			typ: TokType.Semicolon,
-			value: ";",
-			line: 1
-		));
-		tokens.Insert(0, new Tok(
-			typ: TokType.Identifier,
-			value: "main",
-			line: 1
-		));
-		tokens.Insert(0, new Tok(
-			typ: TokType.Mod,
-			value: "mod",
-			line: 1
-		));
+		tokens.Insert(
+			index: 0,
+			item: new Tok(
+				typ: TokType.Newline,
+				value: "\n",
+				line: 1
+			)
+		);
+		tokens.Insert(
+			index: 0,
+			item: new Tok(
+				typ: TokType.Semicolon,
+				value: ";",
+				line: 1
+			)
+		);
+		tokens.Insert(
+			index: 0,
+			item: new Tok(
+				typ: TokType.Identifier,
+				value: "main",
+				line: 1
+			)
+		);
+		tokens.Insert(
+			index: 0,
+			item: new Tok(
+				typ: TokType.Mod,
+				value: "mod",
+				line: 1
+			)
+		);
 		var parser = new AuraParser(tokens, "Test");
 		// Act
 		return parser.Parse();
@@ -1121,12 +3758,21 @@ public class ParserTest
 		untypedAst.RemoveAt(0); // Remove newline after `mod` statement
 		Assert.Multiple(() =>
 		{
-			Assert.That(untypedAst, Is.Not.Null);
-			Assert.That(untypedAst, Has.Count.EqualTo(1));
+			Assert.That(
+				actual: untypedAst,
+				expression: Is.Not.Null
+			);
+			Assert.That(
+				actual: untypedAst,
+				expression: Has.Count.EqualTo(1)
+			);
 
 			var expectedJson = JsonConvert.SerializeObject(expected);
 			var actualJson = JsonConvert.SerializeObject(untypedAst[0]);
-			Assert.That(actualJson, Is.EqualTo(expectedJson));
+			Assert.That(
+				actual: actualJson,
+				expression: Is.EqualTo(expectedJson)
+			);
 		});
 	}
 }
