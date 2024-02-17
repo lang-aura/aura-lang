@@ -1,9 +1,10 @@
-﻿using AuraLang.Lsp.DocumentManager;
+﻿using AuraLang.Exceptions;
+using AuraLang.Lsp.DiagnosticsPublisher;
+using AuraLang.Lsp.DocumentManager;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
-using Range = Microsoft.VisualStudio.LanguageServer.Protocol.Range;
 
 namespace AuraLang.Lsp.LanguageServer;
 
@@ -15,6 +16,7 @@ public class AuraLanguageServer : IDisposable
 	private static readonly object Object = new();
 	private bool Verbose { get; }
 	private readonly AuraDocumentManager _documents = new();
+	private AuraDiagnosticsPublisher? DiagnosticsPublisher { get; set; }
 
 	public AuraLanguageServer(bool verbose)
 	{
@@ -24,6 +26,7 @@ public class AuraLanguageServer : IDisposable
 	public async Task InitAsync()
 	{
 		_rpc = JsonRpc.Attach(Console.OpenStandardOutput(), Console.OpenStandardInput(), this);
+		DiagnosticsPublisher = new AuraDiagnosticsPublisher(_rpc);
 		_rpc.Disconnected += OnRpcDisconnected;
 		await _rpc.Completion;
 	}
@@ -74,7 +77,7 @@ public class AuraLanguageServer : IDisposable
 	}
 
 	[JsonRpcMethod(Methods.InitializedName)]
-	public void InitializedName(JToken arg)
+	public void Initialized(JToken arg)
 	{
 		lock (Object)
 		{
@@ -102,26 +105,20 @@ public class AuraLanguageServer : IDisposable
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidChangeName)]
-	public List<Diagnostic>? DidChangeTextDocument(JToken jToken)
+	public async Task DidChangeTextDocumentAsync(JToken jToken)
 	{
-		Console.Error.WriteLine("Received `didChange` notification!");
 		var @params = DeserializeJToken<DidChangeTextDocumentParams>(jToken);
-		_documents.UpdateDocument(@params!.TextDocument.Uri.LocalPath, @params.ContentChanges.First().Text);
-		Console.Error.WriteLine(
-			$"Updated document at path '{@params.TextDocument.Uri.LocalPath}' with new content: {@params.ContentChanges.First().Text}");
-		var d = new Diagnostic
+		try
 		{
-			Code = "Warning",
-			Message = "Test message",
-			Severity = DiagnosticSeverity.Error,
-			Range = new Range
+			_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.ContentChanges.First().Text);
+		}
+		catch (AuraExceptionContainer e)
+		{
+			foreach (var ex in e.Exs)
 			{
-				Start = new Position { Line = 6, Character = 4 },
-				End = new Position { Line = 6, Character = 10 }
+				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
 			}
-		};
-		Console.Error.WriteLine("writing diagnostic");
-		return new List<Diagnostic> { d };
+		}
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentWillSaveName)]
@@ -152,6 +149,7 @@ public class AuraLanguageServer : IDisposable
 
 	[JsonRpcMethod(Methods.TextDocumentDidCloseName)]
 	public void DidCloseTextDocument(JToken jToken)
+
 	{
 		var @params = DeserializeJToken<DidCloseTextDocumentParams>(jToken);
 		_documents.DeleteDocument(@params.TextDocument.Uri.LocalPath);

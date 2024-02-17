@@ -21,7 +21,6 @@ public class AuraDocumentManager
 		_documents.AddOrUpdate(module, modDict, (k, dict) => dict);
 		_documents[module] = modDict;
 		// Compile file's new contents
-		Console.Error.WriteLine("Type checking document");
 		try
 		{
 			var tokens = new AuraScanner(contents, path).ScanTokens().Where(tok => tok.Typ is not TokType.Newline).ToList();
@@ -32,22 +31,16 @@ public class AuraDocumentManager
 				projectName: "Test Project Name"
 			);
 			typeChecker.BuildSymbolsTable(untypedAst);
-			var typedAst = typeChecker.CheckTypes(untypedAst);
+			typeChecker.CheckTypes(untypedAst);
 		}
-		catch (AuraExceptionContainer e)
+		catch (AuraExceptionContainer)
 		{
-			foreach (var ex in e.Exs)
-			{
-				Console.Error.WriteLine($"Caught Aura container exception: {ex.Message}");
-			}
-			return;
+			throw;
 		}
 		catch (Exception e)
 		{
 			Console.Error.WriteLine($"Caught exception {e}: {e.Message}");
-			return;
 		}
-		Console.Error.WriteLine("File type checked successfully!");
 	}
 
 	public void DeleteDocument(string path)
