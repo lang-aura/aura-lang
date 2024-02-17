@@ -56,13 +56,7 @@ public class ParserTest
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "5",
-							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+							line: 1)))
 			)
 		);
 	}
@@ -109,8 +103,7 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "1",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Operator: new Tok(
 						typ: TokType.Plus,
@@ -122,12 +115,7 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "2",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+						)))
 			)
 		);
 	}
@@ -187,20 +175,14 @@ public class ParserTest
 									typ: TokType.IntLiteral,
 									value: "1",
 									line: 2
-								),
-								Line: 2
-							),
-							Line: 2
+								))
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 3
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -247,18 +229,14 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "f",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
 						value: ")",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -304,17 +282,13 @@ public class ParserTest
 						Name: new Tok(
 							typ: TokType.Identifier,
 							value: "greeter",
-							line: 1),
-						Line: 1
+							line: 1)
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
 						value: "name",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -366,25 +340,20 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "collection",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Index: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "0",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
 						value: "]",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -482,33 +451,27 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "collection",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Lower: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "0",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Upper: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
 							value: "1",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
 						value: "]",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -560,17 +523,13 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "1",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
 						value: ")",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -642,8 +601,7 @@ public class ParserTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Then: new UntypedBlock(
 						OpeningBrace: new Tok(
@@ -666,24 +624,19 @@ public class ParserTest
 											typ: TokType.IntLiteral,
 											value: "1",
 											line: 2
-										),
-										Line: 2
+										)
 									)
-								},
-								Line: 2
+								}
 							),
 						},
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 3
-						),
-						Line: 1
+						)
 					),
-					Else: null,
-					Line: 1
-				),
-				Line: 1
+					Else: null
+				)
 			)
 		);
 	}
@@ -719,10 +672,7 @@ public class ParserTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -758,10 +708,7 @@ public class ParserTest
 						typ: TokType.FloatLiteral,
 						value: "5.0",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -797,10 +744,7 @@ public class ParserTest
 						typ: TokType.StringLiteral,
 						value: "Hello",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -879,16 +823,14 @@ public class ParserTest
 								typ: TokType.IntLiteral,
 								value: "5",
 								line: 1
-							),
-							Line: 1
+							)
 						),
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
 								value: "6",
 								line: 1
-							),
-							Line: 1
+							)
 						)
 					},
 					Kind: new AuraInt(),
@@ -896,10 +838,7 @@ public class ParserTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1043,16 +982,14 @@ public class ParserTest
 										typ: TokType.StringLiteral,
 										value: "Hello",
 										line: 2
-									),
-									Line: 2
+									)
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
 										value: "1",
 										line: 2
-									),
-									Line: 2
+									)
 								)
 							},
 							{
@@ -1061,16 +998,14 @@ public class ParserTest
 										typ: TokType.StringLiteral,
 										value: "World",
 										line: 3
-									),
-									Line: 3
+									)
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
 										value: "2",
 										line: 3
-									),
-									Line: 3
+									)
 								)
 							}
 						},
@@ -1080,25 +1015,20 @@ public class ParserTest
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 4
-						),
-						Line: 1
+						)
 					),
 					Index: new StringLiteral(
 						String: new Tok(
 							typ: TokType.StringLiteral,
 							value: "Hello",
 							line: 4
-						),
-						Line: 4
+						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
 						value: "]",
 						line: 4
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1228,16 +1158,14 @@ public class ParserTest
 									typ: TokType.StringLiteral,
 									value: "Hello",
 									line: 2
-								),
-								Line: 2
+								)
 							),
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
 									value: "1",
 									line: 2
-								),
-								Line: 2
+								)
 							)
 						},
 						{
@@ -1246,16 +1174,14 @@ public class ParserTest
 									typ: TokType.StringLiteral,
 									value: "World",
 									line: 3
-								),
-								Line: 3
+								)
 							),
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
 									value: "2",
 									line: 3
-								),
-								Line: 3
+								)
 							)
 						}
 					},
@@ -1265,10 +1191,7 @@ public class ParserTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 4
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1304,10 +1227,7 @@ public class ParserTest
 						typ: TokType.True,
 						value: "true",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1343,10 +1263,7 @@ public class ParserTest
 						typ: TokType.Nil,
 						value: "nil",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1382,10 +1299,7 @@ public class ParserTest
 						typ: TokType.CharLiteral,
 						value: "c",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1432,8 +1346,7 @@ public class ParserTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Operator: new Tok(
 						typ: TokType.Or,
@@ -1445,12 +1358,7 @@ public class ParserTest
 							typ: TokType.False,
 							value: "false",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+						)))
 			)
 		);
 	}
@@ -1507,8 +1415,7 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "greeter",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
@@ -1520,12 +1427,7 @@ public class ParserTest
 							typ: TokType.StringLiteral,
 							value: "Bob",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+						)))
 			)
 		);
 	}
@@ -1561,10 +1463,7 @@ public class ParserTest
 						typ: TokType.This,
 						value: "this",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1611,12 +1510,7 @@ public class ParserTest
 							typ: TokType.True,
 							value: "true",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+						)))
 			)
 		);
 	}
@@ -1663,12 +1557,7 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+						)))
 			)
 		);
 	}
@@ -1704,10 +1593,7 @@ public class ParserTest
 						typ: TokType.Identifier,
 						value: "variable",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1764,18 +1650,14 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "f",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
 						value: ")",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -1888,10 +1770,7 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "0",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				),
 				Condition: new UntypedBinary(
 					Left: new UntypedVariable(
@@ -1899,8 +1778,7 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "i",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Operator: new Tok(
 						typ: TokType.Less,
@@ -1912,10 +1790,7 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "10",
 							line: 1
-						),
-						Line: 1
-					),
-					Line: 1
+						))
 				),
 				Increment: new UntypedPlusPlusIncrement(
 					Name: new UntypedVariable(
@@ -1923,23 +1798,20 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "i",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					PlusPlus: new Tok(
 						typ: TokType.PlusPlus,
 						value: "++",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				Body: new List<IUntypedAuraStatement> { },
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2010,16 +1882,14 @@ public class ParserTest
 						typ: TokType.Identifier,
 						value: "iter",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2107,12 +1977,10 @@ public class ParserTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				ReturnType: new List<AuraType> { new AuraError() },
-				Public: Visibility.Private,
-				Line: 1
+				Public: Visibility.Private
 			)
 		);
 	}
@@ -2266,12 +2134,10 @@ public class ParserTest
 						typ: TokType.RightBrace,
 						value: "}",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				ReturnType: null,
-				Public: Visibility.Private,
-				Line: 1
+				Public: Visibility.Private
 			)
 		);
 	}
@@ -2340,13 +2206,10 @@ public class ParserTest
 							typ: TokType.RightBrace,
 							value: "}",
 							line: 1
-						),
-						Line: 1
+						)
 					),
-					ReturnType: null,
-					Line: 1
-				),
-				Line: 1
+					ReturnType: null
+				)
 			)
 		);
 	}
@@ -2422,10 +2285,7 @@ public class ParserTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -2482,10 +2342,7 @@ public class ParserTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -2530,8 +2387,7 @@ public class ParserTest
 					typ: TokType.Identifier,
 					value: "main",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2579,11 +2435,9 @@ public class ParserTest
 							typ: TokType.IntLiteral,
 							value: "5",
 							line: 1
-						),
-						Line: 1
+						)
 					)
-				},
-				Line: 1
+				}
 			)
 		);
 	}
@@ -2645,8 +2499,7 @@ public class ParserTest
 					value: "}",
 					line: 1
 				),
-				Public: Visibility.Private,
-				Line: 1
+				Public: Visibility.Private
 			)
 		);
 	}
@@ -2743,8 +2596,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 3
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2880,8 +2732,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 3
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -2987,8 +2838,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3079,8 +2929,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3154,8 +3003,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3211,16 +3059,14 @@ public class ParserTest
 						typ: TokType.True,
 						value: "true",
 						line: 1
-					),
-					Line: 1
+					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3266,8 +3112,7 @@ public class ParserTest
 					value: "external_pkg",
 					line: 1
 				),
-				Alias: null,
-				Line: 1
+				Alias: null
 			)
 		);
 	}
@@ -3327,8 +3172,7 @@ public class ParserTest
 					typ: TokType.Identifier,
 					value: "ep",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3363,8 +3207,7 @@ public class ParserTest
 					typ: TokType.Comment,
 					value: "// this is a comment",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3410,10 +3253,7 @@ public class ParserTest
 						typ: TokType.IntLiteral,
 						value: "5",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -3504,8 +3344,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}
@@ -3552,17 +3391,13 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "v",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Expected: new Tok(
 						typ: TokType.Identifier,
 						value: "IGreeter",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -3619,18 +3454,14 @@ public class ParserTest
 							typ: TokType.Identifier,
 							value: "f",
 							line: 1
-						),
-						Line: 1
+						)
 					),
 					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
 						value: ")",
 						line: 1
-					),
-					Line: 1
-				),
-				Line: 1
+					))
 			)
 		);
 	}
@@ -3691,8 +3522,7 @@ public class ParserTest
 					typ: TokType.RightParen,
 					value: ")",
 					line: 1
-				),
-				Line: 1
+				)
 			)
 		);
 	}

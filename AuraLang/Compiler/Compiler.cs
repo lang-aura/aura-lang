@@ -408,8 +408,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 							typ: TokType.Identifier,
 							value: AuraTypeToString(get.Obj.Typ),
 							line: 1
-						),
-						Line: 1
+						)
 					)
 				),
 				line: 1,
@@ -428,8 +427,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 						typ: TokType.Identifier,
 						value: AuraTypeToString(get.Obj.Typ),
 						line: 1
-					),
-					Line: 1
+					)
 				)
 			);
 			callee = $"{AuraTypeToString(get.Obj.Typ)}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}";
@@ -734,8 +732,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				typ: TokType.Identifier,
 				value: "prelude",
 				line: 1
-			),
-			Line: 1
+			)
 		);
 		var preludeImport = Visit(typedImport);
 		_goDocument.WriteStmt(preludeImport, 1, typedImport);

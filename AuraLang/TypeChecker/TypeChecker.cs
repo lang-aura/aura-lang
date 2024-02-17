@@ -232,7 +232,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			f: () =>
 			{
 				var typedCall = Visit((UntypedCall)defer.Call);
-				return new TypedDefer(defer.Defer, (TypedCall)typedCall, defer.Line);
+				return new TypedDefer(defer.Defer, (TypedCall)typedCall);
 			},
 			node: defer,
 			symbolNamespace: ModuleName!
@@ -245,7 +245,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// <param name="exprStmt">The expression statement to type check</param>
 	/// <returns>A valid, type checked expression statement</returns>
 	public ITypedAuraStatement Visit(UntypedExpressionStmt exprStmt) =>
-		new TypedExpressionStmt(Expression(exprStmt.Expression), exprStmt.Line);
+		new TypedExpressionStmt(Expression(exprStmt.Expression));
 
 	/// <summary>
 	/// Type checks a for loop
@@ -267,7 +267,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						? Expression(forStmt.Increment)
 						: null;
 					var typedBody = NonReturnableBody(forStmt.Body);
-					return new TypedFor(forStmt.For, typedInit, typedCond, typedInc, typedBody, forStmt.ClosingBrace, forStmt.Line);
+					return new TypedFor(forStmt.For, typedInit, typedCond, typedInc, typedBody, forStmt.ClosingBrace);
 				});
 			},
 			node: forStmt,
@@ -300,7 +300,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						symbolsNamespace: ModuleName!);
 					// Type check body
 					var typedBody = NonReturnableBody(forEachStmt.Body);
-					return new TypedForEach(forEachStmt.ForEach, forEachStmt.EachName, iter, typedBody, forEachStmt.ClosingBrace, forEachStmt.Line);
+					return new TypedForEach(forEachStmt.ForEach, forEachStmt.EachName, iter, typedBody, forEachStmt.ClosingBrace);
 				});
 			},
 			node: forEachStmt,
@@ -366,7 +366,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					if (!returnType.IsSameOrInheritingType(typedBody.Typ))
 						throw new TypeMismatchException(f.Line);
 
-					return new TypedAnonymousFunction(f.Fn, typedParams, typedBody, returnType, f.Line);
+					return new TypedAnonymousFunction(f.Fn, typedParams, typedBody, returnType);
 				});
 			},
 			node: f
@@ -454,7 +454,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(f.Line);
 		}
 
-		return new TypedNamedFunction(f.Fn, f.Name, typedParams, typedBody, returnType, f.Public, f.Line);
+		return new TypedNamedFunction(f.Fn, f.Name, typedParams, typedBody, returnType, f.Public);
 	}
 
 	private void AddLetStmtToSymbolsTable(UntypedLet let)
@@ -595,7 +595,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					? ExpressionAndConfirm(let.Initializer, nameTyp)
 					: defaultable!.Default(let.Line);
 
-				return new TypedLet(let.Let, let.Names, true, let.Mutable, typedInit, let.Line);
+				return new TypedLet(let.Let, let.Names, true, let.Mutable, typedInit);
 			},
 			node: let,
 			symbolNamespace: ModuleName!
@@ -645,8 +645,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					Names: let.Names,
 					TypeAnnotation: true,
 					Mutable: false,
-					Initializer: typedInit,
-					Line: let.Line
+					Initializer: typedInit
 				);
 			},
 			node: let,
@@ -682,7 +681,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				// Type check initializer
 				var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
-				return new TypedLet(null, let.Names, false, let.Mutable, typedInit, let.Line);
+				return new TypedLet(null, let.Names, false, let.Mutable, typedInit);
 			},
 			node: let,
 			symbolNamespace: ModuleName!
@@ -713,8 +712,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					Names: let.Names,
 					TypeAnnotation: false,
 					Mutable: false,
-					Initializer: typedInit,
-					Line: let.Line
+					Initializer: typedInit
 				);
 			},
 			node: let,
@@ -743,7 +741,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// <returns>A valid, type checked mod statement</returns>
 	public ITypedAuraStatement Visit(UntypedMod mod)
 	{
-		var m = new TypedMod(mod.Mod, mod.Value, mod.Line);
+		var m = new TypedMod(mod.Mod, mod.Value);
 		return m;
 	}
 
@@ -757,8 +755,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return WithEnclosingStmt(
 			f: () =>
 			{
-				if (r.Value is null) return new TypedReturn(r.Return, null, r.Line);
-				if (r.Value!.Count == 1) return new TypedReturn(r.Return, Expression(r.Value[0]), r.Line);
+				if (r.Value is null) return new TypedReturn(r.Return, null);
+				if (r.Value!.Count == 1) return new TypedReturn(r.Return, Expression(r.Value[0]));
 				// If the return statement contains more than one expression, we package the expressions up as a struct
 				var typedReturnValues = r.Value.Select(Expression);
 				return new TypedReturn(
@@ -789,10 +787,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							typ: TokType.RightParen,
 							value: ")",
 							line: r.Line
-						),
-						Line: r.Line
-					),
-					Line: r.Line);
+						)
+					));
 			},
 			node: r,
 			symbolNamespace: ModuleName!
@@ -881,8 +877,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					methodSignatures,
 					@class.Public,
 					@class.ClosingBrace,
-					new AuraClass(@class.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), @class.Public),
-					@class.Line);
+					new AuraClass(@class.Name.Value, typedParams.ToList(), methodTypes, implements.ToList(), @class.Public));
 				_enclosingClassStore.Push(partiallyTypedClass);
 				// Finish type checking the class's methods
 				var typedMethods = @class.Methods
@@ -909,7 +904,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 				_enclosingClassStore.Pop();
 				return new FullyTypedClass(@class.Class, @class.Name, typedParams.ToList(), typedMethods, @class.Public,
-					implements.ToList(), @class.ClosingBrace, @class.Line);
+					implements.ToList(), @class.ClosingBrace);
 			},
 			node: @class,
 			symbolNamespace: ModuleName!
@@ -930,7 +925,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				{
 					var typedCond = ExpressionAndConfirm(@while.Condition, new AuraBool());
 					var typedBody = NonReturnableBody(@while.Body);
-					return new TypedWhile(@while.While, typedCond, typedBody, @while.ClosingBrace, @while.Line);
+					return new TypedWhile(@while.While, typedCond, typedBody, @while.ClosingBrace);
 				});
 			},
 			node: @while,
@@ -941,7 +936,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	public ITypedAuraStatement Visit(UntypedMultipleImport import)
 	{
 		var typedImports = import.Packages.Select(pkg => (TypedImport)Visit(pkg)).ToList();
-		return new TypedMultipleImport(import.Import, typedImports, import.ClosingBrace, import.Line);
+		return new TypedMultipleImport(import.Import, typedImports, import.ClosingBrace);
 	}
 
 	public ITypedAuraStatement Visit(UntypedImport import)
@@ -985,7 +980,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		{
 			_symbolsTable.AddModule(module!);
 		}
-		return new TypedImport(import.Import, import.Package, import.Alias, import.Line);
+		return new TypedImport(import.Import, import.Package, import.Alias);
 	}
 
 	/// <summary>
@@ -994,7 +989,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// </summary>
 	/// <param name="comment">The comment to type check</param>
 	/// <returns>A valid, type checked comment</returns>
-	public ITypedAuraStatement Visit(UntypedComment comment) => new TypedComment(comment.Text, comment.Line);
+	public ITypedAuraStatement Visit(UntypedComment comment) => new TypedComment(comment.Text);
 
 	/// <summary>
 	/// Type checks a continue statement. This method is basically a no-op, since continue statements don't
@@ -1007,7 +1002,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		var enclosingStmt = _enclosingStatementStore.Peek();
 		if (enclosingStmt is not UntypedWhile && enclosingStmt is not UntypedFor && enclosingStmt is not UntypedForEach)
 			throw new InvalidUseOfContinueKeywordException(@continue.Line);
-		return new TypedContinue(@continue.Continue, @continue.Line);
+		return new TypedContinue(@continue.Continue);
 	}
 
 	/// <summary>
@@ -1021,7 +1016,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		var enclosingStmt = _enclosingStatementStore.Peek();
 		if (enclosingStmt is not UntypedWhile && enclosingStmt is not UntypedFor && enclosingStmt is not UntypedForEach)
 			throw new InvalidUseOfBreakKeywordException(b.Line);
-		return new TypedBreak(b.Break, b.Line);
+		return new TypedBreak(b.Break);
 	}
 
 	/// <summary>
@@ -1039,7 +1034,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			throw new InvalidUseOfYieldKeywordException(y.Line);
 
 		var value = Expression(y.Value);
-		return new TypedYield(y.Yield, value, y.Line);
+		return new TypedYield(y.Yield, value);
 	}
 
 	/// <summary>
@@ -1047,7 +1042,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// </summary>
 	/// <param name="i">The interface declaration to type check</param>
 	/// <returns>A valid, type checked interface</returns>
-	public ITypedAuraStatement Visit(UntypedInterface i) => new TypedInterface(i.Interface, i.Name, i.Methods, i.Public, i.ClosingBrace, i.Line);
+	public ITypedAuraStatement Visit(UntypedInterface i) => new TypedInterface(i.Interface, i.Name, i.Methods, i.Public, i.ClosingBrace);
 
 	/// <summary>
 	/// Type checks an assignment expression
@@ -1062,7 +1057,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var v = FindOrThrow(assignment.Name.Value, ModuleName!, assignment.Line);
 			// Ensure that the new value and the variable have the same type
 			var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
-			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ, assignment.Line);
+			return new TypedAssignment(assignment.Name, typedExpr, typedExpr.Typ);
 		}, assignment);
 	}
 
@@ -1072,7 +1067,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// Ensure that expression has type of either int or float
 		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotIncrementNonNumberException(inc.Line);
 
-		return new TypedPlusPlusIncrement(name, inc.PlusPlus, name.Typ, inc.Line);
+		return new TypedPlusPlusIncrement(name, inc.PlusPlus, name.Typ);
 	}
 
 	public ITypedAuraExpression Visit(UntypedMinusMinusDecrement dec)
@@ -1081,7 +1076,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		// Ensure that expression has type of either int or float
 		if (name.Typ is not AuraInt && name.Typ is not AuraFloat) throw new CannotDecrementNonNumberException(dec.Line);
 
-		return new TypedMinusMinusDecrement(name, dec.MinusMinus, name.Typ, dec.Line);
+		return new TypedMinusMinusDecrement(name, dec.MinusMinus, name.Typ);
 	}
 
 	/// <summary>
@@ -1096,7 +1091,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var typedLeft = Expression(binary.Left);
 			// The right-hand expression must have the same type as the left-hand expression
 			var typedRight = ExpressionAndConfirm(binary.Right, typedLeft.Typ);
-			return new TypedBinary(typedLeft, binary.Operator, typedRight, typedLeft.Typ, binary.Line);
+			return new TypedBinary(typedLeft, binary.Operator, typedRight, typedLeft.Typ);
 		}, binary);
 	}
 
@@ -1131,7 +1126,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					};
 				}
 
-				return new TypedBlock(block.OpeningBrace, typedStmts.ToList(), block.ClosingBrace, blockTyp, block.Line);
+				return new TypedBlock(block.OpeningBrace, typedStmts.ToList(), block.ClosingBrace, blockTyp);
 			});
 		}, block);
 	}
@@ -1165,7 +1160,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						typedArgs = TypeCheckArguments(call.Arguments.Select(pair => pair.Item2).ToList(), funcDeclaration_.GetParams().GetRange(1, endIndex), call.Line);
 					}
 
-					return new TypedCall(typedGet, typedArgs, call.ClosingParen, funcDeclaration_.GetReturnType(), call.Line);
+					return new TypedCall(typedGet, typedArgs, call.ClosingParen, funcDeclaration_.GetReturnType());
 				}
 				if (typedGet.Obj.Typ is AuraModule m) namespace_ = m.Name;
 			}
@@ -1187,8 +1182,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
 			if (!funcDeclaration!.GetParams().Any())
 			{
-				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), call.ClosingParen, funcDeclaration!.GetReturnType(),
-					call.Line);
+				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), call.ClosingParen, funcDeclaration!.GetReturnType());
 			}
 			else
 			{
@@ -1203,7 +1197,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					else typedArgs.Insert(index, defaultValue);
 				}
 
-				return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, funcDeclaration!.GetReturnType(), call.Line);
+				return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, funcDeclaration!.GetReturnType());
 			}
 		}, call);
 	}
@@ -1232,12 +1226,10 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 								value: v.Name.Value,
 								line: get.Line
 							),
-							Typ: n.ParseAsModule(),
-							Line: get.Line
+							Typ: n.ParseAsModule()
 						),
 						Name: get.Name,
-						Typ: attribute.Kind,
-						Line: get.Line
+						Typ: attribute.Kind
 					);
 				}
 			}
@@ -1263,8 +1255,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						typ: TokType.Identifier,
 						value: "strings",
 						line: 1
-					),
-					Line: 1
+					)
 				));
 			}
 			if (g is AuraList)
@@ -1284,8 +1275,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						typ: TokType.Identifier,
 						value: "lists",
 						line: 1
-					),
-					Line: 1
+					)
 				));
 			}
 			if (g is AuraError)
@@ -1305,8 +1295,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						typ: TokType.Identifier,
 						value: "errors",
 						line: 1
-					),
-					Line: 1
+					)
 				));
 			}
 			if (g is AuraResult)
@@ -1326,13 +1315,12 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						typ: TokType.Identifier,
 						value: "results",
 						line: 1
-					),
-					Line: 1
+					)
 				));
 			}
 			// Fetch the gettable's attribute
 			var attrTyp = g.Get(get.Name.Value) ?? throw new ClassAttributeDoesNotExistException(objExpr.ToString()!, get.GetName(), get.Line);
-			return new TypedGet(objExpr, get.Name, attrTyp, get.Line);
+			return new TypedGet(objExpr, get.Name, attrTyp);
 		}, get);
 	}
 
@@ -1343,7 +1331,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var typedObj = Expression(set.Obj);
 			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(set.Line);
 			var typedValue = Expression(set.Value);
-			return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ, set.Line);
+			return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ);
 		}, set);
 	}
 
@@ -1367,7 +1355,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			if (!indexableExpr.IndexingType().IsSameType(indexExpr.Typ))
 				throw new TypeMismatchException(getIndex.Line);
 
-			return new TypedGetIndex(expr, indexExpr, getIndex.ClosingBracket, indexableExpr.GetIndexedType(), getIndex.Line);
+			return new TypedGetIndex(expr, indexExpr, getIndex.ClosingBracket, indexableExpr.GetIndexedType());
 		}, getIndex);
 	}
 
@@ -1395,7 +1383,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			if (!rangeIndexableExpr.IndexingType().IsSameType(upper.Typ))
 				throw new TypeMismatchException(getIndexRange.Line);
 
-			return new TypedGetIndexRange(expr, lower, upper, getIndexRange.ClosingBracket, expr.Typ, getIndexRange.Line);
+			return new TypedGetIndexRange(expr, lower, upper, getIndexRange.ClosingBracket, expr.Typ);
 		}, getIndexRange);
 	}
 
@@ -1409,7 +1397,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			var typedExpr = Expression(grouping.Expr);
-			return new TypedGrouping(grouping.OpeningParen, typedExpr, grouping.ClosingParen, typedExpr.Typ, grouping.Line);
+			return new TypedGrouping(grouping.OpeningParen, typedExpr, grouping.ClosingParen, typedExpr.Typ);
 		}, grouping);
 	}
 
@@ -1431,7 +1419,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				typedElse = ExpressionAndConfirm(@if.Else, typedThen.Typ);
 			}
 
-			return new TypedIf(@if.If, typedCond, typedThen, typedElse, typedThen.Typ, @if.Line);
+			return new TypedIf(@if.If, typedCond, typedThen, typedElse, typedThen.Typ);
 		}, @if);
 	}
 
@@ -1448,7 +1436,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var items = literal.Value.Select(item => (IUntypedAuraExpression)item);
 			var typedItem = Expression(items.First());
 			var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
-			return new ListLiteral<ITypedAuraExpression>(literal.OpeningBracket, typedItems, typedItem.Typ, literal.ClosingBrace, literal.Line);
+			return new ListLiteral<ITypedAuraExpression>(literal.OpeningBracket, typedItems, typedItem.Typ, literal.ClosingBrace);
 		}, literal);
 	}
 
@@ -1468,13 +1456,13 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				return (typedK, typedV);
 			}).ToDictionary(pair => pair.Item1, pair => pair.Item2);
 			return new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(literal.Map, typedM, typedKey.Typ, typedValue.Typ,
-				literal.ClosingBrace, literal.Line);
+				literal.ClosingBrace);
 		}, literal);
 	}
 
 	public ITypedAuraExpression Visit(BoolLiteral literal) => literal;
 
-	public ITypedAuraExpression Visit(UntypedNil literal) => new TypedNil(literal.Nil, literal.Line);
+	public ITypedAuraExpression Visit(UntypedNil literal) => new TypedNil(literal.Nil);
 
 	public ITypedAuraExpression Visit(CharLiteral literal) => literal;
 
@@ -1483,7 +1471,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// </summary>
 	/// <param name="this">The `this` expression to type check</param>
 	/// <returns>A valid, type checked `this` expression</returns>
-	public ITypedAuraExpression Visit(UntypedThis @this) => new TypedThis(@this.This, _enclosingClassStore.Peek()!.Typ, @this.Line);
+	public ITypedAuraExpression Visit(UntypedThis @this) => new TypedThis(@this.This, _enclosingClassStore.Peek()!.Typ);
 
 	/// <summary>
 	/// Type checks a unary expression
@@ -1509,7 +1497,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					throw new MismatchedUnaryOperatorAndOperandException(unary.Operator.Value, typedRight.Typ, unary.Line);
 			}
 
-			return new TypedUnary(unary.Operator, typedRight, typedRight.Typ, unary.Line);
+			return new TypedUnary(unary.Operator, typedRight, typedRight.Typ);
 		}, unary);
 	}
 
@@ -1527,7 +1515,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		var kind = !localVar.Kind.IsSameType(new AuraUnknown(string.Empty))
 			? localVar.Kind
 			: FindOrThrow(((AuraUnknown)localVar.Kind).Name, ModuleName!, v.Line).Kind;
-		return new TypedVariable(v.Name, kind, v.Line);
+		return new TypedVariable(v.Name, kind);
 	}
 
 	public ITypedAuraExpression Visit(UntypedIs is_)
@@ -1537,7 +1525,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		var i = FindAndConfirm(is_.Expected.Value, ModuleName!,
 			new AuraInterface(string.Empty, new List<AuraNamedFunction>(), Visibility.Private), is_.Line);
 
-		return new TypedIs(typedExpr, i, is_.Line);
+		return new TypedIs(typedExpr, i);
 	}
 
 	/// <summary>
@@ -1551,7 +1539,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		{
 			var typedLeft = Expression(logical.Left);
 			var typedRight = ExpressionAndConfirm(logical.Right, typedLeft.Typ);
-			return new TypedLogical(typedLeft, logical.Operator, typedRight, new AuraBool(), logical.Line);
+			return new TypedLogical(typedLeft, logical.Operator, typedRight, new AuraBool());
 		}, logical);
 	}
 
@@ -1628,7 +1616,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 		var typedArgs = TypeCheckArguments(orderedArgs, declaration.GetParams(), call.Line);
 
-		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType(), call.Line);
+		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType());
 	}
 
 	private TypedCall TypeCheckNamedParameters(UntypedCall call, ICallable declaration)
@@ -1666,7 +1654,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			else typedArgs.Insert(index, defaultValue);
 		}
 
-		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType(), call.Line);
+		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType());
 	}
 
 	private TU WithEnclosingStmt<TU, T>(Func<TU> f, T node, string symbolNamespace)
@@ -1682,8 +1670,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private bool IsSymbolInPreludeNamespace(string symbolName)
 	{
 		var typ = _prelude.GetPrelude().Get(symbolName);
-		if (typ is null) return false;
-		else return true;
+		return typ is not null;
 	}
 
 	public ITypedAuraStatement Visit(UntypedCheck check)
@@ -1700,8 +1687,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 		return new TypedCheck(
 			Check: check.Check,
-			Call: (TypedCall)typedCall,
-			Line: check.Line
+			Call: (TypedCall)typedCall
 		);
 	}
 
@@ -1719,7 +1705,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 				});
 
-				return new TypedStruct(@struct.Struct, @struct.Name, typedParams.ToList(), @struct.ClosingParen, @struct.Line);
+				return new TypedStruct(@struct.Struct, @struct.Name, typedParams.ToList(), @struct.ClosingParen);
 			},
 			node: @struct,
 			symbolNamespace: ModuleName!
