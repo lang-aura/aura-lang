@@ -1,11 +1,13 @@
-﻿namespace AuraLang.Exceptions;
+﻿using Range = AuraLang.Location.Range;
+
+namespace AuraLang.Exceptions;
 
 public abstract class AuraExceptionContainer : Exception
 {
 	public readonly List<AuraException> Exs = new();
-	protected string FilePath { get; init; }
+	private string FilePath { get; }
 
-	public AuraExceptionContainer(string filePath)
+	protected AuraExceptionContainer(string filePath)
 	{
 		FilePath = filePath;
 	}
@@ -21,13 +23,18 @@ public abstract class AuraExceptionContainer : Exception
 
 public abstract class AuraException : Exception
 {
-	public int Line { get; }
+	public Range Range { get; }
 
-	protected AuraException(string message, int line) : base(message)
+	protected AuraException(string message, Range range) : base(message)
 	{
-		Line = line;
+		Range = range;
 	}
 
-	public string Error(string filePath) => $"[{filePath} line {Line}] {Message}";
+	public string Error(string filePath)
+	{
+		// The starting and ending positions in the range store the line as a 0-based index, so we increment the
+		// line by 1 to get a value that humans expect.
+		return $"[{filePath} line {Range.Start.Line + 1}] {Message}";
+	}
 }
 
