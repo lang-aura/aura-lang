@@ -50,7 +50,7 @@ public class AuraLanguageServer : IDisposable
 						WillSaveWaitUntil = true
 					},
 				CompletionProvider = null,
-				HoverProvider = false,
+				HoverProvider = true,
 				SignatureHelpProvider = null,
 				DefinitionProvider = false,
 				TypeDefinitionProvider = false,
@@ -162,6 +162,15 @@ public class AuraLanguageServer : IDisposable
 		var @params = DeserializeJToken<DidCloseTextDocumentParams>(jToken);
 		_documents.DeleteDocument(@params.TextDocument.Uri.LocalPath);
 		Console.Error.WriteLine($"Received `didClose` notification for file '{@params.TextDocument.Uri.LocalPath}'");
+	}
+
+	[JsonRpcMethod(Methods.TextDocumentHoverName)]
+	public Hover HoverProvider(JToken jToken)
+	{
+		var @params = DeserializeJToken<TextDocumentPositionParams>(jToken);
+		var node = _documents.FindStmtByPosition(@params);
+		Console.Error.WriteLine($"node = {JsonConvert.SerializeObject(node)}");
+		return new Hover();
 	}
 
 	[JsonRpcMethod(Methods.ShutdownName)]

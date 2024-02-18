@@ -1,4 +1,6 @@
-﻿namespace AuraLang.Location;
+﻿using MsPosition = Microsoft.VisualStudio.LanguageServer.Protocol.Position;
+
+namespace AuraLang.Location;
 
 /// <summary>
 /// Represents a single position in an Aura source file
@@ -27,6 +29,15 @@ public record Position
 	{
 		Character = 0;
 		Line = 0;
+	}
+
+	public static Position FromMicrosoftPosition(MsPosition pos)
+	{
+		return new Position
+		{
+			Line = pos.Line,
+			Character = pos.Character
+		};
 	}
 
 	public override string ToString() => $"{Line}:{Character}";

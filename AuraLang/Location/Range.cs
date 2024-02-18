@@ -26,5 +26,12 @@ public record Range
 		End = new Position();
 	}
 
+	public bool Contains(Position position)
+	{
+		if (position.Line < Start.Line || position.Line > End.Line) return false;
+		if (position.Character < Start.Character || position.Line > End.Character) return false;
+		return true;
+	}
+
 	public override string ToString() => $"{Start}-{End}";
 }

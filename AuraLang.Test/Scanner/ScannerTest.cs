@@ -10,26 +10,26 @@ public class ScannerTest
 {
 	private readonly Position _startPosition = new(
 		character: 0,
-		line: 1
+		line: 0
 	);
 	private readonly Range _singleCharRange = new(
 		start: new Position(
 			character: 0,
-			line: 1
+			line: 0
 		),
 		end: new Position(
 			character: 1,
-			line: 1
+			line: 0
 		)
 	);
 	private readonly Range _doubleCharRange = new(
 		start: new Position(
 			character: 0,
-			line: 1
+			line: 0
 		),
 		end: new Position(
 			character: 2,
-			line: 1
+			line: 0
 		)
 	);
 
@@ -621,7 +621,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 5,
-						line: 1
+						line: 0
 					)
 				)
 			)
