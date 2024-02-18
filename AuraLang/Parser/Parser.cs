@@ -492,7 +492,6 @@ public class AuraParser
 		if (Match(TokType.Newline)) return new UntypedNewLine(Previous());
 		if (Match(TokType.Check)) return CheckStatement();
 
-		var line = Peek().Line;
 		// If the statement doesn't begin with any of the Aura statement identifiers, parse it as an expression and
 		// wrap it in an Expression Statement
 		var expr = Expression();
@@ -625,7 +624,6 @@ public class AuraParser
 
 	private IUntypedAuraStatement ShortLetDeclaration(bool isMutable)
 	{
-		var line = Peek().Line;
 		// Parse the variable's name
 		var names = ParseShortVariableNames();
 		Consume(TokType.ColonEqual, new ExpectColonEqualException(Peek().Value, Peek().Range));
@@ -705,7 +703,6 @@ public class AuraParser
 
 	private IUntypedAuraStatement ExpressionStatement()
 	{
-		var line = Peek().Line;
 		// Parse expression
 		var expr = Expression();
 		// Consume the trailing semicolon
@@ -962,7 +959,6 @@ public class AuraParser
 
 	private IUntypedAuraExpression FinishCall(IUntypedAuraExpression callee)
 	{
-		var line = Previous().Line;
 		var arguments = new List<(Tok?, IUntypedAuraExpression)>();
 		if (!Check(TokType.RightParen))
 		{
@@ -998,10 +994,8 @@ public class AuraParser
 
 	private IUntypedAuraExpression Primary()
 	{
-		var line = Peek().Line;
-
-		if (Match(TokType.False)) return new BoolLiteral(new Tok(TokType.False, "false", line));
-		if (Match(TokType.True)) return new BoolLiteral(new Tok(TokType.True, "true", line));
+		if (Match(TokType.False)) return new BoolLiteral(new Tok(TokType.False, "false"));
+		if (Match(TokType.True)) return new BoolLiteral(new Tok(TokType.True, "true"));
 		if (Match(TokType.Nil)) return new UntypedNil(Previous());
 		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous());
 		if (Match(TokType.CharLiteral)) return new CharLiteral(Previous());
@@ -1114,13 +1108,11 @@ public class AuraParser
 
 	private IUntypedAuraExpression ParseGetAccess(IUntypedAuraExpression obj)
 	{
-		var line = obj.Line;
-
 		if (Match(TokType.Colon))
 		{
-			var upper = Match(TokType.RightBracket) ? new IntLiteral(new Tok(TokType.IntLiteral, "-1", line)) : ParseIndex();
+			var upper = Match(TokType.RightBracket) ? new IntLiteral(new Tok(TokType.IntLiteral, "-1")) : ParseIndex();
 			var closingBracket = Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, obj.Range));
-			return new UntypedGetIndexRange(obj, new IntLiteral(new Tok(TokType.IntLiteral, "0", line)), upper, closingBracket);
+			return new UntypedGetIndexRange(obj, new IntLiteral(new Tok(TokType.IntLiteral, "0")), upper, closingBracket);
 		}
 
 		if (!Match(TokType.RightBracket))
@@ -1130,7 +1122,7 @@ public class AuraParser
 			Consume(TokType.Colon, new ExpectColonException(Peek().Value, Peek().Range));
 
 			IUntypedAuraExpression upper;
-			if (Match(TokType.RightBracket)) upper = new IntLiteral(new Tok(TokType.IntLiteral, "-1", line));
+			if (Match(TokType.RightBracket)) upper = new IntLiteral(new Tok(TokType.IntLiteral, "-1"));
 			else
 			{
 				upper = ParseIndex();
@@ -1145,8 +1137,6 @@ public class AuraParser
 
 	private IUntypedAuraExpression ParseIndex()
 	{
-		var line = Previous().Line;
-
 		if (Match(TokType.IntLiteral))
 		{
 			return new IntLiteral(Previous());
@@ -1156,7 +1146,7 @@ public class AuraParser
 		{
 			var intLiteral = Consume(TokType.IntLiteral, new ExpectIntLiteralException(Peek().Value, Peek().Range));
 			var i = int.Parse(intLiteral.Value);
-			return new IntLiteral(new Tok(TokType.IntLiteral, $"-{i}", line));
+			return new IntLiteral(new Tok(TokType.IntLiteral, $"-{i}"));
 		}
 
 		if (Match(TokType.Identifier))

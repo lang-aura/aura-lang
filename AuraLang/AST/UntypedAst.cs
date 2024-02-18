@@ -37,8 +37,6 @@ public record UntypedAssignment(Tok Name, IUntypedAuraExpression Value) : IUntyp
 		start: Name.Range.Start,
 		end: Value.Range.End
 	);
-
-	public int Line => Name.Line;
 }
 
 /// <summary>
@@ -52,8 +50,6 @@ public record UntypedPlusPlusIncrement(IUntypedAuraExpression Name, Tok PlusPlus
 		start: Name.Range.Start,
 		end: PlusPlus.Range.End
 	);
-
-	public int Line => Name.Line;
 }
 
 /// <summary>
@@ -67,8 +63,6 @@ public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, Tok MinusM
 		start: Name.Range.Start,
 		end: MinusMinus.Range.End
 	);
-
-	public int Line => Name.Line;
 }
 
 /// <summary>
@@ -91,8 +85,6 @@ public record UntypedBinary(IUntypedAuraExpression Left, Tok Operator, IUntypedA
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
-
-	public int Line => Left.Line;
 }
 
 /// <summary>
@@ -112,8 +104,6 @@ public record UntypedBlock(Tok OpeningBrace, List<IUntypedAuraStatement> Stateme
 		start: OpeningBrace.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => OpeningBrace.Line;
 }
 
 /// <summary>
@@ -135,8 +125,6 @@ public record UntypedCall
 		start: Callee.Range.Start,
 		end: ClosingParen.Range.End
 	);
-
-	public int Line => Callee.Line;
 }
 
 /// <summary>
@@ -157,8 +145,6 @@ public record UntypedGet(IUntypedAuraExpression Obj, Tok Name) : IUntypedAuraExp
 		start: Obj.Range.Start,
 		end: Name.Range.End
 	);
-
-	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -173,8 +159,6 @@ public record UntypedGetIndex(IUntypedAuraExpression Obj, IUntypedAuraExpression
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
-
-	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -190,8 +174,6 @@ public record UntypedGetIndexRange(IUntypedAuraExpression Obj, IUntypedAuraExpre
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
-
-	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -207,8 +189,6 @@ public record UntypedGrouping(Tok OpeningParen, IUntypedAuraExpression Expr, Tok
 		start: OpeningParen.Range.Start,
 		end: ClosingParen.Range.End
 	);
-
-	public int Line => OpeningParen.Line;
 }
 
 /// <summary>
@@ -236,8 +216,6 @@ public record UntypedIf(Tok If, IUntypedAuraExpression Condition, UntypedBlock T
 		start: If.Range.Start,
 		end: Else?.Range.End ?? Then.Range.End
 	);
-
-	public int Line => If.Line;
 }
 
 /// <summary>
@@ -247,7 +225,6 @@ public record UntypedNil(Tok Nil) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => Nil.Range;
-	public int Line => Nil.Line;
 }
 
 /// <summary>
@@ -264,8 +241,6 @@ public record UntypedLogical(IUntypedAuraExpression Left, Tok Operator, IUntyped
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
-
-	public int Line => Left.Line;
 }
 
 /// <summary>
@@ -288,8 +263,6 @@ public record UntypedSet(IUntypedAuraExpression Obj, Tok Name, IUntypedAuraExpre
 		start: Obj.Range.Start,
 		end: Value.Range.End
 	);
-
-	public int Line => Obj.Line;
 }
 
 /// <summary>
@@ -300,7 +273,6 @@ public record UntypedThis(Tok This) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => This.Range;
-	public int Line => This.Line;
 }
 
 /// <summary>
@@ -319,8 +291,6 @@ public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right) : IUntype
 		start: Operator.Range.Start,
 		end: Right.Range.End
 	);
-
-	public int Line => Operator.Line;
 }
 
 /// <summary>
@@ -336,8 +306,6 @@ public record UntypedVariable(Tok Name) : IUntypedAuraExpression, IUntypedAuraCa
 		start: Name.Range.Start,
 		end: Name.Range.End
 	);
-
-	public int Line => Name.Line;
 }
 
 /// <summary>
@@ -352,8 +320,6 @@ public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected) : IUntypedAur
 		start: Expr.Range.Start,
 		end: Expected.Range.End
 	);
-
-	public int Line => Expr.Line;
 }
 
 /// <summary>
@@ -368,8 +334,6 @@ public record UntypedDefer(Tok Defer, IUntypedAuraCallable Call) : IUntypedAuraS
 		start: Defer.Range.Start,
 		end: Call.Range.End
 	);
-
-	public int Line => Defer.Line;
 }
 
 /// <summary>
@@ -381,7 +345,6 @@ public record UntypedExpressionStmt(IUntypedAuraExpression Expression) : IUntype
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => Expression.Range;
-	public int Line => Expression.Line;
 }
 
 /// <summary>
@@ -405,8 +368,6 @@ public record UntypedFor(Tok For, IUntypedAuraStatement? Initializer, IUntypedAu
 		start: For.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => For.Line;
 }
 
 /// <summary>
@@ -425,8 +386,6 @@ public record UntypedForEach(Tok ForEach, Tok EachName, IUntypedAuraExpression I
 		start: ForEach.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => ForEach.Line;
 }
 
 /// <summary>
@@ -447,8 +406,6 @@ public record UntypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, Untyped
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
-
-	public int Line => Fn.Line;
 }
 
 /// <summary>
@@ -468,8 +425,6 @@ public record UntypedAnonymousFunction(Tok Fn, List<Param> Params, UntypedBlock 
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
-
-	public int Line => Fn.Line;
 }
 
 /// <summary>
@@ -491,8 +446,6 @@ public record UntypedLet(Tok? Let, List<Tok> Names, List<AuraType?> NameTyps, bo
 		start: Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
 		end: Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
 	);
-
-	public int Line => Let is not null ? Let.Value.Line : Names.First().Line;
 }
 
 /// <summary>
@@ -508,8 +461,6 @@ public record UntypedMod(Tok Mod, Tok Value) : IUntypedAuraStatement
 		start: Mod.Range.Start,
 		end: Value.Range.End
 	);
-
-	public int Line => Mod.Line;
 }
 
 /// <summary>
@@ -524,8 +475,6 @@ public record UntypedReturn(Tok Return, List<IUntypedAuraExpression>? Value) : I
 		start: Return.Range.Start,
 		end: Value is not null ? Value.Last().Range.End : Return.Range.End
 	);
-
-	public int Line => Return.Line;
 }
 
 public record UntypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : IUntypedAuraStatement
@@ -535,8 +484,6 @@ public record UntypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok Closin
 		start: Struct.Range.End,
 		end: ClosingParen.Range.End
 	);
-
-	public int Line => Struct.Line;
 }
 
 public record UntypedAnonymousStruct(Tok Struct, List<Param> Params, List<IUntypedAuraExpression> Values, Tok ClosingParen) : IUntypedAuraExpression
@@ -546,8 +493,6 @@ public record UntypedAnonymousStruct(Tok Struct, List<Param> Params, List<IUntyp
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
-
-	public int Line => Struct.Line;
 }
 
 /// <summary>
@@ -571,8 +516,6 @@ public record UntypedClass(Tok Class, Tok Name, List<Param> Params, List<IUntype
 		start: Class.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => Class.Line;
 }
 
 /// <summary>
@@ -592,8 +535,6 @@ public record UntypedInterface
 			: Interface.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => Interface.Line;
 }
 
 /// <summary>
@@ -611,8 +552,6 @@ public record UntypedWhile(Tok While, IUntypedAuraExpression Condition, List<IUn
 		start: While.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => While.Line;
 }
 
 /// <summary>
@@ -627,8 +566,6 @@ public record UntypedImport(Tok Import, Tok Package, Tok? Alias) : IUntypedAuraS
 		start: Import.Range.Start,
 		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
 	);
-
-	public int Line => Import.Line;
 }
 
 public record UntypedMultipleImport(Tok Import, List<UntypedImport> Packages, Tok ClosingBrace) : IUntypedAuraStatement
@@ -638,8 +575,6 @@ public record UntypedMultipleImport(Tok Import, List<UntypedImport> Packages, To
 		start: Import.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => Import.Line;
 }
 
 /// <summary>
@@ -653,7 +588,6 @@ public record UntypedComment(Tok Text) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => Text.Range;
-	public int Line => Text.Line;
 }
 
 /// <summary>
@@ -664,7 +598,6 @@ public record UntypedContinue(Tok Continue) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => Continue.Range;
-	public int Line => Continue.Line;
 }
 
 /// <summary>
@@ -675,7 +608,6 @@ public record UntypedBreak(Tok Break) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => Break.Range;
-	public int Line => Break.Line;
 }
 
 /// <summary>
@@ -690,15 +622,12 @@ public record UntypedYield(Tok Yield, IUntypedAuraExpression Value) : IUntypedAu
 		start: Yield.Range.Start,
 		end: Value.Range.End
 	);
-
-	public int Line => Yield.Line;
 }
 
 public record UntypedNewLine(Tok Newline) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => Newline.Range;
-	public int Line => Newline.Line;
 }
 
 public record UntypedCheck(Tok Check, UntypedCall Call) : IUntypedAuraStatement
@@ -708,6 +637,4 @@ public record UntypedCheck(Tok Check, UntypedCall Call) : IUntypedAuraStatement
 		start: Check.Range.Start,
 		end: Call.Range.End
 	);
-
-	public int Line => Check.Line;
 }

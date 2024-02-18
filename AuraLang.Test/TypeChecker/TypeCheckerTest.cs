@@ -40,22 +40,20 @@ public class TypeCheckerTest
 			{
 				new UntypedExpressionStmt(
 					new UntypedAssignment(
-						new Tok(TokType.Identifier, "i", 1),
+						new Tok(TokType.Identifier, "i"),
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "6",
-								line: 1
+								value: "6"
 							))))
 			});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new TypedAssignment(
-				new Tok(TokType.Identifier, "i", 1),
+				new Tok(TokType.Identifier, "i"),
 				new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "6",
-						line: 1
+						value: "6"
 					)
 				),
 				new AuraInt())));
@@ -68,15 +66,15 @@ public class TypeCheckerTest
 		{
 			new UntypedExpressionStmt(
 				new UntypedBinary(
-					new BoolLiteral(new Tok(TokType.True, "true", 1)),
-					new Tok(TokType.And, "and", 1),
-					new BoolLiteral(new Tok(TokType.True, "false", 1))))
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new Tok(TokType.And, "and"),
+					new BoolLiteral(new Tok(TokType.True, "false"))))
 		});
 		MakeAssertions(typedAst, new TypedExpressionStmt(
 			new TypedBinary(
-				new BoolLiteral(new Tok(TokType.True, "true", 1)),
-				new Tok(TokType.And, "and", 1),
-				new BoolLiteral(new Tok(TokType.True, "false", 1)),
+				new BoolLiteral(new Tok(TokType.True, "true")),
+				new Tok(TokType.And, "and"),
+				new BoolLiteral(new Tok(TokType.True, "false")),
 				new AuraInt())));
 	}
 
@@ -90,14 +88,12 @@ public class TypeCheckerTest
 					Expression: new UntypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<IUntypedAuraStatement>(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						))
 				)
 			}
@@ -108,14 +104,12 @@ public class TypeCheckerTest
 				Expression: new TypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<ITypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					),
 					Typ: new AuraNil())
 			)
@@ -132,32 +126,28 @@ public class TypeCheckerTest
 					Expression: new UntypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<IUntypedAuraStatement>
 						{
 							new UntypedLet(
 								Let: new Tok(
 									typ: TokType.Let,
-									value: "let",
-									line: 2
+									value: "let"
 								),
-								Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i", line: 2) },
+								Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i") },
 								NameTyps: new List<AuraType?>{ new AuraInt() },
 								Mutable: false,
 								Initializer: new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
-										value: "5",
-										line: 2
+										value: "5"
 									))
 							)
 						},
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						))
 				)
 			}
@@ -168,32 +158,28 @@ public class TypeCheckerTest
 				Expression: new TypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<ITypedAuraStatement>
 					{
 						new TypedLet(
 							Let: new Tok(
 								typ: TokType.Let,
-								value: "let",
-								line: 2
+								value: "let"
 							),
-							Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i", line: 2) },
+							Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i") },
 							TypeAnnotation: true,
 							Mutable: false,
 							Initializer: new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
-									value: "5",
-									line: 2
+									value: "5"
 								))
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					),
 					Typ: new AuraNil()
 				)
@@ -226,8 +212,7 @@ public class TypeCheckerTest
 						Callee: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
@@ -243,8 +228,7 @@ public class TypeCheckerTest
 									character: 3,
 									line: 1
 								)
-							),
-							line: 1
+							)
 						))
 				)
 			}
@@ -254,7 +238,7 @@ public class TypeCheckerTest
 			expected: new TypedExpressionStmt(
 				Expression: new TypedCall(
 					Callee: new TypedVariable(
-						new Tok(TokType.Identifier, "f", 1),
+						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil()))),
 					Arguments: new List<ITypedAuraExpression>(),
 					ClosingParen: new Tok(
@@ -269,8 +253,7 @@ public class TypeCheckerTest
 								character: 3,
 								line: 1
 							)
-						),
-						line: 1
+						)
 					),
 					Typ: new AuraNil())
 			)
@@ -292,8 +275,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "i",
-									line: 1
+									value: "i"
 								),
 								ParamType: new(
 									Typ: new AuraInt(),
@@ -304,8 +286,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								ParamType: new(
 									Typ: new AuraString(),
@@ -328,8 +309,7 @@ public class TypeCheckerTest
 						Callee: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
@@ -337,36 +317,31 @@ public class TypeCheckerTest
 							(
 								new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "Hello world",
-										line: 1
+										value: "Hello world"
 									)
 								)
 							),
 							(
 								new Tok(
 									typ: TokType.Identifier,
-									value: "i",
-									line: 1
+									value: "i"
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
-										value: "5",
-										line: 1
+										value: "5"
 									)
 								)
 							)
 						},
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			}
@@ -378,8 +353,7 @@ public class TypeCheckerTest
 					Callee: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						),
 						Typ: new AuraNamedFunction(
 							name: "f",
@@ -395,22 +369,19 @@ public class TypeCheckerTest
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "5",
-								line: 1
+								value: "5"
 							)
 						),
 						new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
-								value: "Hello world",
-								line: 1
+								value: "Hello world"
 							)
 						)
 					},
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					),
 					Typ: new AuraNil())
 			)
@@ -432,8 +403,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "i",
-									line: 1
+									value: "i"
 								),
 								ParamType: new(
 									Typ: new AuraInt(),
@@ -441,8 +411,7 @@ public class TypeCheckerTest
 									DefaultValue: new IntLiteral(
 										Int: new Tok(
 											typ: TokType.IntLiteral,
-											value: "10",
-											line: 1
+											value: "10"
 										)
 									)
 								)
@@ -450,8 +419,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								ParamType: new(
 									Typ: new AuraString(),
@@ -474,8 +442,7 @@ public class TypeCheckerTest
 						Callee: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
@@ -483,22 +450,19 @@ public class TypeCheckerTest
 							(
 								new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "Hello world",
-										line: 1
+										value: "Hello world"
 									)
 								)
 							)
 						},
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			}
@@ -510,8 +474,7 @@ public class TypeCheckerTest
 					Callee: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						),
 						Typ: new AuraNamedFunction(
 							name: "f",
@@ -527,22 +490,19 @@ public class TypeCheckerTest
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "10",
-								line: 1
+								value: "10"
 							)
 						),
 						new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
-								value: "Hello world",
-								line: 1
+								value: "Hello world"
 							)
 						)
 					},
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					),
 					Typ: new AuraNil())
 			)
@@ -564,8 +524,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "i",
-									line: 1
+									value: "i"
 								),
 								ParamType: new(
 									Typ: new AuraInt(),
@@ -576,8 +535,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								ParamType: new(
 									Typ: new AuraString(),
@@ -585,8 +543,7 @@ public class TypeCheckerTest
 									DefaultValue: new StringLiteral(
 										String: new Tok(
 											typ: TokType.StringLiteral,
-											value: "Hello world",
-											line: 1
+											value: "Hello world"
 										)
 									)
 								)
@@ -605,8 +562,7 @@ public class TypeCheckerTest
 						Callee: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
@@ -614,22 +570,19 @@ public class TypeCheckerTest
 							(
 								new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "Hello world",
-										line: 1
+										value: "Hello world"
 									)
 								)
 							)
 						},
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			},
@@ -652,8 +605,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "i",
-									line: 1
+									value: "i"
 								),
 								ParamType: new(
 									Typ: new AuraInt(),
@@ -664,8 +616,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								ParamType: new(
 									Typ: new AuraString(),
@@ -688,8 +639,7 @@ public class TypeCheckerTest
 						Callee: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>
@@ -697,14 +647,12 @@ public class TypeCheckerTest
 							(
 								new Tok(
 									typ: TokType.Identifier,
-									value: "s",
-									line: 1
+									value: "s"
 								),
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "Hello world",
-										line: 1
+										value: "Hello world"
 									)
 								)
 							),
@@ -713,16 +661,14 @@ public class TypeCheckerTest
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
-										value: "5",
-										line: 1
+										value: "5"
 									)
 								)
 							)
 						},
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			},
@@ -743,8 +689,7 @@ public class TypeCheckerTest
 						new(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "name",
-								line: 1
+								value: "name"
 							),
 							ParamType: new(
 								Typ: new AuraString(),
@@ -768,14 +713,12 @@ public class TypeCheckerTest
 						Obj: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "greeter",
-								line: 1
+								value: "greeter"
 							)
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "name",
-							line: 1
+							value: "name"
 						))
 				)
 			}
@@ -787,8 +730,7 @@ public class TypeCheckerTest
 					Obj: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "greeter",
-							line: 1
+							value: "greeter"
 						),
 						Typ: new AuraClass(
 							name: "Greeter",
@@ -797,8 +739,7 @@ public class TypeCheckerTest
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "name",
-										line: 1
+										value: "name"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -814,8 +755,7 @@ public class TypeCheckerTest
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "name",
-						line: 1
+						value: "name"
 					),
 					Typ: new AuraString())
 			)
@@ -840,21 +780,18 @@ public class TypeCheckerTest
 						Obj: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "names",
-								line: 1
+								value: "names"
 							)
 						),
 						Index: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "0",
-								line: 1
+								value: "0"
 							)
 						),
 						ClosingBracket: new Tok(
 							typ: TokType.RightBracket,
-							value: "]",
-							line: 1
+							value: "]"
 						))
 				)
 			}
@@ -866,22 +803,19 @@ public class TypeCheckerTest
 					Obj: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "names",
-							line: 1
+							value: "names"
 						),
 						Typ: new AuraList(kind: new AuraString())
 					),
 					Index: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "0",
-							line: 1
+							value: "0"
 						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
-						value: "]",
-						line: 1
+						value: "]"
 					),
 					Typ: new AuraString())
 			)
@@ -906,28 +840,24 @@ public class TypeCheckerTest
 						Obj: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "names",
-								line: 1
+								value: "names"
 							)
 						),
 						Lower: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "0",
-								line: 1
+								value: "0"
 							)
 						),
 						Upper: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "2",
-								line: 1
+								value: "2"
 							)
 						),
 						ClosingBracket: new Tok(
 							typ: TokType.RightBracket,
-							value: "]",
-							line: 1
+							value: "]"
 						))
 				)
 			}
@@ -939,29 +869,25 @@ public class TypeCheckerTest
 					Obj: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "names",
-							line: 1
+							value: "names"
 						),
 						Typ: new AuraList(kind: new AuraString())
 					),
 					Lower: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "0",
-							line: 1
+							value: "0"
 						)
 					),
 					Upper: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "2",
-							line: 1
+							value: "2"
 						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
-						value: "]",
-						line: 1
+						value: "]"
 					),
 					Typ: new AuraList(new AuraString()))
 			)
@@ -978,20 +904,17 @@ public class TypeCheckerTest
 					Expression: new UntypedGrouping(
 						OpeningParen: new Tok(
 							typ: TokType.LeftParen,
-							value: "(",
-							line: 1
+							value: "("
 						),
 						Expr: new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
-								value: "Hello world",
-								line: 1
+								value: "Hello world"
 							)
 						),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			}
@@ -1002,20 +925,17 @@ public class TypeCheckerTest
 				new TypedGrouping(
 					OpeningParen: new Tok(
 						typ: TokType.LeftParen,
-						value: "(",
-						line: 1
+						value: "("
 					),
 					Expr: new StringLiteral(
 						String: new Tok(
 							typ: TokType.StringLiteral,
-							value: "Hello world",
-							line: 1
+							value: "Hello world"
 						)
 					),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					),
 					Typ: new AuraString())
 			)
@@ -1032,27 +952,23 @@ public class TypeCheckerTest
 					Expression: new UntypedIf(
 						If: new Tok(
 							typ: TokType.If,
-							value: "if",
-							line: 1
+							value: "if"
 						),
 						Condition: new BoolLiteral(
 							Bool: new Tok(
 								typ: TokType.True,
-								value: "true",
-								line: 1
+								value: "true"
 							)
 						),
 						Then: new UntypedBlock(
 							OpeningBrace: new Tok(
 								typ: TokType.LeftBrace,
-								value: "{",
-								line: 1
+								value: "{"
 							),
 							Statements: new List<IUntypedAuraStatement>(),
 							ClosingBrace: new Tok(
 								typ: TokType.RightBrace,
-								value: "}",
-								line: 1
+								value: "}"
 							)
 						),
 						Else: null)
@@ -1065,27 +981,23 @@ public class TypeCheckerTest
 				Expression: new TypedIf(
 					If: new Tok(
 						typ: TokType.If,
-						value: "if",
-						line: 1
+						value: "if"
 					),
 					Condition: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						)
 					),
 					Then: new TypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<ITypedAuraStatement>(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						),
 						Typ: new AuraNil()
 					),
@@ -1105,8 +1017,7 @@ public class TypeCheckerTest
 					Expression: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						))
 				)
 			}
@@ -1117,8 +1028,7 @@ public class TypeCheckerTest
 				new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -1134,8 +1044,7 @@ public class TypeCheckerTest
 					Expression: new FloatLiteral(
 						Float: new Tok(
 							typ: TokType.FloatLiteral,
-							value: "5.1",
-							line: 1
+							value: "5.1"
 						))
 				)
 			}
@@ -1146,8 +1055,7 @@ public class TypeCheckerTest
 				Expression: new FloatLiteral(
 					Float: new Tok(
 						typ: TokType.FloatLiteral,
-						value: "5.1",
-						line: 1
+						value: "5.1"
 					))
 			)
 		);
@@ -1163,8 +1071,7 @@ public class TypeCheckerTest
 					Expression: new StringLiteral(
 						String: new Tok(
 							typ: TokType.StringLiteral,
-							value: "Hello world",
-							line: 1
+							value: "Hello world"
 						))
 				)
 			}
@@ -1175,8 +1082,7 @@ public class TypeCheckerTest
 				new StringLiteral(
 					String: new Tok(
 						typ: TokType.StringLiteral,
-						value: "Hello world",
-						line: 1
+						value: "Hello world"
 					)
 				)
 			)
@@ -1193,24 +1099,21 @@ public class TypeCheckerTest
 					Expression: new ListLiteral<IUntypedAuraExpression>(
 						OpeningBracket: new Tok(
 							typ: TokType.LeftBracket,
-							value: "[",
-							line: 1
+							value: "["
 						),
 						L: new List<IUntypedAuraExpression>
 						{
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
-									value: "1",
-									line: 1
+									value: "1"
 								)
 							)
 						},
 						Kind: new AuraInt(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "]",
-							line: 1
+							value: "]"
 						))
 				)
 			}
@@ -1221,24 +1124,21 @@ public class TypeCheckerTest
 				new ListLiteral<ITypedAuraExpression>(
 					OpeningBracket: new Tok(
 						typ: TokType.LeftBracket,
-						value: "[",
-						line: 1
+						value: "["
 					),
 					L: new List<ITypedAuraExpression>
 					{
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "1",
-								line: 1
+								value: "1"
 							)
 						)
 					},
 					Kind: new AuraInt(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "]",
-						line: 1
+						value: "]"
 					))
 			)
 		);
@@ -1254,8 +1154,7 @@ public class TypeCheckerTest
 					Expression: new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(
 						Map: new Tok(
 							typ: TokType.Map,
-							value: "map",
-							line: 1
+							value: "map"
 						),
 						M: new Dictionary<IUntypedAuraExpression, IUntypedAuraExpression>
 						{
@@ -1263,15 +1162,13 @@ public class TypeCheckerTest
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "Hello",
-										line: 1
+										value: "Hello"
 									)
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
-										value: "1",
-										line: 1
+										value: "1"
 									)
 								)
 							}
@@ -1280,8 +1177,7 @@ public class TypeCheckerTest
 						ValueType: new AuraInt(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						))
 				)
 			}
@@ -1292,8 +1188,7 @@ public class TypeCheckerTest
 				Expression: new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 					Map: new Tok(
 						typ: TokType.Map,
-						value: "map",
-						line: 1
+						value: "map"
 					),
 					M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 					{
@@ -1301,15 +1196,13 @@ public class TypeCheckerTest
 							new StringLiteral(
 								String: new Tok(
 									typ: TokType.StringLiteral,
-									value: "Hello",
-									line: 1
+									value: "Hello"
 								)
 							),
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
-									value: "1",
-									line: 1
+									value: "1"
 								)
 							)
 						}
@@ -1318,8 +1211,7 @@ public class TypeCheckerTest
 					ValueType: new AuraInt(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					))
 			)
 		);
@@ -1335,8 +1227,7 @@ public class TypeCheckerTest
 					Expression: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						))
 				)
 			}
@@ -1347,8 +1238,7 @@ public class TypeCheckerTest
 				new BoolLiteral(
 					Bool: new Tok(
 						typ: TokType.True,
-						value: "true",
-						line: 1
+						value: "true"
 					))
 			)
 		);
@@ -1364,8 +1254,7 @@ public class TypeCheckerTest
 					Expression: new UntypedNil(
 						Nil: new Tok(
 							typ: TokType.Nil,
-							value: "nil",
-							line: 1
+							value: "nil"
 						))
 				)
 			}
@@ -1376,8 +1265,7 @@ public class TypeCheckerTest
 				new TypedNil(
 					Nil: new Tok(
 						typ: TokType.Nil,
-						value: "nil",
-						line: 1
+						value: "nil"
 					))
 			)
 		);
@@ -1393,8 +1281,7 @@ public class TypeCheckerTest
 					Expression: new CharLiteral(
 						Char: new Tok(
 							typ: TokType.CharLiteral,
-							value: "a",
-							line: 1
+							value: "a"
 						))
 				)
 			}
@@ -1405,8 +1292,7 @@ public class TypeCheckerTest
 				new CharLiteral(
 					Char: new Tok(
 						typ: TokType.CharLiteral,
-						value: "a",
-						line: 1
+						value: "a"
 					))
 			)
 		);
@@ -1423,20 +1309,17 @@ public class TypeCheckerTest
 						Left: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "5",
-								line: 1
+								value: "5"
 							)
 						),
 						Operator: new Tok(
 							typ: TokType.Less,
-							value: "<",
-							line: 1
+							value: "<"
 						),
 						Right: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "10",
-								line: 1
+								value: "10"
 							)))
 				)
 			}
@@ -1448,20 +1331,17 @@ public class TypeCheckerTest
 					Left: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						)
 					),
 					Operator: new Tok(
 						typ: TokType.Less,
-						value: "<",
-						line: 1
+						value: "<"
 					),
 					Right: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "10",
-							line: 1
+							value: "10"
 						)
 					),
 					Typ: new AuraBool())
@@ -1482,8 +1362,7 @@ public class TypeCheckerTest
 						new(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "name",
-								line: 1
+								value: "name"
 							),
 							ParamType: new(
 								Typ: new AuraString(),
@@ -1507,20 +1386,17 @@ public class TypeCheckerTest
 						Obj: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "greeter",
-								line: 1
+								value: "greeter"
 							)
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "name",
-							line: 1
+							value: "name"
 						),
 						Value: new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
-								value: "Bob",
-								line: 1
+								value: "Bob"
 							)))
 				)
 			}
@@ -1532,8 +1408,7 @@ public class TypeCheckerTest
 					Obj: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "greeter",
-							line: 1
+							value: "greeter"
 						),
 						Typ: new AuraClass(
 							name: "Greeter",
@@ -1542,8 +1417,7 @@ public class TypeCheckerTest
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "name",
-										line: 1
+										value: "name"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -1558,14 +1432,12 @@ public class TypeCheckerTest
 						)),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "name",
-						line: 1
+						value: "name"
 					),
 					Value: new StringLiteral(
 						String: new Tok(
 							typ: TokType.StringLiteral,
-							value: "Bob",
-							line: 1
+							value: "Bob"
 						)
 					),
 					Typ: new AuraString())
@@ -1580,21 +1452,18 @@ public class TypeCheckerTest
 			.Returns(new PartiallyTypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Params: new List<Param>(),
 				Methods: new List<AuraNamedFunction>(),
 				Public: Visibility.Public,
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				Typ: new AuraClass(
 					name: "Greeter",
@@ -1613,8 +1482,7 @@ public class TypeCheckerTest
 					Expression: new UntypedThis(
 						This: new Tok(
 							typ: TokType.This,
-							value: "this",
-							line: 1
+							value: "this"
 						))
 				)
 			}
@@ -1625,8 +1493,7 @@ public class TypeCheckerTest
 				Expression: new TypedThis(
 					This: new Tok(
 						typ: TokType.This,
-						value: "this",
-						line: 1
+						value: "this"
 					),
 					Typ: new AuraClass(
 						name: "Greeter",
@@ -1649,14 +1516,12 @@ public class TypeCheckerTest
 					Expression: new UntypedUnary(
 						Operator: new Tok(
 							typ: TokType.Bang,
-							value: "!",
-							line: 1
+							value: "!"
 						),
 						Right: new BoolLiteral(
 							Bool: new Tok(
 								typ: TokType.True,
-								value: "true",
-								line: 1
+								value: "true"
 							)))
 				)
 			}
@@ -1667,14 +1532,12 @@ public class TypeCheckerTest
 				Expression: new TypedUnary(
 					Operator: new Tok(
 						typ: TokType.Bang,
-						value: "!",
-						line: 1
+						value: "!"
 					),
 					Right: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						)
 					),
 					Typ: new AuraBool())
@@ -1692,14 +1555,12 @@ public class TypeCheckerTest
 					Expression: new UntypedUnary(
 						Operator: new Tok(
 							typ: TokType.Minus,
-							value: "-",
-							line: 1
+							value: "-"
 						),
 						Right: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "5",
-								line: 1
+								value: "5"
 							)))
 				)
 			}
@@ -1710,14 +1571,12 @@ public class TypeCheckerTest
 				Expression: new TypedUnary(
 					Operator: new Tok(
 						typ: TokType.Minus,
-						value: "-",
-						line: 1
+						value: "-"
 					),
 					Right: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						)
 					),
 					Typ: new AuraInt())
@@ -1742,8 +1601,7 @@ public class TypeCheckerTest
 					Expression: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "name",
-							line: 1
+							value: "name"
 						))
 				)
 			}
@@ -1754,8 +1612,7 @@ public class TypeCheckerTest
 				Expression: new TypedVariable(
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "name",
-						line: 1
+						value: "name"
 					),
 					Typ: new AuraString()
 				)
@@ -1786,17 +1643,15 @@ public class TypeCheckerTest
 				new UntypedDefer(
 					Defer: new Tok(
 						typ: TokType.Defer,
-						value: "defer",
-						line: 1
+						value: "defer"
 					),
 					Call: new UntypedCall(
 						Callee: new UntypedVariable(
-							new Tok(TokType.Identifier, "f", 1)),
+							new Tok(TokType.Identifier, "f")),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			}
@@ -1806,12 +1661,11 @@ public class TypeCheckerTest
 			expected: new TypedDefer(
 				Defer: new Tok(
 					typ: TokType.Defer,
-					value: "defer",
-					line: 1
+					value: "defer"
 				),
 				Call: new TypedCall(
 					Callee: new TypedVariable(
-						new Tok(TokType.Identifier, "f", 1),
+						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
@@ -1824,8 +1678,7 @@ public class TypeCheckerTest
 					Arguments: new List<ITypedAuraExpression>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					),
 					Typ: new AuraNil())
 			)
@@ -1848,8 +1701,7 @@ public class TypeCheckerTest
 				new UntypedFor(
 					For: new Tok(
 						typ: TokType.For,
-						value: "for",
-						line: 1
+						value: "for"
 					),
 					Initializer: new UntypedLet(
 						Let: null,
@@ -1857,8 +1709,7 @@ public class TypeCheckerTest
 						{
 							new(
 								typ: TokType.Identifier,
-								value: "i",
-								line: 1
+								value: "i"
 							)
 						},
 						NameTyps: new List<AuraType?>(),
@@ -1866,36 +1717,31 @@ public class TypeCheckerTest
 						Initializer: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "0",
-								line: 1
+								value: "0"
 							))
 					),
 					Condition: new UntypedLogical(
 						Left: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "i",
-								line: 1
+								value: "i"
 							)
 						),
 						Operator: new Tok(
 							typ: TokType.Less,
-							value: "<",
-							line: 1
+							value: "<"
 						),
 						Right: new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "10",
-								line: 1
+								value: "10"
 							))
 					),
 					Increment: null,
 					Body: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -1905,8 +1751,7 @@ public class TypeCheckerTest
 			expected: new TypedFor(
 				For: new Tok(
 					typ: TokType.For,
-					value: "for",
-					line: 1
+					value: "for"
 				),
 				Initializer: new TypedLet(
 					Let: null,
@@ -1914,8 +1759,7 @@ public class TypeCheckerTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					},
 					TypeAnnotation: false,
@@ -1923,29 +1767,25 @@ public class TypeCheckerTest
 					Initializer: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "0",
-							line: 1
+							value: "0"
 						))
 				),
 				Condition: new TypedLogical(
 					Left: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						),
 						Typ: new AuraInt()
 					),
 					Operator: new Tok(
 						typ: TokType.Less,
-						value: "<",
-						line: 1
+						value: "<"
 					),
 					Right: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "10",
-							line: 1
+							value: "10"
 						)
 					),
 					Typ: new AuraBool()
@@ -1954,8 +1794,7 @@ public class TypeCheckerTest
 				Body: new List<ITypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -1977,26 +1816,22 @@ public class TypeCheckerTest
 				new UntypedForEach(
 					ForEach: new Tok(
 						typ: TokType.ForEach,
-						value: "foreach",
-						line: 1
+						value: "foreach"
 					),
 					EachName: new Tok(
 						typ: TokType.Identifier,
-						value: "name",
-						line: 1
+						value: "name"
 					),
 					Iterable: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "names",
-							line: 1
+							value: "names"
 						)
 					),
 					Body: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -2006,27 +1841,23 @@ public class TypeCheckerTest
 			expected: new TypedForEach(
 				ForEach: new Tok(
 					typ: TokType.ForEach,
-					value: "foreach",
-					line: 1
+					value: "foreach"
 				),
 				EachName: new Tok(
 					typ: TokType.Identifier,
-					value: "name",
-					line: 1
+					value: "name"
 				),
 				Iterable: new TypedVariable(
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "names",
-						line: 1
+						value: "names"
 					),
 					Typ: new AuraList(kind: new AuraString())
 				),
 				Body: new List<ITypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2047,8 +1878,7 @@ public class TypeCheckerTest
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "message",
-									line: 1
+									value: "message"
 								),
 								ParamType: new ParamType(
 									Typ: new AuraString(),
@@ -2069,28 +1899,24 @@ public class TypeCheckerTest
 				new UntypedNamedFunction(
 					Fn: new Tok(
 						typ: TokType.Fn,
-						value: "fn",
-						line: 1
+						value: "fn"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "f",
-						line: 1
+						value: "f"
 					),
 					Params: new List<Param>(),
 					Body: new UntypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<IUntypedAuraStatement>
 						{
 							new UntypedReturn(
 								Return: new Tok(
 									typ: TokType.Return,
-									value: "return",
-									line: 1
+									value: "return"
 								),
 								Value: new List<IUntypedAuraExpression>
 								{
@@ -2098,8 +1924,7 @@ public class TypeCheckerTest
 										Callee: new UntypedVariable(
 											Name: new Tok(
 												typ: TokType.Identifier,
-												value: "error",
-												line: 1
+												value: "error"
 											)
 										),
 										Arguments: new List<(Tok?, IUntypedAuraExpression)>
@@ -2109,16 +1934,14 @@ public class TypeCheckerTest
 												new StringLiteral(
 													String: new Tok(
 														typ: TokType.StringLiteral,
-														value: "Helpful error message",
-														line: 1
+														value: "Helpful error message"
 													)
 												)
 											)
 										},
 										ClosingParen: new Tok(
 											typ: TokType.RightParen,
-											value: ")",
-											line: 1
+											value: ")"
 										)
 									)
 								}
@@ -2126,8 +1949,7 @@ public class TypeCheckerTest
 						},
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						)
 					),
 					ReturnType: new List<AuraType>{ new AuraError() },
@@ -2140,35 +1962,30 @@ public class TypeCheckerTest
 			expected: new TypedNamedFunction(
 				Fn: new Tok(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				Params: new List<Param>(),
 				Body: new TypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<ITypedAuraStatement>
 					{
 						new TypedReturn(
 							Return: new Tok(
 								typ: TokType.Return,
-								value: "return",
-								line: 1
+								value: "return"
 							),
 							Value: new TypedCall(
 								Callee: new TypedVariable(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "error",
-										line: 1
+										value: "error"
 									),
 									Typ: new AuraNamedFunction(
 										name: "error",
@@ -2179,8 +1996,7 @@ public class TypeCheckerTest
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "message",
-														line: 1
+														value: "message"
 													),
 													ParamType: new ParamType(
 														Typ: new AuraString(),
@@ -2198,23 +2014,20 @@ public class TypeCheckerTest
 									new StringLiteral(
 										String: new Tok(
 											typ: TokType.StringLiteral,
-											value: "Helpful error message",
-											line: 1
+											value: "Helpful error message"
 										)
 									)
 								},
 								ClosingParen: new Tok(
 									typ: TokType.RightParen,
-									value: ")",
-									line: 1
+									value: ")"
 								),
 								Typ: new AuraError())
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					),
 					Typ: new AuraError()
 				),
@@ -2233,26 +2046,22 @@ public class TypeCheckerTest
 				new UntypedNamedFunction(
 					Fn: new Tok(
 						typ: TokType.Fn,
-						value: "fn",
-						line: 1
+						value: "fn"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "f",
-						line: 1
+						value: "f"
 					),
 					Params: new List<Param>(),
 					Body: new UntypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<IUntypedAuraStatement>(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						)
 					),
 					ReturnType: null,
@@ -2265,25 +2074,21 @@ public class TypeCheckerTest
 			expected: new TypedNamedFunction(
 				Fn: new Tok(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1),
+					value: "fn"),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				Params: new List<Param>(),
 				Body: new TypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<ITypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					),
 					Typ: new AuraNil()
 				),
@@ -2303,21 +2108,18 @@ public class TypeCheckerTest
 					Expression: new UntypedAnonymousFunction(
 						Fn: new Tok(
 							typ: TokType.Fn,
-							value: "fn",
-							line: 1
+							value: "fn"
 						),
 						Params: new List<Param>(),
 						Body: new UntypedBlock(
 							OpeningBrace: new Tok(
 								typ: TokType.LeftBrace,
-								value: "{",
-								line: 1
+								value: "{"
 							),
 							Statements: new List<IUntypedAuraStatement>(),
 							ClosingBrace: new Tok(
 								typ: TokType.RightBrace,
-								value: "}",
-								line: 1
+								value: "}"
 							)
 						),
 						ReturnType: null)
@@ -2330,21 +2132,18 @@ public class TypeCheckerTest
 				Expression: new TypedAnonymousFunction(
 					Fn: new Tok(
 						typ: TokType.Fn,
-						value: "fn",
-						line: 1
+						value: "fn"
 					),
 					Params: new List<Param>(),
 					Body: new TypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<ITypedAuraStatement>(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						),
 						Typ: new AuraNil()
 					),
@@ -2362,15 +2161,13 @@ public class TypeCheckerTest
 				new UntypedLet(
 					Let: new Tok(
 						typ: TokType.Let,
-						value: "let",
-						line: 1
+						value: "let"
 					),
 					Names: new List<Tok>
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					},
 					NameTyps: new List<AuraType?>{ new AuraInt() },
@@ -2378,8 +2175,7 @@ public class TypeCheckerTest
 					Initializer: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "1",
-							line: 1
+							value: "1"
 						))
 				)
 			}
@@ -2389,15 +2185,13 @@ public class TypeCheckerTest
 			expected: new TypedLet(
 				Let: new Tok(
 					typ: TokType.Let,
-					value: "let",
-					line: 1
+					value: "let"
 				),
 				Names: new List<Tok>
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "i",
-						line: 1
+						value: "i"
 					)
 				},
 				TypeAnnotation: true,
@@ -2405,8 +2199,7 @@ public class TypeCheckerTest
 				Initializer: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "1",
-						line: 1
+						value: "1"
 					))
 			)
 		);
@@ -2421,15 +2214,13 @@ public class TypeCheckerTest
 				new UntypedLet(
 					Let: new Tok(
 						typ: TokType.Let,
-						value: "let",
-						line: 1
+						value: "let"
 					),
 					Names: new List<Tok>
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					},
 					NameTyps: new List<AuraType?>{ new AuraInt() },
@@ -2443,15 +2234,13 @@ public class TypeCheckerTest
 			expected: new TypedLet(
 				Let: new Tok(
 					typ: TokType.Let,
-					value: "let",
-					line: 1
+					value: "let"
 				),
 				Names: new List<Tok>
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "i",
-						line: 1
+						value: "i"
 					)
 				},
 				TypeAnnotation: true,
@@ -2459,8 +2248,7 @@ public class TypeCheckerTest
 				Initializer: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "0",
-						line: 1
+						value: "0"
 					))
 			)
 		);
@@ -2475,15 +2263,13 @@ public class TypeCheckerTest
 				new UntypedLet(
 					Let: new Tok(
 						typ: TokType.Let,
-						value: "let",
-						line: 1
+						value: "let"
 					),
 					Names: new List<Tok>
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "c",
-							line: 1
+							value: "c"
 						)
 					},
 					NameTyps: new List<AuraType?>{ new AuraChar() },
@@ -2506,8 +2292,7 @@ public class TypeCheckerTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					},
 					NameTyps: new List<AuraType?>(),
@@ -2515,8 +2300,7 @@ public class TypeCheckerTest
 					Initializer: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "1",
-							line: 1
+							value: "1"
 						))
 				)
 			}
@@ -2529,8 +2313,7 @@ public class TypeCheckerTest
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "i",
-						line: 1
+						value: "i"
 					)
 				},
 				TypeAnnotation: false,
@@ -2538,8 +2321,7 @@ public class TypeCheckerTest
 				Initializer: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "1",
-						line: 1
+						value: "1"
 					))
 			)
 		);
@@ -2554,8 +2336,7 @@ public class TypeCheckerTest
 				new UntypedReturn(
 					Return: new Tok(
 						typ: TokType.Return,
-						value: "return",
-						line: 1
+						value: "return"
 					),
 					Value: null
 				)
@@ -2566,8 +2347,7 @@ public class TypeCheckerTest
 			expected: new TypedReturn(
 				Return: new Tok(
 					typ: TokType.Return,
-					value: "return",
-					line: 1
+					value: "return"
 				),
 				Value: null
 			)
@@ -2583,16 +2363,14 @@ public class TypeCheckerTest
 				new UntypedReturn(
 					Return: new Tok(
 						typ: TokType.Return,
-						value: "return",
-						line: 1
+						value: "return"
 					),
 					Value: new List<IUntypedAuraExpression>
 					{
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "5",
-								line: 1
+								value: "5"
 							)
 						)
 					}
@@ -2604,14 +2382,12 @@ public class TypeCheckerTest
 			expected: new TypedReturn(
 				Return: new Tok(
 					typ: TokType.Return,
-					value: "return",
-					line: 1
+					value: "return"
 				),
 				Value: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -2626,18 +2402,16 @@ public class TypeCheckerTest
 				new UntypedClass(
 					Class: new Tok(
 						typ: TokType.Class,
-						value: "class",
-						line: 1
+						value: "class"
 					),
-					Name: new Tok(TokType.Identifier, "Greeter", 1),
+					Name: new Tok(TokType.Identifier, "Greeter"),
 					Params: new List<Param>(),
 					Body: new List<IUntypedAuraStatement>(),
 					Public: Visibility.Private,
 					Implementing: new List<Tok>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -2647,18 +2421,16 @@ public class TypeCheckerTest
 			expected: new FullyTypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
-				Name: new Tok(TokType.Identifier, "Greeter", 1),
+				Name: new Tok(TokType.Identifier, "Greeter"),
 				Params: new List<Param>(),
 				Methods: new List<TypedNamedFunction>(),
 				Public: Visibility.Private,
 				Implementing: new List<AuraInterface>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2673,21 +2445,18 @@ public class TypeCheckerTest
 				new UntypedWhile(
 					While: new Tok(
 						typ: TokType.While,
-						value: "while",
-						line: 1
+						value: "while"
 					),
 					Condition: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						)
 					),
 					Body: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -2697,21 +2466,18 @@ public class TypeCheckerTest
 			expected: new TypedWhile(
 				While: new Tok(
 					typ: TokType.While,
-					value: "while",
-					line: 1
+					value: "while"
 				),
 				Condition: new BoolLiteral(
 					Bool: new Tok(
 						typ: TokType.True,
-						value: "true",
-						line: 1
+						value: "true"
 					)
 				),
 				Body: new List<ITypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2726,8 +2492,7 @@ public class TypeCheckerTest
 				new UntypedComment(
 					Text: new Tok(
 						typ: TokType.Comment,
-						value: "// this is a comment",
-						line: 1
+						value: "// this is a comment"
 					)
 				)
 			}
@@ -2737,8 +2502,7 @@ public class TypeCheckerTest
 			expected: new TypedComment(
 				Text: new Tok(
 					typ: TokType.Comment,
-					value: "// this is a comment",
-					line: 1
+					value: "// this is a comment"
 				)
 			)
 		);
@@ -2751,14 +2515,12 @@ public class TypeCheckerTest
 			new UntypedBlock(
 				OpeningBrace: new Tok(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				Statements: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2769,14 +2531,12 @@ public class TypeCheckerTest
 				new UntypedYield(
 					Yield: new Tok(
 						typ: TokType.Yield,
-						value: "yield",
-						line: 1
+						value: "yield"
 					),
 					Value: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						))
 				)
 			}
@@ -2786,14 +2546,12 @@ public class TypeCheckerTest
 			expected: new TypedYield(
 				Yield: new Tok(
 					typ: TokType.Yield,
-					value: "yield",
-					line: 1
+					value: "yield"
 				),
 				Value: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -2806,8 +2564,7 @@ public class TypeCheckerTest
 			new UntypedNil(
 				Nil: new Tok(
 					typ: TokType.Nil,
-					value: "nil",
-					line: 1
+					value: "nil"
 				)
 			)
 		);
@@ -2818,14 +2575,12 @@ public class TypeCheckerTest
 				new UntypedYield(
 					Yield: new Tok(
 						typ: TokType.Yield,
-						value: "yield",
-						line: 1
+						value: "yield"
 					),
 					Value: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						))
 				)
 			},
@@ -2840,21 +2595,18 @@ public class TypeCheckerTest
 			new UntypedWhile(
 				While: new Tok(
 					typ: TokType.While,
-					value: "while",
-					line: 1
+					value: "while"
 				),
 				Condition: new BoolLiteral(
 					Bool: new Tok(
 						typ: TokType.True,
-						value: "true",
-						line: 1
+						value: "true"
 					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2865,8 +2617,7 @@ public class TypeCheckerTest
 				new UntypedBreak(
 					Break: new Tok(
 						typ: TokType.Break,
-						value: "break",
-						line: 1
+						value: "break"
 					)
 				)
 			}
@@ -2876,8 +2627,7 @@ public class TypeCheckerTest
 			expected: new TypedBreak(
 				Break: new Tok(
 					typ: TokType.Break,
-					value: "break",
-					line: 1
+					value: "break"
 				)
 			)
 		);
@@ -2891,8 +2641,7 @@ public class TypeCheckerTest
 				Expression: new UntypedNil(
 					Nil: new Tok(
 						typ: TokType.Nil,
-						value: "nil",
-						line: 1
+						value: "nil"
 					))
 			)
 		);
@@ -2903,8 +2652,7 @@ public class TypeCheckerTest
 				new UntypedBreak(
 					Break: new Tok(
 						typ: TokType.Break,
-						value: "break",
-						line: 1
+						value: "break"
 					)
 				)
 			},
@@ -2919,21 +2667,18 @@ public class TypeCheckerTest
 			new UntypedWhile(
 				While: new Tok(
 					typ: TokType.While,
-					value: "while",
-					line: 1
+					value: "while"
 				),
 				Condition: new BoolLiteral(
 					Bool: new Tok(
 						typ: TokType.True,
-						value: "true",
-						line: 1
+						value: "true"
 					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2944,8 +2689,7 @@ public class TypeCheckerTest
 				new UntypedContinue(
 					Continue: new Tok(
 						typ: TokType.Continue,
-						value: "continue",
-						line: 1
+						value: "continue"
 					)
 				)
 			});
@@ -2954,8 +2698,7 @@ public class TypeCheckerTest
 			expected: new TypedContinue(
 				Continue: new Tok(
 					typ: TokType.Continue,
-					value: "continue",
-					line: 1
+					value: "continue"
 				)
 			)
 		);
@@ -2969,8 +2712,7 @@ public class TypeCheckerTest
 				Expression: new UntypedNil(
 					Nil: new Tok(
 						typ: TokType.Nil,
-						value: "nil",
-						line: 1
+						value: "nil"
 					))
 			)
 		);
@@ -2981,8 +2723,7 @@ public class TypeCheckerTest
 				new UntypedContinue(
 					Continue: new Tok(
 						typ: TokType.Continue,
-						value: "continue",
-						line: 1
+						value: "continue"
 					)
 				)
 			},
@@ -2999,16 +2740,14 @@ public class TypeCheckerTest
 				new UntypedInterface(
 					Interface: new Tok(
 						typ: TokType.Interface,
-						value: "interface",
-						line: 1
+						value: "interface"
 					),
-					Name: new Tok(TokType.Identifier, "IGreeter", 1),
+					Name: new Tok(TokType.Identifier, "IGreeter"),
 					Methods: new List<AuraNamedFunction>(),
 					Public: Visibility.Public,
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -3018,20 +2757,17 @@ public class TypeCheckerTest
 			expected: new TypedInterface(
 				Interface: new Tok(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "IGreeter",
-					line: 1
+					value: "IGreeter"
 				),
 				Methods: new List<AuraNamedFunction>(),
 				Public: Visibility.Public,
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3046,10 +2782,9 @@ public class TypeCheckerTest
 				new UntypedInterface(
 					Interface: new Tok(
 						typ: TokType.Interface,
-						value: "interface",
-						line: 1
+						value: "interface"
 					),
-					Name: new Tok(TokType.Identifier, "IGreeter", 1),
+					Name: new Tok(TokType.Identifier, "IGreeter"),
 					Methods: new List<AuraNamedFunction>
 					{
 						new(
@@ -3061,8 +2796,7 @@ public class TypeCheckerTest
 									new(
 										Name: new Tok(
 											typ: TokType.Identifier,
-											value: "i",
-											line: 1
+											value: "i"
 										),
 										ParamType: new(
 											Typ: new AuraInt(),
@@ -3078,8 +2812,7 @@ public class TypeCheckerTest
 					Public: Visibility.Public,
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -3089,13 +2822,11 @@ public class TypeCheckerTest
 			expected: new TypedInterface(
 				Interface: new Tok(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "IGreeter",
-					line: 1
+					value: "IGreeter"
 				),
 				Methods: new List<AuraNamedFunction>
 				{
@@ -3108,8 +2839,7 @@ public class TypeCheckerTest
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "i",
-										line: 1
+										value: "i"
 									),
 									ParamType: new(
 										Typ: new AuraInt(),
@@ -3125,8 +2855,7 @@ public class TypeCheckerTest
 				Public: Visibility.Public,
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3162,13 +2891,11 @@ public class TypeCheckerTest
 				new UntypedClass(
 					Class: new Tok(
 						typ: TokType.Class,
-						value: "class",
-						line: 1
+						value: "class"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "Greeter",
-						line: 1
+						value: "Greeter"
 					),
 					Params: new List<Param>(),
 					Body: new List<IUntypedAuraStatement>(),
@@ -3177,19 +2904,16 @@ public class TypeCheckerTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "IGreeter",
-							line: 1
+							value: "IGreeter"
 						),
 						new(
 							typ: TokType.Identifier,
-							value: "IGreeter2",
-							line: 1
+							value: "IGreeter2"
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -3199,10 +2923,9 @@ public class TypeCheckerTest
 			expected: new FullyTypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
-				Name: new Tok(TokType.Identifier, "Greeter", 1),
+				Name: new Tok(TokType.Identifier, "Greeter"),
 				Params: new List<Param>(),
 				Methods: new List<TypedNamedFunction>(),
 				Public: Visibility.Private,
@@ -3221,8 +2944,7 @@ public class TypeCheckerTest
 				},
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3247,8 +2969,7 @@ public class TypeCheckerTest
 									new(
 										Name: new Tok(
 											typ: TokType.Identifier,
-											value: "i",
-											line: 1
+											value: "i"
 										),
 										ParamType: new(
 											Typ: new AuraInt(),
@@ -3272,29 +2993,25 @@ public class TypeCheckerTest
 				new UntypedClass(
 					Class: new Tok(
 						typ: TokType.Class,
-						value: "class",
-						line: 1
+						value: "class"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "Greeter",
-						line: 1
+						value: "Greeter"
 					),
 					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>{},
+					Body: new List<IUntypedAuraStatement>(),
 					Public: Visibility.Private,
 					Implementing: new List<Tok>
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "IGreeter",
-							line: 1
+							value: "IGreeter"
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			},
@@ -3321,8 +3038,7 @@ public class TypeCheckerTest
 									new(
 										new Tok(
 											typ: TokType.Identifier,
-											value: "i",
-											line: 1
+											value: "i"
 										),
 										new ParamType(
 											Typ: new AuraInt(),
@@ -3346,13 +3062,11 @@ public class TypeCheckerTest
 				new UntypedClass(
 					Class: new Tok(
 						typ: TokType.Class,
-						value: "class",
-						line: 1
+						value: "class"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "Greeter",
-						line: 1
+						value: "Greeter"
 					),
 					Params: new List<Param>(),
 					Body: new List<IUntypedAuraStatement>
@@ -3360,21 +3074,18 @@ public class TypeCheckerTest
 						new UntypedNamedFunction(
 							Fn: new Tok(
 								typ: TokType.Fn,
-								value: "fn",
-								line: 1
+								value: "fn"
 							),
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							),
 							Params: new List<Param>
 							{
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "i",
-										line: 1
+										value: "i"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraInt(),
@@ -3386,24 +3097,21 @@ public class TypeCheckerTest
 							Body: new UntypedBlock(
 								OpeningBrace: new Tok(
 									typ: TokType.LeftBrace,
-									value: "{",
-									line: 1
+									value: "{"
 								),
 								Statements: new List<IUntypedAuraStatement>
 								{
 									new UntypedReturn(
 										Return: new Tok(
 											typ: TokType.Return,
-											value: "return",
-											line: 1
+											value: "return"
 										),
 										Value: new List<IUntypedAuraExpression>
 										{
 											new IntLiteral(
 												Int: new Tok(
 													typ: TokType.IntLiteral,
-													value: "5",
-													line: 1
+													value: "5"
 												)
 											)
 										}
@@ -3411,8 +3119,7 @@ public class TypeCheckerTest
 								},
 								ClosingBrace: new Tok(
 									typ: TokType.RightBrace,
-									value: "}",
-									line: 1
+									value: "}"
 								)
 							),
 							ReturnType: new List<AuraType>{ new AuraInt() },
@@ -3424,14 +3131,12 @@ public class TypeCheckerTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "IGreeter",
-							line: 1
+							value: "IGreeter"
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			},
@@ -3458,8 +3163,7 @@ public class TypeCheckerTest
 									new(
 										Name: new Tok(
 											typ: TokType.Identifier,
-											value: "i",
-											line: 1
+											value: "i"
 										),
 										ParamType: new(
 											Typ: new AuraInt(),
@@ -3483,13 +3187,11 @@ public class TypeCheckerTest
 				new UntypedClass(
 					Class: new Tok(
 						typ: TokType.Class,
-						value: "class",
-						line: 1
+						value: "class"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "Greeter",
-						line: 1
+						value: "Greeter"
 					),
 					Params: new List<Param>(),
 					Body: new List<IUntypedAuraStatement>
@@ -3497,21 +3199,18 @@ public class TypeCheckerTest
 						new UntypedNamedFunction(
 							Fn: new Tok(
 								typ: TokType.Fn,
-								value: "fn",
-								line: 1
+								value: "fn"
 							),
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "f",
-								line: 1
+								value: "f"
 							),
 							Params: new List<Param>
 							{
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "i",
-										line: 1
+										value: "i"
 									),
 									ParamType: new(
 										Typ: new AuraInt(),
@@ -3523,24 +3222,21 @@ public class TypeCheckerTest
 							Body: new UntypedBlock(
 								OpeningBrace: new Tok(
 									typ: TokType.LeftBrace,
-									value: "{",
-									line: 1
+									value: "{"
 								),
 								Statements: new List<IUntypedAuraStatement>
 								{
 									new UntypedReturn(
 										Return: new Tok(
 											typ: TokType.Return,
-											value: "return",
-											line: 1
+											value: "return"
 										),
 										Value: new List<IUntypedAuraExpression>
 										{
 											new IntLiteral(
 												Int: new Tok(
 													typ: TokType.IntLiteral,
-													value: "5",
-													line: 1
+													value: "5"
 												)
 											)
 										}
@@ -3548,8 +3244,7 @@ public class TypeCheckerTest
 								},
 								ClosingBrace: new Tok(
 									typ: TokType.RightBrace,
-									value: "}",
-									line: 1
+									value: "}"
 								)
 							),
 							ReturnType: new List<AuraType>{ new AuraInt() },
@@ -3561,14 +3256,12 @@ public class TypeCheckerTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "IGreeter",
-							line: 1
+							value: "IGreeter"
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -3578,13 +3271,11 @@ public class TypeCheckerTest
 			expected: new FullyTypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Params: new List<Param>(),
 				Methods: new List<TypedNamedFunction>
@@ -3592,21 +3283,18 @@ public class TypeCheckerTest
 					new(
 						Fn: new Tok(
 							typ: TokType.Fn,
-							value: "fn",
-							line: 1
+							value: "fn"
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						),
 						Params: new List<Param>
 						{
 							new(
 								Name: new Tok(
 									typ: TokType.Identifier,
-									value: "i",
-									line: 1
+									value: "i"
 								),
 								ParamType: new(
 									Typ: new AuraInt(),
@@ -3618,30 +3306,26 @@ public class TypeCheckerTest
 						Body: new TypedBlock(
 							OpeningBrace: new Tok(
 								typ: TokType.LeftBrace,
-								value: "{",
-								line: 1
+								value: "{"
 							),
 							Statements: new List<ITypedAuraStatement>
 							{
 								new TypedReturn(
 									Return: new Tok(
 										typ: TokType.Return,
-										value: "return",
-										line: 1
+										value: "return"
 									),
 									Value: new IntLiteral(
 										Int: new Tok(
 											typ: TokType.IntLiteral,
-											value: "5",
-											line: 1
+											value: "5"
 										)
 									)
 								)
 							},
 							ClosingBrace: new Tok(
 								typ: TokType.RightBrace,
-								value: "}",
-								line: 1
+								value: "}"
 							),
 							Typ: new AuraInt()
 						),
@@ -3665,8 +3349,7 @@ public class TypeCheckerTest
 										new(
 											Name: new Tok(
 												typ: TokType.Identifier,
-												value: "i",
-												line: 1
+												value: "i"
 											),
 											ParamType: new(
 												Typ: new AuraInt(),
@@ -3684,8 +3367,7 @@ public class TypeCheckerTest
 				},
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3711,13 +3393,11 @@ public class TypeCheckerTest
 				new UntypedClass(
 					Class: new Tok(
 						typ: TokType.Class,
-						value: "class",
-						line: 1
+						value: "class"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "Greeter",
-						line: 1
+						value: "Greeter"
 					),
 					Params: new List<Param>(),
 					Body: new List<IUntypedAuraStatement>(),
@@ -3726,14 +3406,12 @@ public class TypeCheckerTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "IGreeter",
-							line: 1
+							value: "IGreeter"
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				)
 			}
@@ -3743,13 +3421,11 @@ public class TypeCheckerTest
 			expected: new FullyTypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Params: new List<Param>(),
 				Methods: new List<TypedNamedFunction>(),
@@ -3764,8 +3440,7 @@ public class TypeCheckerTest
 				},
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3789,20 +3464,17 @@ public class TypeCheckerTest
 						Obj: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "v",
-								line: 1
+								value: "v"
 							)
 						),
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "name",
-							line: 1
+							value: "name"
 						),
 						Value: new StringLiteral(
 							String: new Tok(
 								typ: TokType.StringLiteral,
-								value: "Bob",
-								line: 1
+								value: "Bob"
 							)))
 				)
 			},
@@ -3828,14 +3500,12 @@ public class TypeCheckerTest
 						Expr: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "v",
-								line: 1
+								value: "v"
 							)
 						),
 						Expected: new Tok(
 							typ: TokType.Identifier,
-							value: "IGreeter",
-							line: 1
+							value: "IGreeter"
 						))
 				)
 			}
@@ -3847,8 +3517,7 @@ public class TypeCheckerTest
 					Expr: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "v",
-							line: 1
+							value: "v"
 						),
 						Typ: new AuraInt()
 					),
@@ -3868,26 +3537,22 @@ public class TypeCheckerTest
 			new UntypedNamedFunction(
 				Fn: new Tok(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				Params: new List<Param>(),
 				Body: new UntypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				),
 				ReturnType: new List<AuraType>
@@ -3923,22 +3588,19 @@ public class TypeCheckerTest
 				new UntypedCheck(
 					Check: new Tok(
 						typ: TokType.Check,
-						value: "check",
-						line: 1
+						value: "check"
 					),
 					Call: new UntypedCall(
 						Callee: new UntypedVariable(
 							Name: new Tok(
 								typ: TokType.Identifier,
-								value: "c",
-								line: 1
+								value: "c"
 							)
 						),
 						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
-							value: ")",
-							line: 1
+							value: ")"
 						))
 				)
 			}
@@ -3948,15 +3610,13 @@ public class TypeCheckerTest
 			expected: new TypedCheck(
 				Check: new Tok(
 					typ: TokType.Check,
-					value: "check",
-					line: 1
+					value: "check"
 				),
 				Call: new TypedCall(
 					Callee: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "c",
-							line: 1
+							value: "c"
 						),
 						Typ: new AuraNamedFunction(
 							name: "c",
@@ -3973,8 +3633,7 @@ public class TypeCheckerTest
 					Arguments: new List<ITypedAuraExpression>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					),
 					Typ: new AuraResult(
 						success: new AuraString(),
@@ -3993,19 +3652,16 @@ public class TypeCheckerTest
 				new UntypedStruct(
 					Struct: new Tok(
 						typ: TokType.Struct,
-						value: "struct",
-						line: 1
+						value: "struct"
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "s",
-						line: 1
+						value: "s"
 					),
 					Params: new List<Param>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					)
 				)
 			}
@@ -4015,19 +3671,16 @@ public class TypeCheckerTest
 			expected: new TypedStruct(
 				Struct: new Tok(
 					typ: TokType.Struct,
-					value: "struct",
-					line: 1
+					value: "struct"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "s",
-					line: 1
+					value: "s"
 				),
 				Params: new List<Param>(),
 				ClosingParen: new Tok(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				)
 			)
 		);
@@ -4065,13 +3718,11 @@ public class TypeCheckerTest
 				new UntypedMod(
 					Mod: new Tok(
 						typ: TokType.Mod,
-						value: "mod",
-						line: 1
+						value: "mod"
 					),
 					Value: new Tok(
 						typ: TokType.Identifier,
-						value: "main",
-						line: 1
+						value: "main"
 					)
 				)
 			};

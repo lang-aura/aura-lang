@@ -21,8 +21,8 @@ public class CompilerTest
 			{
 				new TypedExpressionStmt(
 					new TypedAssignment(
-						new Tok(TokType.Identifier, "i", 1),
-						new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)),
+						new Tok(TokType.Identifier, "i"),
+						new IntLiteral(new Tok(TokType.IntLiteral, "5")),
 						new AuraInt()))
 			});
 		MakeAssertions(output, "i = 5");
@@ -35,9 +35,9 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedBinary(
-					new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)),
-					new Tok(TokType.Plus, "+", 1),
-					new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)),
+					new IntLiteral(new Tok(TokType.IntLiteral, "5")),
+					new Tok(TokType.Plus, "+"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "5")),
 					new AuraInt()))
 		});
 		MakeAssertions(output, "5 + 5");
@@ -50,9 +50,9 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedBlock(
-					new Tok(TokType.LeftBrace, "{", 1),
+					new Tok(TokType.LeftBrace, "{"),
 					new List<ITypedAuraStatement>(),
-					new Tok(TokType.RightBrace, "}", 1),
+					new Tok(TokType.RightBrace, "}"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "{}");
@@ -65,18 +65,18 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedBlock(
-					new Tok(TokType.LeftBrace, "{", 1),
+					new Tok(TokType.LeftBrace, "{"),
 					new List<ITypedAuraStatement>
 					{
 						new TypedLet(
-							Let: new Tok(TokType.Let, "let", 1),
-							Names: new List<Tok>{ new(TokType.Identifier, "i", 2) },
+							Let: new Tok(TokType.Let, "let"),
+							Names: new List<Tok>{ new(TokType.Identifier, "i") },
 							TypeAnnotation: true,
 							Mutable: false,
-							Initializer: new IntLiteral(new Tok(TokType.IntLiteral, "5", 1))
+							Initializer: new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 						),
 					},
-					new Tok(TokType.RightBrace, "}", 1),
+					new Tok(TokType.RightBrace, "}"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "{\nvar i int = 5\n}");
@@ -91,7 +91,7 @@ public class CompilerTest
 				new TypedCall(
 					new TypedGet(
 						new TypedVariable(
-							new Tok(TokType.Identifier, "io", 1),
+							new Tok(TokType.Identifier, "io"),
 							new AuraModule(
 								name: "io",
 								publicFunctions: new List<AuraNamedFunction>
@@ -103,7 +103,7 @@ public class CompilerTest
 											new List<Param>
 											{
 												new(
-													new Tok(TokType.Identifier, "s", 1),
+													new Tok(TokType.Identifier, "s"),
 													new ParamType(new AuraString(), false, null))
 											},
 											new AuraNil()))
@@ -111,7 +111,7 @@ public class CompilerTest
 								publicInterfaces: new List<AuraInterface>(),
 								publicClasses: new List<AuraClass>(),
 								publicVariables: new Dictionary<string, ITypedAuraExpression>())),
-						new Tok(TokType.Identifier, "println", 1),
+						new Tok(TokType.Identifier, "println"),
 						new AuraNamedFunction(
 							"println",
 							Visibility.Private,
@@ -119,15 +119,15 @@ public class CompilerTest
 								new List<Param>
 								{
 									new Param(
-										new Tok(TokType.Identifier, "s", 1),
+										new Tok(TokType.Identifier, "s"),
 										new ParamType(
 											new AuraString(),
 											false,
 											null))
 								},
 								new AuraNil()))),
-					new List<ITypedAuraExpression> { new StringLiteral(new Tok(TokType.StringLiteral, "Hello world", 1)) },
-					new Tok(TokType.RightParen, ")", 1),
+					new List<ITypedAuraExpression> { new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")) },
+					new Tok(TokType.RightParen, ")"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "io.Println(\"Hello world\")");
@@ -141,7 +141,7 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedCall(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "f", 1),
+						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
@@ -149,7 +149,7 @@ public class CompilerTest
 								new List<Param>(),
 								new AuraNil()))),
 					new List<ITypedAuraExpression>(),
-					new Tok(TokType.RightParen, ")", 1),
+					new Tok(TokType.RightParen, ")"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "f()");
@@ -163,7 +163,7 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedCall(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "f", 1),
+						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
@@ -171,12 +171,12 @@ public class CompilerTest
 								new List<Param>
 								{
 									new(
-										new Tok(TokType.Identifier, "i", 1),
+										new Tok(TokType.Identifier, "i"),
 										new ParamType(new AuraInt(), false, null))
 								},
 								new AuraNil()))),
-					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)) },
-					new Tok(TokType.RightParen, ")", 1),
+					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5")) },
+					new Tok(TokType.RightParen, ")"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "f(5)");
@@ -190,7 +190,7 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedCall(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "f", 1),
+						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
@@ -198,15 +198,15 @@ public class CompilerTest
 								new List<Param>
 								{
 									new(
-										new Tok(TokType.Identifier, "i", 1),
+										new Tok(TokType.Identifier, "i"),
 										new ParamType(new AuraInt(), false, null)),
 									new(
-										new Tok(TokType.Identifier, "s", 1),
+										new Tok(TokType.Identifier, "s"),
 										new ParamType(new AuraString(), false, null))
 								},
 								new AuraNil()))),
-					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)), new StringLiteral(new Tok(TokType.StringLiteral, "Hello world", 1)) },
-					new Tok(TokType.RightParen, ")", 1),
+					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5")), new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")) },
+					new Tok(TokType.RightParen, ")"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "f(5, \"Hello world\")");
@@ -220,19 +220,19 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedGet(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "greeter", 1),
+						new Tok(TokType.Identifier, "greeter"),
 						new AuraClass(
 							"Greeter",
 							new List<Param>
 							{
 								new Param(
-									new Tok(TokType.Identifier, "name", 1),
+									new Tok(TokType.Identifier, "name"),
 									new ParamType(new AuraString(), false, null))
 							},
 							new List<AuraNamedFunction>(),
 							new List<AuraInterface>(),
 							Visibility.Private)),
-					new Tok(TokType.Identifier, "name", 1),
+					new Tok(TokType.Identifier, "name"),
 					new AuraString()))
 		});
 		MakeAssertions(output, "greeter.name");
@@ -246,10 +246,10 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedGetIndex(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "names", 1),
+						new Tok(TokType.Identifier, "names"),
 						new AuraList(new AuraString())),
-					new IntLiteral(new Tok(TokType.IntLiteral, "0", 1)),
-					new Tok(TokType.RightBracket, "]", 1),
+					new IntLiteral(new Tok(TokType.IntLiteral, "0")),
+					new Tok(TokType.RightBracket, "]"),
 					new AuraString()))
 		});
 		MakeAssertions(output, "names[0]");
@@ -263,11 +263,11 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedGetIndexRange(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "names", 1),
+						new Tok(TokType.Identifier, "names"),
 						new AuraList(new AuraString())),
-					new IntLiteral(new Tok(TokType.IntLiteral, "0", 1)),
-					new IntLiteral(new Tok(TokType.IntLiteral, "2", 1)),
-					new Tok(TokType.RightBracket, "]", 1),
+					new IntLiteral(new Tok(TokType.IntLiteral, "0")),
+					new IntLiteral(new Tok(TokType.IntLiteral, "2")),
+					new Tok(TokType.RightBracket, "]"),
 					new AuraList(new AuraString())))
 		});
 		MakeAssertions(output, "names[0:2]");
@@ -280,9 +280,9 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedGrouping(
-					new Tok(TokType.LeftParen, "(", 1),
-					new StringLiteral(new Tok(TokType.StringLiteral, "Hello world", 1)),
-					new Tok(TokType.RightParen, ")", 1),
+					new Tok(TokType.LeftParen, "("),
+					new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")),
+					new Tok(TokType.RightParen, ")"),
 					new AuraString()))
 		});
 		MakeAssertions(output, "(\"Hello world\")");
@@ -295,17 +295,17 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedIf(
-					new Tok(TokType.If, "if", 1),
-					new BoolLiteral(new Tok(TokType.True, "true", 1)),
+					new Tok(TokType.If, "if"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
 					new TypedBlock(
-						new Tok(TokType.LeftBrace, "{", 1),
+						new Tok(TokType.LeftBrace, "{"),
 						new List<ITypedAuraStatement>
 						{
 							new TypedReturn(
-								new Tok(TokType.Return, "return", 1),
-								new IntLiteral(new Tok(TokType.IntLiteral, "1", 2)))
+								new Tok(TokType.Return, "return"),
+								new IntLiteral(new Tok(TokType.IntLiteral, "1")))
 						},
-						new Tok(TokType.RightBrace, "}", 1),
+						new Tok(TokType.RightBrace, "}"),
 						new AuraInt()),
 					null,
 					new AuraInt()))
@@ -320,27 +320,27 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedIf(
-					new Tok(TokType.If, "if", 1),
-					new BoolLiteral(new Tok(TokType.True, "true", 1)),
+					new Tok(TokType.If, "if"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
 					new TypedBlock(
-						new Tok(TokType.LeftBrace, "{", 1),
+						new Tok(TokType.LeftBrace, "{"),
 						new List<ITypedAuraStatement>
 						{
 							new TypedReturn(
-								new Tok(TokType.Return, "return", 1),
-								new IntLiteral(new Tok(TokType.IntLiteral, "1", 1)))
+								new Tok(TokType.Return, "return"),
+								new IntLiteral(new Tok(TokType.IntLiteral, "1")))
 						},
-						new Tok(TokType.RightBrace, "}", 1),
+						new Tok(TokType.RightBrace, "}"),
 						new AuraInt()),
 					new TypedBlock(
-						new Tok(TokType.LeftBrace, "{", 1),
+						new Tok(TokType.LeftBrace, "{"),
 						new List<ITypedAuraStatement>
 						{
 							new TypedReturn(
-								new Tok(TokType.Return, "return", 1),
-								new IntLiteral(new Tok(TokType.IntLiteral, "2", 1)))
+								new Tok(TokType.Return, "return"),
+								new IntLiteral(new Tok(TokType.IntLiteral, "2")))
 						},
-						new Tok(TokType.RightBrace, "}", 1),
+						new Tok(TokType.RightBrace, "}"),
 						new AuraInt()),
 					new AuraInt()))
 		});
@@ -353,7 +353,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)))
+				new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		});
 		MakeAssertions(output, "5");
 	}
@@ -364,7 +364,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new FloatLiteral(new Tok(TokType.FloatLiteral, "5.1", 1)))
+				new FloatLiteral(new Tok(TokType.FloatLiteral, "5.1")))
 		});
 		MakeAssertions(output, "5.1");
 	}
@@ -375,7 +375,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new FloatLiteral(new Tok(TokType.FloatLiteral, "5.0", 1)))
+				new FloatLiteral(new Tok(TokType.FloatLiteral, "5.0")))
 		});
 		MakeAssertions(output, "5.0");
 	}
@@ -386,7 +386,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new StringLiteral(new Tok(TokType.StringLiteral, "Hello world", 1)))
+				new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")))
 		});
 		MakeAssertions(output, "\"Hello world\"");
 	}
@@ -398,10 +398,10 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new ListLiteral<ITypedAuraExpression>(
-					new Tok(TokType.LeftBrace, "{", 1),
-					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "1", 1)), new IntLiteral(new Tok(TokType.IntLiteral, "2", 1)), new IntLiteral(new Tok(TokType.IntLiteral, "3", 1)) },
+					new Tok(TokType.LeftBrace, "{"),
+					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "1")), new IntLiteral(new Tok(TokType.IntLiteral, "2")), new IntLiteral(new Tok(TokType.IntLiteral, "3")) },
 					new AuraInt(),
-					new Tok(TokType.RightBrace, "}", 1)))
+					new Tok(TokType.RightBrace, "}")))
 		});
 		MakeAssertions(output, "[]int{1, 2, 3}");
 	}
@@ -413,14 +413,14 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
-					new Tok(TokType.Map, "map", 1),
+					new Tok(TokType.Map, "map"),
 					new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 					{
-						{ new StringLiteral(new Tok(TokType.StringLiteral, "Hello", 1)), new IntLiteral(new Tok(TokType.IntLiteral, "1", 1)) }
+						{ new StringLiteral(new Tok(TokType.StringLiteral, "Hello")), new IntLiteral(new Tok(TokType.IntLiteral, "1")) }
 					},
 					new AuraString(),
 					new AuraInt(),
-					new Tok(TokType.RightBrace, "}", 1)))
+					new Tok(TokType.RightBrace, "}")))
 		});
 		MakeAssertions(output, "map[string]int{\n\"Hello\": 1\n}");
 	}
@@ -432,11 +432,11 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
-					new Tok(TokType.Map, "map", 1),
+					new Tok(TokType.Map, "map"),
 					new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(),
 					new AuraString(),
 					new AuraInt(),
-					new Tok(TokType.RightBrace, "}", 1)))
+					new Tok(TokType.RightBrace, "}")))
 		});
 		MakeAssertions(output, "map[string]int{}");
 	}
@@ -447,7 +447,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new BoolLiteral(new Tok(TokType.True, "true", 1)))
+				new BoolLiteral(new Tok(TokType.True, "true")))
 		});
 		MakeAssertions(output, "true");
 	}
@@ -458,7 +458,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new TypedNil(new Tok(TokType.Nil, "nil", 1)))
+				new TypedNil(new Tok(TokType.Nil, "nil")))
 		});
 		MakeAssertions(output, "nil");
 	}
@@ -469,7 +469,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedExpressionStmt(
-				new CharLiteral(new Tok(TokType.CharLiteral, "a", 1)))
+				new CharLiteral(new Tok(TokType.CharLiteral, "a")))
 		});
 		MakeAssertions(output, "'a'");
 	}
@@ -481,9 +481,9 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedLogical(
-					new BoolLiteral(new Tok(TokType.True, "true", 1)),
-					new Tok(TokType.And, "and", 1),
-					new BoolLiteral(new Tok(TokType.False, "false", 1)),
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new Tok(TokType.And, "and"),
+					new BoolLiteral(new Tok(TokType.False, "false")),
 					new AuraBool()))
 		});
 		MakeAssertions(output, "true && false");
@@ -497,20 +497,20 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedSet(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "greeter", 1),
+						new Tok(TokType.Identifier, "greeter"),
 						new AuraClass(
 							"Greeter",
 							new List<Param>
 							{
 								new(
-									new Tok(TokType.Identifier, "name", 1),
+									new Tok(TokType.Identifier, "name"),
 									new ParamType(new AuraString(), false, null))
 							},
 							new List<AuraNamedFunction>(),
 							new List<AuraInterface>(),
 							Visibility.Private)),
-					new Tok(TokType.Identifier, "name", 1),
-					new StringLiteral(new Tok(TokType.StringLiteral, "Bob", 1)),
+					new Tok(TokType.Identifier, "name"),
+					new StringLiteral(new Tok(TokType.StringLiteral, "Bob")),
 					new AuraString()))
 		});
 		MakeAssertions(output, "greeter.name = \"Bob\"");
@@ -523,7 +523,7 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedThis(
-					new Tok(TokType.This, "this", 1),
+					new Tok(TokType.This, "this"),
 					new AuraClass(
 						"Greeter",
 						new List<Param>(),
@@ -541,8 +541,8 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedUnary(
-					new Tok(TokType.Bang, "!", 1),
-					new BoolLiteral(new Tok(TokType.True, "true", 1)),
+					new Tok(TokType.Bang, "!"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
 					new AuraBool()))
 		});
 		MakeAssertions(output, "!true");
@@ -555,8 +555,8 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedUnary(
-					new Tok(TokType.Minus, "-", 1),
-					new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)),
+					new Tok(TokType.Minus, "-"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "5")),
 					new AuraInt()))
 		});
 		MakeAssertions(output, "-5");
@@ -569,7 +569,7 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedVariable(
-					new Tok(TokType.Identifier, "name", 1),
+					new Tok(TokType.Identifier, "name"),
 					new AuraString()))
 		});
 		MakeAssertions(output, "name");
@@ -581,10 +581,10 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedDefer(
-				new Tok(TokType.Defer, "defer", 1),
+				new Tok(TokType.Defer, "defer"),
 				new TypedCall(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "f", 1),
+						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
@@ -592,7 +592,7 @@ public class CompilerTest
 								new List<Param>(),
 								new AuraNil()))),
 					new List<ITypedAuraExpression>(),
-					new Tok(TokType.RightParen, ")", 1),
+					new Tok(TokType.RightParen, ")"),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "defer f()");
@@ -604,23 +604,23 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedFor(
-				new Tok(TokType.For, "for", 1),
+				new Tok(TokType.For, "for"),
 				new TypedLet(
-					new Tok(TokType.Let, "let", 1),
-					new List<Tok>{ new(TokType.Identifier, "i", 1) },
+					new Tok(TokType.Let, "let"),
+					new List<Tok>{ new(TokType.Identifier, "i") },
 					false,
 					true,
-					new IntLiteral(new Tok(TokType.IntLiteral, "0", 1))),
+					new IntLiteral(new Tok(TokType.IntLiteral, "0"))),
 				new TypedLogical(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "i", 1),
+						new Tok(TokType.Identifier, "i"),
 						new AuraInt()),
-					new Tok(TokType.Less, "<", 1),
-					new IntLiteral(new Tok(TokType.IntLiteral, "10", 1)),
+					new Tok(TokType.Less, "<"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "10")),
 					new AuraBool()),
 				null,
 				new List<ITypedAuraStatement>(),
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "for i := 0; i < 10; {}");
 	}
@@ -631,31 +631,31 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedFor(
-				new Tok(TokType.For, "for", 1),
+				new Tok(TokType.For, "for"),
 				new TypedLet(
-					new Tok(TokType.Let, "let", 1),
-					new List<Tok>{ new(TokType.Identifier, "i", 1) },
+					new Tok(TokType.Let, "let"),
+					new List<Tok>{ new(TokType.Identifier, "i") },
 					false,
 					true,
-					new IntLiteral(new Tok(TokType.IntLiteral, "0", 1))),
+					new IntLiteral(new Tok(TokType.IntLiteral, "0"))),
 				new TypedLogical(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "i", 1),
+						new Tok(TokType.Identifier, "i"),
 						new AuraInt()),
-					new Tok(TokType.Less, "<", 1),
-					new IntLiteral(new Tok(TokType.IntLiteral, "10", 1)),
+					new Tok(TokType.Less, "<"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "10")),
 					new AuraBool()),
 				null,
 				new List<ITypedAuraStatement>
 				{
 					new TypedLet(
 						null,
-						new List<Tok>{ new(TokType.Identifier, "name", 2) },
+						new List<Tok>{ new(TokType.Identifier, "name") },
 						false,
 						false,
-						new StringLiteral(new Tok(TokType.StringLiteral, "Bob", 1)))
+						new StringLiteral(new Tok(TokType.StringLiteral, "Bob")))
 				},
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "for i := 0; i < 10; {\nname := \"Bob\"\n}");
 	}
@@ -666,13 +666,13 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedForEach(
-				new Tok(TokType.ForEach, "foreach", 1),
-				new Tok(TokType.Identifier, "name", 1),
+				new Tok(TokType.ForEach, "foreach"),
+				new Tok(TokType.Identifier, "name"),
 				new TypedVariable(
-					new Tok(TokType.Identifier, "names", 1),
+					new Tok(TokType.Identifier, "names"),
 					new AuraList(new AuraString())),
 				new List<ITypedAuraStatement>(),
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "for _, name := range names {}");
 	}
@@ -683,21 +683,21 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedForEach(
-				new Tok(TokType.ForEach, "foreach", 1),
-				new Tok(TokType.Identifier, "name", 1),
+				new Tok(TokType.ForEach, "foreach"),
+				new Tok(TokType.Identifier, "name"),
 				new TypedVariable(
-					new Tok(TokType.Identifier, "names", 1),
+					new Tok(TokType.Identifier, "names"),
 					new AuraList(new AuraString())),
 				new List<ITypedAuraStatement>
 				{
 					new TypedLet(
 						null,
-						new List<Tok>{ new(TokType.Identifier, "i", 1) },
+						new List<Tok>{ new(TokType.Identifier, "i") },
 						true,
 						false,
-						new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)))
+						new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 				},
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "for _, name := range names {\nvar i int = 5\n}");
 	}
@@ -708,10 +708,10 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedNamedFunction(
-				new Tok(TokType.Fn, "fn", 1),
-				new Tok(TokType.Identifier, "f", 1),
+				new Tok(TokType.Fn, "fn"),
+				new Tok(TokType.Identifier, "f"),
 				new List<Param>(),
-				new TypedBlock(new Tok(TokType.LeftBrace, "{", 1), new List<ITypedAuraStatement>(), new Tok(TokType.RightBrace, "}", 1), new AuraNil()),
+				new TypedBlock(new Tok(TokType.LeftBrace, "{"), new List<ITypedAuraStatement>(), new Tok(TokType.RightBrace, "}"), new AuraNil()),
 				new AuraNil(),
 				Visibility.Private)
 		});
@@ -725,9 +725,9 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedAnonymousFunction(
-					new Tok(TokType.Fn, "fn", 1),
+					new Tok(TokType.Fn, "fn"),
 					new List<Param>(),
-					new TypedBlock(new Tok(TokType.LeftBrace, "{", 1), new List<ITypedAuraStatement>(), new Tok(TokType.RightBrace, "}", 1), new AuraNil()),
+					new TypedBlock(new Tok(TokType.LeftBrace, "{"), new List<ITypedAuraStatement>(), new Tok(TokType.RightBrace, "}"), new AuraNil()),
 					new AuraNil()))
 		});
 		MakeAssertions(output, "func() {}");
@@ -740,10 +740,10 @@ public class CompilerTest
 		{
 			new TypedLet(
 				null,
-				new List<Tok>{ new(TokType.Identifier, "i", 1) },
+				new List<Tok>{ new(TokType.Identifier, "i") },
 				true,
 				false,
-				new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)))
+				new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		});
 		MakeAssertions(output, "var i int = 5");
 	}
@@ -755,10 +755,10 @@ public class CompilerTest
 		{
 			new TypedLet(
 				null,
-				new List<Tok>{ new(TokType.Identifier, "i", 1) },
+				new List<Tok>{ new(TokType.Identifier, "i") },
 				false,
 				false,
-				new IntLiteral(new Tok(TokType.IntLiteral, "5", 1)))
+				new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		});
 		MakeAssertions(output, "i := 5");
 	}
@@ -769,8 +769,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedMod(
-				new Tok(TokType.Mod, "mod", 1),
-				new Tok(TokType.Identifier, "main", 1))
+				new Tok(TokType.Mod, "mod"),
+				new Tok(TokType.Identifier, "main"))
 		});
 		MakeAssertions(output, "package main");
 	}
@@ -778,14 +778,14 @@ public class CompilerTest
 	[Test]
 	public void TestCompile_Return_NoValue()
 	{
-		var output = ArrangeAndAct(new List<ITypedAuraStatement> { new TypedReturn(new Tok(TokType.Return, "return", 1), null) });
+		var output = ArrangeAndAct(new List<ITypedAuraStatement> { new TypedReturn(new Tok(TokType.Return, "return"), null) });
 		MakeAssertions(output, "return");
 	}
 
 	[Test]
 	public void TestCompile_Return()
 	{
-		var output = ArrangeAndAct(new List<ITypedAuraStatement> { new TypedReturn(new Tok(TokType.Return, "return", 1), new IntLiteral(new Tok(TokType.IntLiteral, "5", 1))) });
+		var output = ArrangeAndAct(new List<ITypedAuraStatement> { new TypedReturn(new Tok(TokType.Return, "return"), new IntLiteral(new Tok(TokType.IntLiteral, "5"))) });
 		MakeAssertions(output, "return 5");
 	}
 
@@ -795,8 +795,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new FullyTypedClass(
-				new Tok(TokType.Class, "class", 1),
-				new Tok(TokType.Identifier, "Greeter", 1),
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
@@ -805,7 +805,7 @@ public class CompilerTest
 					new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private),
 					new("IGreeter2", new List<AuraNamedFunction>(), Visibility.Private)
 				},
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
 		// for classes that implement an interface
@@ -818,13 +818,13 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new FullyTypedClass(
-				new Tok(TokType.Class, "class", 1),
-				new Tok(TokType.Identifier, "Greeter", 1),
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
 				new List<AuraInterface> { new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private) },
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
 		// for classes that implement an interface
@@ -837,13 +837,13 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new FullyTypedClass(
-				new Tok(TokType.Class, "class", 1),
-				new Tok(TokType.Identifier, "Greeter", 1),
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
 				new List<Param>(),
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
 				new List<AuraInterface>(),
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "type GREETER struct {}");
 	}
@@ -854,10 +854,10 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedWhile(
-				new Tok(TokType.While, "while", 1),
-				new BoolLiteral(new Tok(TokType.True, "true", 1)),
+				new Tok(TokType.While, "while"),
+				new BoolLiteral(new Tok(TokType.True, "true")),
 				new List<ITypedAuraStatement>(),
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "for true {}");
 	}
@@ -868,8 +868,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedImport(
-				new Tok(TokType.Import, "import", 1),
-				new Tok(TokType.Identifier, "aura/io", 1),
+				new Tok(TokType.Import, "import"),
+				new Tok(TokType.Identifier, "aura/io"),
 				null)
 		});
 		MakeAssertions(output, "import io \"test/stdlib/io\"");
@@ -881,7 +881,7 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedComment(
-				new Tok(TokType.Comment, "// this is a comment", 1))
+				new Tok(TokType.Comment, "// this is a comment"))
 		});
 		MakeAssertions(output, "// this is a comment");
 	}
@@ -894,7 +894,7 @@ public class CompilerTest
 			new TypedExpressionStmt(
 				new TypedIs(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "v", 1),
+						new Tok(TokType.Identifier, "v"),
 						new AuraInt()),
 					new AuraInterface(
 						"IGreeter",
@@ -911,12 +911,12 @@ public class CompilerTest
 		{
 			new TypedLet(
 				null,
-				new List<Tok>{ new(TokType.Identifier, "b", 1) },
+				new List<Tok>{ new(TokType.Identifier, "b") },
 				false,
 				false,
 				new TypedIs(
 					new TypedVariable(
-						new Tok(TokType.Identifier, "v", 1),
+						new Tok(TokType.Identifier, "v"),
 						new AuraInt()),
 					new AuraInterface(
 						"IGreeter",
@@ -933,19 +933,19 @@ public class CompilerTest
 		{
 			new TypedExpressionStmt(
 				new TypedIf(
-					new Tok(TokType.If, "if", 1),
+					new Tok(TokType.If, "if"),
 					new TypedIs(
 						new TypedVariable(
-							new Tok(TokType.Identifier, "v", 1),
+							new Tok(TokType.Identifier, "v"),
 							new AuraInt()),
 						new AuraInterface(
 							"IGreeter",
 							new List<AuraNamedFunction>(),
 							Visibility.Private)),
 					new TypedBlock(
-						new Tok(TokType.LeftBrace, "{", 1),
+						new Tok(TokType.LeftBrace, "{"),
 						new List<ITypedAuraStatement>(),
-						new Tok(TokType.RightBrace, "}", 1),
+						new Tok(TokType.RightBrace, "}"),
 						new AuraNil()),
 					null,
 					new AuraNil()))
@@ -959,11 +959,11 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedInterface(
-				new Tok(TokType.Interface, "interface", 1),
-				new Tok(TokType.Identifier, "IGreeter", 1),
+				new Tok(TokType.Interface, "interface"),
+				new Tok(TokType.Identifier, "IGreeter"),
 				new List<AuraNamedFunction>(),
 				Visibility.Public,
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "type IGREETER interface {}");
 	}
@@ -974,13 +974,13 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedMultipleImport(
-				Import: new Tok(TokType.Import, "import", 1),
+				Import: new Tok(TokType.Import, "import"),
 				Packages: new List<TypedImport>
 				{
-					new(new Tok(TokType.Import, "import", 1), new Tok(TokType.Identifier, "aura/io", 1), null),
-					new(new Tok(TokType.Import, "import,", 1), new Tok(TokType.Identifier, "aura/strings", 1), null)
+					new(new Tok(TokType.Import, "import"), new Tok(TokType.Identifier, "aura/io"), null),
+					new(new Tok(TokType.Import, "import,"), new Tok(TokType.Identifier, "aura/strings"), null)
 				},
-				ClosingParen: new Tok(TokType.RightParen, ")", 1)
+				ClosingParen: new Tok(TokType.RightParen, ")")
 			)
 		});
 		MakeAssertions(output, "import (\n\tio \"test/stdlib/io\"\n\tstrings \"test/stdlib/strings\"\n)");
@@ -992,8 +992,8 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedInterface(
-				new Tok(TokType.Interface, "interface", 1),
-				new Tok(TokType.Identifier, "IGreeter", 1),
+				new Tok(TokType.Interface, "interface"),
+				new Tok(TokType.Identifier, "IGreeter"),
 				new List<AuraNamedFunction>
 				{
 					new AuraNamedFunction(
@@ -1003,7 +1003,7 @@ public class CompilerTest
 							new List<Param>
 							{
 								new Param(
-									new Tok(TokType.Identifier, "i", 1),
+									new Tok(TokType.Identifier, "i"),
 									new ParamType(
 										new AuraInt(),
 										false,
@@ -1012,7 +1012,7 @@ public class CompilerTest
 							new AuraString()))
 				},
 				Visibility.Public,
-				new Tok(TokType.RightBrace, "}", 1))
+				new Tok(TokType.RightBrace, "}"))
 		});
 		MakeAssertions(output, "type IGREETER interface {\nSAY_HI(i int) string\n}");
 	}
@@ -1023,9 +1023,9 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedYield(
-				Yield: new Tok(TokType.Yield, "yield", 1),
+				Yield: new Tok(TokType.Yield, "yield"),
 				Value: new IntLiteral(
-					Int: new Tok(TokType.IntLiteral, "5", 1))
+					Int: new Tok(TokType.IntLiteral, "5"))
 			)
 		});
 		MakeAssertions(output, "x = 5");
@@ -1037,13 +1037,12 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedCheck(
-				Check: new Tok(TokType.Check, "check", 1),
+				Check: new Tok(TokType.Check, "check"),
 				Call: new TypedCall(
 					Callee: new TypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						),
 						Typ: new AuraNamedFunction(
 							name: "f",
@@ -1056,7 +1055,7 @@ public class CompilerTest
 					),
 					Arguments: new List<ITypedAuraExpression>(),
 					Typ: new AuraError(),
-					ClosingParen: new Tok(TokType.RightParen, ")", 1))
+					ClosingParen: new Tok(TokType.RightParen, ")"))
 			)
 		});
 		MakeAssertions(output, "e := f()\nif e.Failure != nil {\nreturn e\n}");
@@ -1068,14 +1067,13 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedStruct(
-				Struct: new Tok(TokType.Struct, "struct", 1),
+				Struct: new Tok(TokType.Struct, "struct"),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "s",
-					line: 1
+					value: "s"
 				),
 				Params: new List<Param>(),
-				ClosingParen: new Tok(TokType.RightParen, ")", 1)
+				ClosingParen: new Tok(TokType.RightParen, ")")
 			)
 		});
 		MakeAssertions(output, "type s struct {}");
@@ -1087,19 +1085,17 @@ public class CompilerTest
 		var output = ArrangeAndAct(new List<ITypedAuraStatement>
 		{
 			new TypedStruct(
-				Struct: new Tok(TokType.Struct, "struct", 1),
+				Struct: new Tok(TokType.Struct, "struct"),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "s",
-					line: 1
+					value: "s"
 				),
 				Params: new List<Param>
 				{
 					new(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						),
 						ParamType: new(
 							Typ: new AuraInt(),
@@ -1108,7 +1104,7 @@ public class CompilerTest
 						)
 					)
 				},
-				ClosingParen: new Tok(TokType.RightParen, ")", 1)
+				ClosingParen: new Tok(TokType.RightParen, ")")
 			)
 		});
 		MakeAssertions(output, "type s struct {\ni int\n}");
