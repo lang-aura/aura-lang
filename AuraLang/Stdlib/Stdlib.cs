@@ -23,8 +23,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "format",
-										line: 1
+										value: "format"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -35,8 +34,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraAny(),
@@ -57,8 +55,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -79,8 +76,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -101,8 +97,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -123,8 +118,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -153,8 +147,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "path",
-										line: 1
+										value: "path"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -175,8 +168,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "path",
-										line: 1
+										value: "path"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -197,8 +189,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "path",
-										line: 1
+										value: "path"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -209,8 +200,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "content",
-										line: 1
+										value: "content"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -242,8 +232,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -264,8 +253,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -286,8 +274,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -298,8 +285,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "sub",
-										line: 1
+										value: "sub"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -320,8 +306,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -342,8 +327,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new(
 										Typ: new AuraString(),
@@ -354,8 +338,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "sep",
-										line: 1
+										value: "sep"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraString(),
@@ -376,8 +359,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "s",
-										line: 1
+										value: "s"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraString(),
@@ -408,8 +390,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -420,8 +401,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "item",
-										line: 1
+										value: "item"
 									),
 									ParamType: new(
 										Typ: new AuraAny(),
@@ -442,8 +422,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -464,8 +443,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -486,8 +464,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -498,8 +475,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "b",
-										line: 1
+										value: "b"
 									),
 									ParamType: new(
 										Typ: new AuraFunction(
@@ -508,8 +484,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "t",
-														line: 1
+														value: "t"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -537,8 +512,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -549,8 +523,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "f",
-										line: 1
+										value: "f"
 									),
 									ParamType: new ParamType(
 										Typ: new AuraFunction(
@@ -559,8 +532,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "t",
-														line: 1
+														value: "t"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -588,8 +560,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -600,8 +571,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "f",
-										line: 1
+										value: "f"
 									),
 									ParamType: new(
 										Typ: new AuraFunction(
@@ -610,8 +580,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "t1",
-														line: 1
+														value: "t1"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -622,8 +591,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "t2",
-														line: 1
+														value: "t2"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -641,8 +609,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "t",
-										line: 1
+										value: "t"
 									),
 									ParamType: new(
 										Typ: new AuraAny(),
@@ -663,8 +630,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(new AuraInt()),
@@ -685,8 +651,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraInt()),
@@ -707,8 +672,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -719,8 +683,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "t",
-										line: 1
+										value: "t"
 									),
 									ParamType: new(
 										Typ: new AuraAny(),
@@ -741,8 +704,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraAny()),
@@ -763,8 +725,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "a",
-										line: 1
+										value: "a"
 									),
 									ParamType: new(
 										Typ: new AuraList(kind: new AuraInt()),
@@ -795,8 +756,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "err",
-										line: 1
+										value: "err"
 									),
 									ParamType: new(
 										Typ: new AuraError(),
@@ -828,8 +788,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "st",
-										line: 1
+										value: "st"
 									),
 									ParamType: new(
 										Typ: new AuraAnonymousStruct(
@@ -838,8 +797,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "success",
-														line: 1
+														value: "success"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -850,8 +808,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "failure",
-														line: 1
+														value: "failure"
 													),
 													ParamType: new(
 														Typ: new AuraError(),
@@ -879,8 +836,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "st",
-										line: 1
+										value: "st"
 									),
 									ParamType: new(
 										Typ: new AuraAnonymousStruct(
@@ -889,8 +845,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "success",
-														line: 1
+														value: "success"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -901,8 +856,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "failure",
-														line: 1
+														value: "failure"
 													),
 													ParamType: new(
 														Typ: new AuraError(),
@@ -930,8 +884,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "st",
-										line: 1
+										value: "st"
 									),
 									ParamType: new(
 										Typ: new AuraAnonymousStruct(
@@ -940,8 +893,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "success",
-														line: 1
+														value: "success"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -952,8 +904,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "failure",
-														line: 1
+														value: "failure"
 													),
 													ParamType: new(
 														Typ: new AuraError(),
@@ -981,8 +932,7 @@ public class AuraStdlib
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "st",
-										line: 1
+										value: "st"
 									),
 									ParamType: new(
 										Typ: new AuraAnonymousStruct(
@@ -991,8 +941,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "success",
-														line: 1
+														value: "success"
 													),
 													ParamType: new(
 														Typ: new AuraAny(),
@@ -1003,8 +952,7 @@ public class AuraStdlib
 												new(
 													Name: new Tok(
 														typ: TokType.Identifier,
-														value: "failure",
-														line: 1
+														value: "failure"
 													),
 													ParamType: new(
 														Typ: new AuraError(),

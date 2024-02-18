@@ -22,8 +22,7 @@ public class AuraPrelude
 							Name: new Tok(
 								typ: TokType.Identifier,
 								value: "message",
-								range: new Range(),
-								line: 1
+								range: new Range()
 							),
 							ParamType: new ParamType(
 								Typ: new AuraString(),

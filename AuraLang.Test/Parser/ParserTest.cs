@@ -18,28 +18,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.Equal,
-					value: "=",
-					line: 1
+					value: "="
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -49,14 +44,12 @@ public class ParserTest
 				Expression: new UntypedAssignment(
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "i",
-						line: 1
+						value: "i"
 					),
 					Value: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1)))
+							value: "5")))
 			)
 		);
 	}
@@ -69,28 +62,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.IntLiteral,
-					value: "1",
-					line: 1
+					value: "1"
 				),
 				new(
 					typ: TokType.Plus,
-					value: "+",
-					line: 1
+					value: "+"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "2",
-					line: 1
+					value: "2"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -101,20 +89,17 @@ public class ParserTest
 					Left: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "1",
-							line: 1
+							value: "1"
 						)
 					),
 					Operator: new Tok(
 						typ: TokType.Plus,
-						value: "+",
-						line: 1
+						value: "+"
 					),
 					Right: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "2",
-							line: 1
+							value: "2"
 						)))
 			)
 		);
@@ -128,33 +113,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "1",
-					line: 2
+					value: "1"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 2
+					value: ";"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 3
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 3
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 3
+					value: "eof"
 				)
 			}
 		);
@@ -164,8 +143,7 @@ public class ParserTest
 				Expression: new UntypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<IUntypedAuraStatement>
 					{
@@ -173,15 +151,13 @@ public class ParserTest
 							Expression: new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
-									value: "1",
-									line: 2
+									value: "1"
 								))
 						)
 					},
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 3
+						value: "}"
 					))
 			)
 		);
@@ -195,28 +171,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -227,15 +198,13 @@ public class ParserTest
 					Callee: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						)
 					),
 					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					))
 			)
 		);
@@ -249,28 +218,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "greeter",
-					line: 1
+					value: "greeter"
 				),
 				new(
 					typ: TokType.Dot,
-					value: ".",
-					line: 1
+					value: "."
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "name",
-					line: 1
+					value: "name"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				),
 			}
 		);
@@ -281,13 +245,11 @@ public class ParserTest
 					Obj: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "greeter",
-							line: 1)
+							value: "greeter")
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "name",
-						line: 1
+						value: "name"
 					))
 			)
 		);
@@ -301,33 +263,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "collection",
-					line: 1
+					value: "collection"
 				),
 				new(
 					typ: TokType.LeftBracket,
-					value: "[",
-					line: 1
+					value: "["
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "0",
-					line: 1
+					value: "0"
 				),
 				new(
 					typ: TokType.RightBracket,
-					value: "]",
-					line: 1
+					value: "]"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -338,21 +294,18 @@ public class ParserTest
 					Obj: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "collection",
-							line: 1
+							value: "collection"
 						)
 					),
 					Index: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "0",
-							line: 1
+							value: "0"
 						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
-						value: "]",
-						line: 1
+						value: "]"
 					))
 			)
 		);
@@ -366,28 +319,23 @@ public class ParserTest
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "collection",
-						line: 1
+						value: "collection"
 					),
 					new(
 						typ: TokType.LeftBracket,
-						value: "[",
-						line: 1
+						value: "["
 					),
 					new(
 						typ: TokType.RightBracket,
-						value: "]",
-						line: 1
+						value: "]"
 					),
 					new(
 						typ: TokType.Semicolon,
-						value: ";",
-						line: 1
+						value: ";"
 					),
 					new(
 						typ: TokType.Eof,
-						value: "eof",
-						line: 1
+						value: "eof"
 					)
 				},
 			expected: typeof(PostfixIndexCannotBeEmptyException)
@@ -402,43 +350,35 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "collection",
-					line: 1
+					value: "collection"
 				),
 				new(
 					typ: TokType.LeftBracket,
-					value: "[",
-					line: 1
+					value: "["
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "0",
-					line: 1
+					value: "0"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "1",
-					line: 1
+					value: "1"
 				),
 				new(
 					typ: TokType.RightBracket,
-					value: "]",
-					line: 1
+					value: "]"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -449,28 +389,24 @@ public class ParserTest
 					Obj: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "collection",
-							line: 1
+							value: "collection"
 						)
 					),
 					Lower: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "0",
-							line: 1
+							value: "0"
 						)
 					),
 					Upper: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "1",
-							line: 1
+							value: "1"
 						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
-						value: "]",
-						line: 1
+						value: "]"
 					))
 			)
 		);
@@ -484,28 +420,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "1",
-					line: 1
+					value: "1"
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -515,20 +446,17 @@ public class ParserTest
 				Expression: new UntypedGrouping(
 					OpeningParen: new Tok(
 						typ: TokType.LeftParen,
-						value: "(",
-						line: 1
+						value: "("
 					),
 					Expr: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "1",
-							line: 1
+							value: "1"
 						)
 					),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					))
 			)
 		);
@@ -542,48 +470,39 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.If,
-					value: "if",
-					line: 1
+					value: "if"
 				),
 				new(
 					typ: TokType.True,
-					value: "true",
-					line: 1
+					value: "true"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.Return,
-					value: "return",
-					line: 2
+					value: "return"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "1",
-					line: 2
+					value: "1"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 2
+					value: ";"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 3
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 3
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 3
+					value: "eof"
 				)
 			}
 		);
@@ -593,37 +512,32 @@ public class ParserTest
 				Expression: new UntypedIf(
 					If: new Tok(
 						typ: TokType.If,
-						value: "if",
-						line: 1
+						value: "if"
 					),
 					Condition: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						)
 					),
 					Then: new UntypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<IUntypedAuraStatement>
 						{
 							new UntypedReturn(
 								Return: new Tok(
 									typ: TokType.Return,
-									value: "return",
-									line: 2
+									value: "return"
 								),
 								Value: new List<IUntypedAuraExpression>
 								{
 									new IntLiteral(
 										Int: new Tok(
 											typ: TokType.IntLiteral,
-											value: "1",
-											line: 2
+											value: "1"
 										)
 									)
 								}
@@ -631,8 +545,7 @@ public class ParserTest
 						},
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 3
+							value: "}"
 						)
 					),
 					Else: null
@@ -649,18 +562,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -670,8 +580,7 @@ public class ParserTest
 				Expression: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -685,18 +594,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.FloatLiteral,
-					value: "5.0",
-					line: 1
+					value: "5.0"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -706,8 +612,7 @@ public class ParserTest
 				Expression: new FloatLiteral(
 					Float: new Tok(
 						typ: TokType.FloatLiteral,
-						value: "5.0",
-						line: 1
+						value: "5.0"
 					))
 			)
 		);
@@ -721,18 +626,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.StringLiteral,
-					value: "Hello",
-					line: 1
+					value: "Hello"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -742,8 +644,7 @@ public class ParserTest
 				Expression: new StringLiteral(
 					String: new Tok(
 						typ: TokType.StringLiteral,
-						value: "Hello",
-						line: 1
+						value: "Hello"
 					))
 			)
 		);
@@ -757,53 +658,43 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.LeftBracket,
-					value: "[",
-					line: 1
+					value: "["
 				),
 				new(
 					typ: TokType.Int,
-					value: "int",
-					line: 1
+					value: "int"
 				),
 				new(
 					typ: TokType.RightBracket,
-					value: "]",
-					line: 1
+					value: "]"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Comma,
-					value: ",",
-					line: 1
+					value: ","
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "6",
-					line: 1
+					value: "6"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -813,31 +704,27 @@ public class ParserTest
 				Expression: new ListLiteral<ITypedAuraExpression>(
 					OpeningBracket: new Tok(
 						typ: TokType.LeftBracket,
-						value: "[",
-						line: 1
+						value: "["
 					),
 					L: new List<ITypedAuraExpression>
 					{
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "5",
-								line: 1
+								value: "5"
 							)
 						),
 						new IntLiteral(
 							Int: new Tok(
 								typ: TokType.IntLiteral,
-								value: "6",
-								line: 1
+								value: "6"
 							)
 						)
 					},
 					Kind: new AuraInt(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					))
 			)
 		);
@@ -850,118 +737,95 @@ public class ParserTest
 		{
 			new(
 				typ: TokType.Map,
-				value: "map",
-				line: 1
+				value: "map"
 			),
 			new(
 				typ: TokType.LeftBracket,
-				value: "[",
-				line: 1
+				value: "["
 			),
 			new(
 				typ: TokType.String,
-				value: "string",
-				line: 1
+				value: "string"
 			),
 			new(
 				typ: TokType.Colon,
-				value: ":",
-				line: 1
+				value: ":"
 			),
 			new(
 				typ: TokType.Int,
-				value: "int",
-				line: 1
+				value: "int"
 			),
 			new(
 				typ: TokType.RightBracket,
-				value: "]",
-				line: 1
+				value: "]"
 			),
 			new(
 				typ: TokType.LeftBrace,
-				value: "{",
-				line: 1
+				value: "{"
 			),
 			new(
 				typ: TokType.StringLiteral,
-				value: "Hello",
-				line: 2
+				value: "Hello"
 			),
 			new(
 				typ: TokType.Colon,
-				value: ":",
-				line: 2
+				value: ":"
 			),
 			new(
 				typ: TokType.IntLiteral,
-				value: "1",
-				line: 2
+				value: "1"
 			),
 			new(
 				typ: TokType.Comma,
-				value: ",",
-				line: 2
+				value: ","
 			),
 			new(
 				typ: TokType.Semicolon,
-				value: ";",
-				line: 2
+				value: ";"
 			),
 			new(
 				typ: TokType.StringLiteral,
-				value: "World",
-				line: 3
+				value: "World"
 			),
 			new(
 				typ: TokType.Colon,
-				value: ":",
-				line: 3
+				value: ":"
 			),
 			new(
 				typ: TokType.IntLiteral,
-				value: "2",
-				line: 3
+				value: "2"
 			),
 			new(
 				typ: TokType.Comma,
-				value: ",",
-				line: 3
+				value: ","
 			),
 			new(
 				typ: TokType.Semicolon,
-				value: ";",
-				line: 3
+				value: ";"
 			),
 			new(
 				typ: TokType.RightBrace,
-				value: "}",
-				line: 4
+				value: "}"
 			),
 			new(
 				typ: TokType.LeftBracket,
-				value: "[",
-				line: 4
+				value: "["
 			),
 			new(
 				typ: TokType.StringLiteral,
-				value: "Hello",
-				line: 4
+				value: "Hello"
 			),
 			new(
 				typ: TokType.RightBracket,
-				value: "]",
-				line: 4
+				value: "]"
 			),
 			new(
 				typ: TokType.Semicolon,
-				value: ";",
-				line: 4
+				value: ";"
 			),
 			new(
 				typ: TokType.Eof,
-				value: "eof",
-				line: 4
+				value: "eof"
 			)
 		});
 		MakeAssertions(
@@ -971,8 +835,7 @@ public class ParserTest
 					Obj: new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 						Map: new Tok(
 							typ: TokType.Map,
-							value: "map",
-							line: 1
+							value: "map"
 						),
 						M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 						{
@@ -980,15 +843,13 @@ public class ParserTest
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "Hello",
-										line: 2
+										value: "Hello"
 									)
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
-										value: "1",
-										line: 2
+										value: "1"
 									)
 								)
 							},
@@ -996,15 +857,13 @@ public class ParserTest
 								new StringLiteral(
 									String: new Tok(
 										typ: TokType.StringLiteral,
-										value: "World",
-										line: 3
+										value: "World"
 									)
 								),
 								new IntLiteral(
 									Int: new Tok(
 										typ: TokType.IntLiteral,
-										value: "2",
-										line: 3
+										value: "2"
 									)
 								)
 							}
@@ -1013,21 +872,18 @@ public class ParserTest
 						ValueType: new AuraInt(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 4
+							value: "}"
 						)
 					),
 					Index: new StringLiteral(
 						String: new Tok(
 							typ: TokType.StringLiteral,
-							value: "Hello",
-							line: 4
+							value: "Hello"
 						)
 					),
 					ClosingBracket: new Tok(
 						typ: TokType.RightBracket,
-						value: "]",
-						line: 4
+						value: "]"
 					))
 			)
 		);
@@ -1041,103 +897,83 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Map,
-					value: "map",
-					line: 1
+					value: "map"
 				),
 				new(
 					typ: TokType.LeftBracket,
-					value: "[",
-					line: 1
+					value: "["
 				),
 				new(
 					typ: TokType.String,
-					value: "string",
-					line: 1
+					value: "string"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Int,
-					value: "int",
-					line: 1
+					value: "int"
 				),
 				new(
 					typ: TokType.RightBracket,
-					value: "]",
-					line: 1
+					value: "]"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.StringLiteral,
-					value: "Hello",
-					line: 2
+					value: "Hello"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 2
+					value: ":"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "1",
-					line: 2
+					value: "1"
 				),
 				new(
 					typ: TokType.Comma,
-					value: ",",
-					line: 2
+					value: ","
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 2
+					value: ";"
 				),
 				new(
 					typ: TokType.StringLiteral,
-					value: "World",
-					line: 3
+					value: "World"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 3
+					value: ":"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "2",
-					line: 3
+					value: "2"
 				),
 				new(
 					typ: TokType.Comma,
-					value: ",",
-					line: 3
+					value: ","
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 3
+					value: ";"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 4
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 4
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 4
+					value: "eof"
 				)
 			}
 		);
@@ -1147,8 +983,7 @@ public class ParserTest
 				Expression: new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 					Map: new Tok(
 						typ: TokType.Map,
-						value: "map",
-						line: 1
+						value: "map"
 					),
 					M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 					{
@@ -1156,15 +991,13 @@ public class ParserTest
 							new StringLiteral(
 								String: new Tok(
 									typ: TokType.StringLiteral,
-									value: "Hello",
-									line: 2
+									value: "Hello"
 								)
 							),
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
-									value: "1",
-									line: 2
+									value: "1"
 								)
 							)
 						},
@@ -1172,15 +1005,13 @@ public class ParserTest
 							new StringLiteral(
 								String: new Tok(
 									typ: TokType.StringLiteral,
-									value: "World",
-									line: 3
+									value: "World"
 								)
 							),
 							new IntLiteral(
 								Int: new Tok(
 									typ: TokType.IntLiteral,
-									value: "2",
-									line: 3
+									value: "2"
 								)
 							)
 						}
@@ -1189,8 +1020,7 @@ public class ParserTest
 					ValueType: new AuraInt(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 4
+						value: "}"
 					))
 			)
 		);
@@ -1204,18 +1034,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.True,
-					value: "true",
-					line: 1
+					value: "true"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				),
 			}
 		);
@@ -1225,8 +1052,7 @@ public class ParserTest
 				Expression: new BoolLiteral(
 					Bool: new Tok(
 						typ: TokType.True,
-						value: "true",
-						line: 1
+						value: "true"
 					))
 			)
 		);
@@ -1240,18 +1066,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Nil,
-					value: "nil",
-					line: 1
+					value: "nil"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1261,8 +1084,7 @@ public class ParserTest
 				Expression: new UntypedNil(
 					Nil: new Tok(
 						typ: TokType.Nil,
-						value: "nil",
-						line: 1
+						value: "nil"
 					))
 			)
 		);
@@ -1276,18 +1098,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.CharLiteral,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1297,8 +1116,7 @@ public class ParserTest
 				Expression: new CharLiteral(
 					Char: new Tok(
 						typ: TokType.CharLiteral,
-						value: "c",
-						line: 1
+						value: "c"
 					))
 			)
 		);
@@ -1312,28 +1130,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.True,
-					value: "true",
-					line: 1
+					value: "true"
 				),
 				new(
 					typ: TokType.Or,
-					value: "or",
-					line: 1
+					value: "or"
 				),
 				new(
 					typ: TokType.False,
-					value: "false",
-					line: 1
+					value: "false"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1344,20 +1157,17 @@ public class ParserTest
 					Left: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						)
 					),
 					Operator: new Tok(
 						typ: TokType.Or,
-						value: "or",
-						line: 1
+						value: "or"
 					),
 					Right: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.False,
-							value: "false",
-							line: 1
+							value: "false"
 						)))
 			)
 		);
@@ -1371,38 +1181,31 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "greeter",
-					line: 1
+					value: "greeter"
 				),
 				new(
 					typ: TokType.Dot,
-					value: ".",
-					line: 1
+					value: "."
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "name",
-					line: 1
+					value: "name"
 				),
 				new(
 					typ: TokType.Equal,
-					value: "=",
-					line: 1
+					value: "="
 				),
 				new(
 					typ: TokType.StringLiteral,
-					value: "Bob",
-					line: 1
+					value: "Bob"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1413,20 +1216,17 @@ public class ParserTest
 					Obj: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "greeter",
-							line: 1
+							value: "greeter"
 						)
 					),
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "name",
-						line: 1
+						value: "name"
 					),
 					Value: new StringLiteral(
 						String: new Tok(
 							typ: TokType.StringLiteral,
-							value: "Bob",
-							line: 1
+							value: "Bob"
 						)))
 			)
 		);
@@ -1440,18 +1240,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.This,
-					value: "this",
-					line: 1
+					value: "this"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1461,8 +1258,7 @@ public class ParserTest
 				Expression: new UntypedThis(
 					This: new Tok(
 						typ: TokType.This,
-						value: "this",
-						line: 1
+						value: "this"
 					))
 			)
 		);
@@ -1476,23 +1272,19 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Bang,
-					value: "!",
-					line: 1
+					value: "!"
 				),
 				new(
 					typ: TokType.True,
-					value: "true",
-					line: 1
+					value: "true"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1502,14 +1294,12 @@ public class ParserTest
 				Expression: new UntypedUnary(
 					Operator: new Tok(
 						typ: TokType.Bang,
-						value: "!",
-						line: 1
+						value: "!"
 					),
 					Right: new BoolLiteral(
 						Bool: new Tok(
 							typ: TokType.True,
-							value: "true",
-							line: 1
+							value: "true"
 						)))
 			)
 		);
@@ -1523,23 +1313,19 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Minus,
-					value: "-",
-					line: 1
+					value: "-"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1549,14 +1335,12 @@ public class ParserTest
 				Expression: new UntypedUnary(
 					Operator: new Tok(
 						typ: TokType.Minus,
-						value: "-",
-						line: 1
+						value: "-"
 					),
 					Right: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						)))
 			)
 		);
@@ -1570,18 +1354,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "variable",
-					line: 1
+					value: "variable"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1591,8 +1372,7 @@ public class ParserTest
 				Expression: new UntypedVariable(
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "variable",
-						line: 1
+						value: "variable"
 					))
 			)
 		);
@@ -1606,33 +1386,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Defer,
-					value: "defer",
-					line: 1
+					value: "defer"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1641,22 +1415,19 @@ public class ParserTest
 			expected: new UntypedDefer(
 				Defer: new Tok(
 					typ: TokType.Defer,
-					value: "defer",
-					line: 1
+					value: "defer"
 				),
 				Call: new UntypedCall(
 					Callee: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						)
 					),
 					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					))
 			)
 		);
@@ -1670,78 +1441,63 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.For,
-					value: "for",
-					line: 1
+					value: "for"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.ColonEqual,
-					value: ":=",
-					line: 1
+					value: ":="
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "0",
-					line: 1
+					value: "0"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.Less,
-					value: "<",
-					line: 1
+					value: "<"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "10",
-					line: 1
+					value: "10"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.PlusPlus,
-					value: "++",
-					line: 1
+					value: "++"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1750,8 +1506,7 @@ public class ParserTest
 			expected: new UntypedFor(
 				For: new Tok(
 					typ: TokType.For,
-					value: "for",
-					line: 1
+					value: "for"
 				),
 				Initializer: new UntypedLet(
 					Let: null,
@@ -1759,8 +1514,7 @@ public class ParserTest
 					{
 						new(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					},
 					NameTyps: new List<AuraType?>(),
@@ -1768,49 +1522,42 @@ public class ParserTest
 					Initializer: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "0",
-							line: 1
+							value: "0"
 						))
 				),
 				Condition: new UntypedBinary(
 					Left: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					),
 					Operator: new Tok(
 						typ: TokType.Less,
-						value: "<",
-						line: 1
+						value: "<"
 					),
 					Right: new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "10",
-							line: 1
+							value: "10"
 						))
 				),
 				Increment: new UntypedPlusPlusIncrement(
 					Name: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "i",
-							line: 1
+							value: "i"
 						)
 					),
 					PlusPlus: new Tok(
 						typ: TokType.PlusPlus,
-						value: "++",
-						line: 1
+						value: "++"
 					)
 				),
 				Body: new List<IUntypedAuraStatement> { },
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -1824,43 +1571,35 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.ForEach,
-					value: "foreach",
-					line: 1
+					value: "foreach"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.In,
-					value: "in",
-					line: 1
+					value: "in"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "iter",
-					line: 1
+					value: "iter"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1869,26 +1608,22 @@ public class ParserTest
 			expected: new UntypedForEach(
 				ForEach: new Tok(
 					typ: TokType.ForEach,
-					value: "foreach",
-					line: 1
+					value: "foreach"
 				),
 				EachName: new Tok(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				Iterable: new UntypedVariable(
 					Name: new Tok(
 						typ: TokType.Identifier,
-						value: "iter",
-						line: 1
+						value: "iter"
 					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -1902,53 +1637,43 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Arrow,
-					value: "->",
-					line: 1
+					value: "->"
 				),
 				new(
 					typ: TokType.Error,
-					value: "error",
-					line: 1
+					value: "error"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -1957,26 +1682,22 @@ public class ParserTest
 			expected: new UntypedNamedFunction(
 				Fn: new Tok(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				Params: new List<Param>(),
 				Body: new UntypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				),
 				ReturnType: new List<AuraType> { new AuraError() },
@@ -1993,68 +1714,55 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Int,
-					value: "int",
-					line: 1
+					value: "int"
 				),
 				new(
 					typ: TokType.Equal,
-					value: "=",
-					line: 1
+					value: "="
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "var",
-					line: 1
+					value: "var"
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			},
 			expected: typeof(ParameterDefaultValueMustBeALiteralException)
@@ -2069,43 +1777,35 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2114,26 +1814,22 @@ public class ParserTest
 			expected: new UntypedNamedFunction(
 				Fn: new Tok(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				Params: new List<Param>(),
 				Body: new UntypedBlock(
 					OpeningBrace: new Tok(
 						typ: TokType.LeftBrace,
-						value: "{",
-						line: 1
+						value: "{"
 					),
 					Statements: new List<IUntypedAuraStatement>(),
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
-						value: "}",
-						line: 1
+						value: "}"
 					)
 				),
 				ReturnType: null,
@@ -2150,38 +1846,31 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 1
+					value: "fn"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2191,21 +1880,18 @@ public class ParserTest
 				Expression: new UntypedAnonymousFunction(
 					Fn: new Tok(
 						typ: TokType.Fn,
-						value: "fn",
-						line: 1
+						value: "fn"
 					),
 					Params: new List<Param>(),
 					Body: new UntypedBlock(
 						OpeningBrace: new Tok(
 							typ: TokType.LeftBrace,
-							value: "{",
-							line: 1
+							value: "{"
 						),
 						Statements: new List<IUntypedAuraStatement>(),
 						ClosingBrace: new Tok(
 							typ: TokType.RightBrace,
-							value: "}",
-							line: 1
+							value: "}"
 						)
 					),
 					ReturnType: null
@@ -2222,43 +1908,35 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Let,
-					value: "let",
-					line: 1
+					value: "let"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Int,
-					value: "int",
-					line: 1
+					value: "int"
 				),
 				new(
 					typ: TokType.Equal,
-					value: "=",
-					line: 1
+					value: "="
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2267,15 +1945,13 @@ public class ParserTest
 			expected: new UntypedLet(
 				Let: new Tok(
 					typ: TokType.Let,
-					value: "let",
-					line: 1
+					value: "let"
 				),
 				Names: new List<Tok>
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "i",
-						line: 1
+						value: "i"
 					)
 				},
 				NameTyps: new List<AuraType?> { new AuraInt() },
@@ -2283,8 +1959,7 @@ public class ParserTest
 				Initializer: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -2298,28 +1973,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 1
+					value: "i"
 				),
 				new(
 					typ: TokType.ColonEqual,
-					value: ":=",
-					line: 1
+					value: ":="
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2331,8 +2001,7 @@ public class ParserTest
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "i",
-						line: 1
+						value: "i"
 					)
 				},
 				NameTyps: new List<AuraType?>(),
@@ -2340,8 +2009,7 @@ public class ParserTest
 				Initializer: new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -2355,23 +2023,19 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Mod,
-					value: "mod",
-					line: 1
+					value: "mod"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "main",
-					line: 1
+					value: "main"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2380,13 +2044,11 @@ public class ParserTest
 			expected: new UntypedMod(
 				Mod: new Tok(
 					typ: TokType.Mod,
-					value: "mod",
-					line: 1
+					value: "mod"
 				),
 				Value: new Tok(
 					typ: TokType.Identifier,
-					value: "main",
-					line: 1
+					value: "main"
 				)
 			)
 		);
@@ -2400,23 +2062,19 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Return,
-					value: "return",
-					line: 1
+					value: "return"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2425,16 +2083,14 @@ public class ParserTest
 			expected: new UntypedReturn(
 				Return: new Tok(
 					typ: TokType.Return,
-					value: "return",
-					line: 1
+					value: "return"
 				),
 				Value: new List<IUntypedAuraExpression>
 				{
 					new IntLiteral(
 						Int: new Tok(
 							typ: TokType.IntLiteral,
-							value: "5",
-							line: 1
+							value: "5"
 						)
 					)
 				}
@@ -2450,33 +2106,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2485,19 +2135,16 @@ public class ParserTest
 			expected: new UntypedInterface(
 				Interface: new Tok(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Methods: new List<AuraNamedFunction>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				Public: Visibility.Private
 			)
@@ -2512,58 +2159,47 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 2
+					value: "fn"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "say_hi",
-					line: 2
+					value: "say_hi"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 2
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 2
+					value: ")"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 2
+					value: ";"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 3
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 3
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 3
+					value: "eof"
 				)
 			}
 		);
@@ -2572,13 +2208,11 @@ public class ParserTest
 			expected: new UntypedInterface(
 				Interface: new Tok(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Methods: new List<AuraNamedFunction>
 				{
@@ -2594,8 +2228,7 @@ public class ParserTest
 				Public: Visibility.Private,
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 3
+					value: "}"
 				)
 			)
 		);
@@ -2609,83 +2242,67 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.Fn,
-					value: "fn",
-					line: 2
+					value: "fn"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "say_hi",
-					line: 2
+					value: "say_hi"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 2
+					value: "("
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "i",
-					line: 2
+					value: "i"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Int,
-					value: "int",
-					line: 1
+					value: "int"
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 2
+					value: ")"
 				),
 				new(
 					typ: TokType.Arrow,
-					value: "->",
-					line: 2
+					value: "->"
 				),
 				new(
 					typ: TokType.String,
-					value: "string",
-					line: 2
+					value: "string"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 2
+					value: ";"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 3
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 3
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 3
+					value: "eof"
 				)
 			}
 		);
@@ -2694,13 +2311,11 @@ public class ParserTest
 			expected: new UntypedInterface(
 				Interface: new Tok(
 					typ: TokType.Interface,
-					value: "interface",
-					line: 1
+					value: "interface"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Methods: new List<AuraNamedFunction>
 				{
@@ -2713,8 +2328,7 @@ public class ParserTest
 								new(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: "i",
-										line: 2
+										value: "i"
 									),
 									ParamType: new(
 										Typ: new AuraInt(),
@@ -2730,8 +2344,7 @@ public class ParserTest
 				Public: Visibility.Private,
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 3
+					value: "}"
 				)
 			)
 		);
@@ -2745,63 +2358,51 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "IClass",
-					line: 1
+					value: "IClass"
 				),
 				new(
 					typ: TokType.Comma,
-					value: ",",
-					line: 1
+					value: ","
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "IClass2",
-					line: 1
+					value: "IClass2"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2810,13 +2411,11 @@ public class ParserTest
 			expected: new UntypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				Params: new List<Param>(),
 				Body: new List<IUntypedAuraStatement>(),
@@ -2825,19 +2424,16 @@ public class ParserTest
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "IClass",
-						line: 1
+						value: "IClass"
 					),
 					new(
 						typ: TokType.Identifier,
-						value: "IClass2",
-						line: 1
+						value: "IClass2"
 					)
 				},
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2851,53 +2447,43 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "IClass",
-					line: 1
+					value: "IClass"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2906,13 +2492,11 @@ public class ParserTest
 			expected: new UntypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				Params: new List<Param>(),
 				Body: new List<IUntypedAuraStatement>(),
@@ -2921,14 +2505,12 @@ public class ParserTest
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "IClass",
-						line: 1
+						value: "IClass"
 					)
 				},
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -2942,43 +2524,35 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -2987,13 +2561,11 @@ public class ParserTest
 			expected: new UntypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "c",
-					line: 1
+					value: "c"
 				),
 				Params: new List<Param>(),
 				Body: new List<IUntypedAuraStatement>(),
@@ -3001,8 +2573,7 @@ public class ParserTest
 				Implementing: new List<Tok>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3016,33 +2587,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.While,
-					value: "while",
-					line: 1
+					value: "while"
 				),
 				new(
 					typ: TokType.True,
-					value: "true",
-					line: 1
+					value: "true"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3051,21 +2616,18 @@ public class ParserTest
 			expected: new UntypedWhile(
 				While: new Tok(
 					typ: TokType.While,
-					value: "while",
-					line: 1
+					value: "while"
 				),
 				Condition: new BoolLiteral(
 					Bool: new Tok(
 						typ: TokType.True,
-						value: "true",
-						line: 1
+						value: "true"
 					)
 				),
 				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3079,23 +2641,19 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Import,
-					value: "import",
-					line: 1
+					value: "import"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "external_pkg",
-					line: 1
+					value: "external_pkg"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3104,13 +2662,11 @@ public class ParserTest
 			expected: new UntypedImport(
 				Import: new Tok(
 					typ: TokType.Import,
-					value: "import",
-					line: 1
+					value: "import"
 				),
 				Package: new Tok(
 					typ: TokType.Identifier,
-					value: "external_pkg",
-					line: 1
+					value: "external_pkg"
 				),
 				Alias: null
 			)
@@ -3125,33 +2681,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Import,
-					value: "import",
-					line: 1
+					value: "import"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "external_pkg",
-					line: 1
+					value: "external_pkg"
 				),
 				new(
 					typ: TokType.As,
-					value: "as",
-					line: 1
+					value: "as"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "ep",
-					line: 1
+					value: "ep"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3160,18 +2710,15 @@ public class ParserTest
 			expected: new UntypedImport(
 				Import: new Tok(
 					typ: TokType.Import,
-					value: "import",
-					line: 1
+					value: "import"
 				),
 				Package: new Tok(
 					typ: TokType.Identifier,
-					value: "external_pkg",
-					line: 1
+					value: "external_pkg"
 				),
 				Alias: new Tok(
 					typ: TokType.Identifier,
-					value: "ep",
-					line: 1
+					value: "ep"
 				)
 			)
 		);
@@ -3185,18 +2732,15 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Comment,
-					value: "// this is a comment",
-					line: 1
+					value: "// this is a comment"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3205,8 +2749,7 @@ public class ParserTest
 			expected: new UntypedComment(
 				Text: new Tok(
 					typ: TokType.Comment,
-					value: "// this is a comment",
-					line: 1
+					value: "// this is a comment"
 				)
 			)
 		);
@@ -3220,23 +2763,19 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Yield,
-					value: "yield",
-					line: 1
+					value: "yield"
 				),
 				new(
 					typ: TokType.IntLiteral,
-					value: "5",
-					line: 1
+					value: "5"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3245,14 +2784,12 @@ public class ParserTest
 			expected: new UntypedYield(
 				Yield: new Tok(
 					typ: TokType.Yield,
-					value: "yield",
-					line: 1
+					value: "yield"
 				),
 				new IntLiteral(
 					Int: new Tok(
 						typ: TokType.IntLiteral,
-						value: "5",
-						line: 1
+						value: "5"
 					))
 			)
 		);
@@ -3266,53 +2803,43 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Colon,
-					value: ":",
-					line: 1
+					value: ":"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "IGreeter",
-					line: 1
+					value: "IGreeter"
 				),
 				new(
 					typ: TokType.LeftBrace,
-					value: "{",
-					line: 1
+					value: "{"
 				),
 				new(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3321,13 +2848,11 @@ public class ParserTest
 			expected: new UntypedClass(
 				Class: new Tok(
 					typ: TokType.Class,
-					value: "class",
-					line: 1
+					value: "class"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "Greeter",
-					line: 1
+					value: "Greeter"
 				),
 				Params: new List<Param>(),
 				Body: new List<IUntypedAuraStatement>(),
@@ -3336,14 +2861,12 @@ public class ParserTest
 				{
 					new(
 						typ: TokType.Identifier,
-						value: "IGreeter",
-						line: 1
+						value: "IGreeter"
 					)
 				},
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
-					value: "}",
-					line: 1
+					value: "}"
 				)
 			)
 		);
@@ -3357,28 +2880,23 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Identifier,
-					value: "v",
-					line: 1
+					value: "v"
 				),
 				new(
 					typ: TokType.Is,
-					value: "is",
-					line: 1
+					value: "is"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "IGreeter",
-					line: 1
+					value: "IGreeter"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3389,14 +2907,12 @@ public class ParserTest
 					Expr: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "v",
-							line: 1
+							value: "v"
 						)
 					),
 					Expected: new Tok(
 						typ: TokType.Identifier,
-						value: "IGreeter",
-						line: 1
+						value: "IGreeter"
 					))
 			)
 		);
@@ -3410,33 +2926,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Check,
-					value: "check",
-					line: 1
+					value: "check"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "f",
-					line: 1
+					value: "f"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3445,22 +2955,19 @@ public class ParserTest
 			expected: new UntypedCheck(
 				Check: new Tok(
 					typ: TokType.Check,
-					value: "check",
-					line: 1
+					value: "check"
 				),
 				Call: new UntypedCall(
 					Callee: new UntypedVariable(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: "f",
-							line: 1
+							value: "f"
 						)
 					),
 					Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
-						value: ")",
-						line: 1
+						value: ")"
 					))
 			)
 		);
@@ -3474,33 +2981,27 @@ public class ParserTest
 			{
 				new(
 					typ: TokType.Struct,
-					value: "struct",
-					line: 1
+					value: "struct"
 				),
 				new(
 					typ: TokType.Identifier,
-					value: "s",
-					line: 1
+					value: "s"
 				),
 				new(
 					typ: TokType.LeftParen,
-					value: "(",
-					line: 1
+					value: "("
 				),
 				new(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				),
 				new(
 					typ: TokType.Semicolon,
-					value: ";",
-					line: 1
+					value: ";"
 				),
 				new(
 					typ: TokType.Eof,
-					value: "eof",
-					line: 1
+					value: "eof"
 				)
 			}
 		);
@@ -3509,19 +3010,16 @@ public class ParserTest
 			expected: new UntypedStruct(
 				Struct: new Tok(
 					typ: TokType.Struct,
-					value: "struct",
-					line: 1
+					value: "struct"
 				),
 				Name: new Tok(
 					typ: TokType.Identifier,
-					value: "s",
-					line: 1
+					value: "s"
 				),
 				Params: new List<Param>(),
 				ClosingParen: new Tok(
 					typ: TokType.RightParen,
-					value: ")",
-					line: 1
+					value: ")"
 				)
 			)
 		);
@@ -3534,32 +3032,28 @@ public class ParserTest
 			index: 0,
 			item: new Tok(
 				typ: TokType.Newline,
-				value: "\n",
-				line: 1
+				value: "\n"
 			)
 		);
 		tokens.Insert(
 			index: 0,
 			item: new Tok(
 				typ: TokType.Semicolon,
-				value: ";",
-				line: 1
+				value: ";"
 			)
 		);
 		tokens.Insert(
 			index: 0,
 			item: new Tok(
 				typ: TokType.Identifier,
-				value: "main",
-				line: 1
+				value: "main"
 			)
 		);
 		tokens.Insert(
 			index: 0,
 			item: new Tok(
 				typ: TokType.Mod,
-				value: "mod",
-				line: 1
+				value: "mod"
 			)
 		);
 		var parser = new AuraParser(tokens, "Test");

@@ -350,8 +350,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 								return new Param(
 									Name: new Tok(
 										typ: TokType.Identifier,
-										value: i.ToString(),
-										line: f.Line
+										value: i.ToString()
 									),
 									ParamType: new(
 										Typ: typ,
@@ -387,8 +386,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					return new Param(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: i.ToString(),
-							line: f.Line
+							value: i.ToString()
 						),
 						ParamType: new(
 							Typ: typ,
@@ -417,8 +415,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					return new Param(
 						Name: new Tok(
 							typ: TokType.Identifier,
-							value: i.ToString(),
-							line: f.Line
+							value: i.ToString()
 						),
 						ParamType: new(
 							Typ: typ,
@@ -484,7 +481,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			throw new MustSpecifyInitialValueForNonDefaultableTypeException(nameTyp, let.Range);
 		var typedInit = let.Initializer is not null
 			? ExpressionAndConfirm(let.Initializer, nameTyp)
-			: defaultable!.Default(let.Line);
+			: defaultable!.Default(let.Range);
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
@@ -499,13 +496,13 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		// Package the let statement's variable names into an anonymous struct
 		var names = new AuraAnonymousStruct(
-			parameters: let.Names!.Select((name, i) =>
+			parameters: let.Names.Select((name, i) =>
 			{
 				return new Param(
 					Name: new Tok(
 						typ: TokType.Identifier,
 						value: i.ToString(),
-						line: let.Line
+						range: let.Range
 					),
 					ParamType: new(
 						Typ: let.NameTyps[i]!,
@@ -594,7 +591,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					throw new MustSpecifyInitialValueForNonDefaultableTypeException(nameTyp, let.Range);
 				var typedInit = let.Initializer is not null
 					? ExpressionAndConfirm(let.Initializer, nameTyp)
-					: defaultable!.Default(let.Line);
+					: defaultable!.Default(let.Range);
 
 				return new TypedLet(let.Let, let.Names, true, let.Mutable, typedInit);
 			},
@@ -627,7 +624,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							Name: new Tok(
 								typ: TokType.Identifier,
 								value: i.ToString(),
-								line: let.Line
+								range: let.Range
 							),
 							ParamType: new(
 								Typ: let.NameTyps[i]!,
@@ -766,7 +763,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						Struct: new Tok(
 							typ: TokType.Struct,
 							value: "struct",
-							line: r.Line
+							range: r.Range
 						),
 						Params: typedReturnValues.Select((v, i) =>
 						{
@@ -774,7 +771,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 								Name: new Tok(
 									typ: TokType.Identifier,
 									value: i.ToString(),
-									line: r.Line
+									range: r.Range
 								),
 								ParamType: new(
 									Typ: v.Typ,
@@ -787,7 +784,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
 							value: ")",
-							line: r.Line
+							range: r.Range
 						)
 					));
 			},
@@ -1158,7 +1155,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					if (funcDeclaration_.GetParams().Count > 0)
 					{
 						var endIndex = funcDeclaration_.GetParams().Count - 1;
-						typedArgs = TypeCheckArguments(call.Arguments.Select(pair => pair.Item2).ToList(), funcDeclaration_.GetParams().GetRange(1, endIndex), call.Line);
+						typedArgs = TypeCheckArguments(call.Arguments.Select(pair => pair.Item2).ToList(), funcDeclaration_.GetParams().GetRange(1, endIndex));
 					}
 
 					return new TypedCall(typedGet, typedArgs, call.ClosingParen, funcDeclaration_.GetReturnType());
@@ -1225,7 +1222,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							Name: new Tok(
 								typ: TokType.Identifier,
 								value: v.Name.Value,
-								line: get.Line
+								range: get.Range
 							),
 							Typ: n.ParseAsModule()
 						),
@@ -1244,18 +1241,15 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				Visit(new UntypedImport(
 					Import: new Tok(
 						typ: TokType.Import,
-						value: "import",
-						line: 1
+						value: "import"
 					),
 					Package: new Tok(
 						typ: TokType.Identifier,
-						value: "aura/strings",
-						line: 1
+						value: "aura/strings"
 					),
 					Alias: new Tok(
 						typ: TokType.Identifier,
-						value: "strings",
-						line: 1
+						value: "strings"
 					)
 				));
 			}
@@ -1264,18 +1258,15 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				Visit(new UntypedImport(
 					Import: new Tok(
 						typ: TokType.Import,
-						value: "import",
-						line: 1
+						value: "import"
 					),
 					Package: new Tok(
 						typ: TokType.Identifier,
-						value: "aura/lists",
-						line: 1
+						value: "aura/lists"
 					),
 					Alias: new Tok(
 						typ: TokType.Identifier,
-						value: "lists",
-						line: 1
+						value: "lists"
 					)
 				));
 			}
@@ -1284,18 +1275,15 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				Visit(new UntypedImport(
 					Import: new Tok(
 						typ: TokType.Import,
-						value: "import",
-						line: 1
+						value: "import"
 					),
 					Package: new Tok(
 						typ: TokType.Identifier,
-						value: "aura/errors",
-						line: 1
+						value: "aura/errors"
 					),
 					Alias: new Tok(
 						typ: TokType.Identifier,
-						value: "errors",
-						line: 1
+						value: "errors"
 					)
 				));
 			}
@@ -1304,18 +1292,15 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				Visit(new UntypedImport(
 					Import: new Tok(
 						typ: TokType.Import,
-						value: "import",
-						line: 1
+						value: "import"
 					),
 					Package: new Tok(
 						typ: TokType.Identifier,
-						value: "aura/results",
-						line: 1
+						value: "aura/results"
 					),
 					Alias: new Tok(
 						typ: TokType.Identifier,
-						value: "results",
-						line: 1
+						value: "results"
 					)
 				));
 			}
@@ -1584,7 +1569,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		}).ToList();
 	}
 
-	private List<ITypedAuraExpression> TypeCheckArguments(List<IUntypedAuraExpression> arguments, List<Param> parameters, int line)
+	private List<ITypedAuraExpression> TypeCheckArguments(List<IUntypedAuraExpression> arguments, List<Param> parameters)
 	{
 		var typedArgs = new List<ITypedAuraExpression>();
 		var paramTypes = parameters.Select(p => p.ParamType).ToList();
@@ -1615,7 +1600,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			.Select(pair => pair.Item2)
 			.ToList();
 
-		var typedArgs = TypeCheckArguments(orderedArgs, declaration.GetParams(), call.Line);
+		var typedArgs = TypeCheckArguments(orderedArgs, declaration.GetParams());
 
 		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType());
 	}

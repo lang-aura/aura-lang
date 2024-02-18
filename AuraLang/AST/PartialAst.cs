@@ -23,8 +23,6 @@ public record PartiallyTypedFunction(Tok Fn, Tok Name, List<Param> Params, Untyp
 		start: Public == Visibility.Public ? Fn.Range.Start with { Character = Fn.Range.Start.Character - 4 } : Fn.Range.Start,
 		end: Body.Range.End
 	);
-
-	public int Line => Fn.Line;
 }
 
 /// <summary>
@@ -43,6 +41,4 @@ public record PartiallyTypedClass(Tok Class, Tok Name, List<Param> Params, List<
 		start: Class.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-
-	public int Line => Class.Line;
 }

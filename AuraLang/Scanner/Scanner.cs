@@ -98,8 +98,7 @@ public class AuraScanner
 					character: _currentCharPos,
 					line: _line
 				)
-			),
-			line: _line));
+			)));
 		return _tokens;
 	}
 
@@ -163,7 +162,7 @@ public class AuraScanner
 			case '/':
 				if (!IsAtEnd() && Peek() == '/')
 				{
-					if (_tokens.Count > 0 && _tokens[^1].Line == _line)
+					if (_tokens.Count > 0 && _tokens[^1].Range.Start.Line == _line)
 						_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 
 					while (!IsAtEnd() && Peek() != '\n') Advance();
@@ -280,7 +279,7 @@ public class AuraScanner
 				line: _line
 			)
 		);
-		return new Tok(tokType, s, range, _line);
+		return new Tok(tokType, s, range);
 	}
 
 	/// <summary>
@@ -305,7 +304,7 @@ public class AuraScanner
 			)
 		);
 		_current = end + 1;
-		return new Tok(tokType, s, range, _line);
+		return new Tok(tokType, s, range);
 	}
 
 	/// <summary>
@@ -330,7 +329,7 @@ public class AuraScanner
 				line: _line
 			)
 		);
-		return new Tok(tokType, actual, range, _line);
+		return new Tok(tokType, actual, range);
 	}
 
 	private Tok CheckIdentifier(char c)
@@ -553,8 +552,7 @@ public class AuraScanner
 		return new Tok(
 			typ: TokType.Identifier,
 			value: tok,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -593,8 +591,7 @@ public class AuraScanner
 		return new Tok(
 			typ: TokType.StringLiteral,
 			value: s,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -643,8 +640,7 @@ public class AuraScanner
 		return new Tok(
 			typ: TokType.CharLiteral,
 			value: s,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -679,8 +675,7 @@ public class AuraScanner
 		return new Tok(
 			typ: ttype,
 			value: s,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
