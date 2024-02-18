@@ -15,7 +15,7 @@ public class ErrorReporter
 	public string Format()
 	{
 		return _errors
-			.Select(e => $"[{e.Range.Start.Line}] {e.Message}")
+			.Select(e => $"[{e.Range.Start.Line + 1}] {e.Message}")
 			.Aggregate("", (prev, curr) => prev + Sep + curr);
 	}
 
