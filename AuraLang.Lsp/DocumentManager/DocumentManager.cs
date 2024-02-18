@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using AuraLang.AST;
 using AuraLang.Exceptions;
-using AuraLang.Location;
 using AuraLang.Lsp.Document;
 using AuraLang.Lsp.HoverProvider;
 using AuraLang.Lsp.SynchronizedFileProvider;
@@ -10,7 +9,6 @@ using AuraLang.Scanner;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
-using Newtonsoft.Json;
 using Position = AuraLang.Location.Position;
 
 namespace AuraLang.Lsp.DocumentManager;

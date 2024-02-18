@@ -1,7 +1,5 @@
 ﻿using AuraLang.AST;
 using AuraLang.Location;
-using Microsoft.VisualBasic;
-using Newtonsoft.Json;
 
 namespace AuraLang.Lsp.HoverProvider;
 
