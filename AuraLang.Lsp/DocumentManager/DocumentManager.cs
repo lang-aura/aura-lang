@@ -1,17 +1,22 @@
 ﻿using System.Collections.Concurrent;
+using AuraLang.AST;
 using AuraLang.Exceptions;
 using AuraLang.Lsp.Document;
+using AuraLang.Lsp.HoverProvider;
 using AuraLang.Lsp.SynchronizedFileProvider;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
+using Microsoft.VisualStudio.LanguageServer.Protocol;
+using Position = AuraLang.Location.Position;
 
 namespace AuraLang.Lsp.DocumentManager;
 
 public class AuraDocumentManager
 {
 	private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, AuraLspDocument>> _documents = new();
+	private readonly AuraHoverProvider _hoverProvider = new();
 
 	public void UpdateDocument(string path, string contents)
 	{
@@ -74,6 +79,13 @@ public class AuraDocumentManager
 			return value.Select(item => (item.Key, item.Value.Contents)).ToList();
 		}
 		return new List<(string, string)>();
+	}
+
+	public ITypedAuraStatement FindStmtByPosition(TextDocumentPositionParams hoverParams)
+	{
+		var position = hoverParams.Position;
+		var fileContents = GetDocument(hoverParams.TextDocument.Uri.ToString());
+		return _hoverProvider.FindStmtByPosition(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
 	}
 
 	private (string, string) GetModuleAndFileNames(string path)

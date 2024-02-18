@@ -165,9 +165,11 @@ public class AuraLanguageServer : IDisposable
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentHoverName)]
-	public Hover HoverTextDocument(JToken jToken)
+	public Hover HoverProvider(JToken jToken)
 	{
-		Console.Error.WriteLine(jToken);
+		var @params = DeserializeJToken<TextDocumentPositionParams>(jToken);
+		var node = _documents.FindStmtByPosition(@params);
+		Console.Error.WriteLine($"node = {JsonConvert.SerializeObject(node)}");
 		return new Hover();
 	}
 

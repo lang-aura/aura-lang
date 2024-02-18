@@ -8,28 +8,28 @@ namespace AuraLang.Test.Scanner;
 
 public class ScannerTest
 {
-	private readonly Position startPosition = new(
+	private readonly Position _startPosition = new(
 		character: 0,
-		line: 1
+		line: 0
 	);
-	private readonly Range singleCharRange = new(
+	private readonly Range _singleCharRange = new(
 		start: new Position(
 			character: 0,
-			line: 1
+			line: 0
 		),
 		end: new Position(
 			character: 1,
-			line: 1
+			line: 0
 		)
 	);
-	private readonly Range doubleCharRange = new(
+	private readonly Range _doubleCharRange = new(
 		start: new Position(
 			character: 0,
-			line: 1
+			line: 0
 		),
 		end: new Position(
 			character: 2,
-			line: 1
+			line: 0
 		)
 	);
 
@@ -43,8 +43,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.LeftParen,
 				value: "(",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -59,8 +58,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.RightParen,
 				value: ")",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -75,8 +73,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.LeftBrace,
 				value: "{",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -91,8 +88,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.RightBrace,
 				value: "}",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -107,8 +103,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.LeftBracket,
 				value: "[",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -123,8 +118,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.RightBracket,
 				value: "]",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -139,8 +133,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Equal,
 				value: "=",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -155,8 +148,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.EqualEqual,
 				value: "==",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -171,8 +163,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Plus,
 				value: "+",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -187,8 +178,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.PlusPlus,
 				value: "++",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -203,8 +193,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.PlusEqual,
 				value: "+=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -219,8 +208,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Minus,
 				value: "-",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -235,8 +223,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.MinusMinus,
 				value: "--",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -251,8 +238,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.MinusEqual,
 				value: "-=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -267,8 +253,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Slash,
 				value: "/",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -283,8 +268,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.SlashEqual,
 				value: "/=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -300,16 +284,12 @@ public class ScannerTest
 				typ: TokType.Comment,
 				value: "// comment",
 				range: new Range(
-					start: new Position(
-						character: 0,
-						line: 1
-					),
+					start: _startPosition,
 					end: new Position(
 						character: 11,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -326,13 +306,12 @@ public class ScannerTest
 					typ: TokType.Comment,
 					value:"/* multi-line",
 					range: new Range(
-						start: startPosition,
+						start: _startPosition,
 						end: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.Semicolon,
@@ -340,14 +319,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 13,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.Comment,
@@ -355,14 +333,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 0,
-							line: 2
+							line: 1
 						),
 						end: new Position(
 							character: 10,
-							line: 2
+							line: 1
 						)
-					),
-					line: 2
+					)
 				)
 			}
 		);
@@ -378,8 +355,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Star,
 				value: "*",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -394,8 +370,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.StarEqual,
 				value: "*=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -410,8 +385,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Greater,
 				value: ">",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -426,8 +400,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.GreaterEqual,
 				value: ">=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -442,8 +415,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Less,
 				value: "<",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -458,8 +430,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.LessEqual,
 				value: "<=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -474,8 +445,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Bang,
 				value: "!",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -490,8 +460,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.BangEqual,
 				value: "!=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -507,13 +476,12 @@ public class ScannerTest
 				typ: TokType.StringLiteral,
 				value: "string literal",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 15,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -529,13 +497,12 @@ public class ScannerTest
 				typ: TokType.CharLiteral,
 				value: "a",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 3,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -550,8 +517,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Colon,
 				value: ":",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -566,8 +532,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.ColonEqual,
 				value: ":=",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -582,8 +547,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Semicolon,
 				value: ";",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -598,8 +562,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Dot,
 				value: ".",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -614,8 +577,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Comma,
 				value: ",",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -653,13 +615,12 @@ public class ScannerTest
 				typ: TokType.Yield,
 				value: "yield",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 5,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -674,8 +635,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Newline,
 				value: "\n",
-				range: singleCharRange,
-				line: 1
+				range: _singleCharRange
 			)
 		);
 	}
@@ -729,13 +689,12 @@ public class ScannerTest
 				typ: TokType.Interface,
 				value: "interface",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 9,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -753,13 +712,12 @@ public class ScannerTest
 					typ: TokType.Class,
 					value:"class",
 					range: new Range(
-						start: startPosition,
+						start: _startPosition,
 						end: new Position(
 							character: 5,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.Identifier,
@@ -767,14 +725,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 6,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 13,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.LeftParen,
@@ -782,14 +739,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 13,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.RightParen,
@@ -797,14 +753,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 15,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.Colon,
@@ -812,14 +767,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 16,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 17,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				),
 				new(
 					typ: TokType.Identifier,
@@ -827,14 +781,13 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 18,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 26,
-							line: 1
+							line: 0
 						)
-					),
-					line: 1
+					)
 				)
 			}
 		);
@@ -851,8 +804,7 @@ public class ScannerTest
 			expected: new Tok(
 				typ: TokType.Is,
 				value: "is",
-				range: doubleCharRange,
-				line: 1
+				range: _doubleCharRange
 			)
 		);
 	}
@@ -868,13 +820,12 @@ public class ScannerTest
 				typ: TokType.Error,
 				value: "error",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 5,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -890,13 +841,12 @@ public class ScannerTest
 				typ: TokType.Check,
 				value: "check",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 5,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -912,13 +862,12 @@ public class ScannerTest
 				typ: TokType.Struct,
 				value: "struct",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 6,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}
@@ -934,13 +883,12 @@ public class ScannerTest
 				typ: TokType.Result,
 				value: "result",
 				range: new Range(
-					start: startPosition,
+					start: _startPosition,
 					end: new Position(
 						character: 6,
-						line: 1
+						line: 0
 					)
-				),
-				line: 1
+				)
 			)
 		);
 	}

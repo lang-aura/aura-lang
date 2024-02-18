@@ -41,7 +41,7 @@ public class AuraScanner
 	private bool _isLineBlank;
 	private readonly List<Tok> _tokens;
 	private readonly ScannerExceptionContainer _exContainer;
-	private string FilePath { get; }
+	private string _filePath;
 
 	public AuraScanner(string source, string filePath)
 	{
@@ -50,10 +50,10 @@ public class AuraScanner
 		_startCharPos = 0;
 		_current = 0;
 		_currentCharPos = 0;
-		_line = 1;
+		_line = 0;
 		_isLineBlank = true;
 		_tokens = new List<Tok>();
-		FilePath = filePath;
+		_filePath = filePath;
 		_exContainer = new ScannerExceptionContainer(filePath);
 	}
 
@@ -98,8 +98,7 @@ public class AuraScanner
 					character: _currentCharPos,
 					line: _line
 				)
-			),
-			line: _line));
+			)));
 		return _tokens;
 	}
 
@@ -122,7 +121,7 @@ public class AuraScanner
 
 	private Tok ScanToken(char c)
 	{
-		// If the token begins with an alphabetical character, its either a keyword token or an indentifier
+		// If the token begins with an alphabetical character, its either a keyword token or an identifier
 		if (IsAlpha(c))
 		{
 			return CheckIdentifier(c);
@@ -163,7 +162,7 @@ public class AuraScanner
 			case '/':
 				if (!IsAtEnd() && Peek() == '/')
 				{
-					if (_tokens.Count > 0 && _tokens[^1].Line == _line)
+					if (_tokens.Count > 0 && _tokens[^1].Range.Start.Line == _line)
 						_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 
 					while (!IsAtEnd() && Peek() != '\n') Advance();
@@ -280,7 +279,7 @@ public class AuraScanner
 				line: _line
 			)
 		);
-		return new Tok(tokType, s, range, _line);
+		return new Tok(tokType, s, range);
 	}
 
 	/// <summary>
@@ -305,7 +304,7 @@ public class AuraScanner
 			)
 		);
 		_current = end + 1;
-		return new Tok(tokType, s, range, _line);
+		return new Tok(tokType, s, range);
 	}
 
 	/// <summary>
@@ -330,7 +329,7 @@ public class AuraScanner
 				line: _line
 			)
 		);
-		return new Tok(tokType, actual, range, _line);
+		return new Tok(tokType, actual, range);
 	}
 
 	private Tok CheckIdentifier(char c)
@@ -553,8 +552,7 @@ public class AuraScanner
 		return new Tok(
 			typ: TokType.Identifier,
 			value: tok,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -593,8 +591,7 @@ public class AuraScanner
 		return new Tok(
 			typ: TokType.StringLiteral,
 			value: s,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -643,8 +640,7 @@ public class AuraScanner
 		return new Tok(
 			typ: TokType.CharLiteral,
 			value: s,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -679,8 +675,7 @@ public class AuraScanner
 		return new Tok(
 			typ: ttype,
 			value: s,
-			range: range,
-			line: _line
+			range: range
 		);
 	}
 
@@ -694,7 +689,7 @@ public class AuraScanner
 	/// Checks if the supplied character is alphabetic
 	/// </summary>
 	/// <param name="c">The character that will be checked to see if its alphabetic</param>
-	/// <returns>A boolean indicating if the supplied characater is alphabetic</returns>
+	/// <returns>A boolean indicating if the supplied character is alphabetic</returns>
 	private bool IsAlpha(char c) => c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 
 	private bool IsWhitespace() => Peek() == ' ' || Peek() == '\n' || Peek() == '\t';

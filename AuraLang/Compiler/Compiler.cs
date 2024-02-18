@@ -66,7 +66,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			try
 			{
 				var s = Statement(node);
-				_goDocument.WriteStmt(s, node.Line, node);
+				_goDocument.WriteStmt(s, node.Range.Start.Line, node);
 			}
 			catch (CompilerException ex)
 			{
@@ -343,7 +343,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		foreach (var stmt in b.Statements)
 		{
 			var s = Statement(stmt);
-			compiledStmts.WriteString(s, stmt.Line, stmt);
+			compiledStmts.WriteString(s, stmt.Range.Start.Line, stmt);
 		}
 
 		return compiledStmts.String() == string.Empty ? "{}" : $"{{\n{compiledStmts.String()}\n}}";
@@ -396,18 +396,15 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 					i: new TypedImport(
 						Import: new Tok(
 							typ: TokType.Import,
-							value: "import",
-							line: 1
+							value: "import"
 						),
 						Package: new Tok(
 							typ: TokType.Identifier,
-							value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
-							line: 1
+							value: $"aura/{AuraTypeToString(get.Obj.Typ)}"
 						),
 						Alias: new Tok(
 							typ: TokType.Identifier,
-							value: AuraTypeToString(get.Obj.Typ),
-							line: 1
+							value: AuraTypeToString(get.Obj.Typ)
 						)
 					)
 				),
@@ -415,18 +412,15 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				typ: new TypedImport(
 					Import: new Tok(
 						typ: TokType.Import,
-						value: "import",
-						line: 1
+						value: "import"
 					),
 					Package: new Tok(
 						typ: TokType.Identifier,
-						value: $"aura/{AuraTypeToString(get.Obj.Typ)}",
-						line: 1
+						value: $"aura/{AuraTypeToString(get.Obj.Typ)}"
 					),
 					Alias: new Tok(
 						typ: TokType.Identifier,
-						value: AuraTypeToString(get.Obj.Typ),
-						line: 1
+						value: AuraTypeToString(get.Obj.Typ)
 					)
 				)
 			);
@@ -720,18 +714,15 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		var typedImport = new TypedImport(
 			Import: new Tok(
 				typ: TokType.Import,
-				value: "import",
-				line: 1
+				value: "import"
 			),
 			Package: new Tok(
 				typ: TokType.Identifier,
-				value: $"{ProjectName}/prelude",
-				line: 1
+				value: $"{ProjectName}/prelude"
 			),
 			Alias: new Tok(
 				typ: TokType.Identifier,
-				value: "prelude",
-				line: 1
+				value: "prelude"
 			)
 		);
 		var preludeImport = Visit(typedImport);
