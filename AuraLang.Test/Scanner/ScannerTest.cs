@@ -284,13 +284,10 @@ public class ScannerTest
 				typ: TokType.Comment,
 				value: "// comment",
 				range: new Range(
-					start: new Position(
-						character: 0,
-						line: 1
-					),
+					start: _startPosition,
 					end: new Position(
 						character: 11,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -312,7 +309,7 @@ public class ScannerTest
 						start: _startPosition,
 						end: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -322,11 +319,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 13,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -336,11 +333,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 0,
-							line: 2
+							line: 1
 						),
 						end: new Position(
 							character: 10,
-							line: 2
+							line: 1
 						)
 					)
 				)
@@ -482,7 +479,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 15,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -503,7 +500,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 3,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -695,7 +692,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 9,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -718,7 +715,7 @@ public class ScannerTest
 						start: _startPosition,
 						end: new Position(
 							character: 5,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -728,11 +725,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 6,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 13,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -742,11 +739,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 13,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -756,11 +753,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 14,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 15,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -770,11 +767,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 16,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 17,
-							line: 1
+							line: 0
 						)
 					)
 				),
@@ -784,11 +781,11 @@ public class ScannerTest
 					range: new Range(
 						start: new Position(
 							character: 18,
-							line: 1
+							line: 0
 						),
 						end: new Position(
 							character: 26,
-							line: 1
+							line: 0
 						)
 					)
 				)
@@ -826,7 +823,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 5,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -847,7 +844,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 5,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -868,7 +865,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 6,
-						line: 1
+						line: 0
 					)
 				)
 			)
@@ -889,7 +886,7 @@ public class ScannerTest
 					start: _startPosition,
 					end: new Position(
 						character: 6,
-						line: 1
+						line: 0
 					)
 				)
 			)
