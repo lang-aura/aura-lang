@@ -9,6 +9,7 @@ namespace AuraLang.AST;
 public interface ITypedAuraAstNode : IAuraAstNode
 {
 	AuraType Typ { get; }
+	string HoverText { get; }
 }
 
 public interface ITypedAuraExpression : ITypedAuraAstNode, ITypedAuraExprVisitable { }
@@ -34,6 +35,7 @@ public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ
 	);
 
 	public int Line => Name.Line;
+	public string HoverText => $"{Name} = {Value}";
 }
 
 /// <summary>
@@ -49,6 +51,7 @@ public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, Au
 	);
 
 	public int Line => Name.Line;
+	public string HoverText => $"{Name}++";
 }
 
 /// <summary>
@@ -64,6 +67,7 @@ public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus
 	);
 
 	public int Line => Name.Line;
+	public string HoverText => $"{Name}--";
 }
 
 /// <summary>
@@ -81,6 +85,7 @@ public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExp
 	);
 
 	public int Line => Left.Line;
+	public string HoverText => $"{Left} {Operator.Value} {Right}";
 }
 
 /// <summary>
@@ -96,6 +101,7 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 	);
 
 	public int Line => OpeningBrace.Line;
+	public string HoverText => "block";
 }
 
 /// <summary>
@@ -112,6 +118,7 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 	);
 
 	public int Line => Callee.Line;
+	public string HoverText => "typed call";
 }
 
 /// <summary>
@@ -129,6 +136,7 @@ public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ) : IType
 	);
 
 	public int Line => Obj.Line;
+	public string HoverText => "typed get";
 }
 
 /// <summary>
@@ -145,6 +153,7 @@ public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index
 	);
 
 	public int Line => Obj.Line;
+	public string HoverText => "typed get index";
 }
 
 /// <summary>
@@ -162,6 +171,7 @@ public record TypedGetIndexRange(ITypedAuraExpression Obj, ITypedAuraExpression 
 	);
 
 	public int Line => Obj.Line;
+	public string HoverText => "typed get index range";
 }
 
 /// <summary>
@@ -179,6 +189,7 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 	);
 
 	public int Line => If.Line;
+	public string HoverText => "typed if";
 }
 
 /// <summary>
@@ -196,6 +207,7 @@ public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraEx
 	);
 
 	public int Line => Left.Line;
+	public string HoverText => "typed logical";
 }
 
 /// <summary>
@@ -213,6 +225,7 @@ public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression 
 	);
 
 	public int Line => Obj.Line;
+	public string HoverText => "typed set";
 }
 
 /// <summary>
@@ -224,6 +237,7 @@ public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => This.Range;
 	public int Line => This.Line;
+	public string HoverText => "typed this";
 }
 
 /// <summary>
@@ -240,6 +254,7 @@ public record TypedUnary(Tok Operator, ITypedAuraExpression Right, AuraType Typ)
 	);
 
 	public int Line => Operator.Line;
+	public string HoverText => "typed unary";
 }
 
 /// <summary>
@@ -252,6 +267,7 @@ public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITyp
 	public string GetName() => Name.Value;
 	public Range Range => Name.Range;
 	public int Line => Name.Line;
+	public string HoverText => "typed variable";
 }
 
 /// <summary>
@@ -272,6 +288,7 @@ public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : IType
 	);
 
 	public int Line => Expr.Line;
+	public string HoverText => "typed is";
 }
 
 /// <summary>
@@ -287,6 +304,7 @@ public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok Clo
 	);
 
 	public int Line => OpeningParen.Line;
+	public string HoverText => "typed grouping";
 }
 
 /// <summary>
@@ -303,6 +321,7 @@ public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement
 	);
 
 	public int Line => Defer.Line;
+	public string HoverText => "typed defer";
 }
 
 /// <summary>
@@ -315,6 +334,7 @@ public record TypedExpressionStmt(ITypedAuraExpression Expression) : ITypedAuraS
 	public AuraType Typ => new AuraNone();
 	public Range Range => Expression.Range;
 	public int Line => Expression.Line;
+	public string HoverText => "typed expression stmt";
 }
 
 /// <summary>
@@ -334,6 +354,7 @@ public record TypedFor(Tok For, ITypedAuraStatement? Initializer, ITypedAuraExpr
 	);
 
 	public int Line => For.Line;
+	public string HoverText => "typed for";
 }
 
 /// <summary>
@@ -353,6 +374,7 @@ public record TypedForEach
 	);
 
 	public int Line => ForEach.Line;
+	public string HoverText => "typed for each";
 }
 
 /// <summary>
@@ -382,6 +404,7 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 	);
 
 	public int Line => Fn.Line;
+	public string HoverText => "typed fn";
 }
 
 /// <summary>
@@ -402,6 +425,7 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 	);
 
 	public int Line => Fn.Line;
+	public string HoverText => "typed anonymous fn";
 }
 
 /// <summary>
@@ -421,6 +445,7 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 	);
 
 	public int Line => Let is not null ? Let.Value.Line : Names.First().Line;
+	public string HoverText => "typed let";
 }
 
 /// <summary>
@@ -437,6 +462,7 @@ public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
 	);
 
 	public int Line => Mod.Line;
+	public string HoverText => "typed mod";
 }
 
 /// <summary>
@@ -453,6 +479,7 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 	);
 
 	public int Line => Return.Line;
+	public string HoverText => "typed return";
 }
 
 /// <summary>
@@ -474,6 +501,7 @@ public record TypedInterface
 	);
 
 	public int Line => Interface.Line;
+	public string HoverText => "typed interface";
 }
 
 public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
@@ -489,6 +517,7 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 	);
 
 	public int Line => Struct.Line;
+	public string HoverText => "typed struct";
 }
 
 public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen) : ITypedAuraExpression, ITypedFunction
@@ -506,6 +535,7 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 	);
 
 	public int Line => Struct.Line;
+	public string HoverText => "typed anonymous struct";
 }
 
 /// <summary>
@@ -529,6 +559,7 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 	);
 
 	public int Line => Class.Line;
+	public string HoverText => "typed class";
 }
 
 /// <summary>
@@ -546,6 +577,7 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 	);
 
 	public int Line => While.Line;
+	public string HoverText => "typed while";
 }
 
 /// <summary>
@@ -563,6 +595,7 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraState
 	);
 
 	public int Line => Import.Line;
+	public string HoverText => "typed import";
 }
 
 public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
@@ -575,6 +608,7 @@ public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok Cl
 	);
 
 	public int Line => Import.Line;
+	public string HoverText => "typed multiple import";
 }
 
 /// <summary>
@@ -587,6 +621,7 @@ public record TypedComment(Tok Text) : ITypedAuraStatement
 	public AuraType Typ => new AuraNone();
 	public Range Range => Text.Range;
 	public int Line => Text.Line;
+	public string HoverText => "typed comment";
 }
 
 /// <summary>
@@ -598,6 +633,7 @@ public record TypedContinue(Tok Continue) : ITypedAuraStatement
 	public AuraType Typ => new AuraNone();
 	public Range Range => Continue.Range;
 	public int Line => Continue.Line;
+	public string HoverText => "typed continue";
 }
 
 /// <summary>
@@ -609,6 +645,7 @@ public record TypedBreak(Tok Break) : ITypedAuraStatement
 	public AuraType Typ => new AuraNone();
 	public Range Range => Break.Range;
 	public int Line => Break.Line;
+	public string HoverText => "typed break";
 }
 
 /// <summary>
@@ -620,6 +657,7 @@ public record TypedNil(Tok Nil) : ITypedAuraExpression
 	public AuraType Typ => new AuraNil();
 	public Range Range => Nil.Range;
 	public int Line => Nil.Line;
+	public string HoverText => "typed nil";
 }
 
 /// <summary>
@@ -636,6 +674,7 @@ public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStat
 	);
 
 	public int Line => Yield.Line;
+	public string HoverText => "typed yield";
 }
 
 public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement
@@ -648,4 +687,5 @@ public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement
 	);
 
 	public int Line => Check.Line;
+	public string HoverText => "typed check";
 }

@@ -25,6 +25,7 @@ public record PartiallyTypedFunction(Tok Fn, Tok Name, List<Param> Params, Untyp
 	);
 
 	public int Line => Fn.Line;
+	public string HoverText => "partially typed function";
 }
 
 /// <summary>
@@ -45,4 +46,5 @@ public record PartiallyTypedClass(Tok Class, Tok Name, List<Param> Params, List<
 	);
 
 	public int Line => Class.Line;
+	public string HoverText => "partially typed class";
 }

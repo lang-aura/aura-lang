@@ -26,6 +26,7 @@ public record IntLiteral(Tok Int) : ILiteral<long>
 	public override string ToString() => $"{Value}";
 	public Range Range => Int.Range;
 	public int Line => Int.Line;
+	public string HoverText => "int literal";
 }
 
 /// <summary>
@@ -41,6 +42,7 @@ public record FloatLiteral(Tok Float) : ILiteral<double>
 	public override string ToString() => $"{Value}";
 	public Range Range => Float.Range;
 	public int Line => Float.Line;
+	public string HoverText => "float literal";
 }
 
 /// <summary>
@@ -56,6 +58,7 @@ public record StringLiteral(Tok String) : ILiteral<string>
 	public override string ToString() => $"{Value}";
 	public Range Range => String.Range;
 	public int Line => String.Line;
+	public string HoverText => "string literal";
 }
 
 /// <summary>
@@ -76,6 +79,7 @@ public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok C
 	);
 
 	public int Line => OpeningBracket.Line;
+	public string HoverText => "list literal";
 }
 
 /// <summary>
@@ -107,6 +111,7 @@ public record MapLiteral<TK, TV>(Tok Map, Dictionary<TK, TV> M, AuraType KeyType
 	);
 
 	public int Line => Map.Line;
+	public string HoverText => "map literal";
 }
 
 /// <summary>
@@ -122,6 +127,7 @@ public record BoolLiteral(Tok Bool) : ILiteral<bool>
 	public override string ToString() => $"{Value}";
 	public Range Range => Bool.Range;
 	public int Line => Bool.Line;
+	public string HoverText => "bool literal";
 }
 
 /// <summary>
@@ -137,4 +143,5 @@ public record CharLiteral(Tok Char) : ILiteral<char>
 	public override string ToString() => $"{Value}";
 	public Range Range => Char.Range;
 	public int Line => Char.Line;
+	public string HoverText => "char literal";
 }
