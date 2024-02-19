@@ -130,14 +130,14 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 /// </summary>
 /// <param name="Callee">The callee expressions</param>
 /// <param name="Arguments">The call's arguments</param>
-public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, AuraType Typ) : ITypedAuraExpression, IHoverable
+public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, ICallable FnTyp) : ITypedAuraExpression, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Callee.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => $"{Typ}";
+	public string HoverText => $"{FnTyp}";
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
@@ -145,6 +145,8 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 		hoverables.AddRange(Arguments.OfType<IHoverable>());
 		return hoverables;
 	}
+
+	public AuraType Typ => FnTyp.GetReturnType();
 }
 
 /// <summary>
