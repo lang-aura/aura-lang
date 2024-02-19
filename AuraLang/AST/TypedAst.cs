@@ -9,7 +9,6 @@ namespace AuraLang.AST;
 public interface ITypedAuraAstNode : IAuraAstNode
 {
 	AuraType Typ { get; }
-	string HoverText { get; }
 }
 
 public interface ITypedAuraExpression : ITypedAuraAstNode, ITypedAuraExprVisitable { }
@@ -21,47 +20,52 @@ public interface ITypedAuraCallable : ITypedAuraAstNode
 	string GetName();
 }
 
+public interface IHoverable : IAuraAstNode
+{
+	string HoverText { get; }
+}
+
 /// <summary>
 /// Represents a typed assignment expression.
 /// </summary>
 /// <param name="Name">The variable's name</param>
 /// <param name="Value">the variable's new value</param>
-public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ) : ITypedAuraExpression
+public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Name.Range.Start,
 		end: Value.Range.End
 	);
-	public string HoverText => $"{Name} = {Value}";
+	public string HoverText => $"let {Name}: {Value.Typ}";
 }
 
 /// <summary>
 /// Represents an increment operation where the value of the variable is incremented by 1.
 /// </summary>
 /// <param name="Name">The variable being incremented</param>
-public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, AuraType Typ) : ITypedAuraExpression
+public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Name.Range.Start,
 		end: PlusPlus.Range.End
 	);
-	public string HoverText => $"{Name}++";
+	public string HoverText => $"let {Name}: {Name.Typ}";
 }
 
 /// <summary>
 /// Represents a decrement operation where the value of the variable is decremented by 1.
 /// </summary>
 /// <param name="Name">The variable being decremented</param>
-public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus, AuraType Typ) : ITypedAuraExpression
+public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Name.Range.Start,
 		end: MinusMinus.Range.End
 	);
-	public string HoverText => $"{Name}--";
+	public string HoverText => $"let {Name}: {Name.Typ}";
 }
 
 /// <summary>
@@ -77,7 +81,6 @@ public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExp
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
-	public string HoverText => $"{Left} {Operator.Value} {Right}";
 }
 
 /// <summary>
@@ -91,7 +94,6 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 		start: OpeningBrace.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => "block";
 }
 
 /// <summary>
@@ -99,14 +101,14 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 /// </summary>
 /// <param name="Callee">The callee expressions</param>
 /// <param name="Arguments">The call's arguments</param>
-public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, AuraType Typ) : ITypedAuraExpression
+public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
 		start: Callee.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => "typed call";
+	public string HoverText => $"{Typ}";
 }
 
 /// <summary>
@@ -122,7 +124,6 @@ public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ) : IType
 		start: Obj.Range.Start,
 		end: Name.Range.End
 	);
-	public string HoverText => "typed get";
 }
 
 /// <summary>
@@ -137,7 +138,6 @@ public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
-	public string HoverText => "typed get index";
 }
 
 /// <summary>
@@ -153,7 +153,6 @@ public record TypedGetIndexRange(ITypedAuraExpression Obj, ITypedAuraExpression 
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
-	public string HoverText => "typed get index range";
 }
 
 /// <summary>
@@ -169,7 +168,6 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 		start: If.Range.Start,
 		end: Else is not null ? Else.Range.End : Then.Range.End
 	);
-	public string HoverText => "typed if";
 }
 
 /// <summary>
@@ -185,7 +183,6 @@ public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraEx
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
-	public string HoverText => "typed logical";
 }
 
 /// <summary>
@@ -201,18 +198,17 @@ public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression 
 		start: Obj.Range.Start,
 		end: Value.Range.End
 	);
-	public string HoverText => "typed set";
 }
 
 /// <summary>
 /// Represents a type-checked <c>this</c> token
 /// </summary>
 /// <param name="This">The <c>this</c> token</param>
-public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression
+public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => This.Range;
-	public string HoverText => "typed this";
+	public string HoverText => $"{Typ}";
 }
 
 /// <summary>
@@ -227,19 +223,18 @@ public record TypedUnary(Tok Operator, ITypedAuraExpression Right, AuraType Typ)
 		start: Operator.Range.Start,
 		end: Right.Range.End
 	);
-	public string HoverText => "typed unary";
 }
 
 /// <summary>
 /// Represents a type-checked variable
 /// </summary>
 /// <param name="Name">The variable's name</param>
-public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITypedAuraCallable
+public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public string GetName() => Name.Value;
 	public Range Range => Name.Range;
-	public string HoverText => "typed variable";
+	public string HoverText => $"{Typ}";
 }
 
 /// <summary>
@@ -258,7 +253,6 @@ public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : IType
 		start: Expr.Range.Start,
 		end: new Location.Position() // TODO add range to AuraInterface
 	);
-	public string HoverText => "typed is";
 }
 
 /// <summary>
@@ -272,14 +266,13 @@ public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok Clo
 		start: OpeningParen.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => "typed grouping";
 }
 
 /// <summary>
 /// Represents a type-checked <c>defer</c> statement
 /// </summary>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function's scope</param>
-public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement
+public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -287,7 +280,7 @@ public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement
 		start: Defer.Range.Start,
 		end: Call.Range.End
 	);
-	public string HoverText => "typed defer";
+	public string HoverText => "Used to defer execution of a single function call until just before exiting the enclosing scope";
 }
 
 /// <summary>
@@ -299,7 +292,6 @@ public record TypedExpressionStmt(ITypedAuraExpression Expression) : ITypedAuraS
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Expression.Range;
-	public string HoverText => "typed expression stmt";
 }
 
 /// <summary>
@@ -317,7 +309,6 @@ public record TypedFor(Tok For, ITypedAuraStatement? Initializer, ITypedAuraExpr
 		start: For.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => "typed for";
 }
 
 /// <summary>
@@ -335,7 +326,6 @@ public record TypedForEach
 		start: ForEach.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => "typed for each";
 }
 
 /// <summary>
@@ -346,7 +336,7 @@ public record TypedForEach
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
 public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
-	Visibility Public) : ITypedAuraStatement, ITypedFunction
+	Visibility Public) : ITypedAuraStatement, ITypedFunction, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType));
@@ -363,7 +353,7 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
-	public string HoverText => "typed fn";
+	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}fn {Name.Value}({string.Join(", ", Params)}){(ReturnType is not AuraNil ? $" -> {ReturnType}" : string.Empty)}";
 }
 
 /// <summary>
@@ -372,7 +362,7 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 /// <param name="Params">The anonymous function's parameters</param>
 /// <param name="Body">The anonymous function's body</param>
 /// <param name="ReturnType">The anonymous function's return type</param>
-public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body, AuraType ReturnType) : ITypedAuraExpression, ITypedFunction
+public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body, AuraType ReturnType) : ITypedAuraExpression, ITypedFunction, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraFunction(Params, ReturnType);
@@ -382,7 +372,7 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
-	public string HoverText => "typed anonymous fn";
+	public string HoverText => $"fn({string.Join(", ", Params)}){(ReturnType is not AuraNil ? $" -> {ReturnType}" : string.Empty)}";
 }
 
 /// <summary>
@@ -392,7 +382,7 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 /// <param name="TypeAnnotation">Indicates whether the variables were declared with a type annotation</param>
 /// <param name="Mutable">Indicates whether the variable was declared as mutable</param>
 /// <param name="Initializer">The initializer expression. This can be omitted.</param>
-public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer) : ITypedAuraStatement
+public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -400,7 +390,7 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 		start: Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
 		end: Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
 	);
-	public string HoverText => "typed let";
+	public string HoverText => $"let {string.Join(", ", Names.Select(n => n.Value))}";
 }
 
 /// <summary>
@@ -415,7 +405,6 @@ public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
 		start: Mod.Range.Start,
 		end: Value.Range.End
 	);
-	public string HoverText => "typed mod";
 }
 
 /// <summary>
@@ -430,7 +419,6 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 		start: Return.Range.Start,
 		end: Value is not null ? Value.Range.End : Return.Range.End
 	);
-	public string HoverText => "typed return";
 }
 
 /// <summary>
@@ -440,7 +428,7 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record TypedInterface
-	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace) : ITypedAuraStatement
+	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -450,10 +438,10 @@ public record TypedInterface
 			: Interface.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => "typed interface";
+	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}interface {Name.Value}\n\nMethods:\n\n{string.Join("\n\n", Methods)}";
 }
 
-public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
+public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -464,10 +452,10 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => "typed struct";
+	public string HoverText => $"struct {Name.Value} ({string.Join(", ", Params.Select(p => p.Name.Value))})";
 }
 
-public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen) : ITypedAuraExpression, ITypedFunction
+public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen) : ITypedAuraExpression, ITypedFunction, IHoverable
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraAnonymousStruct(
@@ -480,7 +468,7 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => "typed anonymous struct";
+	public string HoverText => $"struct ({string.Join(", ", Params.Select(p => p.Name.Value))})";
 }
 
 /// <summary>
@@ -491,7 +479,7 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<AuraInterface> Implementing,
-	Tok ClosingBrace) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable
+	Tok ClosingBrace) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -502,7 +490,7 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 		start: Class.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => "typed class";
+	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}class {Name.Value}({string.Join(", ", Params.Select(p => p.Name.Value))})\n\n{(Implementing.Count > 0 ? $"Implementing:\n\n{string.Join("\n\n", Implementing)}\n\n" : string.Empty)}Methods:\n\n{string.Join("\n\n", Methods)}";
 }
 
 /// <summary>
@@ -518,7 +506,6 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 		start: While.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => "typed while";
 }
 
 /// <summary>
@@ -534,7 +521,6 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraState
 		start: Import.Range.Start,
 		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
 	);
-	public string HoverText => "typed import";
 }
 
 public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
@@ -545,7 +531,6 @@ public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok Cl
 		start: Import.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => "typed multiple import";
 }
 
 /// <summary>
@@ -557,29 +542,28 @@ public record TypedComment(Tok Text) : ITypedAuraStatement
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Text.Range;
-	public string HoverText => "typed comment";
 }
 
 /// <summary>
 /// Represents a type-checked <c>continue</c> statement
 /// </summary>
-public record TypedContinue(Tok Continue) : ITypedAuraStatement
+public record TypedContinue(Tok Continue) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Continue.Range;
-	public string HoverText => "typed continue";
+	public string HoverText => "Immediately advances execution to the enclosing loop's next iteration";
 }
 
 /// <summary>
 /// Represents a type-checked <c>break</c> statement
 /// </summary>
-public record TypedBreak(Tok Break) : ITypedAuraStatement
+public record TypedBreak(Tok Break) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Break.Range;
-	public string HoverText => "typed break";
+	public string HoverText => "Immediately stops the enclosing loop's execution";
 }
 
 /// <summary>
@@ -590,14 +574,13 @@ public record TypedNil(Tok Nil) : ITypedAuraExpression
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNil();
 	public Range Range => Nil.Range;
-	public string HoverText => "typed nil";
 }
 
 /// <summary>
 /// Represents a type-checked <c>yield</c> statement
 /// </summary>
 /// <param name="Value">The value to be yielded from the enclosing expression</param>
-public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStatement
+public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -605,10 +588,10 @@ public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStat
 		start: Yield.Range.Start,
 		end: Value.Range.End
 	);
-	public string HoverText => "typed yield";
+	public string HoverText => "Used inside an `if` or block expression to return a value without returning the value from the enclosing function context";
 }
 
-public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement
+public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -616,5 +599,5 @@ public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement
 		start: Check.Range.Start,
 		end: Call.Range.End
 	);
-	public string HoverText => "typed check";
+	public string HoverText => "Used to simplify error handling on a function call whose return type is a `Result`. The enclosing function must also return a `Result`";
 }
