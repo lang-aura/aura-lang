@@ -2132,7 +2132,7 @@ public class TypeCheckerTest
 									typ: TokType.RightParen,
 									value: ")"
 								),
-								FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())))
+								FnTyp: new AuraNamedFunction("error", Visibility.Public, new AuraFunction(new List<Param>{ new(new Tok(TokType.Identifier, "message"), new ParamType(new AuraString(), false, null)) }, new AuraError())))
 						)
 					},
 					ClosingBrace: new Tok(
@@ -3745,7 +3745,7 @@ public class TypeCheckerTest
 						typ: TokType.RightParen,
 						value: ")"
 					),
-					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(
+					FnTyp: new AuraNamedFunction("c", Visibility.Public, new AuraFunction(
 						fParams: new List<Param>(),
 						returnType: new AuraResult(
 							success: new AuraString(),
