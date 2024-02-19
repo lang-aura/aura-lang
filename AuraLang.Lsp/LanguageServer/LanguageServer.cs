@@ -197,13 +197,13 @@ public class AuraLanguageServer : IDisposable
 			{
 				Start = new Position
 				{
-					Character = node.Range.Start.Character,
-					Line = node.Range.Start.Line
+					Character = node.HoverableRange.Start.Character,
+					Line = node.HoverableRange.Start.Line
 				},
 				End = new Position
 				{
-					Character = node.Range.End.Character,
-					Line = node.Range.End.Line
+					Character = node.HoverableRange.End.Character,
+					Line = node.HoverableRange.End.Line
 				}
 			}
 		};
