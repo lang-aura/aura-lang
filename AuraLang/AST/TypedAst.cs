@@ -722,7 +722,7 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 /// </summary>
 /// <param name="Package">The name of the package being imported</param>
 /// <param name="Alias">Will have a value if the package is being imported under an alias</param>
-public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraStatement
+public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -730,6 +730,10 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraState
 		start: Import.Range.Start,
 		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
 	);
+
+	public string HoverText => $"```{Package.Value}{(Alias is not null ? $" (as {Alias.Value.Value})" : string.Empty)}```";
+	public Range HoverableRange => new(start: Package.Range.Start, end: Alias is not null ? Alias.Value.Range.End : Package.Range.End);
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
