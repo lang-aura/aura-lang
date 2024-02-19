@@ -7,6 +7,6 @@ public class AuraHoverProvider
 {
 	public IHoverable FindStmtByPosition(Position position, IEnumerable<ITypedAuraStatement> typedAst)
 	{
-		return typedAst.SelectMany(stmt => stmt.ExtractHoverables()).First(stmt => stmt.Range.Contains(position));
+		return typedAst.SelectMany(stmt => stmt.ExtractHoverables()).First(stmt => stmt.HoverableRange.Contains(position));
 	}
 }
