@@ -33,4 +33,10 @@ public class AuraDiagnosticsPublisher
 		// Send 'textDocument/publishDiagnostics' notification to the client
 		await Rpc.NotifyWithParameterObjectAsync("textDocument/publishDiagnostics", publish);
 	}
+
+	public async Task ClearAsync(Uri uri)
+	{
+		var publish = new PublishDiagnosticParams { Uri = uri, Diagnostics = Array.Empty<Diagnostic>() };
+		await Rpc.NotifyWithParameterObjectAsync("textDocument/publishDiagnostics", publish);
+	}
 }
