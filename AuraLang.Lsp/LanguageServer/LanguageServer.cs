@@ -175,7 +175,7 @@ public class AuraLanguageServer : IDisposable
 			Contents = new MarkupContent
 			{
 				Value = node.HoverText,
-				Kind = MarkupKind.PlainText
+				Kind = MarkupKind.Markdown
 			},
 			Range = new Range
 			{
