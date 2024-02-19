@@ -25,6 +25,7 @@ public record IntLiteral(Tok Int) : ILiteral<long>
 	public long Value => int.Parse(Int.Value);
 	public override string ToString() => $"{Value}";
 	public Range Range => Int.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -39,6 +40,7 @@ public record FloatLiteral(Tok Float) : ILiteral<double>
 	public double Value => float.Parse(Float.Value, CultureInfo.InvariantCulture);
 	public override string ToString() => $"{Value}";
 	public Range Range => Float.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -53,6 +55,7 @@ public record StringLiteral(Tok String) : ILiteral<string>
 	public string Value => String.Value;
 	public override string ToString() => $"{Value}";
 	public Range Range => String.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -71,6 +74,7 @@ public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok C
 		start: OpeningBracket.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -100,6 +104,7 @@ public record MapLiteral<TK, TV>(Tok Map, Dictionary<TK, TV> M, AuraType KeyType
 		start: Map.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -114,6 +119,7 @@ public record BoolLiteral(Tok Bool) : ILiteral<bool>
 	public bool Value => bool.Parse(Bool.Value);
 	public override string ToString() => $"{Value}";
 	public Range Range => Bool.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -128,4 +134,5 @@ public record CharLiteral(Tok Char) : ILiteral<char>
 	public char Value => char.Parse(Char.Value);
 	public override string ToString() => $"{Value}";
 	public Range Range => Char.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }

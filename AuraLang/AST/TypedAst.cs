@@ -2,6 +2,7 @@
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
+using Newtonsoft.Json;
 using Range = AuraLang.Location.Range;
 
 namespace AuraLang.AST;
@@ -9,6 +10,7 @@ namespace AuraLang.AST;
 public interface ITypedAuraAstNode : IAuraAstNode
 {
 	AuraType Typ { get; }
+	IEnumerable<IHoverable> ExtractHoverables();
 }
 
 public interface ITypedAuraExpression : ITypedAuraAstNode, ITypedAuraExprVisitable { }
@@ -38,6 +40,12 @@ public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ
 		end: Value.Range.End
 	);
 	public string HoverText => $"let {Name}: {Value.Typ}";
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		hoverables.AddRange(Value.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -52,6 +60,7 @@ public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, Au
 		end: PlusPlus.Range.End
 	);
 	public string HoverText => $"let {Name}: {Name.Typ}";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -66,6 +75,7 @@ public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus
 		end: MinusMinus.Range.End
 	);
 	public string HoverText => $"let {Name}: {Name.Typ}";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -81,6 +91,14 @@ public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExp
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Left.ExtractHoverables());
+		hoverables.AddRange(Right.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -94,6 +112,17 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 		start: OpeningBrace.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		foreach (var stmt in Statements)
+		{
+			hoverables.AddRange(stmt.ExtractHoverables());
+		}
+
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -109,6 +138,13 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 		end: ClosingParen.Range.End
 	);
 	public string HoverText => $"{Typ}";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		hoverables.AddRange(Arguments.OfType<IHoverable>());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -124,6 +160,13 @@ public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ) : IType
 		start: Obj.Range.Start,
 		end: Name.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Obj.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -138,6 +181,14 @@ public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Obj.ExtractHoverables());
+		hoverables.AddRange(Index.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -153,6 +204,15 @@ public record TypedGetIndexRange(ITypedAuraExpression Obj, ITypedAuraExpression 
 		start: Obj.Range.Start,
 		end: ClosingBracket.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Obj.ExtractHoverables());
+		hoverables.AddRange(Lower.ExtractHoverables());
+		hoverables.AddRange(Upper.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -168,6 +228,15 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 		start: If.Range.Start,
 		end: Else is not null ? Else.Range.End : Then.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Condition.ExtractHoverables());
+		hoverables.AddRange(Then.Statements.OfType<IHoverable>());
+		if (Else is TypedBlock b) hoverables.AddRange(b.Statements.OfType<IHoverable>());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -183,6 +252,14 @@ public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraEx
 		start: Left.Range.Start,
 		end: Right.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Left.ExtractHoverables());
+		hoverables.AddRange(Right.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -198,6 +275,14 @@ public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression 
 		start: Obj.Range.Start,
 		end: Value.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Obj.ExtractHoverables());
+		hoverables.AddRange(Value.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -209,6 +294,7 @@ public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression, IHoverab
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => This.Range;
 	public string HoverText => $"{Typ}";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -223,6 +309,8 @@ public record TypedUnary(Tok Operator, ITypedAuraExpression Right, AuraType Typ)
 		start: Operator.Range.Start,
 		end: Right.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables() => Right.ExtractHoverables();
 }
 
 /// <summary>
@@ -235,6 +323,7 @@ public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITyp
 	public string GetName() => Name.Value;
 	public Range Range => Name.Range;
 	public string HoverText => $"{Typ}";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -253,6 +342,8 @@ public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : IType
 		start: Expr.Range.Start,
 		end: new Location.Position() // TODO add range to AuraInterface
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables() => Expr.ExtractHoverables();
 }
 
 /// <summary>
@@ -266,6 +357,13 @@ public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok Clo
 		start: OpeningParen.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Expr.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -281,6 +379,13 @@ public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement, IHove
 		end: Call.Range.End
 	);
 	public string HoverText => "Used to defer execution of a single function call until just before exiting the enclosing scope";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		hoverables.AddRange(Call.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -292,6 +397,7 @@ public record TypedExpressionStmt(ITypedAuraExpression Expression) : ITypedAuraS
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Expression.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => Expression.ExtractHoverables();
 }
 
 /// <summary>
@@ -309,6 +415,16 @@ public record TypedFor(Tok For, ITypedAuraStatement? Initializer, ITypedAuraExpr
 		start: For.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		if (Initializer is not null) hoverables.AddRange(Initializer.ExtractHoverables());
+		if (Condition is not null) hoverables.AddRange(Condition.ExtractHoverables());
+		if (Increment is not null) hoverables.AddRange(Increment.ExtractHoverables());
+		hoverables.AddRange(Body.OfType<IHoverable>());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -326,6 +442,14 @@ public record TypedForEach
 		start: ForEach.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Iterable.ExtractHoverables());
+		hoverables.AddRange(Body.OfType<IHoverable>());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -354,6 +478,14 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 		end: Body.Range.End
 	);
 	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}fn {Name.Value}({string.Join(", ", Params)}){(ReturnType is not AuraNil ? $" -> {ReturnType}" : string.Empty)}";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		Console.Error.WriteLine($"Body.ExtractHoverables = {JsonConvert.SerializeObject(Body.ExtractHoverables())}");
+		hoverables.AddRange(Body.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -373,6 +505,13 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 		end: Body.Range.End
 	);
 	public string HoverText => $"fn({string.Join(", ", Params)}){(ReturnType is not AuraNil ? $" -> {ReturnType}" : string.Empty)}";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		hoverables.AddRange(Body.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -391,6 +530,13 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 		end: Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
 	);
 	public string HoverText => $"let {string.Join(", ", Names.Select(n => n.Value))}";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		if (Initializer is not null) hoverables.AddRange(Initializer.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -405,6 +551,8 @@ public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
 		start: Mod.Range.Start,
 		end: Value.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -419,6 +567,13 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 		start: Return.Range.Start,
 		end: Value is not null ? Value.Range.End : Return.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		if (Value is not null) hoverables.AddRange(Value.ExtractHoverables());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -439,6 +594,11 @@ public record TypedInterface
 		end: ClosingBrace.Range.End
 	);
 	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}interface {Name.Value}\n\nMethods:\n\n{string.Join("\n\n", Methods)}";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		return new List<IHoverable> { this }; // TODO Add methods
+	}
 }
 
 public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
@@ -453,6 +613,11 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 		end: ClosingParen.Range.End
 	);
 	public string HoverText => $"struct {Name.Value} ({string.Join(", ", Params.Select(p => p.Name.Value))})";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		return new List<IHoverable> { this };
+	}
 }
 
 public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen) : ITypedAuraExpression, ITypedFunction, IHoverable
@@ -469,6 +634,11 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 		end: ClosingParen.Range.End
 	);
 	public string HoverText => $"struct ({string.Join(", ", Params.Select(p => p.Name.Value))})";
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		return new List<IHoverable> { this };
+	}
 }
 
 /// <summary>
@@ -491,6 +661,8 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 		end: ClosingBrace.Range.End
 	);
 	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}class {Name.Value}({string.Join(", ", Params.Select(p => p.Name.Value))})\n\n{(Implementing.Count > 0 ? $"Implementing:\n\n{string.Join("\n\n", Implementing)}\n\n" : string.Empty)}Methods:\n\n{string.Join("\n\n", Methods)}";
+
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -506,6 +678,14 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 		start: While.Range.Start,
 		end: ClosingBrace.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable>();
+		hoverables.AddRange(Condition.ExtractHoverables());
+		hoverables.AddRange(Body.OfType<IHoverable>());
+		return hoverables;
+	}
 }
 
 /// <summary>
@@ -521,6 +701,8 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraState
 		start: Import.Range.Start,
 		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
@@ -531,6 +713,8 @@ public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok Cl
 		start: Import.Range.Start,
 		end: ClosingParen.Range.End
 	);
+
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -542,6 +726,7 @@ public record TypedComment(Tok Text) : ITypedAuraStatement
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Text.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -553,6 +738,7 @@ public record TypedContinue(Tok Continue) : ITypedAuraStatement, IHoverable
 	public AuraType Typ => new AuraNone();
 	public Range Range => Continue.Range;
 	public string HoverText => "Immediately advances execution to the enclosing loop's next iteration";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -564,6 +750,7 @@ public record TypedBreak(Tok Break) : ITypedAuraStatement, IHoverable
 	public AuraType Typ => new AuraNone();
 	public Range Range => Break.Range;
 	public string HoverText => "Immediately stops the enclosing loop's execution";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
@@ -574,6 +761,7 @@ public record TypedNil(Tok Nil) : ITypedAuraExpression
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNil();
 	public Range Range => Nil.Range;
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -589,6 +777,7 @@ public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStat
 		end: Value.Range.End
 	);
 	public string HoverText => "Used inside an `if` or block expression to return a value without returning the value from the enclosing function context";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement, IHoverable
@@ -600,4 +789,5 @@ public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement, IHove
 		end: Call.Range.End
 	);
 	public string HoverText => "Used to simplify error handling on a function call whose return type is a `Result`. The enclosing function must also return a `Result`";
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
