@@ -110,7 +110,11 @@ public class AuraLanguageServer : IDisposable
 			{
 				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
 			}
+
+			return;
 		}
+
+		await DiagnosticsPublisher!.ClearAsync(@params.TextDocument.Uri);
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidChangeName)]
@@ -127,7 +131,11 @@ public class AuraLanguageServer : IDisposable
 			{
 				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
 			}
+
+			return;
 		}
+
+		await DiagnosticsPublisher!.ClearAsync(@params.TextDocument.Uri);
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentWillSaveName)]
@@ -148,12 +156,24 @@ public class AuraLanguageServer : IDisposable
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidSaveName)]
-	public void DidSaveTextDocument(JToken jToken)
+	public async Task DidSaveTextDocumentAsync(JToken jToken)
 	{
 		var @params = DeserializeJToken<DidSaveTextDocumentParams>(jToken);
-		_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.Text!);
-		Console.Error.WriteLine(
-			$"Received `didSave` notification for file '{@params.TextDocument.Uri.LocalPath}' with content {@params.Text!}");
+		try
+		{
+			_documents.UpdateDocument(@params.TextDocument.Uri.LocalPath, @params.Text!);
+		}
+		catch (AuraExceptionContainer e)
+		{
+			foreach (var ex in e.Exs)
+			{
+				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
+			}
+
+			return;
+		}
+
+		await DiagnosticsPublisher!.ClearAsync(@params.TextDocument.Uri);
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentDidCloseName)]
