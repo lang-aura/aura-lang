@@ -562,7 +562,7 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 /// Represents a type-checked module declaration
 /// </summary>
 /// <param name="Value">The module's name</param>
-public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
+public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -570,6 +570,10 @@ public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
 		start: Mod.Range.Start,
 		end: Value.Range.End
 	);
+
+	public string HoverText => $"```mod {Value.Value}```";
+	public Range HoverableRange => new(start: Mod.Range.Start, end: Value.Range.End);
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 }
 
 /// <summary>
