@@ -2,7 +2,6 @@
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
-using Newtonsoft.Json;
 using Range = AuraLang.Location.Range;
 
 namespace AuraLang.AST;
@@ -495,7 +494,6 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		Console.Error.WriteLine($"Body.ExtractHoverables = {JsonConvert.SerializeObject(Body.ExtractHoverables())}");
 		hoverables.AddRange(Body.ExtractHoverables());
 		return hoverables;
 	}

@@ -142,16 +142,12 @@ public class AuraLanguageServer : IDisposable
 	public void WillSaveTextDocument(JToken jToken)
 	{
 		var @params = DeserializeJToken<WillSaveTextDocumentParams>(jToken);
-		Console.Error.WriteLine(
-			$"Received `willSave` notification: {@params.TextDocument.Uri.LocalPath} with reason {@params.Reason}");
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentWillSaveWaitUntilName)]
 	public TextEdit[]? WillSaveWaitUntilTextDocument(JToken jToken)
 	{
 		var @params = DeserializeJToken<WillSaveTextDocumentParams>(jToken);
-		Console.Error.WriteLine(
-			$"Received `willSaveWaitUntil` notification: {@params.TextDocument.Uri.LocalPath} with reason {@params.Reason}");
 		return null;
 	}
 
@@ -182,7 +178,6 @@ public class AuraLanguageServer : IDisposable
 	{
 		var @params = DeserializeJToken<DidCloseTextDocumentParams>(jToken);
 		_documents.DeleteDocument(@params.TextDocument.Uri.LocalPath);
-		Console.Error.WriteLine($"Received `didClose` notification for file '{@params.TextDocument.Uri.LocalPath}'");
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentHoverName)]
@@ -190,6 +185,7 @@ public class AuraLanguageServer : IDisposable
 	{
 		var @params = DeserializeJToken<TextDocumentPositionParams>(jToken);
 		var node = _documents.FindStmtByPosition(@params);
+		if (node is null) return new Hover();
 		return new Hover
 		{
 			Contents = new MarkupContent

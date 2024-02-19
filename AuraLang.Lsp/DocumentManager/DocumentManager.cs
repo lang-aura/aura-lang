@@ -81,7 +81,7 @@ public class AuraDocumentManager
 		return new List<(string, string)>();
 	}
 
-	public IHoverable FindStmtByPosition(TextDocumentPositionParams hoverParams)
+	public IHoverable? FindStmtByPosition(TextDocumentPositionParams hoverParams)
 	{
 		var position = hoverParams.Position;
 		var fileContents = GetDocument(hoverParams.TextDocument.Uri.ToString());
