@@ -1517,7 +1517,7 @@ public class ParserTest
 							value: "i"
 						)
 					},
-					NameTyps: new List<AuraType?>(),
+					NameTyps: new List<AuraType>(),
 					Mutable: false,
 					Initializer: new IntLiteral(
 						Int: new Tok(
@@ -1554,7 +1554,7 @@ public class ParserTest
 						value: "++"
 					)
 				),
-				Body: new List<IUntypedAuraStatement> { },
+				Body: new List<IUntypedAuraStatement>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
@@ -1954,7 +1954,7 @@ public class ParserTest
 						value: "i"
 					)
 				},
-				NameTyps: new List<AuraType?> { new AuraInt() },
+				NameTyps: new List<AuraType> { new AuraInt() },
 				Mutable: false,
 				Initializer: new IntLiteral(
 					Int: new Tok(
@@ -2004,7 +2004,7 @@ public class ParserTest
 						value: "i"
 					)
 				},
-				NameTyps: new List<AuraType?>(),
+				NameTyps: new List<AuraType>(),
 				Mutable: false,
 				Initializer: new IntLiteral(
 					Int: new Tok(
