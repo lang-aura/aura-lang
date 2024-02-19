@@ -10,7 +10,7 @@ namespace AuraLang.AST;
 public interface ITypedAuraAstNode : IAuraAstNode
 {
 	AuraType Typ { get; }
-	IEnumerable<IHoverable> ExtractHoverables();
+	IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 public interface ITypedAuraExpression : ITypedAuraAstNode, ITypedAuraExprVisitable { }
@@ -553,8 +553,6 @@ public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement
 		start: Mod.Range.Start,
 		end: Value.Range.End
 	);
-
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -703,8 +701,6 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraState
 		start: Import.Range.Start,
 		end: Alias is not null ? Alias.Value.Range.End : Package.Range.End
 	);
-
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
@@ -715,8 +711,6 @@ public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok Cl
 		start: Import.Range.Start,
 		end: ClosingParen.Range.End
 	);
-
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -728,7 +722,6 @@ public record TypedComment(Tok Text) : ITypedAuraStatement
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
 	public Range Range => Text.Range;
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
@@ -763,7 +756,6 @@ public record TypedNil(Tok Nil) : ITypedAuraExpression
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNil();
 	public Range Range => Nil.Range;
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable>();
 }
 
 /// <summary>
