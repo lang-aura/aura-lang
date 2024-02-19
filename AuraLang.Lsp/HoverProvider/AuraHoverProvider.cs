@@ -11,7 +11,7 @@ public class AuraHoverProvider
 		{
 			return typedAst.SelectMany(stmt => stmt.ExtractHoverables()).First(stmt => stmt.HoverableRange.Contains(position));
 		}
-		catch (InvalidOperationException e)
+		catch (InvalidOperationException)
 		{
 			return null;
 		}

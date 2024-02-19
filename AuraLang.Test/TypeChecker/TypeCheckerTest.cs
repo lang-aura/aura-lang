@@ -136,7 +136,7 @@ public class TypeCheckerTest
 									value: "let"
 								),
 								Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i") },
-								NameTyps: new List<AuraType?>{ new AuraInt() },
+								NameTyps: new List<AuraType>{ new AuraInt() },
 								Mutable: false,
 								Initializer: new IntLiteral(
 									Int: new Tok(
@@ -1822,7 +1822,7 @@ public class TypeCheckerTest
 								value: "i"
 							)
 						},
-						NameTyps: new List<AuraType?>(),
+						NameTyps: new List<AuraType>(),
 						Mutable: false,
 						Initializer: new IntLiteral(
 							Int: new Tok(
@@ -2280,7 +2280,7 @@ public class TypeCheckerTest
 							value: "i"
 						)
 					},
-					NameTyps: new List<AuraType?>{ new AuraInt() },
+					NameTyps: new List<AuraType>{ new AuraInt() },
 					Mutable: false,
 					Initializer: new IntLiteral(
 						Int: new Tok(
@@ -2333,7 +2333,7 @@ public class TypeCheckerTest
 							value: "i"
 						)
 					},
-					NameTyps: new List<AuraType?>{ new AuraInt() },
+					NameTyps: new List<AuraType>{ new AuraInt() },
 					Mutable: false,
 					Initializer: null
 				)
@@ -2382,7 +2382,7 @@ public class TypeCheckerTest
 							value: "c"
 						)
 					},
-					NameTyps: new List<AuraType?>{ new AuraChar() },
+					NameTyps: new List<AuraType>{ new AuraChar() },
 					Mutable: false,
 					Initializer: null
 				)
@@ -2405,7 +2405,7 @@ public class TypeCheckerTest
 							value: "i"
 						)
 					},
-					NameTyps: new List<AuraType?>(),
+					NameTyps: new List<AuraType>(),
 					Mutable: false,
 					Initializer: new IntLiteral(
 						Int: new Tok(
