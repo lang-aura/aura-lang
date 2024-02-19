@@ -128,7 +128,15 @@ public class CompilerTest
 								new AuraNil()))),
 					new List<ITypedAuraExpression> { new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")) },
 					new Tok(TokType.RightParen, ")"),
-					new AuraNil()))
+					new AuraNamedFunction(
+						name: "Println",
+						pub: Visibility.Public,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(new Tok(TokType.Identifier, "s"), new ParamType(new AuraString(), false, null))
+							},
+							returnType: new AuraNil()))))
 		});
 		MakeAssertions(output, "io.Println(\"Hello world\")");
 	}
@@ -150,7 +158,12 @@ public class CompilerTest
 								new AuraNil()))),
 					new List<ITypedAuraExpression>(),
 					new Tok(TokType.RightParen, ")"),
-					new AuraNil()))
+					new AuraNamedFunction(
+						name: "f",
+						pub: Visibility.Private,
+						f: new AuraFunction(
+							new List<Param>(),
+							new AuraNil()))))
 		});
 		MakeAssertions(output, "f()");
 	}
@@ -177,7 +190,17 @@ public class CompilerTest
 								new AuraNil()))),
 					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5")) },
 					new Tok(TokType.RightParen, ")"),
-					new AuraNil()))
+					new AuraNamedFunction(
+						name: "f",
+						pub: Visibility.Private,
+						f: new AuraFunction(
+							fParams: new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(new AuraInt(), false, null))
+							},
+							returnType: new AuraNil()))))
 		});
 		MakeAssertions(output, "f(5)");
 	}
@@ -207,7 +230,20 @@ public class CompilerTest
 								new AuraNil()))),
 					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5")), new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")) },
 					new Tok(TokType.RightParen, ")"),
-					new AuraNil()))
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(new AuraInt(), false, null)),
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(new AuraString(), false, null))
+							},
+							new AuraNil()))))
 		});
 		MakeAssertions(output, "f(5, \"Hello world\")");
 	}
@@ -593,7 +629,12 @@ public class CompilerTest
 								new AuraNil()))),
 					new List<ITypedAuraExpression>(),
 					new Tok(TokType.RightParen, ")"),
-					new AuraNil()))
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>(),
+							new AuraNil()))))
 		});
 		MakeAssertions(output, "defer f()");
 	}
@@ -1054,7 +1095,7 @@ public class CompilerTest
 						)
 					),
 					Arguments: new List<ITypedAuraExpression>(),
-					Typ: new AuraError(),
+					FnTyp: new AuraNamedFunction("f", Visibility.Public, new AuraFunction(new List<Param>(), new AuraError())),
 					ClosingParen: new Tok(TokType.RightParen, ")"))
 			)
 		});

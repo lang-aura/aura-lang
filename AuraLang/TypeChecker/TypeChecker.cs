@@ -1158,7 +1158,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 						typedArgs = TypeCheckArguments(call.Arguments.Select(pair => pair.Item2).ToList(), funcDeclaration_.GetParams().GetRange(1, endIndex));
 					}
 
-					return new TypedCall(typedGet, typedArgs, call.ClosingParen, funcDeclaration_.GetReturnType());
+					return new TypedCall(typedGet, typedArgs, call.ClosingParen, funcDeclaration_);
 				}
 				if (typedGet.Obj.Typ is AuraModule m) namespace_ = m.Name;
 			}
@@ -1180,7 +1180,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
 			if (!funcDeclaration!.GetParams().Any())
 			{
-				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), call.ClosingParen, funcDeclaration!.GetReturnType());
+				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), call.ClosingParen, funcDeclaration!);
 			}
 			else
 			{
@@ -1195,7 +1195,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					else typedArgs.Insert(index, defaultValue);
 				}
 
-				return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, funcDeclaration!.GetReturnType());
+				return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, funcDeclaration);
 			}
 		}, call);
 	}
@@ -1602,7 +1602,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 		var typedArgs = TypeCheckArguments(orderedArgs, declaration.GetParams());
 
-		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType());
+		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration);
 	}
 
 	private TypedCall TypeCheckNamedParameters(UntypedCall call, ICallable declaration)
@@ -1640,7 +1640,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			else typedArgs.Insert(index, defaultValue);
 		}
 
-		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration.GetReturnType());
+		return new TypedCall(typedCallee!, typedArgs, call.ClosingParen, declaration);
 	}
 
 	private TU WithEnclosingStmt<TU, T>(Func<TU> f, T node, string symbolNamespace)

@@ -255,7 +255,7 @@ public class TypeCheckerTest
 							)
 						)
 					),
-					Typ: new AuraNil())
+					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())))
 			)
 		);
 	}
@@ -407,7 +407,33 @@ public class TypeCheckerTest
 						typ: TokType.RightParen,
 						value: ")"
 					),
-					Typ: new AuraNil())
+					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(
+						fParams: new List<Param>
+						{
+							new(
+								Name: new Tok(
+									typ: TokType.Identifier,
+									value: "i"
+								),
+								ParamType: new(
+									Typ: new AuraInt(),
+									Variadic: false,
+									DefaultValue: null
+								)
+							),
+							new(
+								Name: new Tok(
+									typ: TokType.Identifier,
+									value: "s"
+								),
+								ParamType: new(
+									Typ: new AuraString(),
+									Variadic: false,
+									DefaultValue: null
+								)
+							)
+						},
+						returnType: new AuraNil())))
 			)
 		);
 	}
@@ -557,7 +583,38 @@ public class TypeCheckerTest
 						typ: TokType.RightParen,
 						value: ")"
 					),
-					Typ: new AuraNil())
+					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(
+						fParams: new List<Param>
+						{
+							new(
+								Name: new Tok(
+									typ: TokType.Identifier,
+									value: "i"
+								),
+								ParamType: new(
+									Typ: new AuraInt(),
+									Variadic: false,
+									DefaultValue: new IntLiteral(
+										Int: new Tok(
+											typ: TokType.IntLiteral,
+											value: "10"
+										)
+									)
+								)
+							),
+							new(
+								Name: new Tok(
+									typ: TokType.Identifier,
+									value: "s"
+								),
+								ParamType: new(
+									Typ: new AuraString(),
+									Variadic: false,
+									DefaultValue: null
+								)
+							)
+						},
+						returnType: new AuraNil())))
 			)
 		);
 	}
@@ -1733,7 +1790,7 @@ public class TypeCheckerTest
 						typ: TokType.RightParen,
 						value: ")"
 					),
-					Typ: new AuraNil())
+					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())))
 			)
 		);
 	}
@@ -2075,7 +2132,7 @@ public class TypeCheckerTest
 									typ: TokType.RightParen,
 									value: ")"
 								),
-								Typ: new AuraError())
+								FnTyp: new AuraNamedFunction("error", Visibility.Public, new AuraFunction(new List<Param>{ new(new Tok(TokType.Identifier, "message"), new ParamType(new AuraString(), false, null)) }, new AuraError())))
 						)
 					},
 					ClosingBrace: new Tok(
@@ -3688,10 +3745,12 @@ public class TypeCheckerTest
 						typ: TokType.RightParen,
 						value: ")"
 					),
-					Typ: new AuraResult(
-						success: new AuraString(),
-						failure: new AuraError()
-					))
+					FnTyp: new AuraNamedFunction("c", Visibility.Public, new AuraFunction(
+						fParams: new List<Param>(),
+						returnType: new AuraResult(
+							success: new AuraString(),
+							failure: new AuraError()
+						))))
 			)
 		);
 	}
