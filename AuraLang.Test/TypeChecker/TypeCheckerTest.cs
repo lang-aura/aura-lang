@@ -359,7 +359,31 @@ public class TypeCheckerTest
 							name: "f",
 							pub: Visibility.Private,
 							f: new AuraFunction(
-								fParams: new List<Param>(),
+								fParams: new List<Param>
+								{
+									new(
+										Name: new Tok(
+											typ: TokType.Identifier,
+											value: "i"
+										),
+										ParamType: new(
+											Typ: new AuraInt(),
+											Variadic: false,
+											DefaultValue: null
+										)
+									),
+									new(
+										Name: new Tok(
+											typ: TokType.Identifier,
+											value: "s"
+										),
+										ParamType: new(
+											Typ: new AuraString(),
+											Variadic: false,
+											DefaultValue: null
+										)
+									)
+								},
 								returnType: new AuraNil()
 							)
 						)
@@ -480,7 +504,36 @@ public class TypeCheckerTest
 							name: "f",
 							pub: Visibility.Private,
 							f: new AuraFunction(
-								fParams: new List<Param>(),
+								fParams: new List<Param>
+								{
+									new(
+										Name: new Tok(
+											typ: TokType.Identifier,
+											value: "i"
+										),
+										ParamType: new(
+											Typ: new AuraInt(),
+											Variadic: false,
+											DefaultValue: new IntLiteral(
+												Int: new Tok(
+													typ: TokType.IntLiteral,
+													value: "10"
+												)
+											)
+										)
+									),
+									new(
+										Name: new Tok(
+											typ: TokType.Identifier,
+											value: "s"
+										),
+										ParamType: new(
+											Typ: new AuraString(),
+											Variadic: false,
+											DefaultValue: null
+										)
+									)
+								},
 								returnType: new AuraNil()
 							)
 						)
