@@ -704,7 +704,16 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 		}
 	}
 
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		foreach (var method in Methods)
+		{
+			hoverables.AddRange(method.ExtractHoverables());
+		}
+
+		return hoverables;
+	}
 
 	public Range HoverableRange => Name.Range;
 }
