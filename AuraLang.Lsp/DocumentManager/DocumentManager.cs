@@ -37,9 +37,8 @@ public class AuraDocumentManager
 			// Store file's new contents
 			var lspDoc = new AuraLspDocument(contents, typedAst);
 			var modDict = _documents.GetOrAdd(module, (_) => new ConcurrentDictionary<string, AuraLspDocument>());
-			modDict.AddOrUpdate(file, lspDoc, (k, v) => v);
-			_documents.AddOrUpdate(module, modDict, (k, dict) => dict);
-			_documents[module] = modDict;
+			modDict.AddOrUpdate(file, lspDoc, (_, _) => lspDoc);
+			_documents.AddOrUpdate(module, modDict, (_, _) => modDict);
 		}
 		catch (AuraExceptionContainer)
 		{
