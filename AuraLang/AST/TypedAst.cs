@@ -548,7 +548,17 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 		start: Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
 		end: Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
 	);
-	public string HoverText => $"let {string.Join(", ", Names.Select(n => n.Value))}";
+	public string HoverText
+	{
+		get
+		{
+			var names = string.Join(", ", Names.Select(n => n.Value));
+			var typ = Initializer is not null
+				? $": {Initializer.Typ.ToAuraString()}"
+				: string.Empty;
+			return $"let {names}{typ}";
+		}
+	}
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
