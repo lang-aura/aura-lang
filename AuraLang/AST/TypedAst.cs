@@ -614,7 +614,18 @@ public record TypedInterface
 			: Interface.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}interface {Name.Value}\n\nMethods:\n\n{string.Join("\n\n", Methods)}";
+
+	public string HoverText
+	{
+		get
+		{
+			var pub = Public == Visibility.Public ? "pub " : string.Empty;
+			var methods = Methods.Count > 0
+				? $"\n\nMethods:\n{string.Join("\n", Methods)}"
+				: string.Empty;
+			return $"{pub}interface {Name.Value}{methods}";
+		}
+	}
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
