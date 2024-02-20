@@ -138,7 +138,7 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 		start: Callee.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => $"{FnTyp}";
+	public string HoverText => $"{FnTyp.ToAuraString()}";
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
@@ -621,7 +621,7 @@ public record TypedInterface
 		{
 			var pub = Public == Visibility.Public ? "pub " : string.Empty;
 			var methods = Methods.Count > 0
-				? $"\n\nMethods:\n{string.Join("\n", Methods)}"
+				? $"\n\nMethods:\n{string.Join("\n", Methods.Select(m => m.ToAuraString()))}"
 				: string.Empty;
 			return $"{pub}interface {Name.Value}{methods}";
 		}

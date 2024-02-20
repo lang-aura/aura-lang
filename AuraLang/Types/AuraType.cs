@@ -13,6 +13,7 @@ public abstract class AuraType
 	public virtual bool IsInheritingType(AuraType other) => false;
 	public bool IsSameOrInheritingType(AuraType other) => IsSameType(other) || IsInheritingType(other);
 	public abstract override string ToString();
+	public virtual string ToAuraString() => ToString();
 
 	public override bool Equals(object? obj)
 	{
@@ -223,9 +224,22 @@ public class AuraNamedFunction : AuraType, ICallable
 		var name = Public == Visibility.Public
 			? Name.ToUpper()
 			: Name.ToLower();
-		var pt = string.Join(", ", F.Params
+		var @params = string.Join(", ", F.Params
 			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
-		return $"func {name}({pt}){(F.ReturnType is not AuraNil ? F.ReturnType : "")}";
+		return $"func {name}({@params}){(F.ReturnType is not AuraNil ? F.ReturnType : "")}";
+	}
+
+	public override string ToAuraString()
+	{
+		var pub = Public == Visibility.Public
+			? "pub "
+			: string.Empty;
+		var @params = string.Join(", ", F.Params
+			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+		var returnType = F.ReturnType is not AuraNil
+			? $" -> {F.ReturnType}"
+			: string.Empty;
+		return $"{pub}fn {Name}({@params}){returnType}";
 	}
 
 	public string ToStringInterface()
@@ -233,9 +247,9 @@ public class AuraNamedFunction : AuraType, ICallable
 		var name = Public == Visibility.Public
 			? Name.ToUpper()
 			: Name.ToLower();
-		var pt = string.Join(", ", F.Params
+		var @params = string.Join(", ", F.Params
 			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
-		return $"{name}({pt}) {(F.ReturnType.IsSameType(new AuraNil()) ? string.Empty : F.ReturnType)}";
+		return $"{name}({@params}) {(F.ReturnType.IsSameType(new AuraNil()) ? string.Empty : F.ReturnType)}";
 	}
 
 	public List<Param> GetParams() => F.Params;
@@ -267,9 +281,9 @@ public class AuraFunction : AuraType, ICallable
 
 	public override string ToString()
 	{
-		var pt = string.Join(", ", Params
+		var @params = string.Join(", ", Params
 			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
-		return $"func({pt}) {ReturnType}";
+		return $"func({@params}) {ReturnType}";
 	}
 
 	public List<Param> GetParams() => Params;
@@ -397,11 +411,11 @@ public class AuraClass : AuraType, IGettable, ICallable
 /// </summary>
 public class AuraModule : AuraType, IGettable
 {
-	public string Name { get; init; }
-	public List<AuraNamedFunction> PublicFunctions { get; init; }
-	public List<AuraInterface> PublicInterfaces { get; init; }
-	public List<AuraClass> PublicClasses { get; init; }
-	public Dictionary<string, ITypedAuraExpression> PublicVariables { get; init; }
+	public string Name { get; }
+	public List<AuraNamedFunction> PublicFunctions { get; }
+	public List<AuraInterface> PublicInterfaces { get; }
+	public List<AuraClass> PublicClasses { get; }
+	public Dictionary<string, ITypedAuraExpression> PublicVariables { get; }
 
 	public AuraModule(string name, List<AuraNamedFunction> publicFunctions, List<AuraInterface> publicInterfaces,
 		List<AuraClass> publicClasses, Dictionary<string, ITypedAuraExpression> publicVariables)
