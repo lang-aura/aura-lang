@@ -9,5 +9,6 @@ public interface ICallable
 	AuraType GetReturnType();
 	int GetParamIndex(string name);
 	bool HasVariadicParam();
+	string ToAuraString();
 }
 
