@@ -365,6 +365,13 @@ public class AuraClass : AuraType, IGettable, ICallable
 
 	public override string ToString() => "class";
 
+	public override string ToAuraString()
+	{
+		var pub = Public == Visibility.Public ? "pub " : string.Empty;
+		var @params = string.Join(", ", Parameters.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
+		return $"{pub}class {Name}({@params})";
+	}
+
 	/// <summary>
 	/// Fetches an attribute of the class matching the provided name
 	/// </summary>
@@ -562,7 +569,7 @@ public class AuraError : AuraType, IGettable, IImportableModule, INilable
 public class AuraStruct : AuraType, ICallable, IGettable
 {
 	public Visibility Public { get; }
-	public string Name { get; init; }
+	public string Name { get; }
 	public List<Param> Parameters { get; }
 
 	public AuraStruct(string name, List<Param> parameters, Visibility pub)
@@ -581,6 +588,12 @@ public class AuraStruct : AuraType, ICallable, IGettable
 	}
 
 	public override string ToString() => "struct";
+
+	public override string ToAuraString()
+	{
+		var @params = string.Join(", ", Parameters.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
+		return $"struct {Name}({@params})";
+	}
 
 	public List<Param> GetParams() => Parameters;
 
