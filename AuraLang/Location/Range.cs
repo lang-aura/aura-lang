@@ -29,7 +29,7 @@ public record Range
 	public bool Contains(Position position)
 	{
 		if (position.Line < Start.Line || position.Line > End.Line) return false;
-		if (position.Character < Start.Character || position.Line > End.Character) return false;
+		if (position.Character < Start.Character || position.Character >= End.Character) return false;
 		return true;
 	}
 
