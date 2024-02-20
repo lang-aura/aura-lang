@@ -494,6 +494,10 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
+		foreach (var param in Params)
+		{
+			hoverables.Add(param);
+		}
 		hoverables.AddRange(Body.ExtractHoverables());
 		return hoverables;
 	}
@@ -648,7 +652,16 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 	);
 	public string HoverText => $"struct {Name.Value} ({string.Join(", ", Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"))})";
 
-	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
+	public IEnumerable<IHoverable> ExtractHoverables()
+	{
+		var hoverables = new List<IHoverable> { this };
+		foreach (var param in Params)
+		{
+			hoverables.Add(param);
+		}
+
+		return hoverables;
+	}
 
 	public Range HoverableRange => Name.Range;
 }
@@ -715,6 +728,10 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
+		foreach (var param in Params)
+		{
+			hoverables.Add(param);
+		}
 		foreach (var method in Methods)
 		{
 			hoverables.AddRange(method.ExtractHoverables());
