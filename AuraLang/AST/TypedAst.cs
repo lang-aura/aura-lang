@@ -687,7 +687,22 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 		start: Class.Range.Start,
 		end: ClosingBrace.Range.End
 	);
-	public string HoverText => $"```{(Public == Visibility.Public ? "pub " : string.Empty)}class {Name.Value}({string.Join(", ", Params.Select(p => p.Name.Value))})\n\n{(Implementing.Count > 0 ? $"Implementing:\n\n{string.Join("\n\n", Implementing)}\n\n" : string.Empty)}Methods:\n\n{string.Join("\n\n", Methods)}```";
+	public string HoverText
+	{
+		get
+		{
+			var pub = Public == Visibility.Public ? "pub " : string.Empty;
+			var @params = string.Join(", ", Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ}"));
+			var implementing = Implementing.Count > 0
+				? $"\n\nImplementing:\n\n{string.Join("\n\n", Implementing)}\n\n"
+				: string.Empty;
+			var methods = Methods.Count > 0
+				? $"\n\nMethods:\n\n{string.Join("\n\n", Methods.Select(m => m.HoverText))}"
+				: string.Empty;
+			return
+				$"```{pub}class {Name.Value}({@params}){implementing}{methods}```";
+		}
+	}
 
 	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 
