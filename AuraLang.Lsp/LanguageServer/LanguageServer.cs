@@ -190,7 +190,7 @@ public class AuraLanguageServer : IDisposable
 		{
 			Contents = new MarkupContent
 			{
-				Value = node.HoverText,
+				Value = $"```\n{node.HoverText}\n```",
 				Kind = MarkupKind.Markdown
 			},
 			Range = new Range
