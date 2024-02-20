@@ -646,12 +646,9 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => $"struct {Name.Value} ({string.Join(", ", Params.Select(p => p.Name.Value))})";
+	public string HoverText => $"struct {Name.Value} ({string.Join(", ", Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"))})";
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() => new List<IHoverable> { this };
 
 	public Range HoverableRange => Name.Range;
 }
