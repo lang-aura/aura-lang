@@ -50,7 +50,10 @@ public class AuraLanguageServer : IDisposable
 						WillSave = true,
 						WillSaveWaitUntil = true
 					},
-				CompletionProvider = null,
+				CompletionProvider = new CompletionOptions
+				{
+					TriggerCharacters = new[] { "." }
+				},
 				HoverProvider = true,
 				SignatureHelpProvider = null,
 				DefinitionProvider = false,
@@ -207,6 +210,13 @@ public class AuraLanguageServer : IDisposable
 				}
 			}
 		};
+	}
+
+	[JsonRpcMethod(Methods.TextDocumentCompletionName)]
+	public CompletionList CompletionProvider(JToken jToken)
+	{
+		var @params = DeserializeJToken<CompletionParams>(jToken);
+		return _documents.GetCompletionItems(@params) ?? new CompletionList();
 	}
 
 	[JsonRpcMethod(Methods.ShutdownName)]

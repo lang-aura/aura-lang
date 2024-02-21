@@ -478,7 +478,7 @@ public class ScannerTest
 				range: new Range(
 					start: _startPosition,
 					end: new Position(
-						character: 15,
+						character: 16,
 						line: 0
 					)
 				)

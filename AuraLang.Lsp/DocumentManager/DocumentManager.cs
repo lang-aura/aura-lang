@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using AuraLang.AST;
 using AuraLang.Exceptions;
+using AuraLang.Lsp.CompletionProvider;
 using AuraLang.Lsp.Document;
 using AuraLang.Lsp.HoverProvider;
 using AuraLang.Lsp.SynchronizedFileProvider;
@@ -17,6 +18,7 @@ public class AuraDocumentManager
 {
 	private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, AuraLspDocument>> _documents = new();
 	private readonly AuraHoverProvider _hoverProvider = new();
+	private readonly AuraCompletionProvider _completionProvider = new();
 
 	public void UpdateDocument(string path, string contents)
 	{
@@ -85,6 +87,13 @@ public class AuraDocumentManager
 		var position = hoverParams.Position;
 		var fileContents = GetDocument(hoverParams.TextDocument.Uri.ToString());
 		return _hoverProvider.FindStmtByPosition(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
+	}
+
+	public CompletionList? GetCompletionItems(CompletionParams completionParams)
+	{
+		var position = completionParams.Position;
+		var fileContents = GetDocument(completionParams.TextDocument.Uri.ToString());
+		return _completionProvider.ComputeCompletionOptions(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
 	}
 
 	private (string, string) GetModuleAndFileNames(string path)
