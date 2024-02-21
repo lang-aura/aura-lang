@@ -574,6 +574,9 @@ public class AuraScanner
 				character: _currentCharPos,
 				line: _line)));
 
+		// Advance past the closing "
+		Advance();
+
 		var range = new Range(
 			start: new Position(
 				character: _startCharPos,
@@ -584,9 +587,6 @@ public class AuraScanner
 				line: _line
 			)
 		);
-
-		// Advance past the closing "
-		Advance();
 
 		return new Tok(
 			typ: TokType.StringLiteral,
