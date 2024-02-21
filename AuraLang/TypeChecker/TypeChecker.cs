@@ -20,7 +20,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private readonly IGlobalSymbolsTable _symbolsTable;
 	private readonly IEnclosingClassStore _enclosingClassStore;
 	private readonly IEnclosingFunctionDeclarationStore _enclosingFunctionDeclarationStore;
-	private readonly AuraStdlib _stdlib = new();
 	private readonly TypeCheckerExceptionContainer _exContainer;
 	private readonly EnclosingNodeStore<IUntypedAuraExpression> _enclosingExpressionStore;
 	private readonly EnclosingNodeStore<IUntypedAuraStatement> _enclosingStatementStore;
@@ -940,7 +939,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	public ITypedAuraStatement Visit(UntypedImport import)
 	{
 		// First, check if the module being imported is built-in
-		if (!_stdlib.TryGetModule(import.Package.Value, out var module))
+		if (!AuraStdlib.TryGetModule(import.Package.Value, out var module))
 		{
 			var typedAsts = new AuraModuleCompiler($"src/{import.Package.Value}", ProjectName, this).TypeCheckModule();
 

@@ -5,9 +5,9 @@ using AuraLang.Types;
 
 namespace AuraLang.Stdlib;
 
-public class AuraStdlib
+public static class AuraStdlib
 {
-	private readonly Dictionary<string, AuraModule> _modules = new()
+	private static readonly Dictionary<string, AuraModule> Modules = new()
 	{
 		{
 			"aura/io", new AuraModule(
@@ -979,7 +979,7 @@ public class AuraStdlib
 		}
 	};
 
-	public Dictionary<string, AuraModule> GetAllModules() => _modules;
+	public static Dictionary<string, AuraModule> GetAllModules() => Modules;
 
-	public bool TryGetModule(string name, out AuraModule? mod) => _modules.TryGetValue(name, out mod);
+	public static bool TryGetModule(string name, out AuraModule? mod) => Modules.TryGetValue(name, out mod);
 }

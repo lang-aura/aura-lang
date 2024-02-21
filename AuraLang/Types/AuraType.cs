@@ -125,7 +125,7 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 
 	public AuraType? Get(string attribute)
 	{
-		var stringMod = new AuraStdlib().GetAllModules()["aura/strings"];
+		var stringMod = AuraStdlib.GetAllModules()["aura/strings"];
 		return stringMod.PublicFunctions.First(f => f.Name == attribute);
 	}
 
@@ -134,7 +134,7 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 	public CompletionList ProvideCompletableOptions()
 	{
 		// Get "strings" module's methods
-		if (!new AuraStdlib().TryGetModule("aura/strings", out var stringsModule)) return new CompletionList();
+		if (!AuraStdlib.TryGetModule("aura/strings", out var stringsModule)) return new CompletionList();
 		var completionItems = stringsModule!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = "test documentation" });
 		return new CompletionList
 		{
@@ -204,7 +204,7 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 
 	public AuraType? Get(string attribute)
 	{
-		var listsMod = new AuraStdlib().GetAllModules()["aura/lists"];
+		var listsMod = AuraStdlib.GetAllModules()["aura/lists"];
 		return listsMod.PublicFunctions.First(f => f.Name == attribute);
 	}
 
@@ -495,7 +495,7 @@ public class AuraModule : AuraType, IGettable, ICompletable
 	{
 		Console.Error.WriteLine($"getting module's completable items: {Name}");
 		// Get stdlib module
-		if (!new AuraStdlib().TryGetModule("Name", out var module)) return new CompletionList();
+		if (!AuraStdlib.TryGetModule("Name", out var module)) return new CompletionList();
 		var completionItems = module!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = "test documentation" });
 		return new CompletionList { Items = completionItems.ToArray() };
 	}
@@ -589,7 +589,7 @@ public class AuraError : AuraType, IGettable, IImportableModule, INilable
 
 	public AuraType? Get(string attribute)
 	{
-		var errorMod = new AuraStdlib().GetAllModules()["aura/errors"];
+		var errorMod = AuraStdlib.GetAllModules()["aura/errors"];
 		return errorMod.PublicFunctions.First(f => f.Name == attribute);
 	}
 
@@ -685,7 +685,7 @@ public class AuraResult : AuraType, IGettable, IImportableModule
 
 	public AuraType? Get(string attribute)
 	{
-		var stringMod = new AuraStdlib().GetAllModules()["aura/results"];
+		var stringMod = AuraStdlib.GetAllModules()["aura/results"];
 		return stringMod.PublicFunctions.First(f => f.Name == attribute);
 	}
 
