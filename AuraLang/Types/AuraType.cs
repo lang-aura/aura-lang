@@ -135,7 +135,7 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 	{
 		// Get "strings" module's methods
 		if (!AuraStdlib.TryGetModule("aura/strings", out var stringsModule)) return new CompletionList();
-		var completionItems = stringsModule!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = new MarkupContent{Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown} });
+		var completionItems = stringsModule!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = new MarkupContent { Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown } });
 		return new CompletionList
 		{
 			Items = completionItems.ToArray()
@@ -339,7 +339,7 @@ public class AuraInterface : AuraType, IGettable, IDocumentable
 		Public = pub;
 		Documentation = string.Empty;
 	}
-	
+
 	public AuraInterface(string name, List<AuraNamedFunction> functions, Visibility pub, string documentation)
 	{
 		Name = name;
@@ -400,7 +400,7 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 		Public = pub;
 		Documentation = string.Empty;
 	}
-	
+
 	public AuraClass(string name, List<Param> parameters, List<AuraNamedFunction> methods, List<AuraInterface> implementing,
 		Visibility pub, string documentation)
 	{
@@ -653,7 +653,7 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumen
 		Parameters = parameters;
 		Documentation = string.Empty;
 	}
-	
+
 	public AuraStruct(string name, List<Param> parameters, Visibility pub, string documentation)
 	{
 		Public = pub;
