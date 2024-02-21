@@ -451,7 +451,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			if (!returnType.IsSameOrInheritingType(typedBody.Typ)) throw new TypeMismatchException(returnType, typedBody.Typ, f.Range);
 		}
 
-		return new TypedNamedFunction(f.Fn, f.Name, typedParams, typedBody, returnType, f.Public);
+		return new TypedNamedFunction(f.Fn, f.Name, typedParams, typedBody, returnType, f.Public, f.Documentation);
 	}
 
 	private void AddLetStmtToSymbolsTable(UntypedLet let)
@@ -901,7 +901,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 				_enclosingClassStore.Pop();
 				return new FullyTypedClass(@class.Class, @class.Name, typedParams.ToList(), typedMethods, @class.Public,
-					implements.ToList(), @class.ClosingBrace);
+					implements.ToList(), @class.ClosingBrace, @class.Documentation);
 			},
 			node: @class,
 			symbolNamespace: ModuleName!
@@ -1039,7 +1039,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// </summary>
 	/// <param name="i">The interface declaration to type check</param>
 	/// <returns>A valid, type checked interface</returns>
-	public ITypedAuraStatement Visit(UntypedInterface i) => new TypedInterface(i.Interface, i.Name, i.Methods, i.Public, i.ClosingBrace);
+	public ITypedAuraStatement Visit(UntypedInterface i) => new TypedInterface(i.Interface, i.Name, i.Methods, i.Public, i.ClosingBrace, i.Documentation);
 
 	/// <summary>
 	/// Type checks an assignment expression
@@ -1690,7 +1690,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 				});
 
-				return new TypedStruct(@struct.Struct, @struct.Name, typedParams.ToList(), @struct.ClosingParen);
+				return new TypedStruct(@struct.Struct, @struct.Name, typedParams.ToList(), @struct.ClosingParen, @struct.Documentation);
 			},
 			node: @struct,
 			symbolNamespace: ModuleName!

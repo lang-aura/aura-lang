@@ -2063,7 +2063,8 @@ public class TypeCheckerTest
 						)
 					),
 					ReturnType: new List<AuraType>{ new AuraError() },
-					Public: Visibility.Public
+					Public: Visibility.Public,
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -2142,7 +2143,8 @@ public class TypeCheckerTest
 					Typ: new AuraError()
 				),
 				ReturnType: new AuraError(),
-				Public: Visibility.Public
+				Public: Visibility.Public,
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -2175,7 +2177,8 @@ public class TypeCheckerTest
 						)
 					),
 					ReturnType: null,
-					Public: Visibility.Public
+					Public: Visibility.Public,
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -2203,7 +2206,8 @@ public class TypeCheckerTest
 					Typ: new AuraNil()
 				),
 				ReturnType: new AuraNil(),
-				Public: Visibility.Public
+				Public: Visibility.Public,
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -2522,7 +2526,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -2541,7 +2546,8 @@ public class TypeCheckerTest
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -2858,7 +2864,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -2878,7 +2885,8 @@ public class TypeCheckerTest
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -2923,7 +2931,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -2966,7 +2975,8 @@ public class TypeCheckerTest
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -3024,7 +3034,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -3055,7 +3066,8 @@ public class TypeCheckerTest
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -3122,7 +3134,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			},
 			expected: typeof(MissingInterfaceMethodException)
@@ -3233,7 +3246,8 @@ public class TypeCheckerTest
 								)
 							),
 							ReturnType: new List<AuraType>{ new AuraInt() },
-							Public: Visibility.Private
+							Public: Visibility.Private,
+							Documentation: string.Empty
 						)
 					},
 					Public: Visibility.Private,
@@ -3247,7 +3261,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			},
 			expected: typeof(MissingInterfaceMethodException)
@@ -3358,7 +3373,8 @@ public class TypeCheckerTest
 								)
 							),
 							ReturnType: new List<AuraType>{ new AuraInt() },
-							Public: Visibility.Public
+							Public: Visibility.Public,
+							Documentation: string.Empty
 						)
 					},
 					Public: Visibility.Private,
@@ -3372,7 +3388,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -3440,7 +3457,8 @@ public class TypeCheckerTest
 							Typ: new AuraInt()
 						),
 						ReturnType: new AuraInt(),
-						Public: Visibility.Public
+						Public: Visibility.Public,
+						Documentation: string.Empty
 					)
 				},
 				Public: Visibility.Private,
@@ -3478,7 +3496,8 @@ public class TypeCheckerTest
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -3522,7 +3541,8 @@ public class TypeCheckerTest
 					ClosingBrace: new Tok(
 						typ: TokType.RightBrace,
 						value: "}"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -3551,7 +3571,8 @@ public class TypeCheckerTest
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}
@@ -3672,7 +3693,8 @@ public class TypeCheckerTest
 						failure: new AuraError()
 					)
 				},
-				Public: Visibility.Public
+				Public: Visibility.Public,
+				Documentation: string.Empty
 			)
 		);
 		_symbolsTable.Setup(st => st.GetSymbol("c", It.IsAny<string>())).Returns(
@@ -3774,7 +3796,8 @@ public class TypeCheckerTest
 					ClosingParen: new Tok(
 						typ: TokType.RightParen,
 						value: ")"
-					)
+					),
+					Documentation: string.Empty
 				)
 			}
 		);
@@ -3793,7 +3816,8 @@ public class TypeCheckerTest
 				ClosingParen: new Tok(
 					typ: TokType.RightParen,
 					value: ")"
-				)
+				),
+				Documentation: string.Empty
 			)
 		);
 	}

@@ -472,10 +472,10 @@ public record TypedForEach
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
 public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
-	Visibility Public) : ITypedAuraStatement, ITypedFunction, IHoverable
+	Visibility Public, string Documentation) : ITypedAuraStatement, ITypedFunction, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
-	public AuraType Typ => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType));
+	public AuraType Typ => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType), Documentation);
 	public List<Param> GetParams() => Params;
 	public List<ParamType> GetParamTypes() => Params.Select(param => param.ParamType).ToList();
 	/// <summary>
@@ -618,7 +618,7 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record TypedInterface
-	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace) : ITypedAuraStatement, IHoverable
+	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, string Documentation) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -649,7 +649,7 @@ public record TypedInterface
 	public Range HoverableRange => Name.Range;
 }
 
-public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
+public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string Documentation) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -707,7 +707,7 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<AuraInterface> Implementing,
-	Tok ClosingBrace) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
+	Tok ClosingBrace, string Documentation) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
