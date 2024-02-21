@@ -224,7 +224,9 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable
 	{
 		get
 		{
+			Console.Error.WriteLine("getting function documentation");
 			if (_documentation is null) return string.Empty;
+			Console.Error.WriteLine("documentation was not null");
 			return $"{ToAuraString()}\n\n{_documentation}";
 		}
 	}

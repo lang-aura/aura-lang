@@ -754,7 +754,8 @@ public class CompilerTest
 				new List<Param>(),
 				new TypedBlock(new Tok(TokType.LeftBrace, "{"), new List<ITypedAuraStatement>(), new Tok(TokType.RightBrace, "}"), new AuraNil()),
 				new AuraNil(),
-				Visibility.Private)
+				Visibility.Private,
+				string.Empty)
 		});
 		MakeAssertions(output, "func f() {}");
 	}
@@ -846,7 +847,8 @@ public class CompilerTest
 					new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private),
 					new("IGreeter2", new List<AuraNamedFunction>(), Visibility.Private)
 				},
-				new Tok(TokType.RightBrace, "}"))
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
 		// for classes that implement an interface
@@ -865,7 +867,8 @@ public class CompilerTest
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
 				new List<AuraInterface> { new("IGreeter", new List<AuraNamedFunction>(), Visibility.Private) },
-				new Tok(TokType.RightBrace, "}"))
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty)
 		});
 		// Since classes implicitly implement interfaces in Go, the compiler doesn't need any special handling
 		// for classes that implement an interface
@@ -884,7 +887,8 @@ public class CompilerTest
 				new List<TypedNamedFunction>(),
 				Visibility.Public,
 				new List<AuraInterface>(),
-				new Tok(TokType.RightBrace, "}"))
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty)
 		});
 		MakeAssertions(output, "type GREETER struct {}");
 	}
@@ -1004,7 +1008,8 @@ public class CompilerTest
 				new Tok(TokType.Identifier, "IGreeter"),
 				new List<AuraNamedFunction>(),
 				Visibility.Public,
-				new Tok(TokType.RightBrace, "}"))
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty)
 		});
 		MakeAssertions(output, "type IGREETER interface {}");
 	}
@@ -1053,7 +1058,8 @@ public class CompilerTest
 							new AuraString()))
 				},
 				Visibility.Public,
-				new Tok(TokType.RightBrace, "}"))
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty)
 		});
 		MakeAssertions(output, "type IGREETER interface {\nSAY_HI(i int) string\n}");
 	}
@@ -1114,7 +1120,8 @@ public class CompilerTest
 					value: "s"
 				),
 				Params: new List<Param>(),
-				ClosingParen: new Tok(TokType.RightParen, ")")
+				ClosingParen: new Tok(TokType.RightParen, ")"),
+				Documentation: string.Empty
 			)
 		});
 		MakeAssertions(output, "type s struct {}");
@@ -1145,7 +1152,8 @@ public class CompilerTest
 						)
 					)
 				},
-				ClosingParen: new Tok(TokType.RightParen, ")")
+				ClosingParen: new Tok(TokType.RightParen, ")"),
+				string.Empty
 			)
 		});
 		MakeAssertions(output, "type s struct {\ni int\n}");

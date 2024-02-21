@@ -397,7 +397,7 @@ public record UntypedForEach(Tok ForEach, Tok EachName, IUntypedAuraExpression I
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type(s).</param>
 /// <param name="Public">Indicates if the function is public or private</param>
-public record UntypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, Visibility Public) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType, Visibility Public, string Documentation) : IUntypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
@@ -477,7 +477,7 @@ public record UntypedReturn(Tok Return, List<IUntypedAuraExpression>? Value) : I
 	);
 }
 
-public record UntypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen) : IUntypedAuraStatement
+public record UntypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string Documentation) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(
@@ -503,7 +503,7 @@ public record UntypedAnonymousStruct(Tok Struct, List<Param> Params, List<IUntyp
 /// <param name="Params">The class's parameters</param>
 /// <param name="Body">The class's body</param>
 /// <param name="Public">Indicates if the class is public or not</param>
-public record UntypedClass(Tok Class, Tok Name, List<Param> Params, List<IUntypedAuraStatement> Body, Visibility Public, List<Tok> Implementing, Tok ClosingBrace) : IUntypedAuraStatement, IUntypedFunction
+public record UntypedClass(Tok Class, Tok Name, List<Param> Params, List<IUntypedAuraStatement> Body, Visibility Public, List<Tok> Implementing, Tok ClosingBrace, string Documentation) : IUntypedAuraStatement, IUntypedFunction
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public List<Param> GetParams() => Params;
@@ -526,7 +526,7 @@ public record UntypedClass(Tok Class, Tok Name, List<Param> Params, List<IUntype
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates if the interface is public or not</param>
 public record UntypedInterface
-	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace) : IUntypedAuraStatement
+	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, string Documentation) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(

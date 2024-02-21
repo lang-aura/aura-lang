@@ -149,6 +149,16 @@ public class AuraParser
 	private Tok Previous() => _tokens[_index - 1];
 
 	/// <summary>
+	/// Returns the token two before the current index
+	/// </summary>
+	/// <returns>The token located two indices before the current index</returns>
+	private Tok? PreviousPrevious()
+	{
+		if (_index - 2 < 0) return null;
+		return _tokens[_index - 2];
+	}
+
+	/// <summary>
 	/// Attempts to reset the <c>_index</c> at the start of the next statement
 	/// </summary>
 	private void Synchronize()
@@ -372,6 +382,9 @@ public class AuraParser
 
 	private IUntypedAuraStatement InterfaceDeclaration(Visibility pub)
 	{
+		var prevPrev = PreviousPrevious();
+		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
+
 		var @interface = Previous();
 		// Consume the interface name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -390,11 +403,14 @@ public class AuraParser
 		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Range));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 
-		return new UntypedInterface(@interface, name, methods, pub, closingBrace);
+		return new UntypedInterface(@interface, name, methods, pub, closingBrace, doc);
 	}
 
 	private IUntypedAuraStatement ClassDeclaration(Visibility pub)
 	{
+		var prevPrev = PreviousPrevious();
+		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
+
 		var @class = Previous();
 		// Consume the class name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -411,11 +427,14 @@ public class AuraParser
 		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Range));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 
-		return new UntypedClass(@class, name, paramz, body, pub, interfaceNames, closingBrace);
+		return new UntypedClass(@class, name, paramz, body, pub, interfaceNames, closingBrace, doc);
 	}
 
 	private IUntypedAuraStatement StructDeclaration()
 	{
+		var prevPrev = PreviousPrevious();
+		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
+
 		var @struct = Previous();
 		// Consume the struct name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -425,7 +444,7 @@ public class AuraParser
 		var closingBrace = Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Range));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 
-		return new UntypedStruct(@struct, name, @params, closingBrace);
+		return new UntypedStruct(@struct, name, @params, closingBrace, doc);
 	}
 
 	private List<Tok> ParseImplementingInterfaces()
@@ -713,6 +732,9 @@ public class AuraParser
 
 	private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility pub)
 	{
+		var prevPrev = PreviousPrevious();
+		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
+
 		var fn = Previous();
 		// Parse the function's name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -727,7 +749,7 @@ public class AuraParser
 		var body = Block();
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 
-		return new UntypedNamedFunction(fn, name, @params, body, returnTypes, pub);
+		return new UntypedNamedFunction(fn, name, @params, body, returnTypes, pub, doc);
 	}
 
 	private UntypedAnonymousFunction AnonymousFunction()
