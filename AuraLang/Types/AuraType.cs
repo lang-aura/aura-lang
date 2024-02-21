@@ -135,7 +135,7 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 	{
 		// Get "strings" module's methods
 		if (!AuraStdlib.TryGetModule("aura/strings", out var stringsModule)) return new CompletionList();
-		var completionItems = stringsModule!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = "test documentation" });
+		var completionItems = stringsModule!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = new MarkupContent{Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown} });
 		return new CompletionList
 		{
 			Items = completionItems.ToArray()
@@ -214,17 +214,37 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 /// <summary>
 /// Represents an Aura function
 /// </summary>
-public class AuraNamedFunction : AuraType, ICallable
+public class AuraNamedFunction : AuraType, ICallable, IDocumentable
 {
 	public string Name { get; }
 	public Visibility Public { get; }
 	private AuraFunction F { get; }
+
+	public string Documentation
+	{
+		get
+		{
+			if (_documentation is null) return string.Empty;
+			return $"{ToAuraString()}\n\n{_documentation}";
+		}
+	}
+
+	private string? _documentation { get; }
 
 	public AuraNamedFunction(string name, Visibility pub, AuraFunction f)
 	{
 		Name = name;
 		Public = pub;
 		F = f;
+		_documentation = null;
+	}
+
+	public AuraNamedFunction(string name, Visibility pub, AuraFunction f, string documentation)
+	{
+		Name = name;
+		Public = pub;
+		F = f;
+		_documentation = documentation;
 	}
 
 	public override bool IsEqual(AuraType other) => other is AuraNamedFunction f && Name == f.Name && F.IsSameType(f.F);
@@ -247,7 +267,7 @@ public class AuraNamedFunction : AuraType, ICallable
 			? "pub "
 			: string.Empty;
 		var @params = string.Join(", ", F.Params
-			.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+			.Select(p => $"{p.Name.Value}: {p.ParamType.Typ}"));
 		var returnType = F.ReturnType is not AuraNil
 			? $" -> {F.ReturnType}"
 			: string.Empty;
@@ -305,17 +325,27 @@ public class AuraFunction : AuraType, ICallable
 	public bool HasVariadicParam() => Params.Any(p => p.ParamType.Variadic);
 }
 
-public class AuraInterface : AuraType, IGettable
+public class AuraInterface : AuraType, IGettable, IDocumentable
 {
 	public Visibility Public { get; }
-	public string Name { get; init; }
-	public List<AuraNamedFunction> Functions { get; init; }
+	public string Name { get; }
+	public List<AuraNamedFunction> Functions { get; }
+	public string Documentation { get; }
 
 	public AuraInterface(string name, List<AuraNamedFunction> functions, Visibility pub)
 	{
 		Name = name;
 		Functions = functions;
 		Public = pub;
+		Documentation = string.Empty;
+	}
+	
+	public AuraInterface(string name, List<AuraNamedFunction> functions, Visibility pub, string documentation)
+	{
+		Name = name;
+		Functions = functions;
+		Public = pub;
+		Documentation = documentation;
 	}
 
 	public override bool IsEqual(AuraType other) =>
@@ -351,13 +381,14 @@ public class AuraInterface : AuraType, IGettable
 /// Represents a class type in Aura. Classes have their own type signature as well as zero or more
 /// methods, each of which also have their own type.
 /// </summary>
-public class AuraClass : AuraType, IGettable, ICallable, ICompletable
+public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocumentable
 {
 	public Visibility Public { get; }
-	public string Name { get; init; }
+	public string Name { get; }
 	public List<Param> Parameters { get; }
 	public List<AuraNamedFunction> Methods { get; }
 	public List<AuraInterface> Implementing { get; }
+	public string Documentation { get; }
 
 	public AuraClass(string name, List<Param> parameters, List<AuraNamedFunction> methods, List<AuraInterface> implementing,
 		Visibility pub)
@@ -367,6 +398,18 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable
 		Methods = methods;
 		Implementing = implementing;
 		Public = pub;
+		Documentation = string.Empty;
+	}
+	
+	public AuraClass(string name, List<Param> parameters, List<AuraNamedFunction> methods, List<AuraInterface> implementing,
+		Visibility pub, string documentation)
+	{
+		Name = name;
+		Parameters = parameters;
+		Methods = methods;
+		Implementing = implementing;
+		Public = pub;
+		Documentation = documentation;
 	}
 
 	public override bool IsEqual(AuraType other) => other is AuraClass c && Name == c.Name &&
@@ -423,7 +466,7 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable
 
 	public CompletionList ProvideCompletableOptions()
 	{
-		var completionItems = Methods.Select(m => new CompletionItem { Label = m.Name, Kind = CompletionItemKind.Function, Documentation = "test documentation" });
+		var completionItems = Methods.Select(m => new CompletionItem { Label = m.Name, Kind = CompletionItemKind.Function, Documentation = m.Documentation });
 		return new CompletionList
 		{
 			Items = completionItems.ToArray()
@@ -496,7 +539,7 @@ public class AuraModule : AuraType, IGettable, ICompletable
 		Console.Error.WriteLine($"getting module's completable items: {Name}");
 		// Get stdlib module
 		if (!AuraStdlib.TryGetModule("Name", out var module)) return new CompletionList();
-		var completionItems = module!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = "test documentation" });
+		var completionItems = module!.PublicFunctions.Select(f => new CompletionItem { Label = f.Name, Kind = CompletionItemKind.Function, Documentation = f.Documentation });
 		return new CompletionList { Items = completionItems.ToArray() };
 	}
 }
@@ -596,17 +639,27 @@ public class AuraError : AuraType, IGettable, IImportableModule, INilable
 	public string GetModuleName() => "errors";
 }
 
-public class AuraStruct : AuraType, ICallable, IGettable, ICompletable
+public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumentable
 {
 	public Visibility Public { get; }
 	public string Name { get; }
 	public List<Param> Parameters { get; }
+	public string Documentation { get; }
 
 	public AuraStruct(string name, List<Param> parameters, Visibility pub)
 	{
 		Public = pub;
 		Name = name;
 		Parameters = parameters;
+		Documentation = string.Empty;
+	}
+	
+	public AuraStruct(string name, List<Param> parameters, Visibility pub, string documentation)
+	{
+		Public = pub;
+		Name = name;
+		Parameters = parameters;
+		Documentation = documentation;
 	}
 
 	public override bool IsSameType(AuraType other)
@@ -639,7 +692,7 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable
 
 	public CompletionList ProvideCompletableOptions()
 	{
-		var completionItems = Parameters.Select(p => new CompletionItem { Label = p.Name.Value, Kind = CompletionItemKind.Property, Documentation = "test documentation" });
+		var completionItems = Parameters.Select(p => new CompletionItem { Label = p.Name.Value, Kind = CompletionItemKind.Property });
 		return new CompletionList
 		{
 			Items = completionItems.ToArray()

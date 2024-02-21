@@ -44,7 +44,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Prints the supplied format string to stdout"
 					),
 					new(
 						name: "println",
@@ -65,7 +66,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Prints the supplied string to stdout, followed by a newline"
 					),
 					new(
 						name: "print",
@@ -86,7 +88,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Prints the supplied string to stdout"
 					),
 					new(
 						name: "eprintln",
@@ -107,7 +110,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Prints the supplied string to stderr, followed by a newline"
 					),
 					new(
 						name: "eprint",
@@ -128,7 +132,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Prints the supplied string to stderr"
 					),
 					new(
 						name: "readln",
@@ -136,7 +141,8 @@ public static class AuraStdlib
 						f: new AuraFunction(
 							fParams: new List<Param>(),
 							returnType: new AuraString()
-						)
+						),
+						documentation: "Reads a single line from stdin"
 					),
 					new(
 						name: "read_file",
@@ -157,7 +163,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraString()
-						)
+						),
+						documentation: "Reads the entire contents of the file located at the supplied path, returning the contents as a single string"
 					),
 					new(
 						name: "read_lines",
@@ -178,7 +185,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraList(kind: new AuraString())
-						)
+						),
+						documentation: "Reads the entire contents of the file located at the supplied path, returning the contents as a list of strings, where each string represents a single line in the file"
 					),
 					new(
 						name: "write_file",
@@ -210,7 +218,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Writes the supplied content to the file located at the supplied path"
 					)
 				},
 				publicInterfaces: new List<AuraInterface>(),
@@ -242,7 +251,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraString()
-						)
+						),
+						documentation: "Returns a new string where all characters in the original have been converted to lower case"
 					),
 					new(
 						name: "to_upper",
@@ -263,7 +273,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraString()
-						)
+						),
+						documentation: "Returns a new string where all characters in the original have been converted to upper case"
 					),
 					new(
 						name: "contains",
@@ -295,7 +306,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Returns a boolean indicating if the string `s` contains the supplied substring"
 					),
 					new(
 						name: "length",
@@ -316,7 +328,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Returns the number of characters in the supplied string"
 					),
 					new(
 						name: "split",
@@ -347,8 +360,9 @@ public static class AuraStdlib
 									)
 								)
 							},
-							returnType: new AuraBool()
-						)
+							returnType: new AuraList(kind: new AuraString())
+						),
+						documentation: "Separates `s` into all of the substrings separated by (but not including) `sep`"
 					),
 					new(
 						name: "to_int",
@@ -369,7 +383,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Converts the supplied string to its corresponding integer value"
 					),
 				},
 				publicInterfaces: new List<AuraInterface>(),
@@ -411,7 +426,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Returns a boolean value indicating if the supplied list contains `item`"
 					),
 					new(
 						name: "is_empty",
@@ -432,7 +448,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Returns a boolean value indicating if the supplied list is empty (i.e. contains zero items)"
 					),
 					new(
 						name: "length",
@@ -453,7 +470,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraInt()
-						)
+						),
+						documentation: "Returns the number of items contained in the supplied list"
 					),
 					new(
 						name: "map_",
@@ -501,7 +519,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraList(kind: new AuraAny())
-						)
+						),
+						documentation: "Applies the supplied function to each item in the supplied list, returning a new list containing the result of each invocation"
 					),
 					new(
 						name: "filter",
@@ -549,7 +568,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraList(kind: new AuraAny())
-						)
+						),
+						documentation: "Returns a new list containing only those items in the original list that return a value of `true` when passed in to the supplied anonymous function"
 					),
 					new(
 						name: "reduce",
@@ -619,7 +639,8 @@ public static class AuraStdlib
 								),
 							},
 							returnType: new AuraAny()
-						)
+						),
+						documentation: "Reduces the supplied list to a single item"
 						),
 					new(
 						name: "min",
@@ -640,7 +661,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraInt()
-						)
+						),
+						documentation: "Returns the minimum value contained in the list"
 					),
 					new(
 						name: "max",
@@ -661,7 +683,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraInt()
-						)
+						),
+						documentation: "Returns the maximum value contained in the list"
 					),
 					new(
 						name: "push",
@@ -693,7 +716,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Adds a new item to the end of the supplied list"
 					),
 					new(
 						name: "pop",
@@ -714,7 +738,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraNil()
-						)
+						),
+						documentation: "Removes the last item in the list"
 					),
 					new(
 						name: "sum",
@@ -735,7 +760,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraInt()
-						)
+						),
+						documentation: "Sums together all items in the list"
 					),
 				},
 				publicInterfaces: new List<AuraInterface>(),
@@ -766,7 +792,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraString()
-						)
+						),
+						documentation: "Returns the error's message"
 					)
 				},
 				publicInterfaces: new List<AuraInterface>(),
@@ -825,7 +852,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Returns a boolean value indicating if the result type contains a success value"
 					),
 					new(
 						name: "success",
@@ -873,7 +901,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraAny()
-						)
+						),
+						documentation: "Returns the result's success type, if it exists"
 					),
 					new(
 						name: "is_failure",
@@ -921,7 +950,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraBool()
-						)
+						),
+						documentation: "Returns a boolean value indicating if the result type contains a failure value"
 					),
 					new(
 						name: "failure",
@@ -969,7 +999,8 @@ public static class AuraStdlib
 								)
 							},
 							returnType: new AuraError()
-						)
+						),
+						documentation: "Returns the result type's failure value, if it exists"
 					),
 				},
 				publicInterfaces: new List<AuraInterface>(),
