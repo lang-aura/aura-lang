@@ -239,7 +239,7 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable
 		_documentation = null;
 	}
 
-	public AuraNamedFunction(string name, Visibility pub, AuraFunction f, string documentation)
+	public AuraNamedFunction(string name, Visibility pub, AuraFunction f, string? documentation)
 	{
 		Name = name;
 		Public = pub;

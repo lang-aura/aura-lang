@@ -658,7 +658,7 @@ public class AuraParser
 		// Consume trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 
-		return new UntypedLet(null, names, new List<AuraType?>(), isMutable, initializer);
+		return new UntypedLet(null, names, new List<AuraType>(), isMutable, initializer);
 	}
 
 	private List<(Tok, AuraType)> ParseLongVariableNames()

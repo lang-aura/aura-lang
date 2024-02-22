@@ -39,7 +39,7 @@ public class AuraModuleCompiler
 	{
 		Path = path;
 		ProjectName = projectName;
-		_importedModuleProvider = typeChecker._importedModuleProvider;
+		_importedModuleProvider = typeChecker.ImportedModuleProvider;
 		TypeChecker = typeChecker;
 	}
 

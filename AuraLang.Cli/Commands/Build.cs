@@ -8,7 +8,7 @@ namespace AuraLang.Cli.Commands;
 
 public class Build : AuraCommand
 {
-	private bool WarningsAsErrors { get; init; }
+	private bool WarningsAsErrors { get; }
 
 	public Build(BuildOptions opts) : base(opts)
 	{
@@ -55,7 +55,7 @@ public class Build : AuraCommand
 		FormatGoProject();
 		var build = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = "build" } };
 		build.Start();
-		build.WaitForExit();
+		await build.WaitForExitAsync();
 
 		return 0;
 	}
