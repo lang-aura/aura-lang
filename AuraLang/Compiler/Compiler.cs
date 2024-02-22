@@ -14,42 +14,52 @@ namespace AuraLang.Compiler;
 public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor<string>
 {
 	/// <summary>
-	/// The typed Aura AST that will be compiled to Go
+	///     The typed Aura AST that will be compiled to Go
 	/// </summary>
 	private readonly List<ITypedAuraStatement> _typedAst;
 
 	/// <summary>
-	/// Aura allows implicit returns in certain situations, and the behavior of the return statement differs depending on the situaiton and whether its implicit
-	/// or explicit. Because of that, the compiler keeps track of any enclosing types, which it refers to when compiling a return statement. The enclosing types
-	/// that the compiler is interested in are `if` expressions, blocks, functions, and classes.
+	///     Aura allows implicit returns in certain situations, and the behavior of the return statement differs depending on
+	///     the situaiton and whether its implicit
+	///     or explicit. Because of that, the compiler keeps track of any enclosing types, which it refers to when compiling a
+	///     return statement. The enclosing types
+	///     that the compiler is interested in are `if` expressions, blocks, functions, and classes.
 	/// </summary>
 	private readonly Stack<ITypedAuraAstNode> _enclosingType = new();
 
 	/// <summary>
-	/// The compiler keeps track of variables declared in the Aura typed AST, but it doesn't need to keep track of all available information about these variables.
-	/// Instead, it needs to know if the variables were declared as public or not. This is because public functions, classes, etc. in Aura are declared with the
-	/// `pub` keyword, but in Go they are denoted with a leading capital letter. Therefore, the compiler refers to this field to determine if the variable's name
-	/// should be in title case in the outputted Go file.
+	///     The compiler keeps track of variables declared in the Aura typed AST, but it doesn't need to keep track of all
+	///     available information about these variables.
+	///     Instead, it needs to know if the variables were declared as public or not. This is because public functions,
+	///     classes, etc. in Aura are declared with the
+	///     `pub` keyword, but in Go they are denoted with a leading capital letter. Therefore, the compiler refers to this
+	///     field to determine if the variable's name
+	///     should be in title case in the outputted Go file.
 	/// </summary>
-	private Dictionary<string, Visibility> _declaredVariables = new();
+	private readonly Dictionary<string, Visibility> _declaredVariables = new();
 
 	/// <summary>
-	/// Is used by the compiler as a buffer to organize the Go output file before producing the final Go string
+	///     Is used by the compiler as a buffer to organize the Go output file before producing the final Go string
 	/// </summary>
 	private readonly GoDocument _goDocument = new();
 
 	/// <summary>
-	/// Contains all exceptions thrown during the compilation process. 
+	///     Contains all exceptions thrown during the compilation process.
 	/// </summary>
 	private readonly CompilerExceptionContainer _exContainer;
 
 	private string ProjectName { get; }
 	private readonly CompiledOutputWriter _outputWriter;
 	private readonly AuraModule _prelude;
-	private Stack<TypedNamedFunction> _enclosingFunctionDeclarationStore;
+	private readonly Stack<TypedNamedFunction> _enclosingFunctionDeclarationStore;
 
-	public AuraCompiler(List<ITypedAuraStatement> typedAst, string projectName,
-		CompiledOutputWriter outputWriter, Stack<TypedNamedFunction> enclosingFunctionDeclarationStore, string filePath)
+	public AuraCompiler(
+		List<ITypedAuraStatement> typedAst,
+		string projectName,
+		CompiledOutputWriter outputWriter,
+		Stack<TypedNamedFunction> enclosingFunctionDeclarationStore,
+		string filePath
+	)
 	{
 		_typedAst = typedAst;
 		ProjectName = projectName;
@@ -66,7 +76,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			try
 			{
 				var s = Statement(node);
-				_goDocument.WriteStmt(s, node.Range.Start.Line, node);
+				_goDocument.WriteStmt(
+					s,
+					node.Range.Start.Line,
+					node
+				);
 			}
 			catch (CompilerException ex)
 			{
@@ -74,13 +88,23 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			}
 		}
 
-		if (!_exContainer.IsEmpty()) throw _exContainer;
+		if (!_exContainer.IsEmpty())
+		{
+			throw _exContainer;
+		}
+
 		return _goDocument.Assemble();
 	}
 
-	private string Statement(ITypedAuraStatement stmt) => stmt.Accept(this);
+	private string Statement(ITypedAuraStatement stmt)
+	{
+		return stmt.Accept(this);
+	}
 
-	private string Expression(ITypedAuraExpression expr) => expr.Accept(this);
+	private string Expression(ITypedAuraExpression expr)
+	{
+		return expr.Accept(this);
+	}
 
 	public string Visit(TypedDefer defer)
 	{
@@ -88,75 +112,95 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"defer {call}";
 	}
 
-	public string Visit(TypedExpressionStmt es) => Expression(es.Expression);
+	public string Visit(TypedExpressionStmt es)
+	{
+		return Expression(es.Expression);
+	}
 
 	public string Visit(TypedFor for_)
 	{
-		return InNewEnclosingType(() =>
-		{
-			var init = for_.Initializer is not null ? Statement(for_.Initializer) : string.Empty;
-			var cond = for_.Condition is not null ? Expression(for_.Condition) : string.Empty;
-			var inc = for_.Increment is not null ? $"{Expression(for_.Increment)} " : string.Empty;
-			var body = CompileLoopBody(for_.Body);
-			// The compiler will always compile an Aura `for` loop to a Go `for` loop without the increment part of the `for` loop's signature. The increment is instead
-			// added to the end of the loop's body. The loop's execution will remain the same, so it doesn't seem worth it to extract it from the body and put it back
-			// into the loop's signature.
-			return body != string.Empty ? $"for {init}; {cond}; {inc}{{{body}\n}}" : $"for {init}; {cond}; {{}}";
-		}, for_);
+		return InNewEnclosingType(
+			() =>
+			{
+				var init = for_.Initializer is not null ? Statement(for_.Initializer) : string.Empty;
+				var cond = for_.Condition is not null ? Expression(for_.Condition) : string.Empty;
+				var inc = for_.Increment is not null ? $"{Expression(for_.Increment)} " : string.Empty;
+				var body = CompileLoopBody(for_.Body);
+				// The compiler will always compile an Aura `for` loop to a Go `for` loop without the increment part of the `for` loop's signature. The increment is instead
+				// added to the end of the loop's body. The loop's execution will remain the same, so it doesn't seem worth it to extract it from the body and put it back
+				// into the loop's signature.
+				return body != string.Empty ? $"for {init}; {cond}; {inc}{{{body}\n}}" : $"for {init}; {cond}; {{}}";
+			},
+			for_
+		);
 	}
 
 	public string Visit(TypedForEach foreach_)
 	{
-		return InNewEnclosingType(() =>
-		{
-			var iter = Expression(foreach_.Iterable);
-			var body = CompileLoopBody(foreach_.Body);
-			return body != string.Empty
-				? $"for _, {foreach_.EachName.Value} := range {iter} {{{body}\n}}"
-				: $"for _, {foreach_.EachName.Value} := range {iter} {{}}";
-		}, foreach_);
+		return InNewEnclosingType(
+			() =>
+			{
+				var iter = Expression(foreach_.Iterable);
+				var body = CompileLoopBody(foreach_.Body);
+				return body != string.Empty
+					? $"for _, {foreach_.EachName.Value} := range {iter} {{{body}\n}}"
+					: $"for _, {foreach_.EachName.Value} := range {iter} {{}}";
+			},
+			foreach_
+		);
 	}
 
 	public string Visit(TypedNamedFunction f)
 	{
 		_enclosingFunctionDeclarationStore.Push(f);
-		var s = InNewEnclosingType(() =>
-		{
-			_declaredVariables[f.Name.Value] = f.Public;
-			var funcName = f.Public is Visibility.Public ? f.Name.Value.ToUpper() : f.Name.Value.ToLower();
-			var compiledParams = CompileParams(f.Params, ",");
-			// Compile return type
-			string returnValue = string.Empty;
-			if (f.ReturnType is AuraAnonymousStruct st)
+		var s = InNewEnclosingType(
+			() =>
 			{
-				var items = string.Join(", ", st.Parameters.Select(p => p.ParamType.Typ));
-				returnValue = $"({items})";
-			}
-			else if (f.ReturnType is not AuraNil)
-			{
-				returnValue = AuraTypeToGoType(f.ReturnType);
-			}
-			var body = Expression(f.Body);
-			return $"func {funcName}({compiledParams}){returnValue} {body}";
-		}, f);
+				_declaredVariables[f.Name.Value] = f.Public;
+				var funcName = f.Public is Visibility.Public ? f.Name.Value.ToUpper() : f.Name.Value.ToLower();
+				var compiledParams = CompileParams(f.Params, ",");
+				// Compile return type
+				var returnValue = string.Empty;
+				if (f.ReturnType is AuraAnonymousStruct st)
+				{
+					var items = string.Join(", ", st.Parameters.Select(p => p.ParamType.Typ));
+					returnValue = $"({items})";
+				}
+				else if (f.ReturnType is not AuraNil)
+				{
+					returnValue = AuraTypeToGoType(f.ReturnType);
+				}
+
+				var body = Expression(f.Body);
+				return $"func {funcName}({compiledParams}){returnValue} {body}";
+			},
+			f
+		);
 		_enclosingFunctionDeclarationStore.Pop();
 		return s;
 	}
 
 	public string Visit(TypedAnonymousFunction f)
 	{
-		return InNewEnclosingType(() =>
-		{
-			var compiledParams = CompileParams(f.Params, ",");
-			var returnValue = f.ReturnType is not AuraNil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
-			var body = Expression(f.Body);
-			return $"func({compiledParams}){returnValue} {body}";
-		}, f);
+		return InNewEnclosingType(
+			() =>
+			{
+				var compiledParams = CompileParams(f.Params, ",");
+				var returnValue = f.ReturnType is not AuraNil ? $" {AuraTypeToGoType(f.ReturnType)}" : string.Empty;
+				var body = Expression(f.Body);
+				return $"func({compiledParams}){returnValue} {body}";
+			},
+			f
+		);
 	}
 
 	public string Visit(TypedLet let)
 	{
-		if (let.Names.Count > 1) return LetStmtMultipleNames(let);
+		if (let.Names.Count > 1)
+		{
+			return LetStmtMultipleNames(let);
+		}
+
 		// Since Go's `if` statements and blocks are not expressions like they are in Aura, the compiler will first declare the variable without an initializer,
 		// and then convert the `return` statement in the block or `if` expression into an assignment where the value that would be returned is instead assigned
 		// to the declared variable.
@@ -191,7 +235,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				if (let.TypeAnnotation)
 				{
 					var b = _enclosingType.TryPeek(out var for_);
-					if (!b || for_ is not TypedFor)
+					if (!b ||
+						for_ is not TypedFor)
 					{
 						return $"var {let.Names[0].Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}
@@ -207,16 +252,26 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"{names} := {Expression(let.Initializer!)}";
 	}
 
-	public string Visit(TypedMod mod) => $"package {mod.Value.Value}";
+	public string Visit(TypedMod mod)
+	{
+		return $"package {mod.Value.Value}";
+	}
 
 	public string Visit(TypedReturn r)
 	{
-		if (r.Value is null) return "return";
+		if (r.Value is null)
+		{
+			return "return";
+		}
 
 		if (_enclosingFunctionDeclarationStore.Count > 0 &&
 			_enclosingFunctionDeclarationStore.Peek().ReturnType is AuraResult res)
 		{
-			if (r.Value.Typ.IsSameOrInheritingType(res.Success)) return $"return {res}{{\nSuccess: {Expression(r.Value)},\n}}";
+			if (r.Value.Typ.IsSameOrInheritingType(res.Success))
+			{
+				return $"return {res}{{\nSuccess: {Expression(r.Value)},\n}}";
+			}
+
 			return $"return {res}{{\nFailure: {Expression(r.Value)},\n}}";
 		}
 
@@ -225,41 +280,48 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			var values = string.Join(", ", ((TypedAnonymousStruct)r.Value).Values.Select(Expression));
 			return $"return {values}";
 		}
-		else return $"return {Expression(r.Value)}";
+
+		return $"return {Expression(r.Value)}";
 	}
 
 	public string Visit(FullyTypedClass c)
 	{
-		return InNewEnclosingType(() =>
-		{
-			_declaredVariables[c.Name.Value] = c.Public;
+		return InNewEnclosingType(
+			() =>
+			{
+				_declaredVariables[c.Name.Value] = c.Public;
 
-			var className = c.Public == Visibility.Public ? c.Name.Value.ToUpper() : c.Name.Value.ToLower();
-			var compiledParams = CompileParams(c.Params, "\n");
+				var className = c.Public == Visibility.Public ? c.Name.Value.ToUpper() : c.Name.Value.ToLower();
+				var compiledParams = CompileParams(c.Params, "\n");
 
-			var compiledMethods = c.Methods.Select(m =>
-				{
-					var params_ = CompileParams(m.Params, ",");
-					var body = Expression(m.Body);
-					var returnType = m.ReturnType is AuraNil ? string.Empty : $" {AuraTypeToGoType(m.ReturnType)}";
-					// To make the handling of `this` expressions a little easier for the compiler, all method receivers in the outputted Go code have an identifier of `this`
-					return $"func (this {className}) {m.Name.Value}({params_}){returnType} {body}";
-				})
-				.Aggregate(string.Empty, (prev, curr) => $"{prev}\n\n{curr}");
+				var compiledMethods = c
+					.Methods.Select(
+						m =>
+						{
+							var params_ = CompileParams(m.Params, ",");
+							var body = Expression(m.Body);
+							var returnType = m.ReturnType is AuraNil
+								? string.Empty
+								: $" {AuraTypeToGoType(m.ReturnType)}";
+							// To make the handling of `this` expressions a little easier for the compiler, all method receivers in the outputted Go code have an identifier of `this`
+							return $"func (this {className}) {m.Name.Value}({params_}){returnType} {body}";
+						}
+					)
+					.Aggregate(string.Empty, (prev, curr) => $"{prev}\n\n{curr}");
 
-			return compiledParams != string.Empty
-				? $"type {className} struct {{\n{compiledParams}\n}}\n\n{compiledMethods}"
-				: $"type {className} struct {{}}\n\n{compiledMethods}";
-		}, c);
+				return compiledParams != string.Empty
+					? $"type {className} struct {{\n{compiledParams}\n}}\n\n{compiledMethods}"
+					: $"type {className} struct {{}}\n\n{compiledMethods}";
+			},
+			c
+		);
 	}
 
 	public string Visit(TypedWhile w)
 	{
 		var cond = Expression(w.Condition);
 		var body = CompileLoopBody(w.Body);
-		return body != string.Empty
-			? $"for {cond} {{{body}\n}}"
-			: $"for {cond} {{}}";
+		return body != string.Empty ? $"for {cond} {{{body}\n}}" : $"for {cond} {{}}";
 	}
 
 	public string Visit(TypedMultipleImport i)
@@ -268,7 +330,10 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"import (\n\t{string.Join("\n\t", multipleImports)}\n)";
 	}
 
-	public string Visit(TypedImport i) => $"import {CompileImportStmt(i)}";
+	public string Visit(TypedImport i)
+	{
+		return $"import {CompileImportStmt(i)}";
+	}
 
 	private string CompileImportStmt(TypedImport i)
 	{
@@ -277,7 +342,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			var name = ExtractStdlibPkgName(i.Package.Value);
 			return BuildStdlibPkgName(name);
 		}
-		if (i.Package.Value.Contains("prelude")) return $"prelude \"{i.Package.Value}\"";
+
+		if (i.Package.Value.Contains("prelude"))
+		{
+			return $"prelude \"{i.Package.Value}\"";
+		}
 
 		var compiledModule = new AuraModuleCompiler($"src/{i.Package.Value}", ProjectName).CompileModule();
 		foreach (var (path, output) in compiledModule)
@@ -285,7 +354,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			// Write output to `build` directory
 			var dirName = Path.GetDirectoryName(path)!.Replace("src/", "");
 			_outputWriter.CreateDirectory(dirName);
-			_outputWriter.WriteOutput(dirName, Path.GetFileNameWithoutExtension(path), output);
+			_outputWriter.WriteOutput(
+				dirName,
+				Path.GetFileNameWithoutExtension(path),
+				output
+			);
 		}
 
 		return i.Alias is null
@@ -293,23 +366,45 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			: $"{i.Alias.Value.Value} \"{ProjectName}/{i.Package.Value}\"";
 	}
 
-	public string Visit(TypedComment com) => com.Text.Value;
+	public string Visit(TypedComment com)
+	{
+		return com.Text.Value;
+	}
 
-	public string Visit(TypedContinue _) => "continue";
+	public string Visit(TypedContinue _)
+	{
+		return "continue";
+	}
 
-	public string Visit(TypedBreak _) => "break";
+	public string Visit(TypedBreak _)
+	{
+		return "break";
+	}
 
 	public string Visit(TypedInterface i)
 	{
-		return InNewEnclosingType(() =>
-		{
-			var interfaceName = i.Public == Visibility.Public ? i.Name.Value.ToUpper() : i.Name.Value.ToLower();
-			var methods = i.Methods.Select(m => m.ToStringInterface());
+		return InNewEnclosingType(
+			() =>
+			{
+				var interfaceName = i.Public == Visibility.Public ? i.Name.Value.ToUpper() : i.Name.Value.ToLower();
+				var methods = i.Methods.Select(Visit);
 
-			return methods.Any()
-				? $"type {interfaceName} interface {{\n{string.Join("\n", methods)}\n}}"
-				: $"type {interfaceName} interface {{}}";
-		}, i);
+				return methods.Any()
+					? $"type {interfaceName} interface {{\n{string.Join("\n", methods)}\n}}"
+					: $"type {interfaceName} interface {{}}";
+			},
+			i
+		);
+	}
+
+	public string Visit(TypedFunctionSignature fnSignature)
+	{
+		var name = fnSignature.Visibility is not null
+			? fnSignature.Name.Value.ToUpper()
+			: fnSignature.Name.Value.ToLower();
+		var @params = string.Join(", ", fnSignature.Params.Select(p => $"{p.Name.Value} {p.ParamType.Typ}"));
+		return
+			$"{name}({@params}) {(fnSignature.ReturnType.IsSameType(new AuraNil()) ? string.Empty : fnSignature.ReturnType)}";
 	}
 
 	public string Visit(TypedAssignment assign)
@@ -343,7 +438,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		foreach (var stmt in b.Statements)
 		{
 			var s = Statement(stmt);
-			compiledStmts.WriteString(s, stmt.Range.Start.Line, stmt);
+			compiledStmts.WriteString(
+				s,
+				stmt.Range.Start.Line,
+				stmt
+			);
 		}
 
 		return compiledStmts.String() == string.Empty ? "{}" : $"{{\n{compiledStmts.String()}\n}}";
@@ -351,9 +450,23 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedCall c)
 	{
-		if (c.Callee is TypedGet) return CallExpr_GetCallee(c);
-		if (c.Callee is TypedVariable cv && cv.Typ is AuraClass) return CallExpr_Class(c);
-		if (c.Callee is TypedVariable sv && sv.Typ is AuraStruct) return CallExpr_Struct(c);
+		if (c.Callee is TypedGet)
+		{
+			return CallExpr_GetCallee(c);
+		}
+
+		if (c.Callee is TypedVariable cv &&
+			cv.Typ is AuraClass)
+		{
+			return CallExpr_Class(c);
+		}
+
+		if (c.Callee is TypedVariable sv &&
+			sv.Typ is AuraStruct)
+		{
+			return CallExpr_Struct(c);
+		}
+
 		var callee = Expression((ITypedAuraExpression)c.Callee);
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
@@ -364,9 +477,10 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		var v = c.Callee as TypedVariable;
 		var class_ = v!.Typ as AuraClass;
 
-		var params_ = string.Join("\n", class_!.GetParams()
-			.Zip(c.Arguments)
-			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
+		var params_ = string.Join(
+			"\n",
+			class_!.GetParams().Zip(c.Arguments).Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},")
+		);
 		return
 			$"{(class_.Public is Visibility.Public ? class_.Name.ToUpper() : class_.Name.ToLower())}{{\n{params_}\n}}";
 	}
@@ -376,9 +490,10 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		var v = c.Callee as TypedVariable;
 		var @struct = v!.Typ as AuraStruct;
 
-		var params_ = string.Join("\n", @struct!.GetParams()
-			.Zip(c.Arguments)
-			.Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},"));
+		var params_ = string.Join(
+			"\n",
+			@struct!.GetParams().Zip(c.Arguments).Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},")
+		);
 
 		return $"{@struct.Name.ToLower()}{{\n{params_}\n}}";
 	}
@@ -392,36 +507,18 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		if (IsStdlibPkgType(get.Obj.Typ))
 		{
 			_goDocument.WriteStmt(
-				s: Visit(
-					i: new TypedImport(
-						Import: new Tok(
-							typ: TokType.Import,
-							value: "import"
-						),
-						Package: new Tok(
-							typ: TokType.Identifier,
-							value: $"aura/{AuraTypeToString(get.Obj.Typ)}"
-						),
-						Alias: new Tok(
-							typ: TokType.Identifier,
-							value: AuraTypeToString(get.Obj.Typ)
-						)
+				Visit(
+					new TypedImport(
+						new Tok(TokType.Import, "import"),
+						new Tok(TokType.Identifier, $"aura/{AuraTypeToString(get.Obj.Typ)}"),
+						new Tok(TokType.Identifier, AuraTypeToString(get.Obj.Typ))
 					)
 				),
-				line: 1,
-				typ: new TypedImport(
-					Import: new Tok(
-						typ: TokType.Import,
-						value: "import"
-					),
-					Package: new Tok(
-						typ: TokType.Identifier,
-						value: $"aura/{AuraTypeToString(get.Obj.Typ)}"
-					),
-					Alias: new Tok(
-						typ: TokType.Identifier,
-						value: AuraTypeToString(get.Obj.Typ)
-					)
+				1,
+				new TypedImport(
+					new Tok(TokType.Import, "import"),
+					new Tok(TokType.Identifier, $"aura/{AuraTypeToString(get.Obj.Typ)}"),
+					new Tok(TokType.Identifier, AuraTypeToString(get.Obj.Typ))
 				)
 			);
 			callee = $"{AuraTypeToString(get.Obj.Typ)}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}";
@@ -435,7 +532,12 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				: $"{obj}.{get.Name.Value}";
 		}
 
-		if (get.Obj.Typ is not AuraModule && get.Obj.Typ is not AuraClass && get.Obj.Typ is not AuraInterface) c.Arguments.Insert(0, get!.Obj);
+		if (get.Obj.Typ is not AuraModule &&
+			get.Obj.Typ is not AuraClass &&
+			get.Obj.Typ is not AuraInterface)
+		{
+			c.Arguments.Insert(0, get!.Obj);
+		}
 
 		var compiledParams = c.Arguments.Select(Expression);
 		return $"{callee}({string.Join(", ", compiledParams)})";
@@ -473,41 +575,59 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		var cond = Expression(if_.Condition);
 		var then = Expression(if_.Then);
 		var else_ = if_.Else is not null ? $" else {Expression(if_.Else)}" : string.Empty;
-		return if_.Condition is TypedIs
-			? $"if _, ok := {cond}; ok {then}{else_}"
-			: $"if {cond} {then}{else_}";
+		return if_.Condition is TypedIs ? $"if _, ok := {cond}; ok {then}{else_}" : $"if {cond} {then}{else_}";
 	}
 
-	public string Visit(StringLiteral literal) => $"\"{literal.Value}\"";
+	public string Visit(StringLiteral literal)
+	{
+		return $"\"{literal.Value}\"";
+	}
 
-	public string Visit(CharLiteral literal) => $"'{literal.Value}'";
+	public string Visit(CharLiteral literal)
+	{
+		return $"'{literal.Value}'";
+	}
 
-	public string Visit(IntLiteral literal) => $"{literal.Value}";
+	public string Visit(IntLiteral literal)
+	{
+		return $"{literal.Value}";
+	}
 
-	public string Visit(FloatLiteral literal) =>
-		string.Format(CultureInfo.InvariantCulture, "{0:0.0}", literal.Value);
+	public string Visit(FloatLiteral literal)
+	{
+		return string.Format(
+			CultureInfo.InvariantCulture,
+			"{0:0.0}",
+			literal.Value
+		);
+	}
 
-	public string Visit(BoolLiteral literal) => literal.Value ? "true" : "false";
+	public string Visit(BoolLiteral literal)
+	{
+		return literal.Value ? "true" : "false";
+	}
 
 	public string Visit<U>(ListLiteral<U> literal) where U : IAuraAstNode
 	{
-		var items = literal.Value
-			.Select(item => Expression((ITypedAuraExpression)item));
+		var items = literal.Value.Select(item => Expression((ITypedAuraExpression)item));
 		return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
 	}
 
-	public string Visit(TypedNil nil) => "nil";
-
-	public string Visit<TK, TV>(MapLiteral<TK, TV> literal)
-		where TK : IAuraAstNode
-		where TV : IAuraAstNode
+	public string Visit(TypedNil nil)
 	{
-		var items = literal.Value.Select(pair =>
-		{
-			var keyExpr = Expression((ITypedAuraExpression)pair.Key);
-			var valueExpr = Expression((ITypedAuraExpression)pair.Value);
-			return $"{keyExpr}: {valueExpr}";
-		});
+		return "nil";
+	}
+
+	public string Visit<TK, TV>(MapLiteral<TK, TV> literal) where TK : IAuraAstNode where TV : IAuraAstNode
+	{
+		var items = literal.Value.Select(
+			pair =>
+			{
+				var keyExpr = Expression((ITypedAuraExpression)pair.Key);
+				var valueExpr = Expression((ITypedAuraExpression)pair.Value);
+				return $"{keyExpr}: {valueExpr}";
+			}
+		);
 		return items.Any()
 			? $"{AuraTypeToGoType(literal.Typ)}{{\n{string.Join(", ", items)}\n}}"
 			: $"{AuraTypeToGoType(literal.Typ)}{{}}";
@@ -544,10 +664,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		{
 			return AddPreludePrefix(v.Name.Value);
 		}
-		else
-		{
-			return v.Name.Value;
-		}
+
+		return v.Name.Value;
 	}
 
 	public string Visit(TypedIs is_)
@@ -558,34 +676,30 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedYield y)
 	{
-		var value = y.Value is ILiteral lit
-			? lit.ToString()
-			: y.Value.ToString();
+		var value = y.Value is ILiteral lit ? lit.ToString() : y.Value.ToString();
 		return $"x = {value}";
 	}
 
-	private string AuraTypeToGoType(AuraType typ) => typ.ToString();
+	private string AuraTypeToGoType(AuraType typ)
+	{
+		return typ.ToString();
+	}
 
 	private string CompileLoopBody(List<ITypedAuraStatement> body)
 	{
 		return body.Any()
-			? body
-				.Select(Statement)
-				.Aggregate(string.Empty, (prev, curr) => $"{prev}\n{curr}")
+			? body.Select(Statement).Aggregate(string.Empty, (prev, curr) => $"{prev}\n{curr}")
 			: string.Empty;
 	}
 
 	private string CompileParams(List<Param> params_, string sep)
 	{
-		return string.Join(sep, params_
-			.Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
+		return string.Join(sep, params_.Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
 	}
 
 	private string CompileArgs(List<ITypedAuraExpression> args)
 	{
-		return args
-			.Select(Expression)
-			.Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}");
+		return args.Select(Expression).Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}");
 	}
 
 	private string ParseReturnableBody(List<ITypedAuraStatement> stmts, string decl)
@@ -653,11 +767,20 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		};
 	}
 
-	private string ExtractStdlibPkgName(string pkg) => pkg.Split('/').Last();
+	private string ExtractStdlibPkgName(string pkg)
+	{
+		return pkg.Split('/').Last();
+	}
 
-	private string BuildStdlibPkgImportStmt(string pkg) => $"import {BuildStdlibPkgName(pkg)}";
+	private string BuildStdlibPkgImportStmt(string pkg)
+	{
+		return $"import {BuildStdlibPkgName(pkg)}";
+	}
 
-	private string BuildStdlibPkgName(string pkg) => $"{pkg} \"{ProjectName}/stdlib/{pkg}\"";
+	private string BuildStdlibPkgName(string pkg)
+	{
+		return $"{pkg} \"{ProjectName}/stdlib/{pkg}\"";
+	}
 
 	private string LogicalOperatorToGoOperator(Tok op)
 	{
@@ -688,7 +811,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				continue;
 			}
 
-			if (s[i] == '_' && i < s.Length - 1)
+			if (s[i] == '_' &&
+				i < s.Length - 1)
 			{
 				camelCase.Append(char.ToUpper(s[i + 1]));
 				i++;
@@ -703,30 +827,37 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	private bool IsVariableInPrelude(string name)
 	{
-		if (_prelude.PublicVariables.ContainsKey(name)) return true;
-		if (_prelude.PublicClasses.Where(c => c.Name == name).Any()) return true;
-		if (_prelude.PublicFunctions.Where(f => f.Name == name).Any()) return true;
+		if (_prelude.PublicVariables.ContainsKey(name))
+		{
+			return true;
+		}
+
+		if (_prelude.PublicClasses.Where(c => c.Name == name).Any())
+		{
+			return true;
+		}
+
+		if (_prelude.PublicFunctions.Where(f => f.Name == name).Any())
+		{
+			return true;
+		}
+
 		return false;
 	}
 
 	private string AddPreludePrefix(string name)
 	{
 		var typedImport = new TypedImport(
-			Import: new Tok(
-				typ: TokType.Import,
-				value: "import"
-			),
-			Package: new Tok(
-				typ: TokType.Identifier,
-				value: $"{ProjectName}/prelude"
-			),
-			Alias: new Tok(
-				typ: TokType.Identifier,
-				value: "prelude"
-			)
+			new Tok(TokType.Import, "import"),
+			new Tok(TokType.Identifier, $"{ProjectName}/prelude"),
+			new Tok(TokType.Identifier, "prelude")
 		);
 		var preludeImport = Visit(typedImport);
-		_goDocument.WriteStmt(preludeImport, 1, typedImport);
+		_goDocument.WriteStmt(
+			preludeImport,
+			1,
+			typedImport
+		);
 		return $"prelude.{ConvertSnakeCaseToCamelCase(name)}";
 	}
 
@@ -740,7 +871,10 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		throw new NotImplementedException();
 	}
 
-	public string Visit(TypedCheck check) => $"e := {Visit(check.Call)}\nif e.Failure != nil {{\nreturn e\n}}";
+	public string Visit(TypedCheck check)
+	{
+		return $"e := {Visit(check.Call)}\nif e.Failure != nil {{\nreturn e\n}}";
+	}
 
 	public string Visit(TypedStruct @struct)
 	{

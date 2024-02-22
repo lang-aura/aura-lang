@@ -1,10 +1,39 @@
-﻿###############################
+root = true
+###############################
 # Core EditorConfig Options   #
 ###############################
-root = true
 # All files
 [*]
 indent_style = tab
+
+# ReSharper properties
+resharper_force_chop_compound_do_expression = true
+resharper_force_chop_compound_if_expression = true
+resharper_force_chop_compound_while_expression = true
+resharper_keep_existing_declaration_block_arrangement = false
+resharper_keep_existing_declaration_parens_arrangement = false
+resharper_keep_existing_expr_member_arrangement = false
+resharper_keep_existing_invocation_parens_arrangement = false
+resharper_keep_existing_linebreaks = false
+resharper_keep_existing_primary_constructor_declaration_parens_arrangement = false
+resharper_max_array_initializer_elements_on_line = 2
+resharper_place_simple_case_statement_on_same_line = if_owner_is_single_line
+resharper_place_simple_embedded_block_on_same_line = true
+resharper_space_within_list_pattern_brackets = true
+resharper_wrap_array_initializer_style = chop_always
+resharper_wrap_before_first_method_call = true
+resharper_wrap_before_primary_constructor_declaration_lpar = true
+resharper_wrap_before_primary_constructor_declaration_rpar = true
+
+# Microsoft .NET properties
+csharp_new_line_between_query_expression_clauses = true
+csharp_preserve_single_line_blocks = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_call_name_and_opening_parenthesis = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_parentheses = control_flow_statements, expressions
 
 # XML project files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
@@ -26,7 +55,7 @@ charset = utf-8-bom
 # Organize usings
 dotnet_sort_system_directives_first = true
 # Remove unnecessary imports
-dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.ide0005.severity = warning
 # this. preferences
 dotnet_style_qualification_for_field = false:silent
 dotnet_style_qualification_for_property = false:silent
@@ -59,20 +88,20 @@ dotnet_style_prefer_conditional_expression_over_return = true:silent
 # Naming Conventions          #
 ###############################
 # Style Definitions
-dotnet_naming_style.pascal_case_style.capitalization             = pascal_case
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 # Use PascalCase for constant fields
 dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols  = constant_fields
-dotnet_naming_rule.constant_fields_should_be_pascal_case.style    = pascal_case_style
-dotnet_naming_symbols.constant_fields.applicable_kinds            = field
-dotnet_naming_symbols.constant_fields.applicable_accessibilities  = *
-dotnet_naming_symbols.constant_fields.required_modifiers          = const
+dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols = constant_fields
+dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case_style
+dotnet_naming_symbols.constant_fields.applicable_kinds = field
+dotnet_naming_symbols.constant_fields.applicable_accessibilities = *
+dotnet_naming_symbols.constant_fields.required_modifiers = const
 ###############################
 # C# Coding Conventions       #
 ###############################
 [*.cs]
 csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
-dotnet_diagnostic.IDE0036.severity = warning
+dotnet_diagnostic.ide0036.severity = warning
 # var preferences
 csharp_style_var_for_built_in_types = true:silent
 csharp_style_var_when_type_is_apparent = true:silent

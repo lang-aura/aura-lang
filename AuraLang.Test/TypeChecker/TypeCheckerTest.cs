@@ -32,8 +32,7 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>()))
-			.Returns(new AuraSymbol("i", new AuraInt()));
+		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>())).Returns(new AuraSymbol("i", new AuraInt()));
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -41,77 +40,75 @@ public class TypeCheckerTest
 				new UntypedExpressionStmt(
 					new UntypedAssignment(
 						new Tok(TokType.Identifier, "i"),
-						new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "6"
-							))))
-			});
-		MakeAssertions(typedAst, new TypedExpressionStmt(
-			new TypedAssignment(
-				new Tok(TokType.Identifier, "i"),
-				new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "6"
+						new IntLiteral(new Tok(TokType.IntLiteral, "6"))
 					)
-				),
-				new AuraInt())));
+				)
+			}
+		);
+		MakeAssertions(
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedAssignment(
+					new Tok(TokType.Identifier, "i"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "6")),
+					new AuraInt()
+				)
+			)
+		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Binary()
 	{
-		var typedAst = ArrangeAndAct(new List<IUntypedAuraStatement>
-		{
-			new UntypedExpressionStmt(
-				new UntypedBinary(
+		var typedAst = ArrangeAndAct(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedBinary(
+						new BoolLiteral(new Tok(TokType.True, "true")),
+						new Tok(TokType.And, "and"),
+						new BoolLiteral(new Tok(TokType.True, "false"))
+					)
+				)
+			}
+		);
+		MakeAssertions(
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedBinary(
 					new BoolLiteral(new Tok(TokType.True, "true")),
 					new Tok(TokType.And, "and"),
-					new BoolLiteral(new Tok(TokType.True, "false"))))
-		});
-		MakeAssertions(typedAst, new TypedExpressionStmt(
-			new TypedBinary(
-				new BoolLiteral(new Tok(TokType.True, "true")),
-				new Tok(TokType.And, "and"),
-				new BoolLiteral(new Tok(TokType.True, "false")),
-				new AuraInt())));
+					new BoolLiteral(new Tok(TokType.True, "false")),
+					new AuraInt()
+				)
+			)
+		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Block_EmptyBody()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedBlock(
-						OpeningBrace: new Tok(
-							typ: TokType.LeftBrace,
-							value: "{"
-						),
-						Statements: new List<IUntypedAuraStatement>(),
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						))
+					new UntypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<IUntypedAuraStatement>(),
+						new Tok(TokType.RightBrace, "}")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedBlock(
-					OpeningBrace: new Tok(
-						typ: TokType.LeftBrace,
-						value: "{"
-					),
-					Statements: new List<ITypedAuraStatement>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Typ: new AuraNil())
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedBlock(
+					new Tok(TokType.LeftBrace, "{"),
+					new List<ITypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}"),
+					new AuraNil()
+				)
 			)
 		);
 	}
@@ -120,68 +117,43 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Block()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedBlock(
-						OpeningBrace: new Tok(
-							typ: TokType.LeftBrace,
-							value: "{"
-						),
-						Statements: new List<IUntypedAuraStatement>
+					new UntypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<IUntypedAuraStatement>
 						{
 							new UntypedLet(
-								Let: new Tok(
-									typ: TokType.Let,
-									value: "let"
-								),
-								Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i") },
-								NameTyps: new List<AuraType>{ new AuraInt() },
-								Mutable: false,
-								Initializer: new IntLiteral(
-									Int: new Tok(
-										typ: TokType.IntLiteral,
-										value: "5"
-									))
+								new Tok(TokType.Let, "let"),
+								new List<Tok> { new(TokType.Identifier, "i") },
+								new List<AuraType> { new AuraInt() },
+								false,
+								new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 							)
 						},
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						))
+						new Tok(TokType.RightBrace, "}")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedBlock(
-					OpeningBrace: new Tok(
-						typ: TokType.LeftBrace,
-						value: "{"
-					),
-					Statements: new List<ITypedAuraStatement>
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedBlock(
+					new Tok(TokType.LeftBrace, "{"),
+					new List<ITypedAuraStatement>
 					{
 						new TypedLet(
-							Let: new Tok(
-								typ: TokType.Let,
-								value: "let"
-							),
-							Names: new List<Tok>{ new(typ: TokType.Identifier, value: "i") },
-							TypeAnnotation: true,
-							Mutable: false,
-							Initializer: new IntLiteral(
-								Int: new Tok(
-									typ: TokType.IntLiteral,
-									value: "5"
-								))
+							new Tok(TokType.Let, "let"),
+							new List<Tok> { new(TokType.Identifier, "i") },
+							true,
+							false,
+							new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 						)
 					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Typ: new AuraNil()
+					new Tok(TokType.RightBrace, "}"),
+					new AuraNil()
 				)
 			)
 		);
@@ -190,72 +162,59 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoArgs()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "f",
-				Kind: new AuraNamedFunction(
-					name: "f",
-					pub: Visibility.Private,
-					f: new AuraFunction(
-						fParams: new List<Param>(),
-						returnType: new AuraNil()
+		_symbolsTable
+			.Setup(v => v.GetSymbol("f", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"f",
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(new List<Param>(), new AuraNil())
 					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedCall(
-						Callee: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							)
-						),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")",
-							range: new Range(
-								start: new Position(
-									character: 2,
-									line: 1
-								),
-								end: new Position(
-									character: 3,
-									line: 1
-								)
-							)
-						))
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>(),
+						new Tok(
+							TokType.RightParen,
+							")",
+							new Range(new Position(2, 1), new Position(3, 1))
+						)
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedCall(
-					Callee: new TypedVariable(
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedCall(
+					new TypedVariable(
 						new Tok(TokType.Identifier, "f"),
-						new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil()))),
-					Arguments: new List<ITypedAuraExpression>(),
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")",
-						range: new Range(
-							start: new Position(
-								character: 2,
-								line: 1
-							),
-							end: new Position(
-								character: 3,
-								line: 1
-							)
+						new AuraNamedFunction(
+							"f",
+							Visibility.Private,
+							new AuraFunction(new List<Param>(), new AuraNil())
 						)
 					),
-					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())))
+					new List<ITypedAuraExpression>(),
+					new Tok(
+						TokType.RightParen,
+						")",
+						new Range(new Position(2, 1), new Position(3, 1))
+					),
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(new List<Param>(), new AuraNil())
+					)
+				)
 			)
 		);
 	}
@@ -263,177 +222,123 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_TwoArgs_WithTags()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "f",
-				Kind: new AuraNamedFunction(
-					name: "f",
-					pub: Visibility.Private,
-					f: new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
+		_symbolsTable
+			.Setup(v => v.GetSymbol("f", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"f",
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
+									)
 								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: null
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
+									)
 								)
-							),
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								ParamType: new(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							)
-						},
-						returnType: new AuraNil()
+							},
+							new AuraNil()
+						)
 					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedCall(
-						Callee: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							)
-						),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>
 						{
-							(
-								new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								new StringLiteral(
-									String: new Tok(
-										typ: TokType.StringLiteral,
-										value: "Hello world"
-									)
-								)
-							),
-							(
-								new Tok(
-									typ: TokType.Identifier,
-									value: "i"
-								),
-								new IntLiteral(
-									Int: new Tok(
-										typ: TokType.IntLiteral,
-										value: "5"
-									)
-								)
-							)
+							(new Tok(TokType.Identifier, "s"),
+								new StringLiteral(new Tok(TokType.StringLiteral, "Hello world"))),
+							(new Tok(TokType.Identifier, "i"), new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 						},
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedCall(
-					Callee: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "f"
-						),
-						Typ: new AuraNamedFunction(
-							name: "f",
-							pub: Visibility.Private,
-							f: new AuraFunction(
-								fParams: new List<Param>
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedCall(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "f"),
+						new AuraNamedFunction(
+							"f",
+							Visibility.Private,
+							new AuraFunction(
+								new List<Param>
 								{
 									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "i"
-										),
-										ParamType: new(
-											Typ: new AuraInt(),
-											Variadic: false,
-											DefaultValue: null
+										new Tok(TokType.Identifier, "i"),
+										new ParamType(
+											new AuraInt(),
+											false,
+											null
 										)
 									),
 									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "s"
-										),
-										ParamType: new(
-											Typ: new AuraString(),
-											Variadic: false,
-											DefaultValue: null
+										new Tok(TokType.Identifier, "s"),
+										new ParamType(
+											new AuraString(),
+											false,
+											null
 										)
 									)
 								},
-								returnType: new AuraNil()
+								new AuraNil()
 							)
 						)
 					),
-					Arguments: new List<ITypedAuraExpression>
+					new List<ITypedAuraExpression>
 					{
-						new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "5"
-							)
-						),
-						new StringLiteral(
-							String: new Tok(
-								typ: TokType.StringLiteral,
-								value: "Hello world"
-							)
-						)
+						new IntLiteral(new Tok(TokType.IntLiteral, "5")),
+						new StringLiteral(new Tok(TokType.StringLiteral, "Hello world"))
 					},
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")"
-					),
-					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
+					new Tok(TokType.RightParen, ")"),
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
+									)
 								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: null
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
+									)
 								)
-							),
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								ParamType: new(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							)
-						},
-						returnType: new AuraNil())))
+							},
+							new AuraNil()
+						)
+					)
+				)
 			)
 		);
 	}
@@ -441,180 +346,122 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_DefaultValues()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "f",
-				Kind: new AuraNamedFunction(
-					name: "f",
-					pub: Visibility.Private,
-					f: new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
+		_symbolsTable
+			.Setup(v => v.GetSymbol("f", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"f",
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										new IntLiteral(new Tok(TokType.IntLiteral, "10"))
+									)
 								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: new IntLiteral(
-										Int: new Tok(
-											typ: TokType.IntLiteral,
-											value: "10"
-										)
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
-							),
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								ParamType: new(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							)
-						},
-						returnType: new AuraNil()
+							},
+							new AuraNil()
+						)
 					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedCall(
-						Callee: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							)
-						),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>
 						{
-							(
-								new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								new StringLiteral(
-									String: new Tok(
-										typ: TokType.StringLiteral,
-										value: "Hello world"
-									)
-								)
-							)
+							(new Tok(TokType.Identifier, "s"),
+								new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")))
 						},
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedCall(
-					Callee: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "f"
-						),
-						Typ: new AuraNamedFunction(
-							name: "f",
-							pub: Visibility.Private,
-							f: new AuraFunction(
-								fParams: new List<Param>
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedCall(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "f"),
+						new AuraNamedFunction(
+							"f",
+							Visibility.Private,
+							new AuraFunction(
+								new List<Param>
 								{
 									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "i"
-										),
-										ParamType: new(
-											Typ: new AuraInt(),
-											Variadic: false,
-											DefaultValue: new IntLiteral(
-												Int: new Tok(
-													typ: TokType.IntLiteral,
-													value: "10"
-												)
-											)
+										new Tok(TokType.Identifier, "i"),
+										new ParamType(
+											new AuraInt(),
+											false,
+											new IntLiteral(new Tok(TokType.IntLiteral, "10"))
 										)
 									),
 									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "s"
-										),
-										ParamType: new(
-											Typ: new AuraString(),
-											Variadic: false,
-											DefaultValue: null
+										new Tok(TokType.Identifier, "s"),
+										new ParamType(
+											new AuraString(),
+											false,
+											null
 										)
 									)
 								},
-								returnType: new AuraNil()
+								new AuraNil()
 							)
 						)
 					),
-					Arguments: new List<ITypedAuraExpression>
+					new List<ITypedAuraExpression>
 					{
-						new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "10"
-							)
-						),
-						new StringLiteral(
-							String: new Tok(
-								typ: TokType.StringLiteral,
-								value: "Hello world"
-							)
-						)
+						new IntLiteral(new Tok(TokType.IntLiteral, "10")),
+						new StringLiteral(new Tok(TokType.StringLiteral, "Hello world"))
 					},
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")"
-					),
-					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
+					new Tok(TokType.RightParen, ")"),
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										new IntLiteral(new Tok(TokType.IntLiteral, "10"))
+									)
 								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: new IntLiteral(
-										Int: new Tok(
-											typ: TokType.IntLiteral,
-											value: "10"
-										)
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
-							),
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								ParamType: new(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							)
-						},
-						returnType: new AuraNil())))
+							},
+							new AuraNil()
+						)
+					)
+				)
 			)
 		);
 	}
@@ -622,252 +469,182 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Call_NoValueForParameterWithoutDefaultValue()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "f",
-				Kind: new AuraNamedFunction(
-					name: "f",
-					pub: Visibility.Private,
-					f: new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
+		_symbolsTable
+			.Setup(v => v.GetSymbol("f", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"f",
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
+									)
 								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							),
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								ParamType: new(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: new StringLiteral(
-										String: new Tok(
-											typ: TokType.StringLiteral,
-											value: "Hello world"
-										)
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(
+										new AuraString(),
+										false,
+										new StringLiteral(new Tok(TokType.StringLiteral, "Hello world"))
 									)
 								)
-							)
-						},
-						returnType: new AuraNil()
+							},
+							new AuraNil()
+						)
 					)
 				)
-			));
+			);
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedCall(
-						Callee: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							)
-						),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>
 						{
-							(
-								new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								new StringLiteral(
-									String: new Tok(
-										typ: TokType.StringLiteral,
-										value: "Hello world"
-									)
-								)
-							)
+							(new Tok(TokType.Identifier, "s"),
+								new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")))
 						},
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			},
-			expected: typeof(MustSpecifyValueForArgumentWithoutDefaultValueException)
+			typeof(MustSpecifyValueForArgumentWithoutDefaultValueException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Call_MixNamedAndUnnamedArguments()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "f",
-				Kind: new AuraNamedFunction(
-					name: "f",
-					pub: Visibility.Private,
-					f: new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
+		_symbolsTable
+			.Setup(v => v.GetSymbol("f", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"f",
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
+									)
 								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: null
+								new(
+									new Tok(TokType.Identifier, "s"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
+									)
 								)
-							),
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								ParamType: new(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
-								)
-							)
-						},
-						returnType: new AuraNil()
+							},
+							new AuraNil()
+						)
 					)
 				)
-			)
-		);
+			);
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedCall(
-						Callee: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							)
-						),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>
 						{
-							(
-								new Tok(
-									typ: TokType.Identifier,
-									value: "s"
-								),
-								new StringLiteral(
-									String: new Tok(
-										typ: TokType.StringLiteral,
-										value: "Hello world"
-									)
-								)
-							),
-							(
-								null,
-								new IntLiteral(
-									Int: new Tok(
-										typ: TokType.IntLiteral,
-										value: "5"
-									)
-								)
-							)
+							(new Tok(TokType.Identifier, "s"),
+								new StringLiteral(new Tok(TokType.StringLiteral, "Hello world"))),
+							(null, new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 						},
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			},
-			expected: typeof(CannotMixNamedAndUnnamedArgumentsException)
+			typeof(CannotMixNamedAndUnnamedArgumentsException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Get()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("greeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "greeter",
-				Kind: new AuraClass(
-					name: "Greeter",
-					parameters: new List<Param>
-					{
-						new(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "name"
-							),
-							ParamType: new(
-								Typ: new AuraString(),
-								Variadic: false,
-								DefaultValue: null
+		_symbolsTable
+			.Setup(v => v.GetSymbol("greeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"greeter",
+					new AuraClass(
+						"Greeter",
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "name"),
+								new ParamType(
+									new AuraString(),
+									false,
+									null
+								)
 							)
-						)
-					},
-					methods: new List<AuraNamedFunction>(),
-					implementing: new List<AuraInterface>(),
-					pub: Visibility.Private
+						},
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedGet(
-						Obj: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "greeter"
-							)
-						),
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "name"
-						))
+					new UntypedGet(
+						new UntypedVariable(new Tok(TokType.Identifier, "greeter")),
+						new Tok(TokType.Identifier, "name")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedGet(
-					Obj: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "greeter"
-						),
-						Typ: new AuraClass(
-							name: "Greeter",
-							parameters: new List<Param>
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedGet(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "greeter"),
+						new AuraClass(
+							"Greeter",
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "name"
-									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new Tok(TokType.Identifier, "name"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							methods: new List<AuraNamedFunction>(),
-							implementing: new List<AuraInterface>(),
-							pub: Visibility.Private
+							new List<AuraNamedFunction>(),
+							new List<AuraInterface>(),
+							Visibility.Private
 						)
 					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "name"
-					),
-					Typ: new AuraString())
+					new Tok(TokType.Identifier, "name"),
+					new AuraString()
+				)
 			)
 		);
 	}
@@ -875,59 +652,31 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndex()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("names", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "names",
-				Kind: new AuraList(kind: new AuraString())
-			)
-		);
+		_symbolsTable
+			.Setup(v => v.GetSymbol("names", It.IsAny<string>()))
+			.Returns(new AuraSymbol("names", new AuraList(new AuraString())));
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedGetIndex(
-						Obj: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "names"
-							)
-						),
-						Index: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "0"
-							)
-						),
-						ClosingBracket: new Tok(
-							typ: TokType.RightBracket,
-							value: "]"
-						))
+					new UntypedGetIndex(
+						new UntypedVariable(new Tok(TokType.Identifier, "names")),
+						new IntLiteral(new Tok(TokType.IntLiteral, "0")),
+						new Tok(TokType.RightBracket, "]")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedGetIndex(
-					Obj: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "names"
-						),
-						Typ: new AuraList(kind: new AuraString())
-					),
-					Index: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "0"
-						)
-					),
-					ClosingBracket: new Tok(
-						typ: TokType.RightBracket,
-						value: "]"
-					),
-					Typ: new AuraString())
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedGetIndex(
+					new TypedVariable(new Tok(TokType.Identifier, "names"), new AuraList(new AuraString())),
+					new IntLiteral(new Tok(TokType.IntLiteral, "0")),
+					new Tok(TokType.RightBracket, "]"),
+					new AuraString()
+				)
 			)
 		);
 	}
@@ -935,71 +684,33 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_GetIndexRange()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("names", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "names",
-				Kind: new AuraList(kind: new AuraString())
-			)
-		);
+		_symbolsTable
+			.Setup(v => v.GetSymbol("names", It.IsAny<string>()))
+			.Returns(new AuraSymbol("names", new AuraList(new AuraString())));
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedGetIndexRange(
-						Obj: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "names"
-							)
-						),
-						Lower: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "0"
-							)
-						),
-						Upper: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "2"
-							)
-						),
-						ClosingBracket: new Tok(
-							typ: TokType.RightBracket,
-							value: "]"
-						))
+					new UntypedGetIndexRange(
+						new UntypedVariable(new Tok(TokType.Identifier, "names")),
+						new IntLiteral(new Tok(TokType.IntLiteral, "0")),
+						new IntLiteral(new Tok(TokType.IntLiteral, "2")),
+						new Tok(TokType.RightBracket, "]")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedGetIndexRange(
-					Obj: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "names"
-						),
-						Typ: new AuraList(kind: new AuraString())
-					),
-					Lower: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "0"
-						)
-					),
-					Upper: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "2"
-						)
-					),
-					ClosingBracket: new Tok(
-						typ: TokType.RightBracket,
-						value: "]"
-					),
-					Typ: new AuraList(new AuraString()))
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedGetIndexRange(
+					new TypedVariable(new Tok(TokType.Identifier, "names"), new AuraList(new AuraString())),
+					new IntLiteral(new Tok(TokType.IntLiteral, "0")),
+					new IntLiteral(new Tok(TokType.IntLiteral, "2")),
+					new Tok(TokType.RightBracket, "]"),
+					new AuraList(new AuraString())
+				)
 			)
 		);
 	}
@@ -1008,46 +719,26 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Grouping()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedGrouping(
-						OpeningParen: new Tok(
-							typ: TokType.LeftParen,
-							value: "("
-						),
-						Expr: new StringLiteral(
-							String: new Tok(
-								typ: TokType.StringLiteral,
-								value: "Hello world"
-							)
-						),
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+					new UntypedGrouping(
+						new Tok(TokType.LeftParen, "("),
+						new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")),
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
+			typedAst,
+			new TypedExpressionStmt(
 				new TypedGrouping(
-					OpeningParen: new Tok(
-						typ: TokType.LeftParen,
-						value: "("
-					),
-					Expr: new StringLiteral(
-						String: new Tok(
-							typ: TokType.StringLiteral,
-							value: "Hello world"
-						)
-					),
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")"
-					),
-					Typ: new AuraString())
+					new Tok(TokType.LeftParen, "("),
+					new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")),
+					new Tok(TokType.RightParen, ")"),
+					new AuraString()
+				)
 			)
 		);
 	}
@@ -1056,63 +747,37 @@ public class TypeCheckerTest
 	public void TestTypeCheck_If_EmptyThenBranch()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedIf(
-						If: new Tok(
-							typ: TokType.If,
-							value: "if"
+					new UntypedIf(
+						new Tok(TokType.If, "if"),
+						new BoolLiteral(new Tok(TokType.True, "true")),
+						new UntypedBlock(
+							new Tok(TokType.LeftBrace, "{"),
+							new List<IUntypedAuraStatement>(),
+							new Tok(TokType.RightBrace, "}")
 						),
-						Condition: new BoolLiteral(
-							Bool: new Tok(
-								typ: TokType.True,
-								value: "true"
-							)
-						),
-						Then: new UntypedBlock(
-							OpeningBrace: new Tok(
-								typ: TokType.LeftBrace,
-								value: "{"
-							),
-							Statements: new List<IUntypedAuraStatement>(),
-							ClosingBrace: new Tok(
-								typ: TokType.RightBrace,
-								value: "}"
-							)
-						),
-						Else: null)
+						null
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedIf(
-					If: new Tok(
-						typ: TokType.If,
-						value: "if"
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedIf(
+					new Tok(TokType.If, "if"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new TypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<ITypedAuraStatement>(),
+						new Tok(TokType.RightBrace, "}"),
+						new AuraNil()
 					),
-					Condition: new BoolLiteral(
-						Bool: new Tok(
-							typ: TokType.True,
-							value: "true"
-						)
-					),
-					Then: new TypedBlock(
-						OpeningBrace: new Tok(
-							typ: TokType.LeftBrace,
-							value: "{"
-						),
-						Statements: new List<ITypedAuraStatement>(),
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						),
-						Typ: new AuraNil()
-					),
-					Else: null,
-					Typ: new AuraNil())
+					null,
+					new AuraNil()
+				)
 			)
 		);
 	}
@@ -1121,81 +786,38 @@ public class TypeCheckerTest
 	public void TestTypeCheck_IntLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "5"
-						))
-				)
+				new UntypedExpressionStmt(new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 			}
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "5"
-					))
-			)
-		);
+		MakeAssertions(typedAst, new TypedExpressionStmt(new IntLiteral(new Tok(TokType.IntLiteral, "5"))));
 	}
 
 	[Test]
 	public void TestTypeCheck_FloatLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new FloatLiteral(
-						Float: new Tok(
-							typ: TokType.FloatLiteral,
-							value: "5.1"
-						))
-				)
+				new UntypedExpressionStmt(new FloatLiteral(new Tok(TokType.FloatLiteral, "5.1")))
 			}
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new FloatLiteral(
-					Float: new Tok(
-						typ: TokType.FloatLiteral,
-						value: "5.1"
-					))
-			)
-		);
+		MakeAssertions(typedAst, new TypedExpressionStmt(new FloatLiteral(new Tok(TokType.FloatLiteral, "5.1"))));
 	}
 
 	[Test]
 	public void TestTypeCheck_StringLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new StringLiteral(
-						String: new Tok(
-							typ: TokType.StringLiteral,
-							value: "Hello world"
-						))
-				)
+				new UntypedExpressionStmt(new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")))
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				new StringLiteral(
-					String: new Tok(
-						typ: TokType.StringLiteral,
-						value: "Hello world"
-					)
-				)
-			)
+			typedAst,
+			new TypedExpressionStmt(new StringLiteral(new Tok(TokType.StringLiteral, "Hello world")))
 		);
 	}
 
@@ -1203,53 +825,27 @@ public class TypeCheckerTest
 	public void TestTypeCheck_ListLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new ListLiteral<IUntypedAuraExpression>(
-						OpeningBracket: new Tok(
-							typ: TokType.LeftBracket,
-							value: "["
-						),
-						L: new List<IUntypedAuraExpression>
-						{
-							new IntLiteral(
-								Int: new Tok(
-									typ: TokType.IntLiteral,
-									value: "1"
-								)
-							)
-						},
-						Kind: new AuraInt(),
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "]"
-						))
+					new ListLiteral<IUntypedAuraExpression>(
+						new Tok(TokType.LeftBracket, "["),
+						new List<IUntypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "1")) },
+						new AuraInt(),
+						new Tok(TokType.RightBrace, "]")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
+			typedAst,
+			new TypedExpressionStmt(
 				new ListLiteral<ITypedAuraExpression>(
-					OpeningBracket: new Tok(
-						typ: TokType.LeftBracket,
-						value: "["
-					),
-					L: new List<ITypedAuraExpression>
-					{
-						new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "1"
-							)
-						)
-					},
-					Kind: new AuraInt(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "]"
-					))
+					new Tok(TokType.LeftBracket, "["),
+					new List<ITypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "1")) },
+					new AuraInt(),
+					new Tok(TokType.RightBrace, "]")
+				)
 			)
 		);
 	}
@@ -1258,71 +854,41 @@ public class TypeCheckerTest
 	public void TestTypeCheck_MapLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(
-						Map: new Tok(
-							typ: TokType.Map,
-							value: "map"
-						),
-						M: new Dictionary<IUntypedAuraExpression, IUntypedAuraExpression>
+					new MapLiteral<IUntypedAuraExpression, IUntypedAuraExpression>(
+						new Tok(TokType.Map, "map"),
+						new Dictionary<IUntypedAuraExpression, IUntypedAuraExpression>
 						{
 							{
-								new StringLiteral(
-									String: new Tok(
-										typ: TokType.StringLiteral,
-										value: "Hello"
-									)
-								),
-								new IntLiteral(
-									Int: new Tok(
-										typ: TokType.IntLiteral,
-										value: "1"
-									)
-								)
+								new StringLiteral(new Tok(TokType.StringLiteral, "Hello")),
+								new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 							}
 						},
-						KeyType: new AuraString(),
-						ValueType: new AuraInt(),
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						))
+						new AuraString(),
+						new AuraInt(),
+						new Tok(TokType.RightBrace, "}")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
-					Map: new Tok(
-						typ: TokType.Map,
-						value: "map"
-					),
-					M: new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
+			typedAst,
+			new TypedExpressionStmt(
+				new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+					new Tok(TokType.Map, "map"),
+					new Dictionary<ITypedAuraExpression, ITypedAuraExpression>
 					{
 						{
-							new StringLiteral(
-								String: new Tok(
-									typ: TokType.StringLiteral,
-									value: "Hello"
-								)
-							),
-							new IntLiteral(
-								Int: new Tok(
-									typ: TokType.IntLiteral,
-									value: "1"
-								)
-							)
+							new StringLiteral(new Tok(TokType.StringLiteral, "Hello")),
+							new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 						}
 					},
-					KeyType: new AuraString(),
-					ValueType: new AuraInt(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					))
+					new AuraString(),
+					new AuraInt(),
+					new Tok(TokType.RightBrace, "}")
+				)
 			)
 		);
 	}
@@ -1331,130 +897,59 @@ public class TypeCheckerTest
 	public void TestTypeCheck_BoolLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new BoolLiteral(
-						Bool: new Tok(
-							typ: TokType.True,
-							value: "true"
-						))
-				)
+				new UntypedExpressionStmt(new BoolLiteral(new Tok(TokType.True, "true")))
 			}
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				new BoolLiteral(
-					Bool: new Tok(
-						typ: TokType.True,
-						value: "true"
-					))
-			)
-		);
+		MakeAssertions(typedAst, new TypedExpressionStmt(new BoolLiteral(new Tok(TokType.True, "true"))));
 	}
 
 	[Test]
 	public void TestTypeCheck_NilLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedExpressionStmt(
-					Expression: new UntypedNil(
-						Nil: new Tok(
-							typ: TokType.Nil,
-							value: "nil"
-						))
-				)
-			}
+			new List<IUntypedAuraStatement> { new UntypedExpressionStmt(new UntypedNil(new Tok(TokType.Nil, "nil"))) }
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				new TypedNil(
-					Nil: new Tok(
-						typ: TokType.Nil,
-						value: "nil"
-					))
-			)
-		);
+		MakeAssertions(typedAst, new TypedExpressionStmt(new TypedNil(new Tok(TokType.Nil, "nil"))));
 	}
 
 	[Test]
 	public void TestTypeCheck_CharLiteral()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new CharLiteral(
-						Char: new Tok(
-							typ: TokType.CharLiteral,
-							value: "a"
-						))
-				)
+				new UntypedExpressionStmt(new CharLiteral(new Tok(TokType.CharLiteral, "a")))
 			}
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				new CharLiteral(
-					Char: new Tok(
-						typ: TokType.CharLiteral,
-						value: "a"
-					))
-			)
-		);
+		MakeAssertions(typedAst, new TypedExpressionStmt(new CharLiteral(new Tok(TokType.CharLiteral, "a"))));
 	}
 
 	[Test]
 	public void TestTypeCheck_Logical()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedLogical(
-						Left: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "5"
-							)
-						),
-						Operator: new Tok(
-							typ: TokType.Less,
-							value: "<"
-						),
-						Right: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "10"
-							)))
+					new UntypedLogical(
+						new IntLiteral(new Tok(TokType.IntLiteral, "5")),
+						new Tok(TokType.Less, "<"),
+						new IntLiteral(new Tok(TokType.IntLiteral, "10"))
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedLogical(
-					Left: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "5"
-						)
-					),
-					Operator: new Tok(
-						typ: TokType.Less,
-						value: "<"
-					),
-					Right: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "10"
-						)
-					),
-					Typ: new AuraBool())
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedLogical(
+					new IntLiteral(new Tok(TokType.IntLiteral, "5")),
+					new Tok(TokType.Less, "<"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "10")),
+					new AuraBool()
+				)
 			)
 		);
 	}
@@ -1462,95 +957,71 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("greeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "greeter",
-				Kind: new AuraClass(
-					name: "Greeter",
-					parameters: new List<Param>
-					{
-						new(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "name"
-							),
-							ParamType: new(
-								Typ: new AuraString(),
-								Variadic: false,
-								DefaultValue: null
+		_symbolsTable
+			.Setup(v => v.GetSymbol("greeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"greeter",
+					new AuraClass(
+						"Greeter",
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "name"),
+								new ParamType(
+									new AuraString(),
+									false,
+									null
+								)
 							)
-						)
-					},
-					methods: new List<AuraNamedFunction>(),
-					implementing: new List<AuraInterface>(),
-					pub: Visibility.Private
+						},
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedSet(
-						Obj: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "greeter"
-							)
-						),
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "name"
-						),
-						Value: new StringLiteral(
-							String: new Tok(
-								typ: TokType.StringLiteral,
-								value: "Bob"
-							)))
+					new UntypedSet(
+						new UntypedVariable(new Tok(TokType.Identifier, "greeter")),
+						new Tok(TokType.Identifier, "name"),
+						new StringLiteral(new Tok(TokType.StringLiteral, "Bob"))
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedSet(
-					Obj: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "greeter"
-						),
-						Typ: new AuraClass(
-							name: "Greeter",
-							parameters: new List<Param>
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedSet(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "greeter"),
+						new AuraClass(
+							"Greeter",
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "name"
-									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new Tok(TokType.Identifier, "name"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							methods: new List<AuraNamedFunction>(),
-							implementing: new List<AuraInterface>(),
-							pub: Visibility.Private
-						)),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "name"
-					),
-					Value: new StringLiteral(
-						String: new Tok(
-							typ: TokType.StringLiteral,
-							value: "Bob"
+							new List<AuraNamedFunction>(),
+							new List<AuraInterface>(),
+							Visibility.Private
 						)
 					),
-					Typ: new AuraString())
+					new Tok(TokType.Identifier, "name"),
+					new StringLiteral(new Tok(TokType.StringLiteral, "Bob")),
+					new AuraString()
+				)
 			)
 		);
 	}
@@ -1558,60 +1029,45 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_This()
 	{
-		_enclosingClassStore.Setup(ecs => ecs.Peek())
-			.Returns(new PartiallyTypedClass(
-				Class: new Tok(
-					typ: TokType.Class,
-					value: "class"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "Greeter"
-				),
-				Params: new List<Param>(),
-				Methods: new List<AuraNamedFunction>(),
-				Public: Visibility.Public,
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Typ: new AuraClass(
-					name: "Greeter",
-					parameters: new List<Param>(),
-					methods: new List<AuraNamedFunction>(),
-					implementing: new List<AuraInterface>(),
-					pub: Visibility.Private
+		_enclosingClassStore
+			.Setup(ecs => ecs.Peek())
+			.Returns(
+				new PartiallyTypedClass(
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<AuraNamedFunction>(),
+					Visibility.Public,
+					new Tok(TokType.RightBrace, "}"),
+					new AuraClass(
+						"Greeter",
+						new List<Param>(),
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new UntypedThis(
-						This: new Tok(
-							typ: TokType.This,
-							value: "this"
-						))
-				)
+				new UntypedExpressionStmt(new UntypedThis(new Tok(TokType.This, "this")))
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedThis(
-					This: new Tok(
-						typ: TokType.This,
-						value: "this"
-					),
-					Typ: new AuraClass(
-						name: "Greeter",
-						parameters: new List<Param>(),
-						methods: new List<AuraNamedFunction>(),
-						implementing: new List<AuraInterface>(),
-						pub: Visibility.Private
-					))
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedThis(
+					new Tok(TokType.This, "this"),
+					new AuraClass(
+						"Greeter",
+						new List<Param>(),
+						new List<AuraNamedFunction>(),
+						new List<AuraInterface>(),
+						Visibility.Private
+					)
+				)
 			)
 		);
 	}
@@ -1620,37 +1076,21 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Unary_Bang()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedUnary(
-						Operator: new Tok(
-							typ: TokType.Bang,
-							value: "!"
-						),
-						Right: new BoolLiteral(
-							Bool: new Tok(
-								typ: TokType.True,
-								value: "true"
-							)))
+					new UntypedUnary(new Tok(TokType.Bang, "!"), new BoolLiteral(new Tok(TokType.True, "true")))
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedUnary(
-					Operator: new Tok(
-						typ: TokType.Bang,
-						value: "!"
-					),
-					Right: new BoolLiteral(
-						Bool: new Tok(
-							typ: TokType.True,
-							value: "true"
-						)
-					),
-					Typ: new AuraBool())
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedUnary(
+					new Tok(TokType.Bang, "!"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new AuraBool()
+				)
 			)
 		);
 	}
@@ -1659,37 +1099,21 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Unary_Minus()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedUnary(
-						Operator: new Tok(
-							typ: TokType.Minus,
-							value: "-"
-						),
-						Right: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "5"
-							)))
+					new UntypedUnary(new Tok(TokType.Minus, "-"), new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedUnary(
-					Operator: new Tok(
-						typ: TokType.Minus,
-						value: "-"
-					),
-					Right: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "5"
-						)
-					),
-					Typ: new AuraInt())
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedUnary(
+					new Tok(TokType.Minus, "-"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "5")),
+					new AuraInt()
+				)
 			)
 		);
 	}
@@ -1697,100 +1121,72 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Variable()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("name", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "name",
-				Kind: new AuraString()
-			)
-		);
+		_symbolsTable
+			.Setup(v => v.GetSymbol("name", It.IsAny<string>()))
+			.Returns(new AuraSymbol("name", new AuraString()));
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedExpressionStmt(
-					Expression: new UntypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "name"
-						))
-				)
+				new UntypedExpressionStmt(new UntypedVariable(new Tok(TokType.Identifier, "name")))
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedVariable(
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "name"
-					),
-					Typ: new AuraString()
-				)
-			)
+			typedAst,
+			new TypedExpressionStmt(new TypedVariable(new Tok(TokType.Identifier, "name"), new AuraString()))
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Defer()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("f", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "f",
-				Kind: new AuraNamedFunction(
-					name: "f",
-					pub: Visibility.Private,
-					f: new AuraFunction(
-						fParams: new List<Param>(),
-						returnType: new AuraNil()
+		_symbolsTable
+			.Setup(v => v.GetSymbol("f", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"f",
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(new List<Param>(), new AuraNil())
 					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedDefer(
-					Defer: new Tok(
-						typ: TokType.Defer,
-						value: "defer"
-					),
-					Call: new UntypedCall(
-						Callee: new UntypedVariable(
-							new Tok(TokType.Identifier, "f")),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+					new Tok(TokType.Defer, "defer"),
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>(),
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedDefer(
-				Defer: new Tok(
-					typ: TokType.Defer,
-					value: "defer"
-				),
-				Call: new TypedCall(
-					Callee: new TypedVariable(
+			typedAst,
+			new TypedDefer(
+				new Tok(TokType.Defer, "defer"),
+				new TypedCall(
+					new TypedVariable(
 						new Tok(TokType.Identifier, "f"),
 						new AuraNamedFunction(
 							"f",
 							Visibility.Private,
-							new AuraFunction(
-								new List<Param>(),
-								new AuraNil()
-							)
+							new AuraFunction(new List<Param>(), new AuraNil())
 						)
 					),
-					Arguments: new List<ITypedAuraExpression>(),
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")"
-					),
-					FnTyp: new AuraNamedFunction("f", Visibility.Private, new AuraFunction(new List<Param>(), new AuraNil())))
+					new List<ITypedAuraExpression>(),
+					new Tok(TokType.RightParen, ")"),
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(new List<Param>(), new AuraNil())
+					)
+				)
 			)
 		);
 	}
@@ -1798,114 +1194,51 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_For_EmptyBody()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "i",
-				Kind: new AuraInt()
-			)
-		);
+		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>())).Returns(new AuraSymbol("i", new AuraInt()));
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedFor(
-					For: new Tok(
-						typ: TokType.For,
-						value: "for"
+					new Tok(TokType.For, "for"),
+					new UntypedLet(
+						null,
+						new List<Tok> { new(TokType.Identifier, "i") },
+						new List<AuraType>(),
+						false,
+						new IntLiteral(new Tok(TokType.IntLiteral, "0"))
 					),
-					Initializer: new UntypedLet(
-						Let: null,
-						Names: new List<Tok>
-						{
-							new(
-								typ: TokType.Identifier,
-								value: "i"
-							)
-						},
-						NameTyps: new List<AuraType>(),
-						Mutable: false,
-						Initializer: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "0"
-							))
+					new UntypedLogical(
+						new UntypedVariable(new Tok(TokType.Identifier, "i")),
+						new Tok(TokType.Less, "<"),
+						new IntLiteral(new Tok(TokType.IntLiteral, "10"))
 					),
-					Condition: new UntypedLogical(
-						Left: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "i"
-							)
-						),
-						Operator: new Tok(
-							typ: TokType.Less,
-							value: "<"
-						),
-						Right: new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "10"
-							))
-					),
-					Increment: null,
-					Body: new List<IUntypedAuraStatement>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					)
+					null,
+					new List<IUntypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}")
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedFor(
-				For: new Tok(
-					typ: TokType.For,
-					value: "for"
+			typedAst,
+			new TypedFor(
+				new Tok(TokType.For, "for"),
+				new TypedLet(
+					null,
+					new List<Tok> { new(TokType.Identifier, "i") },
+					false,
+					false,
+					new IntLiteral(new Tok(TokType.IntLiteral, "0"))
 				),
-				Initializer: new TypedLet(
-					Let: null,
-					Names: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "i"
-						)
-					},
-					TypeAnnotation: false,
-					Mutable: false,
-					Initializer: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "0"
-						))
+				new TypedLogical(
+					new TypedVariable(new Tok(TokType.Identifier, "i"), new AuraInt()),
+					new Tok(TokType.Less, "<"),
+					new IntLiteral(new Tok(TokType.IntLiteral, "10")),
+					new AuraBool()
 				),
-				Condition: new TypedLogical(
-					Left: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "i"
-						),
-						Typ: new AuraInt()
-					),
-					Operator: new Tok(
-						typ: TokType.Less,
-						value: "<"
-					),
-					Right: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "10"
-						)
-					),
-					Typ: new AuraBool()
-				),
-				Increment: null,
-				Body: new List<ITypedAuraStatement>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				)
+				null,
+				new List<ITypedAuraStatement>(),
+				new Tok(TokType.RightBrace, "}")
 			)
 		);
 	}
@@ -1913,62 +1246,30 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ForEach_EmptyBody()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("names", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "names",
-				Kind: new AuraList(kind: new AuraString())
-			)
-		);
+		_symbolsTable
+			.Setup(v => v.GetSymbol("names", It.IsAny<string>()))
+			.Returns(new AuraSymbol("names", new AuraList(new AuraString())));
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedForEach(
-					ForEach: new Tok(
-						typ: TokType.ForEach,
-						value: "foreach"
-					),
-					EachName: new Tok(
-						typ: TokType.Identifier,
-						value: "name"
-					),
-					Iterable: new UntypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "names"
-						)
-					),
-					Body: new List<IUntypedAuraStatement>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					)
+					new Tok(TokType.ForEach, "foreach"),
+					new Tok(TokType.Identifier, "name"),
+					new UntypedVariable(new Tok(TokType.Identifier, "names")),
+					new List<IUntypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}")
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedForEach(
-				ForEach: new Tok(
-					typ: TokType.ForEach,
-					value: "foreach"
-				),
-				EachName: new Tok(
-					typ: TokType.Identifier,
-					value: "name"
-				),
-				Iterable: new TypedVariable(
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "names"
-					),
-					Typ: new AuraList(kind: new AuraString())
-				),
-				Body: new List<ITypedAuraStatement>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				)
+			typedAst,
+			new TypedForEach(
+				new Tok(TokType.ForEach, "foreach"),
+				new Tok(TokType.Identifier, "name"),
+				new TypedVariable(new Tok(TokType.Identifier, "names"), new AuraList(new AuraString())),
+				new List<ITypedAuraStatement>(),
+				new Tok(TokType.RightBrace, "}")
 			)
 		);
 	}
@@ -1976,175 +1277,135 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_NamedFunction_NoParams_ReturnError()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("error", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "error",
-				Kind: new AuraNamedFunction(
-					name: "error",
-					pub: Visibility.Public,
-					f: new AuraFunction(
-						fParams: new List<Param>
-						{
-							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "message"
-								),
-								ParamType: new ParamType(
-									Typ: new AuraString(),
-									Variadic: false,
-									DefaultValue: null
+		_symbolsTable
+			.Setup(v => v.GetSymbol("error", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"error",
+					new AuraNamedFunction(
+						"error",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "message"),
+									new ParamType(
+										new AuraString(),
+										false,
+										null
+									)
 								)
-							)
-						},
-						returnType: new AuraError()
+							},
+							new AuraError()
+						)
 					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedNamedFunction(
-					Fn: new Tok(
-						typ: TokType.Fn,
-						value: "fn"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "f"
-					),
-					Params: new List<Param>(),
-					Body: new UntypedBlock(
-						OpeningBrace: new Tok(
-							typ: TokType.LeftBrace,
-							value: "{"
-						),
-						Statements: new List<IUntypedAuraStatement>
+					new Tok(TokType.Fn, "fn"),
+					new Tok(TokType.Identifier, "f"),
+					new List<Param>(),
+					new UntypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<IUntypedAuraStatement>
 						{
 							new UntypedReturn(
-								Return: new Tok(
-									typ: TokType.Return,
-									value: "return"
-								),
-								Value: new List<IUntypedAuraExpression>
+								new Tok(TokType.Return, "return"),
+								new List<IUntypedAuraExpression>
 								{
 									new UntypedCall(
-										Callee: new UntypedVariable(
-											Name: new Tok(
-												typ: TokType.Identifier,
-												value: "error"
-											)
-										),
-										Arguments: new List<(Tok?, IUntypedAuraExpression)>
+										new UntypedVariable(new Tok(TokType.Identifier, "error")),
+										new List<(Tok?, IUntypedAuraExpression)>
 										{
-											(
-												null,
+											(null,
 												new StringLiteral(
-													String: new Tok(
-														typ: TokType.StringLiteral,
-														value: "Helpful error message"
-													)
-												)
-											)
+													new Tok(TokType.StringLiteral, "Helpful error message")
+												))
 										},
-										ClosingParen: new Tok(
-											typ: TokType.RightParen,
-											value: ")"
-										)
+										new Tok(TokType.RightParen, ")")
 									)
 								}
 							)
 						},
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						)
+						new Tok(TokType.RightBrace, "}")
 					),
-					ReturnType: new List<AuraType>{ new AuraError() },
-					Public: Visibility.Public,
-					Documentation: string.Empty
+					new List<AuraType> { new AuraError() },
+					Visibility.Public,
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedNamedFunction(
-				Fn: new Tok(
-					typ: TokType.Fn,
-					value: "fn"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "f"
-				),
-				Params: new List<Param>(),
-				Body: new TypedBlock(
-					OpeningBrace: new Tok(
-						typ: TokType.LeftBrace,
-						value: "{"
-					),
-					Statements: new List<ITypedAuraStatement>
+			typedAst,
+			new TypedNamedFunction(
+				new Tok(TokType.Fn, "fn"),
+				new Tok(TokType.Identifier, "f"),
+				new List<Param>(),
+				new TypedBlock(
+					new Tok(TokType.LeftBrace, "{"),
+					new List<ITypedAuraStatement>
 					{
 						new TypedReturn(
-							Return: new Tok(
-								typ: TokType.Return,
-								value: "return"
-							),
-							Value: new TypedCall(
-								Callee: new TypedVariable(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "error"
-									),
-									Typ: new AuraNamedFunction(
-										name: "error",
-										pub: Visibility.Public,
-										f: new AuraFunction(
-											fParams: new List<Param>
+							new Tok(TokType.Return, "return"),
+							new TypedCall(
+								new TypedVariable(
+									new Tok(TokType.Identifier, "error"),
+									new AuraNamedFunction(
+										"error",
+										Visibility.Public,
+										new AuraFunction(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "message"
-													),
-													ParamType: new ParamType(
-														Typ: new AuraString(),
-														Variadic: false,
-														DefaultValue: null
+													new Tok(TokType.Identifier, "message"),
+													new ParamType(
+														new AuraString(),
+														false,
+														null
 													)
 												)
 											},
-											returnType: new AuraError()
+											new AuraError()
 										)
 									)
 								),
-								Arguments: new List<ITypedAuraExpression>
+								new List<ITypedAuraExpression>
 								{
-									new StringLiteral(
-										String: new Tok(
-											typ: TokType.StringLiteral,
-											value: "Helpful error message"
-										)
-									)
+									new StringLiteral(new Tok(TokType.StringLiteral, "Helpful error message"))
 								},
-								ClosingParen: new Tok(
-									typ: TokType.RightParen,
-									value: ")"
-								),
-								FnTyp: new AuraNamedFunction("error", Visibility.Public, new AuraFunction(new List<Param>{ new(new Tok(TokType.Identifier, "message"), new ParamType(new AuraString(), false, null)) }, new AuraError())))
+								new Tok(TokType.RightParen, ")"),
+								new AuraNamedFunction(
+									"error",
+									Visibility.Public,
+									new AuraFunction(
+										new List<Param>
+										{
+											new(
+												new Tok(TokType.Identifier, "message"),
+												new ParamType(
+													new AuraString(),
+													false,
+													null
+												)
+											)
+										},
+										new AuraError()
+									)
+								)
+							)
 						)
 					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Typ: new AuraError()
+					new Tok(TokType.RightBrace, "}"),
+					new AuraError()
 				),
-				ReturnType: new AuraError(),
-				Public: Visibility.Public,
-				Documentation: string.Empty
+				new AuraError(),
+				Visibility.Public,
+				string.Empty
 			)
 		);
 	}
@@ -2153,61 +1414,38 @@ public class TypeCheckerTest
 	public void TestTypeCheck_NamedFunction_NoParams_NoReturnType_NoBody()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedNamedFunction(
-					Fn: new Tok(
-						typ: TokType.Fn,
-						value: "fn"
+					new Tok(TokType.Fn, "fn"),
+					new Tok(TokType.Identifier, "f"),
+					new List<Param>(),
+					new UntypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<IUntypedAuraStatement>(),
+						new Tok(TokType.RightBrace, "}")
 					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "f"
-					),
-					Params: new List<Param>(),
-					Body: new UntypedBlock(
-						OpeningBrace: new Tok(
-							typ: TokType.LeftBrace,
-							value: "{"
-						),
-						Statements: new List<IUntypedAuraStatement>(),
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						)
-					),
-					ReturnType: null,
-					Public: Visibility.Public,
-					Documentation: string.Empty
+					null,
+					Visibility.Public,
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedNamedFunction(
-				Fn: new Tok(
-					typ: TokType.Fn,
-					value: "fn"),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "f"
+			typedAst,
+			new TypedNamedFunction(
+				new Tok(TokType.Fn, "fn"),
+				new Tok(TokType.Identifier, "f"),
+				new List<Param>(),
+				new TypedBlock(
+					new Tok(TokType.LeftBrace, "{"),
+					new List<ITypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}"),
+					new AuraNil()
 				),
-				Params: new List<Param>(),
-				Body: new TypedBlock(
-					OpeningBrace: new Tok(
-						typ: TokType.LeftBrace,
-						value: "{"
-					),
-					Statements: new List<ITypedAuraStatement>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Typ: new AuraNil()
-				),
-				ReturnType: new AuraNil(),
-				Public: Visibility.Public,
-				Documentation: string.Empty
+				new AuraNil(),
+				Visibility.Public,
+				string.Empty
 			)
 		);
 	}
@@ -2216,52 +1454,36 @@ public class TypeCheckerTest
 	public void TestTypeCheck_AnonymousFunction_NoParams_NoReturnType_NoBody()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedAnonymousFunction(
-						Fn: new Tok(
-							typ: TokType.Fn,
-							value: "fn"
+					new UntypedAnonymousFunction(
+						new Tok(TokType.Fn, "fn"),
+						new List<Param>(),
+						new UntypedBlock(
+							new Tok(TokType.LeftBrace, "{"),
+							new List<IUntypedAuraStatement>(),
+							new Tok(TokType.RightBrace, "}")
 						),
-						Params: new List<Param>(),
-						Body: new UntypedBlock(
-							OpeningBrace: new Tok(
-								typ: TokType.LeftBrace,
-								value: "{"
-							),
-							Statements: new List<IUntypedAuraStatement>(),
-							ClosingBrace: new Tok(
-								typ: TokType.RightBrace,
-								value: "}"
-							)
-						),
-						ReturnType: null)
+						null
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedAnonymousFunction(
-					Fn: new Tok(
-						typ: TokType.Fn,
-						value: "fn"
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedAnonymousFunction(
+					new Tok(TokType.Fn, "fn"),
+					new List<Param>(),
+					new TypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<ITypedAuraStatement>(),
+						new Tok(TokType.RightBrace, "}"),
+						new AuraNil()
 					),
-					Params: new List<Param>(),
-					Body: new TypedBlock(
-						OpeningBrace: new Tok(
-							typ: TokType.LeftBrace,
-							value: "{"
-						),
-						Statements: new List<ITypedAuraStatement>(),
-						ClosingBrace: new Tok(
-							typ: TokType.RightBrace,
-							value: "}"
-						),
-						Typ: new AuraNil()
-					),
-					ReturnType: new AuraNil())
+					new AuraNil()
+				)
 			)
 		);
 	}
@@ -2270,51 +1492,25 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Let_Long()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedLet(
-					Let: new Tok(
-						typ: TokType.Let,
-						value: "let"
-					),
-					Names: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "i"
-						)
-					},
-					NameTyps: new List<AuraType>{ new AuraInt() },
-					Mutable: false,
-					Initializer: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "1"
-						))
+					new Tok(TokType.Let, "let"),
+					new List<Tok> { new(TokType.Identifier, "i") },
+					new List<AuraType> { new AuraInt() },
+					false,
+					new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedLet(
-				Let: new Tok(
-					typ: TokType.Let,
-					value: "let"
-				),
-				Names: new List<Tok>
-				{
-					new(
-						typ: TokType.Identifier,
-						value: "i"
-					)
-				},
-				TypeAnnotation: true,
-				Mutable: false,
-				Initializer: new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "1"
-					))
+			typedAst,
+			new TypedLet(
+				new Tok(TokType.Let, "let"),
+				new List<Tok> { new(TokType.Identifier, "i") },
+				true,
+				false,
+				new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 			)
 		);
 	}
@@ -2323,47 +1519,25 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Let_Uninitialized()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedLet(
-					Let: new Tok(
-						typ: TokType.Let,
-						value: "let"
-					),
-					Names: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "i"
-						)
-					},
-					NameTyps: new List<AuraType>{ new AuraInt() },
-					Mutable: false,
-					Initializer: null
+					new Tok(TokType.Let, "let"),
+					new List<Tok> { new(TokType.Identifier, "i") },
+					new List<AuraType> { new AuraInt() },
+					false,
+					null
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedLet(
-				Let: new Tok(
-					typ: TokType.Let,
-					value: "let"
-				),
-				Names: new List<Tok>
-				{
-					new(
-						typ: TokType.Identifier,
-						value: "i"
-					)
-				},
-				TypeAnnotation: true,
-				Mutable: false,
-				Initializer: new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "0"
-					))
+			typedAst,
+			new TypedLet(
+				new Tok(TokType.Let, "let"),
+				new List<Tok> { new(TokType.Identifier, "i") },
+				true,
+				false,
+				new IntLiteral(new Tok(TokType.IntLiteral, "0"))
 			)
 		);
 	}
@@ -2372,71 +1546,43 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Let_Uninitialized_NonDefaultable()
 	{
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedLet(
-					Let: new Tok(
-						typ: TokType.Let,
-						value: "let"
-					),
-					Names: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "c"
-						)
-					},
-					NameTyps: new List<AuraType>{ new AuraChar() },
-					Mutable: false,
-					Initializer: null
+					new Tok(TokType.Let, "let"),
+					new List<Tok> { new(TokType.Identifier, "c") },
+					new List<AuraType> { new AuraChar() },
+					false,
+					null
 				)
 			},
-			expected: typeof(MustSpecifyInitialValueForNonDefaultableTypeException));
+			typeof(MustSpecifyInitialValueForNonDefaultableTypeException)
+		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Long_Short()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedLet(
-					Let: null,
-					Names: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "i"
-						)
-					},
-					NameTyps: new List<AuraType>(),
-					Mutable: false,
-					Initializer: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "1"
-						))
+					null,
+					new List<Tok> { new(TokType.Identifier, "i") },
+					new List<AuraType>(),
+					false,
+					new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedLet(
-				Let: null,
-				Names: new List<Tok>
-				{
-					new(
-						typ: TokType.Identifier,
-						value: "i"
-					)
-				},
-				TypeAnnotation: false,
-				Mutable: false,
-				Initializer: new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "1"
-					))
+			typedAst,
+			new TypedLet(
+				null,
+				new List<Tok> { new(TokType.Identifier, "i") },
+				false,
+				false,
+				new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 			)
 		);
 	}
@@ -2445,65 +1591,26 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Return_NoValue()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedReturn(
-					Return: new Tok(
-						typ: TokType.Return,
-						value: "return"
-					),
-					Value: null
-				)
-			}
+			new List<IUntypedAuraStatement> { new UntypedReturn(new Tok(TokType.Return, "return"), null) }
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedReturn(
-				Return: new Tok(
-					typ: TokType.Return,
-					value: "return"
-				),
-				Value: null
-			)
-		);
+		MakeAssertions(typedAst, new TypedReturn(new Tok(TokType.Return, "return"), null));
 	}
 
 	[Test]
 	public void TestTypeCheck_Return()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedReturn(
-					Return: new Tok(
-						typ: TokType.Return,
-						value: "return"
-					),
-					Value: new List<IUntypedAuraExpression>
-					{
-						new IntLiteral(
-							Int: new Tok(
-								typ: TokType.IntLiteral,
-								value: "5"
-							)
-						)
-					}
+					new Tok(TokType.Return, "return"),
+					new List<IUntypedAuraExpression> { new IntLiteral(new Tok(TokType.IntLiteral, "5")) }
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedReturn(
-				Return: new Tok(
-					typ: TokType.Return,
-					value: "return"
-				),
-				Value: new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "5"
-					))
-			)
+			typedAst,
+			new TypedReturn(new Tok(TokType.Return, "return"), new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		);
 	}
 
@@ -2511,43 +1618,31 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Class_NoParams_NoMethods()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedClass(
-					Class: new Tok(
-						typ: TokType.Class,
-						value: "class"
-					),
-					Name: new Tok(TokType.Identifier, "Greeter"),
-					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>(),
-					Public: Visibility.Private,
-					Implementing: new List<Tok>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<IUntypedAuraStatement>(),
+					Visibility.Private,
+					new List<Tok>(),
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new FullyTypedClass(
-				Class: new Tok(
-					typ: TokType.Class,
-					value: "class"
-				),
-				Name: new Tok(TokType.Identifier, "Greeter"),
-				Params: new List<Param>(),
-				Methods: new List<TypedNamedFunction>(),
-				Public: Visibility.Private,
-				Implementing: new List<AuraInterface>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Documentation: string.Empty
+			typedAst,
+			new FullyTypedClass(
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
+				new List<Param>(),
+				new List<TypedNamedFunction>(),
+				Visibility.Private,
+				new List<AuraInterface>(),
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty
 			)
 		);
 	}
@@ -2556,45 +1651,23 @@ public class TypeCheckerTest
 	public void TestTypeCheck_While_EmptyBody()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedWhile(
-					While: new Tok(
-						typ: TokType.While,
-						value: "while"
-					),
-					Condition: new BoolLiteral(
-						Bool: new Tok(
-							typ: TokType.True,
-							value: "true"
-						)
-					),
-					Body: new List<IUntypedAuraStatement>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					)
+					new Tok(TokType.While, "while"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new List<IUntypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}")
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedWhile(
-				While: new Tok(
-					typ: TokType.While,
-					value: "while"
-				),
-				Condition: new BoolLiteral(
-					Bool: new Tok(
-						typ: TokType.True,
-						value: "true"
-					)
-				),
-				Body: new List<ITypedAuraStatement>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				)
+			typedAst,
+			new TypedWhile(
+				new Tok(TokType.While, "while"),
+				new BoolLiteral(new Tok(TokType.True, "true")),
+				new List<ITypedAuraStatement>(),
+				new Tok(TokType.RightBrace, "}")
 			)
 		);
 	}
@@ -2603,247 +1676,113 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Comment()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedComment(
-					Text: new Tok(
-						typ: TokType.Comment,
-						value: "// this is a comment"
-					)
-				)
-			}
+			new List<IUntypedAuraStatement> { new UntypedComment(new Tok(TokType.Comment, "// this is a comment")) }
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedComment(
-				Text: new Tok(
-					typ: TokType.Comment,
-					value: "// this is a comment"
-				)
-			)
-		);
+		MakeAssertions(typedAst, new TypedComment(new Tok(TokType.Comment, "// this is a comment")));
 	}
 
 	[Test]
 	public void TestTypeCheck_Yield()
 	{
-		_enclosingExprStore.Setup(expr => expr.Peek()).Returns(
-			new UntypedBlock(
-				OpeningBrace: new Tok(
-					typ: TokType.LeftBrace,
-					value: "{"
-				),
-				Statements: new List<IUntypedAuraStatement>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
+		_enclosingExprStore
+			.Setup(expr => expr.Peek())
+			.Returns(
+				new UntypedBlock(
+					new Tok(TokType.LeftBrace, "{"),
+					new List<IUntypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}")
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedYield(
-					Yield: new Tok(
-						typ: TokType.Yield,
-						value: "yield"
-					),
-					Value: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "5"
-						))
-				)
+				new UntypedYield(new Tok(TokType.Yield, "yield"), new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedYield(
-				Yield: new Tok(
-					typ: TokType.Yield,
-					value: "yield"
-				),
-				Value: new IntLiteral(
-					Int: new Tok(
-						typ: TokType.IntLiteral,
-						value: "5"
-					))
-			)
+			typedAst,
+			new TypedYield(new Tok(TokType.Yield, "yield"), new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Yield_Invalid()
 	{
-		_enclosingExprStore.Setup(expr => expr.Peek()).Returns(
-			new UntypedNil(
-				Nil: new Tok(
-					typ: TokType.Nil,
-					value: "nil"
-				)
-			)
-		);
+		_enclosingExprStore.Setup(expr => expr.Peek()).Returns(new UntypedNil(new Tok(TokType.Nil, "nil")));
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
-				new UntypedYield(
-					Yield: new Tok(
-						typ: TokType.Yield,
-						value: "yield"
-					),
-					Value: new IntLiteral(
-						Int: new Tok(
-							typ: TokType.IntLiteral,
-							value: "5"
-						))
-				)
+				new UntypedYield(new Tok(TokType.Yield, "yield"), new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 			},
-			expected: typeof(InvalidUseOfYieldKeywordException)
+			typeof(InvalidUseOfYieldKeywordException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Break()
 	{
-		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(
-			new UntypedWhile(
-				While: new Tok(
-					typ: TokType.While,
-					value: "while"
-				),
-				Condition: new BoolLiteral(
-					Bool: new Tok(
-						typ: TokType.True,
-						value: "true"
-					)
-				),
-				Body: new List<IUntypedAuraStatement>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
+		_enclosingStmtStore
+			.Setup(stmt => stmt.Peek())
+			.Returns(
+				new UntypedWhile(
+					new Tok(TokType.While, "while"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new List<IUntypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}")
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedBreak(
-					Break: new Tok(
-						typ: TokType.Break,
-						value: "break"
-					)
-				)
-			}
+			new List<IUntypedAuraStatement> { new UntypedBreak(new Tok(TokType.Break, "break")) }
 		);
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedBreak(
-				Break: new Tok(
-					typ: TokType.Break,
-					value: "break"
-				)
-			)
-		);
+		MakeAssertions(typedAst, new TypedBreak(new Tok(TokType.Break, "break")));
 	}
 
 	[Test]
 	public void TestTypeCheck_Break_Invalid()
 	{
-		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(
-			new UntypedExpressionStmt(
-				Expression: new UntypedNil(
-					Nil: new Tok(
-						typ: TokType.Nil,
-						value: "nil"
-					))
-			)
-		);
+		_enclosingStmtStore
+			.Setup(stmt => stmt.Peek())
+			.Returns(new UntypedExpressionStmt(new UntypedNil(new Tok(TokType.Nil, "nil"))));
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedBreak(
-					Break: new Tok(
-						typ: TokType.Break,
-						value: "break"
-					)
-				)
-			},
-			expected: typeof(InvalidUseOfBreakKeywordException)
+			new List<IUntypedAuraStatement> { new UntypedBreak(new Tok(TokType.Break, "break")) },
+			typeof(InvalidUseOfBreakKeywordException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Continue()
 	{
-		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(
-			new UntypedWhile(
-				While: new Tok(
-					typ: TokType.While,
-					value: "while"
-				),
-				Condition: new BoolLiteral(
-					Bool: new Tok(
-						typ: TokType.True,
-						value: "true"
-					)
-				),
-				Body: new List<IUntypedAuraStatement>(),
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
+		_enclosingStmtStore
+			.Setup(stmt => stmt.Peek())
+			.Returns(
+				new UntypedWhile(
+					new Tok(TokType.While, "while"),
+					new BoolLiteral(new Tok(TokType.True, "true")),
+					new List<IUntypedAuraStatement>(),
+					new Tok(TokType.RightBrace, "}")
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedContinue(
-					Continue: new Tok(
-						typ: TokType.Continue,
-						value: "continue"
-					)
-				)
-			});
-		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedContinue(
-				Continue: new Tok(
-					typ: TokType.Continue,
-					value: "continue"
-				)
-			)
+			new List<IUntypedAuraStatement> { new UntypedContinue(new Tok(TokType.Continue, "continue")) }
 		);
+		MakeAssertions(typedAst, new TypedContinue(new Tok(TokType.Continue, "continue")));
 	}
 
 	[Test]
 	public void TestTypeCheck_Continue_Invalid()
 	{
-		_enclosingStmtStore.Setup(stmt => stmt.Peek()).Returns(
-			new UntypedExpressionStmt(
-				Expression: new UntypedNil(
-					Nil: new Tok(
-						typ: TokType.Nil,
-						value: "nil"
-					))
-			)
-		);
+		_enclosingStmtStore
+			.Setup(stmt => stmt.Peek())
+			.Returns(new UntypedExpressionStmt(new UntypedNil(new Tok(TokType.Nil, "nil"))));
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
-			{
-				new UntypedContinue(
-					Continue: new Tok(
-						typ: TokType.Continue,
-						value: "continue"
-					)
-				)
-			},
-			expected: typeof(InvalidUseOfContinueKeywordException)
+			new List<IUntypedAuraStatement> { new UntypedContinue(new Tok(TokType.Continue, "continue")) },
+			typeof(InvalidUseOfContinueKeywordException)
 		);
 	}
 
@@ -2851,42 +1790,27 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Interface_NoMethods()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedInterface(
-					Interface: new Tok(
-						typ: TokType.Interface,
-						value: "interface"
-					),
-					Name: new Tok(TokType.Identifier, "IGreeter"),
-					Methods: new List<AuraNamedFunction>(),
-					Public: Visibility.Public,
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					new Tok(TokType.Interface, "interface"),
+					new Tok(TokType.Identifier, "IGreeter"),
+					new List<UntypedFunctionSignature>(),
+					Visibility.Public,
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedInterface(
-				Interface: new Tok(
-					typ: TokType.Interface,
-					value: "interface"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "IGreeter"
-				),
-				Methods: new List<AuraNamedFunction>(),
-				Public: Visibility.Public,
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Documentation: string.Empty
+			typedAst,
+			new TypedInterface(
+				new Tok(TokType.Interface, "interface"),
+				new Tok(TokType.Identifier, "IGreeter"),
+				new List<TypedFunctionSignature>(),
+				Visibility.Public,
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty
 			)
 		);
 	}
@@ -2895,88 +1819,67 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Interface_OneMethod()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedInterface(
-					Interface: new Tok(
-						typ: TokType.Interface,
-						value: "interface"
-					),
-					Name: new Tok(TokType.Identifier, "IGreeter"),
-					Methods: new List<AuraNamedFunction>
+					new Tok(TokType.Interface, "interface"),
+					new Tok(TokType.Identifier, "IGreeter"),
+					new List<UntypedFunctionSignature>
 					{
 						new(
-							name: "say_hi",
-							pub: Visibility.Private,
-							f: new AuraFunction(
-								fParams: new List<Param>
-								{
-									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "i"
-										),
-										ParamType: new(
-											Typ: new AuraInt(),
-											Variadic: false,
-											DefaultValue: null
-										)
+							null,
+							new Tok(TokType.Fn, "fn"),
+							new Tok(TokType.Identifier, "say_hi"),
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
 									)
-								},
-								returnType: new AuraString()
-							)
+								)
+							},
+							new Tok(TokType.RightParen, ")"),
+							new AuraString()
 						)
 					},
-					Public: Visibility.Public,
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					Visibility.Public,
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedInterface(
-				Interface: new Tok(
-					typ: TokType.Interface,
-					value: "interface"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "IGreeter"
-				),
-				Methods: new List<AuraNamedFunction>
+			typedAst,
+			new TypedInterface(
+				new Tok(TokType.Interface, "interface"),
+				new Tok(TokType.Identifier, "IGreeter"),
+				new List<TypedFunctionSignature>
 				{
 					new(
-						name: "say_hi",
-						pub: Visibility.Private,
-						f: new AuraFunction(
-							fParams: new List<Param>
-							{
-								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "i"
-									),
-									ParamType: new(
-										Typ: new AuraInt(),
-										Variadic: false,
-										DefaultValue: null
-									)
+						null,
+						new Tok(TokType.Fn, "fn"),
+						new Tok(TokType.Identifier, "say_hi"),
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i"),
+								new ParamType(
+									new AuraInt(),
+									false,
+									null
 								)
-							},
-							returnType: new AuraString()
-						)
+							)
+						},
+						new Tok(TokType.RightParen, ")"),
+						new AuraString()
 					)
 				},
-				Public: Visibility.Public,
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Documentation: string.Empty
+				Visibility.Public,
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty
 			)
 		);
 	}
@@ -2984,90 +1887,69 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingTwoInterfaces_NoMethods()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "IGreeter",
-				Kind: new AuraInterface(
-					name: "IGreeter",
-					functions: new List<AuraNamedFunction>(),
-					pub: Visibility.Private
+		_symbolsTable
+			.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"IGreeter",
+					new AuraInterface(
+						"IGreeter",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
+					)
 				)
-			)
-		);
-		_symbolsTable.Setup(v => v.GetSymbol("IGreeter2", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "IGreeter2",
-				Kind: new AuraInterface(
-					name: "IGreeter2",
-					functions: new List<AuraNamedFunction>(),
-					pub: Visibility.Private
+			);
+		_symbolsTable
+			.Setup(v => v.GetSymbol("IGreeter2", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"IGreeter2",
+					new AuraInterface(
+						"IGreeter2",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedClass(
-					Class: new Tok(
-						typ: TokType.Class,
-						value: "class"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "Greeter"
-					),
-					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>(),
-					Public: Visibility.Private,
-					Implementing: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "IGreeter"
-						),
-						new(
-							typ: TokType.Identifier,
-							value: "IGreeter2"
-						)
-					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<IUntypedAuraStatement>(),
+					Visibility.Private,
+					new List<Tok> { new(TokType.Identifier, "IGreeter"), new(TokType.Identifier, "IGreeter2") },
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new FullyTypedClass(
-				Class: new Tok(
-					typ: TokType.Class,
-					value: "class"
-				),
-				Name: new Tok(TokType.Identifier, "Greeter"),
-				Params: new List<Param>(),
-				Methods: new List<TypedNamedFunction>(),
-				Public: Visibility.Private,
-				Implementing: new List<AuraInterface>
+			typedAst,
+			new FullyTypedClass(
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
+				new List<Param>(),
+				new List<TypedNamedFunction>(),
+				Visibility.Private,
+				new List<AuraInterface>
 				{
 					new(
-						name: "IGreeter",
-						functions: new List<AuraNamedFunction>(),
-						pub: Visibility.Private
+						"IGreeter",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
 					),
 					new(
-						name: "IGreeter2",
-						functions: new List<AuraNamedFunction>(),
-						pub: Visibility.Private
+						"IGreeter2",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
 					)
 				},
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Documentation: string.Empty
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty
 			)
 		);
 	}
@@ -3075,429 +1957,300 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod_MissingImplementation()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "IGreeter",
-				Kind: new AuraInterface(
-					name: "IGreeter",
-					functions: new List<AuraNamedFunction>
-					{
-						new(
-							name: "f",
-							pub: Visibility.Public,
-							f: new AuraFunction(
-								fParams: new List<Param>
-								{
-									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "i"
-										),
-										ParamType: new(
-											Typ: new AuraInt(),
-											Variadic: false,
-											DefaultValue: null
+		_symbolsTable
+			.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"IGreeter",
+					new AuraInterface(
+						"IGreeter",
+						new List<AuraNamedFunction>
+						{
+							new(
+								"f",
+								Visibility.Public,
+								new AuraFunction(
+									new List<Param>
+									{
+										new(
+											new Tok(TokType.Identifier, "i"),
+											new ParamType(
+												new AuraInt(),
+												false,
+												null
+											)
 										)
-									)
-								},
-								returnType: new AuraInt()
+									},
+									new AuraInt()
+								)
 							)
-						)
-					},
-					pub: Visibility.Private
+						},
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedClass(
-					Class: new Tok(
-						typ: TokType.Class,
-						value: "class"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "Greeter"
-					),
-					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>(),
-					Public: Visibility.Private,
-					Implementing: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "IGreeter"
-						)
-					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<IUntypedAuraStatement>(),
+					Visibility.Private,
+					new List<Tok> { new(TokType.Identifier, "IGreeter") },
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			},
-			expected: typeof(MissingInterfaceMethodException)
+			typeof(MissingInterfaceMethodException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod_ImplementationNotPublic()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "IGreeter",
-				Kind: new AuraInterface(
-					name: "IGreeter",
-					functions: new List<AuraNamedFunction>
-					{
-						new(
-							name: "f",
-							pub: Visibility.Public,
-							f: new AuraFunction(
-								fParams: new List<Param>
-								{
-									new(
-										new Tok(
-											typ: TokType.Identifier,
-											value: "i"
-										),
-										new ParamType(
-											Typ: new AuraInt(),
-											Variadic: false,
-											DefaultValue: null
+		_symbolsTable
+			.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"IGreeter",
+					new AuraInterface(
+						"IGreeter",
+						new List<AuraNamedFunction>
+						{
+							new(
+								"f",
+								Visibility.Public,
+								new AuraFunction(
+									new List<Param>
+									{
+										new(
+											new Tok(TokType.Identifier, "i"),
+											new ParamType(
+												new AuraInt(),
+												false,
+												null
+											)
 										)
-									)
-								},
-								returnType: new AuraInt()
+									},
+									new AuraInt()
+								)
 							)
-						)
-					},
-					pub: Visibility.Private
+						},
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedClass(
-					Class: new Tok(
-						typ: TokType.Class,
-						value: "class"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "Greeter"
-					),
-					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<IUntypedAuraStatement>
 					{
 						new UntypedNamedFunction(
-							Fn: new Tok(
-								typ: TokType.Fn,
-								value: "fn"
-							),
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							),
-							Params: new List<Param>
+							new Tok(TokType.Fn, "fn"),
+							new Tok(TokType.Identifier, "f"),
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "i"
-									),
-									ParamType: new ParamType(
-										Typ: new AuraInt(),
-										Variadic: false,
-										DefaultValue: null
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
 									)
 								)
 							},
-							Body: new UntypedBlock(
-								OpeningBrace: new Tok(
-									typ: TokType.LeftBrace,
-									value: "{"
-								),
-								Statements: new List<IUntypedAuraStatement>
+							new UntypedBlock(
+								new Tok(TokType.LeftBrace, "{"),
+								new List<IUntypedAuraStatement>
 								{
 									new UntypedReturn(
-										Return: new Tok(
-											typ: TokType.Return,
-											value: "return"
-										),
-										Value: new List<IUntypedAuraExpression>
+										new Tok(TokType.Return, "return"),
+										new List<IUntypedAuraExpression>
 										{
-											new IntLiteral(
-												Int: new Tok(
-													typ: TokType.IntLiteral,
-													value: "5"
-												)
-											)
+											new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 										}
 									)
 								},
-								ClosingBrace: new Tok(
-									typ: TokType.RightBrace,
-									value: "}"
-								)
+								new Tok(TokType.RightBrace, "}")
 							),
-							ReturnType: new List<AuraType>{ new AuraInt() },
-							Public: Visibility.Private,
-							Documentation: string.Empty
+							new List<AuraType> { new AuraInt() },
+							Visibility.Private,
+							string.Empty
 						)
 					},
-					Public: Visibility.Private,
-					Implementing: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "IGreeter"
-						)
-					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					Visibility.Private,
+					new List<Tok> { new(TokType.Identifier, "IGreeter") },
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			},
-			expected: typeof(MissingInterfaceMethodException)
+			typeof(MissingInterfaceMethodException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_OneMethod()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "IGreeter",
-				Kind: new AuraInterface(
-					name: "IGreeter",
-					functions: new List<AuraNamedFunction>
-					{
-						new(
-							name: "f",
-							pub: Visibility.Public,
-							f: new AuraFunction(
-								fParams: new List<Param>
-								{
-									new(
-										Name: new Tok(
-											typ: TokType.Identifier,
-											value: "i"
-										),
-										ParamType: new(
-											Typ: new AuraInt(),
-											Variadic: false,
-											DefaultValue: null
+		_symbolsTable
+			.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"IGreeter",
+					new AuraInterface(
+						"IGreeter",
+						new List<AuraNamedFunction>
+						{
+							new(
+								"f",
+								Visibility.Public,
+								new AuraFunction(
+									new List<Param>
+									{
+										new(
+											new Tok(TokType.Identifier, "i"),
+											new ParamType(
+												new AuraInt(),
+												false,
+												null
+											)
 										)
-									)
-								},
-								returnType: new AuraInt()
+									},
+									new AuraInt()
+								)
 							)
-						)
-					},
-					pub: Visibility.Private
+						},
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedClass(
-					Class: new Tok(
-						typ: TokType.Class,
-						value: "class"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "Greeter"
-					),
-					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<IUntypedAuraStatement>
 					{
 						new UntypedNamedFunction(
-							Fn: new Tok(
-								typ: TokType.Fn,
-								value: "fn"
-							),
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "f"
-							),
-							Params: new List<Param>
+							new Tok(TokType.Fn, "fn"),
+							new Tok(TokType.Identifier, "f"),
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "i"
-									),
-									ParamType: new(
-										Typ: new AuraInt(),
-										Variadic: false,
-										DefaultValue: null
+									new Tok(TokType.Identifier, "i"),
+									new ParamType(
+										new AuraInt(),
+										false,
+										null
 									)
 								)
 							},
-							Body: new UntypedBlock(
-								OpeningBrace: new Tok(
-									typ: TokType.LeftBrace,
-									value: "{"
-								),
-								Statements: new List<IUntypedAuraStatement>
+							new UntypedBlock(
+								new Tok(TokType.LeftBrace, "{"),
+								new List<IUntypedAuraStatement>
 								{
 									new UntypedReturn(
-										Return: new Tok(
-											typ: TokType.Return,
-											value: "return"
-										),
-										Value: new List<IUntypedAuraExpression>
+										new Tok(TokType.Return, "return"),
+										new List<IUntypedAuraExpression>
 										{
-											new IntLiteral(
-												Int: new Tok(
-													typ: TokType.IntLiteral,
-													value: "5"
-												)
-											)
+											new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 										}
 									)
 								},
-								ClosingBrace: new Tok(
-									typ: TokType.RightBrace,
-									value: "}"
-								)
+								new Tok(TokType.RightBrace, "}")
 							),
-							ReturnType: new List<AuraType>{ new AuraInt() },
-							Public: Visibility.Public,
-							Documentation: string.Empty
+							new List<AuraType> { new AuraInt() },
+							Visibility.Public,
+							string.Empty
 						)
 					},
-					Public: Visibility.Private,
-					Implementing: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "IGreeter"
-						)
-					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					Visibility.Private,
+					new List<Tok> { new(TokType.Identifier, "IGreeter") },
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new FullyTypedClass(
-				Class: new Tok(
-					typ: TokType.Class,
-					value: "class"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "Greeter"
-				),
-				Params: new List<Param>(),
-				Methods: new List<TypedNamedFunction>
+			typedAst,
+			new FullyTypedClass(
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
+				new List<Param>(),
+				new List<TypedNamedFunction>
 				{
 					new(
-						Fn: new Tok(
-							typ: TokType.Fn,
-							value: "fn"
-						),
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "f"
-						),
-						Params: new List<Param>
+						new Tok(TokType.Fn, "fn"),
+						new Tok(TokType.Identifier, "f"),
+						new List<Param>
 						{
 							new(
-								Name: new Tok(
-									typ: TokType.Identifier,
-									value: "i"
-								),
-								ParamType: new(
-									Typ: new AuraInt(),
-									Variadic: false,
-									DefaultValue: null
+								new Tok(TokType.Identifier, "i"),
+								new ParamType(
+									new AuraInt(),
+									false,
+									null
 								)
 							)
 						},
-						Body: new TypedBlock(
-							OpeningBrace: new Tok(
-								typ: TokType.LeftBrace,
-								value: "{"
-							),
-							Statements: new List<ITypedAuraStatement>
+						new TypedBlock(
+							new Tok(TokType.LeftBrace, "{"),
+							new List<ITypedAuraStatement>
 							{
 								new TypedReturn(
-									Return: new Tok(
-										typ: TokType.Return,
-										value: "return"
-									),
-									Value: new IntLiteral(
-										Int: new Tok(
-											typ: TokType.IntLiteral,
-											value: "5"
-										)
-									)
+									new Tok(TokType.Return, "return"),
+									new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 								)
 							},
-							ClosingBrace: new Tok(
-								typ: TokType.RightBrace,
-								value: "}"
-							),
-							Typ: new AuraInt()
+							new Tok(TokType.RightBrace, "}"),
+							new AuraInt()
 						),
-						ReturnType: new AuraInt(),
-						Public: Visibility.Public,
-						Documentation: string.Empty
+						new AuraInt(),
+						Visibility.Public,
+						string.Empty
 					)
 				},
-				Public: Visibility.Private,
-				Implementing: new List<AuraInterface>
+				Visibility.Private,
+				new List<AuraInterface>
 				{
 					new(
-						name: "IGreeter",
-						functions: new List<AuraNamedFunction>
+						"IGreeter",
+						new List<AuraNamedFunction>
 						{
 							new(
-								name: "f",
-								pub: Visibility.Public,
-								f: new AuraFunction(
-									fParams: new List<Param>
+								"f",
+								Visibility.Public,
+								new AuraFunction(
+									new List<Param>
 									{
 										new(
-											Name: new Tok(
-												typ: TokType.Identifier,
-												value: "i"
-											),
-											ParamType: new(
-												Typ: new AuraInt(),
-												Variadic: false,
-												DefaultValue: null
+											new Tok(TokType.Identifier, "i"),
+											new ParamType(
+												new AuraInt(),
+												false,
+												null
 											)
 										)
 									},
-									returnType: new AuraInt()
+									new AuraInt()
 								)
 							)
 						},
-						pub: Visibility.Private
+						Visibility.Private
 					)
 				},
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Documentation: string.Empty
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty
 			)
 		);
 	}
@@ -3505,74 +2258,52 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_ClassImplementingInterface_NoMethods()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "IGreeter",
-				Kind: new AuraInterface(
-					name: "IGreeter",
-					functions: new List<AuraNamedFunction>(),
-					pub: Visibility.Private
+		_symbolsTable
+			.Setup(v => v.GetSymbol("IGreeter", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"IGreeter",
+					new AuraInterface(
+						"IGreeter",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
+					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedClass(
-					Class: new Tok(
-						typ: TokType.Class,
-						value: "class"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "Greeter"
-					),
-					Params: new List<Param>(),
-					Body: new List<IUntypedAuraStatement>(),
-					Public: Visibility.Private,
-					Implementing: new List<Tok>
-					{
-						new(
-							typ: TokType.Identifier,
-							value: "IGreeter"
-						)
-					},
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					),
-					Documentation: string.Empty
+					new Tok(TokType.Class, "class"),
+					new Tok(TokType.Identifier, "Greeter"),
+					new List<Param>(),
+					new List<IUntypedAuraStatement>(),
+					Visibility.Private,
+					new List<Tok> { new(TokType.Identifier, "IGreeter") },
+					new Tok(TokType.RightBrace, "}"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new FullyTypedClass(
-				Class: new Tok(
-					typ: TokType.Class,
-					value: "class"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "Greeter"
-				),
-				Params: new List<Param>(),
-				Methods: new List<TypedNamedFunction>(),
-				Public: Visibility.Private,
-				Implementing: new List<AuraInterface>
+			typedAst,
+			new FullyTypedClass(
+				new Tok(TokType.Class, "class"),
+				new Tok(TokType.Identifier, "Greeter"),
+				new List<Param>(),
+				new List<TypedNamedFunction>(),
+				Visibility.Private,
+				new List<AuraInterface>
 				{
 					new(
-						name: "IGreeter",
-						functions: new List<AuraNamedFunction>(),
-						pub: Visibility.Private
+						"IGreeter",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
 					)
 				},
-				ClosingBrace: new Tok(
-					typ: TokType.RightBrace,
-					value: "}"
-				),
-				Documentation: string.Empty
+				new Tok(TokType.RightBrace, "}"),
+				string.Empty
 			)
 		);
 	}
@@ -3580,83 +2311,50 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Set_Invalid()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "v",
-				Kind: new AuraInt()
-			)
-		);
+		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(new AuraSymbol("v", new AuraInt()));
 
 		ArrangeAndAct_Invalid(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedSet(
-						Obj: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "v"
-							)
-						),
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "name"
-						),
-						Value: new StringLiteral(
-							String: new Tok(
-								typ: TokType.StringLiteral,
-								value: "Bob"
-							)))
+					new UntypedSet(
+						new UntypedVariable(new Tok(TokType.Identifier, "v")),
+						new Tok(TokType.Identifier, "name"),
+						new StringLiteral(new Tok(TokType.StringLiteral, "Bob"))
+					)
 				)
 			},
-			expected: typeof(CannotSetOnNonClassException)
+			typeof(CannotSetOnNonClassException)
 		);
 	}
 
 	[Test]
 	public void TestTypeCheck_Is()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "v",
-				Kind: new AuraInt()
-			)
-		);
+		_symbolsTable.Setup(v => v.GetSymbol("v", It.IsAny<string>())).Returns(new AuraSymbol("v", new AuraInt()));
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedExpressionStmt(
-					Expression: new UntypedIs(
-						Expr: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "v"
-							)
-						),
-						Expected: new Tok(
-							typ: TokType.Identifier,
-							value: "IGreeter"
-						))
+					new UntypedIs(
+						new UntypedVariable(new Tok(TokType.Identifier, "v")),
+						new Tok(TokType.Identifier, "IGreeter")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedExpressionStmt(
-				Expression: new TypedIs(
-					Expr: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "v"
-						),
-						Typ: new AuraInt()
-					),
-					Expected: new AuraInterface(
-						name: "IGreeter",
-						functions: new List<AuraNamedFunction>(),
-						pub: Visibility.Private
-					))
+			typedAst,
+			new TypedExpressionStmt(
+				new TypedIs(
+					new TypedVariable(new Tok(TokType.Identifier, "v"), new AuraInt()),
+					new AuraInterface(
+						"IGreeter",
+						new List<AuraNamedFunction>(),
+						Visibility.Private
+					)
+				)
 			)
 		);
 	}
@@ -3664,115 +2362,70 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Check()
 	{
-		_enclosingFunctionDeclarationStore.Setup(f => f.Peek()).Returns(
-			new UntypedNamedFunction(
-				Fn: new Tok(
-					typ: TokType.Fn,
-					value: "fn"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "f"
-				),
-				Params: new List<Param>(),
-				Body: new UntypedBlock(
-					OpeningBrace: new Tok(
-						typ: TokType.LeftBrace,
-						value: "{"
+		_enclosingFunctionDeclarationStore
+			.Setup(f => f.Peek())
+			.Returns(
+				new UntypedNamedFunction(
+					new Tok(TokType.Fn, "fn"),
+					new Tok(TokType.Identifier, "f"),
+					new List<Param>(),
+					new UntypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<IUntypedAuraStatement>(),
+						new Tok(TokType.RightBrace, "}")
 					),
-					Statements: new List<IUntypedAuraStatement>(),
-					ClosingBrace: new Tok(
-						typ: TokType.RightBrace,
-						value: "}"
-					)
-				),
-				ReturnType: new List<AuraType>
-				{
-					new AuraResult(
-						success: new AuraString(),
-						failure: new AuraError()
-					)
-				},
-				Public: Visibility.Public,
-				Documentation: string.Empty
-			)
-		);
-		_symbolsTable.Setup(st => st.GetSymbol("c", It.IsAny<string>())).Returns(
-			new AuraSymbol(
-				Name: "c",
-				Kind: new AuraNamedFunction(
-					name: "c",
-					pub: Visibility.Public,
-					f: new AuraFunction(
-						fParams: new List<Param>(),
-						returnType: new AuraResult(
-							success: new AuraString(),
-							failure: new AuraError()
-						)
+					new List<AuraType> { new AuraResult(new AuraString(), new AuraError()) },
+					Visibility.Public,
+					string.Empty
+				)
+			);
+		_symbolsTable
+			.Setup(st => st.GetSymbol("c", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"c",
+					new AuraNamedFunction(
+						"c",
+						Visibility.Public,
+						new AuraFunction(new List<Param>(), new AuraResult(new AuraString(), new AuraError()))
 					)
 				)
-			)
-		);
+			);
 
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedCheck(
-					Check: new Tok(
-						typ: TokType.Check,
-						value: "check"
-					),
-					Call: new UntypedCall(
-						Callee: new UntypedVariable(
-							Name: new Tok(
-								typ: TokType.Identifier,
-								value: "c"
-							)
-						),
-						Arguments: new List<(Tok?, IUntypedAuraExpression)>(),
-						ClosingParen: new Tok(
-							typ: TokType.RightParen,
-							value: ")"
-						))
+					new Tok(TokType.Check, "check"),
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "c")),
+						new List<(Tok?, IUntypedAuraExpression)>(),
+						new Tok(TokType.RightParen, ")")
+					)
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedCheck(
-				Check: new Tok(
-					typ: TokType.Check,
-					value: "check"
-				),
-				Call: new TypedCall(
-					Callee: new TypedVariable(
-						Name: new Tok(
-							typ: TokType.Identifier,
-							value: "c"
-						),
-						Typ: new AuraNamedFunction(
-							name: "c",
-							pub: Visibility.Public,
-							f: new AuraFunction(
-								fParams: new List<Param>(),
-								returnType: new AuraResult(
-									success: new AuraString(),
-									failure: new AuraError()
-								)
-							)
+			typedAst,
+			new TypedCheck(
+				new Tok(TokType.Check, "check"),
+				new TypedCall(
+					new TypedVariable(
+						new Tok(TokType.Identifier, "c"),
+						new AuraNamedFunction(
+							"c",
+							Visibility.Public,
+							new AuraFunction(new List<Param>(), new AuraResult(new AuraString(), new AuraError()))
 						)
 					),
-					Arguments: new List<ITypedAuraExpression>(),
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")"
-					),
-					FnTyp: new AuraNamedFunction("c", Visibility.Public, new AuraFunction(
-						fParams: new List<Param>(),
-						returnType: new AuraResult(
-							success: new AuraString(),
-							failure: new AuraError()
-						))))
+					new List<ITypedAuraExpression>(),
+					new Tok(TokType.RightParen, ")"),
+					new AuraNamedFunction(
+						"c",
+						Visibility.Public,
+						new AuraFunction(new List<Param>(), new AuraResult(new AuraString(), new AuraError()))
+					)
+				)
 			)
 		);
 	}
@@ -3781,86 +2434,73 @@ public class TypeCheckerTest
 	public void TestTypeCheck_Struct()
 	{
 		var typedAst = ArrangeAndAct(
-			untypedAst: new List<IUntypedAuraStatement>
+			new List<IUntypedAuraStatement>
 			{
 				new UntypedStruct(
-					Struct: new Tok(
-						typ: TokType.Struct,
-						value: "struct"
-					),
-					Name: new Tok(
-						typ: TokType.Identifier,
-						value: "s"
-					),
-					Params: new List<Param>(),
-					ClosingParen: new Tok(
-						typ: TokType.RightParen,
-						value: ")"
-					),
-					Documentation: string.Empty
+					new Tok(TokType.Struct, "struct"),
+					new Tok(TokType.Identifier, "s"),
+					new List<Param>(),
+					new Tok(TokType.RightParen, ")"),
+					string.Empty
 				)
 			}
 		);
 		MakeAssertions(
-			typedAst: typedAst,
-			expected: new TypedStruct(
-				Struct: new Tok(
-					typ: TokType.Struct,
-					value: "struct"
-				),
-				Name: new Tok(
-					typ: TokType.Identifier,
-					value: "s"
-				),
-				Params: new List<Param>(),
-				ClosingParen: new Tok(
-					typ: TokType.RightParen,
-					value: ")"
-				),
-				Documentation: string.Empty
+			typedAst,
+			new TypedStruct(
+				new Tok(TokType.Struct, "struct"),
+				new Tok(TokType.Identifier, "s"),
+				new List<Param>(),
+				new Tok(TokType.RightParen, ")"),
+				string.Empty
 			)
 		);
 	}
 
 	private List<ITypedAuraStatement> ArrangeAndAct(List<IUntypedAuraStatement> untypedAst)
-		=> new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
-				_enclosingStmtStore.Object, new AuraLocalFileSystemImportedModuleProvider(), "Test", "Test")
-			.CheckTypes(AddModStmtIfNecessary(untypedAst));
+	{
+		return new AuraTypeChecker(
+			_symbolsTable.Object,
+			_enclosingClassStore.Object,
+			_enclosingFunctionDeclarationStore.Object,
+			_enclosingExprStore.Object,
+			_enclosingStmtStore.Object,
+			new AuraLocalFileSystemImportedModuleProvider(),
+			"Test",
+			"Test"
+		).CheckTypes(AddModStmtIfNecessary(untypedAst));
+	}
 
 	private void ArrangeAndAct_Invalid(List<IUntypedAuraStatement> untypedAst, Type expected)
 	{
 		try
 		{
-			new AuraTypeChecker(_symbolsTable.Object, _enclosingClassStore.Object, _enclosingFunctionDeclarationStore.Object, _enclosingExprStore.Object,
-					_enclosingStmtStore.Object, new AuraLocalFileSystemImportedModuleProvider(), "Test", "Test")
-				.CheckTypes(AddModStmtIfNecessary(untypedAst));
+			new AuraTypeChecker(
+				_symbolsTable.Object,
+				_enclosingClassStore.Object,
+				_enclosingFunctionDeclarationStore.Object,
+				_enclosingExprStore.Object,
+				_enclosingStmtStore.Object,
+				new AuraLocalFileSystemImportedModuleProvider(),
+				"Test",
+				"Test"
+			).CheckTypes(AddModStmtIfNecessary(untypedAst));
 			Assert.Fail();
 		}
 		catch (TypeCheckerExceptionContainer e)
 		{
-			Assert.That(
-				actual: e.Exs.First(),
-				expression: Is.TypeOf(expected)
-			);
+			Assert.That(e.Exs.First(), Is.TypeOf(expected));
 		}
 	}
 
 	private List<IUntypedAuraStatement> AddModStmtIfNecessary(List<IUntypedAuraStatement> untypedAst)
 	{
-		if (untypedAst.Count > 0 && untypedAst[0] is not UntypedMod)
+		if (untypedAst.Count > 0 &&
+			untypedAst[0] is not UntypedMod)
 		{
 			var untypedAstWithMod = new List<IUntypedAuraStatement>
 			{
-				new UntypedMod(
-					Mod: new Tok(
-						typ: TokType.Mod,
-						value: "mod"
-					),
-					Value: new Tok(
-						typ: TokType.Identifier,
-						value: "main"
-					)
-				)
+				new UntypedMod(new Tok(TokType.Mod, "mod"), new Tok(TokType.Identifier, "main"))
 			};
 			untypedAstWithMod.AddRange(untypedAst);
 			return untypedAstWithMod;
@@ -3871,23 +2511,16 @@ public class TypeCheckerTest
 
 	private void MakeAssertions(List<ITypedAuraStatement> typedAst, ITypedAuraStatement expected)
 	{
-		Assert.Multiple(() =>
-		{
-			Assert.That(
-				actual: typedAst,
-				expression: Is.Not.Null
-			);
-			Assert.That(
-				actual: typedAst,
-				expression: Has.Count.EqualTo(2)
-			);
+		Assert.Multiple(
+			() =>
+			{
+				Assert.That(typedAst, Is.Not.Null);
+				Assert.That(typedAst, Has.Count.EqualTo(2));
 
-			var expectedJson = JsonConvert.SerializeObject(expected);
-			var actualJson = JsonConvert.SerializeObject(typedAst[1]);
-			Assert.That(
-				actual: actualJson,
-				expression: Is.EqualTo(expectedJson)
-			);
-		});
+				var expectedJson = JsonConvert.SerializeObject(expected);
+				var actualJson = JsonConvert.SerializeObject(typedAst[1]);
+				Assert.That(actualJson, Is.EqualTo(expectedJson));
+			}
+		);
 	}
 }
