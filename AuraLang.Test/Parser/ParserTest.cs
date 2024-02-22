@@ -1702,7 +1702,7 @@ public class ParserTest
 				),
 				ReturnType: new List<AuraType> { new AuraError() },
 				Public: Visibility.Private,
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -1835,7 +1835,7 @@ public class ParserTest
 				),
 				ReturnType: null,
 				Public: Visibility.Private,
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2149,7 +2149,7 @@ public class ParserTest
 					value: "}"
 				),
 				Public: Visibility.Private,
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2233,7 +2233,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2350,7 +2350,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2440,7 +2440,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2518,7 +2518,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2582,7 +2582,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -2876,7 +2876,7 @@ public class ParserTest
 					typ: TokType.RightBrace,
 					value: "}"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}
@@ -3030,7 +3030,7 @@ public class ParserTest
 					typ: TokType.RightParen,
 					value: ")"
 				),
-				Documentation: string.Empty
+				Documentation: null
 			)
 		);
 	}

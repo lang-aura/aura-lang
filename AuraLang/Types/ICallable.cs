@@ -10,5 +10,6 @@ public interface ICallable
 	int GetParamIndex(string name);
 	bool HasVariadicParam();
 	string ToAuraString();
+	string Documentation { get; }
 }
 

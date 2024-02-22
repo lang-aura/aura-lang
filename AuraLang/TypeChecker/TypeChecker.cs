@@ -397,7 +397,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				pub: Visibility.Private
 			);
 		}
-		return new AuraNamedFunction(f.Name.Value, f.Public, new AuraFunction(typedParams, returnType));
+		return new AuraNamedFunction(f.Name.Value, f.Public, new AuraFunction(typedParams, returnType), f.Documentation);
 	}
 
 	public ITypedAuraStatement Visit(UntypedNamedFunction f)

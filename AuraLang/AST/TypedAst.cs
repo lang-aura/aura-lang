@@ -138,7 +138,14 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 		start: Callee.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => $"{FnTyp.ToAuraString()}";
+	public string HoverText
+	{
+		get
+		{
+			if (FnTyp.Documentation != string.Empty) return FnTyp.Documentation;
+			return FnTyp.ToAuraString();
+		}
+	}
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
@@ -472,7 +479,7 @@ public record TypedForEach
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
 public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBlock Body, AuraType ReturnType,
-	Visibility Public, string Documentation) : ITypedAuraStatement, ITypedFunction, IHoverable
+	Visibility Public, string? Documentation) : ITypedAuraStatement, ITypedFunction, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNamedFunction(Name.Value, Public, new AuraFunction(Params, ReturnType), Documentation);
@@ -489,7 +496,20 @@ public record TypedNamedFunction(Tok Fn, Tok Name, List<Param> Params, TypedBloc
 		start: Fn.Range.Start,
 		end: Body.Range.End
 	);
-	public string HoverText => $"{(Public == Visibility.Public ? "pub " : string.Empty)}fn {Name.Value}({string.Join(", ", Params)}){(ReturnType is not AuraNil ? $" -> {ReturnType}" : string.Empty)}";
+
+	public string HoverText
+	{
+		get
+		{
+			var pub = Public == Visibility.Public ? "pub " : string.Empty;
+			var @params = string.Join(", ", Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
+			var returnType = ReturnType is not AuraNil ? $" -> {ReturnType}" : string.Empty;
+			var doc = Documentation is not null
+				? $"\n\n{Documentation}"
+				: string.Empty;
+			return $"{pub}fn {Name.Value}({@params}){returnType}{doc}";
+		}
+	}
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
@@ -618,7 +638,7 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record TypedInterface
-	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, string Documentation) : ITypedAuraStatement, IHoverable
+	(Tok Interface, Tok Name, List<AuraNamedFunction> Methods, Visibility Public, Tok ClosingBrace, string? Documentation) : ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -637,7 +657,10 @@ public record TypedInterface
 			var methods = Methods.Count > 0
 				? $"\n\nMethods:\n{string.Join("\n", Methods.Select(m => m.ToAuraString()))}"
 				: string.Empty;
-			return $"{pub}interface {Name.Value}{methods}";
+			var doc = Documentation is not null
+				? $"\n\n{Documentation}"
+				: string.Empty;
+			return $"{pub}interface {Name.Value}{methods}{doc}";
 		}
 	}
 
@@ -649,7 +672,7 @@ public record TypedInterface
 	public Range HoverableRange => Name.Range;
 }
 
-public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string Documentation) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
+public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string? Documentation) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -660,7 +683,18 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 		start: Struct.Range.Start,
 		end: ClosingParen.Range.End
 	);
-	public string HoverText => $"struct {Name.Value} ({string.Join(", ", Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"))})";
+
+	public string HoverText
+	{
+		get
+		{
+			var @params = string.Join(", ", Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
+			var doc = Documentation is not null
+				? $"\n\n{Documentation}"
+				: string.Empty;
+			return $"struct {Name.Value} ({@params}){doc}";
+		}
+	}
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
@@ -707,7 +741,7 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
 public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<TypedNamedFunction> Methods, Visibility Public, List<AuraInterface> Implementing,
-	Tok ClosingBrace, string Documentation) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
+	Tok ClosingBrace, string? Documentation) : ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public AuraType Typ => new AuraNone();
@@ -730,8 +764,11 @@ public record FullyTypedClass(Tok Class, Tok Name, List<Param> Params, List<Type
 			var methods = Methods.Count > 0
 				? $"\n\nMethods:\n{string.Join("\n\n", Methods.Select(m => m.HoverText))}"
 				: string.Empty;
+			var doc = Documentation is not null
+				? $"\n\n{Documentation}"
+				: string.Empty;
 			return
-				$"{pub}class {Name.Value}({@params}){implementing}{methods}";
+				$"{pub}class {Name.Value}({@params}){implementing}{methods}{doc}";
 		}
 	}
 

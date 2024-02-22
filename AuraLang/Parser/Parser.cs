@@ -152,10 +152,22 @@ public class AuraParser
 	/// Returns the token two before the current index
 	/// </summary>
 	/// <returns>The token located two indices before the current index</returns>
-	private Tok? PreviousPrevious()
+	private string? IsPrecededByComment()
 	{
-		if (_index - 2 < 0) return null;
-		return _tokens[_index - 2];
+		var i = _index - 1;
+		while (i >= 0)
+		{
+			if (_tokens[i].Typ == TokType.Pub || _tokens[i].Typ == TokType.Semicolon || _tokens[i].Typ == TokType.Fn || _tokens[i].Typ == TokType.Interface || _tokens[i].Typ == TokType.Class || _tokens[i].Typ == TokType.Struct)
+			{
+				i--;
+				continue;
+			}
+
+			if (_tokens[i].Typ == TokType.Comment) return _tokens[i].Value;
+			return null;
+		}
+
+		return null;
 	}
 
 	/// <summary>
@@ -382,9 +394,7 @@ public class AuraParser
 
 	private IUntypedAuraStatement InterfaceDeclaration(Visibility pub)
 	{
-		var prevPrev = PreviousPrevious();
-		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
-
+		var doc = IsPrecededByComment();
 		var @interface = Previous();
 		// Consume the interface name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -408,9 +418,7 @@ public class AuraParser
 
 	private IUntypedAuraStatement ClassDeclaration(Visibility pub)
 	{
-		var prevPrev = PreviousPrevious();
-		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
-
+		var doc = IsPrecededByComment();
 		var @class = Previous();
 		// Consume the class name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -432,8 +440,7 @@ public class AuraParser
 
 	private IUntypedAuraStatement StructDeclaration()
 	{
-		var prevPrev = PreviousPrevious();
-		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
+		var doc = IsPrecededByComment();
 
 		var @struct = Previous();
 		// Consume the struct name
@@ -732,9 +739,7 @@ public class AuraParser
 
 	private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility pub)
 	{
-		var prevPrev = PreviousPrevious();
-		var doc = prevPrev?.Typ == TokType.Comment ? prevPrev.Value.Value : string.Empty;
-
+		var doc = IsPrecededByComment();
 		var fn = Previous();
 		// Parse the function's name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
