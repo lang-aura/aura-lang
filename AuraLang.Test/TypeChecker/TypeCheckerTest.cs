@@ -1842,7 +1842,8 @@ public class TypeCheckerTest
 								)
 							},
 							new Tok(TokType.RightParen, ")"),
-							new AuraString()
+							new AuraString(),
+							null
 						)
 					},
 					Visibility.Public,
@@ -1874,7 +1875,8 @@ public class TypeCheckerTest
 							)
 						},
 						new Tok(TokType.RightParen, ")"),
-						new AuraString()
+						new AuraString(),
+						null
 					)
 				},
 				Visibility.Public,

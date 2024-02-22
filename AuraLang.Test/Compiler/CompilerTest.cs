@@ -1058,7 +1058,8 @@ public class CompilerTest
 							)
 						},
 						new Tok(TokType.RightParen, ")"),
-						new AuraString()
+						new AuraString(),
+						null
 					)
 				},
 				Visibility.Public,

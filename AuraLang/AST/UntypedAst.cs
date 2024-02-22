@@ -696,7 +696,15 @@ public record UntypedInterface
 }
 
 public record UntypedFunctionSignature
-	(Tok? Visibility, Tok Fn, Tok Name, List<Param> Params, Tok ClosingParen, AuraType ReturnType)
+(
+	Tok? Visibility,
+	Tok Fn,
+	Tok Name,
+	List<Param> Params,
+	Tok ClosingParen,
+	AuraType ReturnType,
+	string? Documentation
+)
 	: IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor)

@@ -1299,7 +1299,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			fnSignature.Name,
 			fnSignature.Params,
 			fnSignature.ClosingParen,
-			fnSignature.ReturnType
+			fnSignature.ReturnType,
+			fnSignature.Documentation
 		);
 	}
 
