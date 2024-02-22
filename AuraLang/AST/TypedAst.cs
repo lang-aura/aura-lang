@@ -2,7 +2,6 @@
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
-using Newtonsoft.Json;
 using Range = AuraLang.Location.Range;
 
 namespace AuraLang.AST;

@@ -3,7 +3,6 @@ using AuraLang.Exceptions.Parser;
 using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
-using Newtonsoft.Json;
 
 namespace AuraLang.Parser;
 
