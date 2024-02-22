@@ -2143,7 +2143,7 @@ public class ParserTest
 					typ: TokType.Identifier,
 					value: "Greeter"
 				),
-				Methods: new List<AuraNamedFunction>(),
+				new List<UntypedFunctionSignature>(),
 				ClosingBrace: new Tok(
 					typ: TokType.RightBrace,
 					value: "}"
@@ -2217,15 +2217,15 @@ public class ParserTest
 					typ: TokType.Identifier,
 					value: "Greeter"
 				),
-				Methods: new List<AuraNamedFunction>
+				new List<UntypedFunctionSignature>
 				{
 					new(
-						name: "say_hi",
-						pub: Visibility.Private,
-						f: new AuraFunction(
-							fParams: new List<Param>(),
-							returnType: new AuraNil()
-						)
+						null,
+						new Tok(TokType.Fn, "fn"),
+						new Tok(TokType.Identifier, "say_hi"),
+						new List<Param>(),
+						new Tok(TokType.RightParen, ")"),
+						new AuraNil()
 					)
 				},
 				Public: Visibility.Private,
@@ -2321,28 +2321,25 @@ public class ParserTest
 					typ: TokType.Identifier,
 					value: "Greeter"
 				),
-				Methods: new List<AuraNamedFunction>
+				new List<UntypedFunctionSignature>
 				{
 					new(
-						name: "say_hi",
-						pub: Visibility.Private,
-						f: new AuraFunction(
-							fParams: new List<Param>
-							{
-								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "i"
-									),
-									ParamType: new(
-										Typ: new AuraInt(),
-										Variadic: false,
-										DefaultValue: null
-									)
+						null,
+						new Tok(TokType.Fn, "fn"),
+						new Tok(TokType.Identifier, "say_hi"),
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i"),
+								new ParamType(
+									new AuraInt(),
+									false,
+									null
 								)
-							},
-							returnType: new AuraString()
-						)
+							)
+						},
+						new Tok(TokType.RightParen, ")"),
+						new AuraString()
 					)
 				},
 				Public: Visibility.Private,

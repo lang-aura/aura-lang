@@ -2,117 +2,119 @@
 
 namespace AuraLang.Visitor;
 
-public interface ITypedAuraStmtVisitor<T>
+public interface ITypedAuraStmtVisitor<out T>
 {
-	public abstract T Visit(TypedDefer defer);
-	public abstract T Visit(TypedExpressionStmt expressionStmt);
-	public abstract T Visit(TypedFor for_);
-	public abstract T Visit(TypedForEach forEach);
-	public abstract T Visit(TypedNamedFunction namedFunction);
-	public abstract T Visit(TypedLet let);
-	public abstract T Visit(TypedMod mod);
-	public abstract T Visit(TypedReturn return_);
-	public abstract T Visit(FullyTypedClass class_);
-	public abstract T Visit(TypedInterface interface_);
-	public abstract T Visit(TypedWhile while_);
-	public abstract T Visit(TypedImport import);
-	public abstract T Visit(TypedMultipleImport multipleImport);
-	public abstract T Visit(TypedComment comment);
-	public abstract T Visit(TypedContinue continue_);
-	public abstract T Visit(TypedBreak break_);
-	public abstract T Visit(TypedYield yield);
-	public abstract T Visit(PartiallyTypedFunction partiallyTypedFunction);
-	public abstract T Visit(PartiallyTypedClass partiallyTypedClass);
-	public abstract T Visit(TypedCheck check);
-	public abstract T Visit(TypedStruct @struct);
+	public T Visit(TypedDefer defer);
+	public T Visit(TypedExpressionStmt expressionStmt);
+	public T Visit(TypedFor @for);
+	public T Visit(TypedForEach forEach);
+	public T Visit(TypedNamedFunction namedFunction);
+	public T Visit(TypedLet let);
+	public T Visit(TypedMod mod);
+	public T Visit(TypedReturn @return);
+	public T Visit(FullyTypedClass @class);
+	public T Visit(TypedInterface @interface);
+	public T Visit(TypedWhile @while);
+	public T Visit(TypedImport import);
+	public T Visit(TypedMultipleImport multipleImport);
+	public T Visit(TypedComment comment);
+	public T Visit(TypedContinue @continue);
+	public T Visit(TypedBreak @break);
+	public T Visit(TypedYield yield);
+	public T Visit(PartiallyTypedFunction partiallyTypedFunction);
+	public T Visit(PartiallyTypedClass partiallyTypedClass);
+	public T Visit(TypedCheck check);
+	public T Visit(TypedStruct @struct);
+	public T Visit(TypedFunctionSignature fnSignature);
 }
 
-public interface ITypedAuraExprVisitor<T>
+public interface ITypedAuraExprVisitor<out T>
 {
-	public abstract T Visit(TypedAssignment assignment);
-	public abstract T Visit(TypedAnonymousFunction anonymousFunction);
-	public abstract T Visit(TypedPlusPlusIncrement plusPlusIncrement);
-	public abstract T Visit(TypedMinusMinusDecrement minusMinusDecrement);
-	public abstract T Visit(TypedBinary binary);
-	public abstract T Visit(TypedBlock block);
-	public abstract T Visit(TypedCall call);
-	public abstract T Visit(TypedGet get);
-	public abstract T Visit(TypedGetIndex getIndex);
-	public abstract T Visit(TypedGetIndexRange getIndexRange);
-	public abstract T Visit(TypedGrouping grouping);
-	public abstract T Visit(TypedIf if_);
-	public abstract T Visit(TypedNil nil);
-	public abstract T Visit(TypedLogical logical);
-	public abstract T Visit(TypedSet set);
-	public abstract T Visit(TypedThis this_);
-	public abstract T Visit(TypedUnary unary);
-	public abstract T Visit(TypedVariable variable);
-	public abstract T Visit(TypedIs is_);
-	public abstract T Visit(IntLiteral intLiteral);
-	public abstract T Visit(FloatLiteral floatLiteral);
-	public abstract T Visit(StringLiteral stringLiteral);
-	public abstract T Visit<U>(ListLiteral<U> listLiteral) where U : IAuraAstNode;
-	public abstract T Visit<TK, TV>(MapLiteral<TK, TV> mapLiteral)
-		where TK : IAuraAstNode
-		where TV : IAuraAstNode;
-	public abstract T Visit(BoolLiteral boolLiteral);
-	public abstract T Visit(CharLiteral charLiteral);
-	public abstract T Visit(TypedAnonymousStruct anonymousStruct);
+	public T Visit(TypedAssignment assignment);
+	public T Visit(TypedAnonymousFunction anonymousFunction);
+	public T Visit(TypedPlusPlusIncrement plusPlusIncrement);
+	public T Visit(TypedMinusMinusDecrement minusMinusDecrement);
+	public T Visit(TypedBinary binary);
+	public T Visit(TypedBlock block);
+	public T Visit(TypedCall call);
+	public T Visit(TypedGet get);
+	public T Visit(TypedGetIndex getIndex);
+	public T Visit(TypedGetIndexRange getIndexRange);
+	public T Visit(TypedGrouping grouping);
+	public T Visit(TypedIf @if);
+	public T Visit(TypedNil nil);
+	public T Visit(TypedLogical logical);
+	public T Visit(TypedSet set);
+	public T Visit(TypedThis @this);
+	public T Visit(TypedUnary unary);
+	public T Visit(TypedVariable variable);
+	public T Visit(TypedIs @is);
+	public T Visit(IntLiteral intLiteral);
+	public T Visit(FloatLiteral floatLiteral);
+	public T Visit(StringLiteral stringLiteral);
+	public T Visit<TU>(ListLiteral<TU> listLiteral) where TU : IAuraAstNode;
+
+	public T Visit<TK, TV>(MapLiteral<TK, TV> mapLiteral) where TK : IAuraAstNode where TV : IAuraAstNode;
+
+	public T Visit(BoolLiteral boolLiteral);
+	public T Visit(CharLiteral charLiteral);
+	public T Visit(TypedAnonymousStruct anonymousStruct);
 }
 
-public interface IUntypedAuraStmtVisitor<T>
+public interface IUntypedAuraStmtVisitor<out T>
 {
-	public abstract T Visit(UntypedDefer defer);
-	public abstract T Visit(UntypedExpressionStmt expressionStmt);
-	public abstract T Visit(UntypedFor for_);
-	public abstract T Visit(UntypedForEach forEach);
-	public abstract T Visit(UntypedNamedFunction namedFunction);
-	public abstract T Visit(UntypedLet let);
-	public abstract T Visit(UntypedMod mod);
-	public abstract T Visit(UntypedReturn return_);
-	public abstract T Visit(UntypedClass class_);
-	public abstract T Visit(UntypedInterface interface_);
-	public abstract T Visit(UntypedWhile while_);
-	public abstract T Visit(UntypedImport import);
-	public abstract T Visit(UntypedMultipleImport multipleImport);
-	public abstract T Visit(UntypedComment comment);
-	public abstract T Visit(UntypedContinue continue_);
-	public abstract T Visit(UntypedBreak break_);
-	public abstract T Visit(UntypedYield yield);
-	public abstract T Visit(UntypedNewLine newline);
-	public abstract T Visit(UntypedCheck check);
-	public abstract T Visit(UntypedStruct @struct);
+	public T Visit(UntypedDefer defer);
+	public T Visit(UntypedExpressionStmt expressionStmt);
+	public T Visit(UntypedFor @for);
+	public T Visit(UntypedForEach forEach);
+	public T Visit(UntypedNamedFunction namedFunction);
+	public T Visit(UntypedLet let);
+	public T Visit(UntypedMod mod);
+	public T Visit(UntypedReturn @return);
+	public T Visit(UntypedClass @class);
+	public T Visit(UntypedInterface @interface);
+	public T Visit(UntypedWhile @while);
+	public T Visit(UntypedImport import);
+	public T Visit(UntypedMultipleImport multipleImport);
+	public T Visit(UntypedComment comment);
+	public T Visit(UntypedContinue @continue);
+	public T Visit(UntypedBreak @break);
+	public T Visit(UntypedYield yield);
+	public T Visit(UntypedNewLine newline);
+	public T Visit(UntypedCheck check);
+	public T Visit(UntypedStruct @struct);
+	public T Visit(UntypedFunctionSignature fnSignature);
 }
 
-public interface IUntypedAuraExprVisitor<T>
+public interface IUntypedAuraExprVisitor<out T>
 {
-	public abstract T Visit(UntypedAssignment assignment);
-	public abstract T Visit(UntypedAnonymousFunction anonymousFunction);
-	public abstract T Visit(UntypedPlusPlusIncrement plusPlusIncrement);
-	public abstract T Visit(UntypedMinusMinusDecrement minusMinusDecrement);
-	public abstract T Visit(UntypedBinary binary);
-	public abstract T Visit(UntypedBlock block);
-	public abstract T Visit(UntypedCall call);
-	public abstract T Visit(UntypedGet get);
-	public abstract T Visit(UntypedGetIndex getIndex);
-	public abstract T Visit(UntypedGetIndexRange getIndexRange);
-	public abstract T Visit(UntypedGrouping grouping);
-	public abstract T Visit(UntypedIf if_);
-	public abstract T Visit(UntypedNil nil);
-	public abstract T Visit(UntypedLogical logical);
-	public abstract T Visit(UntypedSet set);
-	public abstract T Visit(UntypedThis this_);
-	public abstract T Visit(UntypedUnary unary);
-	public abstract T Visit(UntypedVariable variable);
-	public abstract T Visit(UntypedIs @is);
-	public abstract T Visit(IntLiteral intLiteral);
-	public abstract T Visit(FloatLiteral floatLiteral);
-	public abstract T Visit(StringLiteral stringLiteral);
-	public abstract T Visit<U>(ListLiteral<U> listLiteral) where U : IAuraAstNode;
-	public abstract T Visit<TK, TV>(MapLiteral<TK, TV> mapLiteral)
-		where TK : IAuraAstNode
-		where TV : IAuraAstNode;
-	public abstract T Visit(BoolLiteral boolLiteral);
-	public abstract T Visit(CharLiteral charLiteral);
-	public abstract T Visit(UntypedAnonymousStruct anonymousStruct);
+	public T Visit(UntypedAssignment assignment);
+	public T Visit(UntypedAnonymousFunction anonymousFunction);
+	public T Visit(UntypedPlusPlusIncrement plusPlusIncrement);
+	public T Visit(UntypedMinusMinusDecrement minusMinusDecrement);
+	public T Visit(UntypedBinary binary);
+	public T Visit(UntypedBlock block);
+	public T Visit(UntypedCall call);
+	public T Visit(UntypedGet get);
+	public T Visit(UntypedGetIndex getIndex);
+	public T Visit(UntypedGetIndexRange getIndexRange);
+	public T Visit(UntypedGrouping grouping);
+	public T Visit(UntypedIf @if);
+	public T Visit(UntypedNil nil);
+	public T Visit(UntypedLogical logical);
+	public T Visit(UntypedSet set);
+	public T Visit(UntypedThis @this);
+	public T Visit(UntypedUnary unary);
+	public T Visit(UntypedVariable variable);
+	public T Visit(UntypedIs @is);
+	public T Visit(IntLiteral intLiteral);
+	public T Visit(FloatLiteral floatLiteral);
+	public T Visit(StringLiteral stringLiteral);
+	public T Visit<TU>(ListLiteral<TU> listLiteral) where TU : IAuraAstNode;
+
+	public T Visit<TK, TV>(MapLiteral<TK, TV> mapLiteral) where TK : IAuraAstNode where TV : IAuraAstNode;
+
+	public T Visit(BoolLiteral boolLiteral);
+	public T Visit(CharLiteral charLiteral);
+	public T Visit(UntypedAnonymousStruct anonymousStruct);
 }

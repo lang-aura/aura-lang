@@ -1006,7 +1006,7 @@ public class CompilerTest
 			new TypedInterface(
 				new Tok(TokType.Interface, "interface"),
 				new Tok(TokType.Identifier, "IGreeter"),
-				new List<AuraNamedFunction>(),
+				new List<TypedFunctionSignature>(),
 				Visibility.Public,
 				new Tok(TokType.RightBrace, "}"),
 				string.Empty)
@@ -1040,22 +1040,26 @@ public class CompilerTest
 			new TypedInterface(
 				new Tok(TokType.Interface, "interface"),
 				new Tok(TokType.Identifier, "IGreeter"),
-				new List<AuraNamedFunction>
+				new List<TypedFunctionSignature>
 				{
-					new AuraNamedFunction(
-						"say_hi",
-						Visibility.Public,
-						new AuraFunction(
-							new List<Param>
-							{
-								new Param(
-									new Tok(TokType.Identifier, "i"),
-									new ParamType(
-										new AuraInt(),
-										false,
-										null))
-							},
-							new AuraString()))
+					new(
+						new Tok(TokType.Pub, "pub"),
+						new Tok(TokType.Fn, "fn"),
+						new Tok(TokType.Identifier, "say_hi"),
+						new List<Param>
+						{
+							new(
+								new Tok(TokType.Identifier, "i"),
+								new ParamType(
+									new AuraInt(),
+									false,
+									null
+								)
+							)
+						},
+						new Tok(TokType.RightParen, ")"),
+						new AuraString()
+					)
 				},
 				Visibility.Public,
 				new Tok(TokType.RightBrace, "}"),
