@@ -93,7 +93,11 @@ public class AuraDocumentManager
 	{
 		var position = completionParams.Position;
 		var fileContents = GetDocument(completionParams.TextDocument.Uri.ToString());
-		return _completionProvider.ComputeCompletionOptions(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
+		return _completionProvider.ComputeCompletionOptions(
+			Position.FromMicrosoftPosition(position),
+			completionParams.Context!.TriggerCharacter!,
+			fileContents!.TypedAst
+		);
 	}
 
 	private (string, string) GetModuleAndFileNames(string path)

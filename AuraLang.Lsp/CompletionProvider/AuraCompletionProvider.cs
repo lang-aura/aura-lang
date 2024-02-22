@@ -14,10 +14,14 @@ public class AuraCompletionProvider
 		return rangeFinder.FindImmediatelyPrecedingNode();
 	}
 
-	public CompletionList? ComputeCompletionOptions(Position position, IEnumerable<ITypedAuraStatement> typedAst)
+	public CompletionList? ComputeCompletionOptions(
+		Position position,
+		string triggerCharacter,
+		IEnumerable<ITypedAuraStatement> typedAst
+	)
 	{
 		var immediatelyPrecedingNode = FindImmediatelyPrecedingNode(position, typedAst);
-		if (immediatelyPrecedingNode?.Typ is ICompletable c) return c.ProvideCompletableOptions();
+		if (immediatelyPrecedingNode?.Typ is ICompletable c) return c.ProvideCompletableOptions(triggerCharacter);
 		return null;
 	}
 }

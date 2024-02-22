@@ -151,21 +151,34 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 
 	public string GetModuleName() { return "strings"; }
 
-	public CompletionList ProvideCompletableOptions()
-	{
-		// Get "strings" module's methods
-		if (!AuraStdlib.TryGetModule("aura/strings", out var stringsModule)) return new CompletionList();
+	public IEnumerable<string> SupportedTriggerCharacters => new List<string> { "." };
 
-		var completionItems = stringsModule!.PublicFunctions.Select(
-			f => new CompletionItem
-			{
-				Label = f.Name,
-				Kind = CompletionItemKind.Function,
-				Documentation =
-					new MarkupContent { Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown }
-			}
-		);
-		return new CompletionList { Items = completionItems.ToArray() };
+	public bool IsTriggerCharacterSupported(string triggerCharacter)
+	{
+		return SupportedTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public CompletionList ProvideCompletableOptions(string triggerCharacter)
+	{
+		switch (triggerCharacter)
+		{
+			case ".":
+				// Get "strings" module's methods
+				if (!AuraStdlib.TryGetModule("aura/strings", out var stringsModule)) return new CompletionList();
+
+				var completionItems = stringsModule!.PublicFunctions.Select(
+					f => new CompletionItem
+					{
+						Label = f.Name,
+						Kind = CompletionItemKind.Function,
+						Documentation =
+							new MarkupContent { Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown }
+					}
+				);
+				return new CompletionList { Items = completionItems.ToArray() };
+			default:
+				return new CompletionList();
+		}
 	}
 }
 
@@ -518,17 +531,34 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 
 	public bool HasVariadicParam() { return Parameters.Any(p => p.ParamType.Variadic); }
 
-	public CompletionList ProvideCompletableOptions()
+	public IEnumerable<string> SupportedTriggerCharacters => new List<string> { "." };
+
+	public bool IsTriggerCharacterSupported(string triggerCharacter)
 	{
-		var completionItems = Methods.Select(
-			m => new CompletionItem
-			{
-				Label = m.Name,
-				Kind = CompletionItemKind.Function,
-				Documentation = m.Documentation
-			}
-		);
-		return new CompletionList { Items = completionItems.ToArray() };
+		return SupportedTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public CompletionList ProvideCompletableOptions(string triggerCharacter)
+	{
+		switch (triggerCharacter)
+		{
+			case ".":
+				var completionItems = Methods.Select(
+					m => new CompletionItem
+					{
+						Label = m.Name,
+						Kind = CompletionItemKind.Function,
+						Documentation = new MarkupContent
+						{
+							Kind = MarkupKind.Markdown,
+							Value = $"```\n{m.Documentation}\n```"
+						}
+					}
+				);
+				return new CompletionList { Items = completionItems.ToArray() };
+			default:
+				return new CompletionList();
+		}
 	}
 }
 
@@ -599,21 +629,37 @@ public class AuraModule : AuraType, IGettable, ICompletable
 		}
 	}
 
-	public CompletionList ProvideCompletableOptions()
-	{
-		Console.Error.WriteLine($"getting module's completable items: {Name}");
-		// Get stdlib module
-		if (!AuraStdlib.TryGetModule("Name", out var module)) return new CompletionList();
+	public IEnumerable<string> SupportedTriggerCharacters => new List<string> { "." };
 
-		var completionItems = module!.PublicFunctions.Select(
-			f => new CompletionItem
-			{
-				Label = f.Name,
-				Kind = CompletionItemKind.Function,
-				Documentation = f.Documentation
-			}
-		);
-		return new CompletionList { Items = completionItems.ToArray() };
+	public bool IsTriggerCharacterSupported(string triggerCharacter)
+	{
+		return SupportedTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public CompletionList ProvideCompletableOptions(string triggerCharacter)
+	{
+		switch (triggerCharacter)
+		{
+			case ".":
+				// Get stdlib module
+				if (!AuraStdlib.TryGetModule("Name", out var module)) return new CompletionList();
+
+				var completionItems = module!.PublicFunctions.Select(
+					f => new CompletionItem
+					{
+						Label = f.Name,
+						Kind = CompletionItemKind.Function,
+						Documentation = new MarkupContent
+						{
+							Kind = MarkupKind.Markdown,
+							Value = $"```\n{f.Documentation}\n```"
+						}
+					}
+				);
+				return new CompletionList { Items = completionItems.ToArray() };
+			default:
+				return new CompletionList();
+		}
 	}
 }
 
@@ -779,12 +825,25 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumen
 
 	public AuraType? Get(string attribute) { return Parameters.First(p => p.Name.Value == attribute).ParamType.Typ; }
 
-	public CompletionList ProvideCompletableOptions()
+	public IEnumerable<string> SupportedTriggerCharacters => new List<string> { "." };
+
+	public bool IsTriggerCharacterSupported(string triggerCharacter)
 	{
-		var completionItems = Parameters.Select(
-			p => new CompletionItem { Label = p.Name.Value, Kind = CompletionItemKind.Property }
-		);
-		return new CompletionList { Items = completionItems.ToArray() };
+		return SupportedTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public CompletionList ProvideCompletableOptions(string triggerCharacter)
+	{
+		switch (triggerCharacter)
+		{
+			case ".":
+				var completionItems = Parameters.Select(
+					p => new CompletionItem { Label = p.Name.Value, Kind = CompletionItemKind.Property }
+				);
+				return new CompletionList { Items = completionItems.ToArray() };
+			default:
+				return new CompletionList();
+		}
 	}
 }
 
