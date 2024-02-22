@@ -574,6 +574,7 @@ public class AuraParser
 
 	private UntypedFunctionSignature ParseFunctionSignature()
 	{
+		var doc = IsPrecededByComment();
 		Tok? visibility = null;
 		if (Check(TokType.Pub))
 		{
@@ -598,7 +599,8 @@ public class AuraParser
 			name,
 			@params,
 			closingParen,
-			returnType
+			returnType,
+			doc
 		);
 	}
 

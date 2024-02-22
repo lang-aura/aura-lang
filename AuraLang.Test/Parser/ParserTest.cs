@@ -2225,7 +2225,8 @@ public class ParserTest
 						new Tok(TokType.Identifier, "say_hi"),
 						new List<Param>(),
 						new Tok(TokType.RightParen, ")"),
-						new AuraNil()
+						new AuraNil(),
+						null
 					)
 				},
 				Public: Visibility.Private,
@@ -2339,7 +2340,8 @@ public class ParserTest
 							)
 						},
 						new Tok(TokType.RightParen, ")"),
-						new AuraString()
+						new AuraString(),
+						null
 					)
 				},
 				Public: Visibility.Private,

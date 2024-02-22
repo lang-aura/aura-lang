@@ -890,7 +890,15 @@ public record TypedInterface
 }
 
 public record TypedFunctionSignature
-	(Tok? Visibility, Tok Fn, Tok Name, List<Param> Params, Tok ClosingParen, AuraType ReturnType)
+(
+	Tok? Visibility,
+	Tok Fn,
+	Tok Name,
+	List<Param> Params,
+	Tok ClosingParen,
+	AuraType ReturnType,
+	string? Documentation
+)
 	: ITypedAuraStatement, IHoverable
 {
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
@@ -905,10 +913,11 @@ public record TypedFunctionSignature
 		new AuraNamedFunction(
 			Name.Value,
 			Visibility is not null ? Shared.Visibility.Public : Shared.Visibility.Private,
-			new AuraFunction(Params, ReturnType)
+			new AuraFunction(Params, ReturnType),
+			Documentation
 		);
 
-	public string HoverText => Typ.ToAuraString();
+	public string HoverText => ((AuraNamedFunction)Typ).Documentation;
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
