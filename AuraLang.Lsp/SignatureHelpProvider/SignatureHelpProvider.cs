@@ -4,9 +4,9 @@ using AuraLang.Types;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Position = AuraLang.Location.Position;
 
-namespace AuraLang.Lsp.CompletionProvider;
+namespace AuraLang.Lsp.SignatureHelpProvider;
 
-public class AuraCompletionProvider
+public class AuraSignatureHelpProvider
 {
 	private ITypedAuraAstNode? FindImmediatelyPrecedingNode(
 		Position position,
@@ -17,14 +17,14 @@ public class AuraCompletionProvider
 		return rangeFinder.FindImmediatelyPrecedingNode();
 	}
 
-	public CompletionList? ComputeCompletionOptions(
+	public SignatureHelp? ComputeSignatureHelp(
 		Position position,
 		string triggerCharacter,
 		IEnumerable<ITypedAuraStatement> typedAst
 	)
 	{
 		var immediatelyPrecedingNode = FindImmediatelyPrecedingNode(position, typedAst);
-		if (immediatelyPrecedingNode?.Typ is ICompletable c) return c.ProvideCompletableOptions(triggerCharacter);
+		if (immediatelyPrecedingNode?.Typ is ISignatureHelper sh) return sh.ProvideSignatureHelp(triggerCharacter);
 		return null;
 	}
 }

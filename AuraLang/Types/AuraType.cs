@@ -259,7 +259,7 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 /// <summary>
 ///     Represents an Aura function
 /// </summary>
-public class AuraNamedFunction : AuraType, ICallable, IDocumentable
+public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureHelper
 {
 	public string Name { get; }
 	public Visibility Public { get; }
@@ -329,6 +329,43 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable
 	public int GetParamIndex(string name) { return F.GetParamIndex(name); }
 
 	public bool HasVariadicParam() { return F.HasVariadicParam(); }
+
+	public IEnumerable<string> SupportedSignatureHelpTriggerCharacters => new List<string> { "(" };
+
+	public bool IsSignatureHelpTriggerCharacterSupported(string triggerCharacter)
+	{
+		return SupportedSignatureHelpTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public SignatureHelp ProvideSignatureHelp(string triggerCharacter)
+	{
+		var @params = F.Params.Select(
+			p => new ParameterInformation
+			{
+				Label = p.Name.Value,
+				Documentation = new MarkupContent
+				{
+					Kind = MarkupKind.Markdown,
+					Value = $"```\n{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}\n```"
+				}
+			}
+		);
+		return new SignatureHelp
+		{
+			ActiveParameter = 0,
+			ActiveSignature = 0,
+			Signatures = new[]
+			{
+				new SignatureInformation
+				{
+					Label = ToAuraString(),
+					Documentation =
+						new MarkupContent { Kind = MarkupKind.Markdown, Value = $"```\n{_documentation}\n```" },
+					Parameters = @params.ToArray()
+				}
+			}
+		};
+	}
 }
 
 /// <summary>

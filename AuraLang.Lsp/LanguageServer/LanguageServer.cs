@@ -19,14 +19,15 @@ public class AuraLanguageServer : IDisposable
 	private readonly AuraDocumentManager _documents = new();
 	private AuraDiagnosticsPublisher? DiagnosticsPublisher { get; set; }
 
-	public AuraLanguageServer(bool verbose)
-	{
-		Verbose = verbose;
-	}
+	public AuraLanguageServer(bool verbose) { Verbose = verbose; }
 
 	public async Task InitAsync()
 	{
-		_rpc = JsonRpc.Attach(Console.OpenStandardOutput(), Console.OpenStandardInput(), this);
+		_rpc = JsonRpc.Attach(
+			Console.OpenStandardOutput(),
+			Console.OpenStandardInput(),
+			this
+		);
 		DiagnosticsPublisher = new AuraDiagnosticsPublisher(_rpc);
 		_rpc.Disconnected += OnRpcDisconnected;
 		await _rpc.Completion;
@@ -50,12 +51,9 @@ public class AuraLanguageServer : IDisposable
 						WillSave = true,
 						WillSaveWaitUntil = true
 					},
-				CompletionProvider = new CompletionOptions
-				{
-					TriggerCharacters = new[] { "." }
-				},
+				CompletionProvider = new CompletionOptions { TriggerCharacters = new[] { "." } },
 				HoverProvider = true,
-				SignatureHelpProvider = null,
+				SignatureHelpProvider = new SignatureHelpOptions { TriggerCharacters = new[] { "(" } },
 				DefinitionProvider = false,
 				TypeDefinitionProvider = false,
 				ImplementationProvider = false,
@@ -69,10 +67,10 @@ public class AuraLanguageServer : IDisposable
 				RenameProvider = false,
 				ExecuteCommandProvider = null,
 				WorkspaceSymbolProvider = false,
-				SemanticTokensOptions = null,
+				SemanticTokensOptions = null
 			};
 
-			InitializeResult result = new InitializeResult { Capabilities = capabilities };
+			var result = new InitializeResult { Capabilities = capabilities };
 
 			var json = JsonConvert.SerializeObject(result);
 			if (Verbose) Console.Error.WriteLine("--> " + json);
@@ -109,10 +107,7 @@ public class AuraLanguageServer : IDisposable
 		}
 		catch (AuraExceptionContainer e)
 		{
-			foreach (var ex in e.Exs)
-			{
-				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
-			}
+			foreach (var ex in e.Exs) await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
 
 			return;
 		}
@@ -130,10 +125,7 @@ public class AuraLanguageServer : IDisposable
 		}
 		catch (AuraExceptionContainer e)
 		{
-			foreach (var ex in e.Exs)
-			{
-				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
-			}
+			foreach (var ex in e.Exs) await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
 
 			return;
 		}
@@ -164,10 +156,7 @@ public class AuraLanguageServer : IDisposable
 		}
 		catch (AuraExceptionContainer e)
 		{
-			foreach (var ex in e.Exs)
-			{
-				await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
-			}
+			foreach (var ex in e.Exs) await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
 
 			return;
 		}
@@ -191,11 +180,7 @@ public class AuraLanguageServer : IDisposable
 		if (node is null) return new Hover();
 		return new Hover
 		{
-			Contents = new MarkupContent
-			{
-				Value = $"```\n{node.HoverText}\n```",
-				Kind = MarkupKind.Markdown
-			},
+			Contents = new MarkupContent { Value = $"```\n{node.HoverText}\n```", Kind = MarkupKind.Markdown },
 			Range = new Range
 			{
 				Start = new Position
@@ -213,10 +198,17 @@ public class AuraLanguageServer : IDisposable
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentCompletionName)]
-	public CompletionList CompletionProvider(JToken jToken)
+	public CompletionList? CompletionProvider(JToken jToken)
 	{
 		var @params = DeserializeJToken<CompletionParams>(jToken);
-		return _documents.GetCompletionItems(@params) ?? new CompletionList();
+		return _documents.GetCompletionItems(@params);
+	}
+
+	[JsonRpcMethod(Methods.TextDocumentSignatureHelpName)]
+	public SignatureHelp? SignatureHelpProvider(JToken jToken)
+	{
+		var @params = DeserializeJToken<SignatureHelpParams>(jToken);
+		return _documents.GetSignatureHelp(@params);
 	}
 
 	[JsonRpcMethod(Methods.ShutdownName)]
@@ -243,22 +235,13 @@ public class AuraLanguageServer : IDisposable
 		}
 	}
 
-	~AuraLanguageServer()
-	{
-		Dispose(false);
-	}
+	~AuraLanguageServer() { Dispose(false); }
 
-	public void Start()
-	{
-		_disconnectEvent.WaitOne();
-	}
+	public void Start() { _disconnectEvent.WaitOne(); }
 
-	private void OnRpcDisconnected(object? sender, JsonRpcDisconnectedEventArgs e) => Exit();
+	private void OnRpcDisconnected(object? sender, JsonRpcDisconnectedEventArgs e) { Exit(); }
 
-	private void Exit()
-	{
-		Environment.Exit(0);
-	}
+	private void Exit() { Environment.Exit(0); }
 
 	public void Dispose()
 	{
@@ -269,10 +252,7 @@ public class AuraLanguageServer : IDisposable
 	private void Dispose(bool disposing)
 	{
 		if (_isDisposed) return;
-		if (disposing)
-		{
-			_disconnectEvent.Dispose();
-		}
+		if (disposing) _disconnectEvent.Dispose();
 
 		_isDisposed = true;
 	}
