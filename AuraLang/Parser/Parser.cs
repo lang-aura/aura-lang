@@ -165,7 +165,6 @@ public class AuraParser
 			}
 
 			if (_tokens[i].Typ == TokType.Comment) return _tokens[i].Value;
-			Console.Error.WriteLine($"preceding tok = {JsonConvert.SerializeObject(_tokens[i])}");
 			return null;
 		}
 
@@ -742,7 +741,6 @@ public class AuraParser
 	private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility pub)
 	{
 		var doc = IsPrecededByComment();
-		Console.Error.WriteLine($"doc = {doc}");
 		var fn = Previous();
 		// Parse the function's name
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));

@@ -143,9 +143,7 @@ public record TypedCall(ITypedAuraCallable Callee, List<ITypedAuraExpression> Ar
 	{
 		get
 		{
-			Console.Error.WriteLine($"returning documentation: {JsonConvert.SerializeObject(FnTyp)}");
 			if (FnTyp.Documentation != string.Empty) return FnTyp.Documentation;
-			Console.Error.WriteLine("calling ToAuraString()");
 			return FnTyp.ToAuraString();
 		}
 	}
