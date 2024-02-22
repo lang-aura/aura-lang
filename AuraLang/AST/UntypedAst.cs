@@ -439,7 +439,7 @@ public record UntypedAnonymousFunction(Tok Fn, List<Param> Params, UntypedBlock 
 /// be <see cref="AuraUnknown"/></param>
 /// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">The initializer expression whose result will be assigned to the new variable. This expression may be omitted.</param>
-public record UntypedLet(Tok? Let, List<Tok> Names, List<AuraType>? NameTyps, bool Mutable, IUntypedAuraExpression? Initializer) : IUntypedAuraStatement
+public record UntypedLet(Tok? Let, List<Tok> Names, List<AuraType> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer) : IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) => visitor.Visit(this);
 	public Range Range => new(

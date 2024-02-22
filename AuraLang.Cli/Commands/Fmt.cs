@@ -23,7 +23,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	protected override async Task<int> ExecuteCommandAsync()
 	{
 		TraverseProject(FormatFile);
-		return 0;
+		return await Task.FromResult(0);
 	}
 
 	/// <summary>
@@ -290,7 +290,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"fn({paramz}){returnType} {body}";
 	}
 
-	public string Visit(UntypedIs iss) => "is";
+	public string Visit(UntypedIs @is) => "is";
 
 	private string WithIndent(Func<string> a)
 	{

@@ -104,7 +104,7 @@ public interface IUntypedAuraExprVisitor<T>
 	public abstract T Visit(UntypedThis this_);
 	public abstract T Visit(UntypedUnary unary);
 	public abstract T Visit(UntypedVariable variable);
-	public abstract T Visit(UntypedIs is_);
+	public abstract T Visit(UntypedIs @is);
 	public abstract T Visit(IntLiteral intLiteral);
 	public abstract T Visit(FloatLiteral floatLiteral);
 	public abstract T Visit(StringLiteral stringLiteral);

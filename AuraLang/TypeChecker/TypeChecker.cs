@@ -26,7 +26,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private string ProjectName { get; }
 	private string? ModuleName { get; set; }
 	private readonly AuraPrelude _prelude = new();
-	public IImportedModuleProvider _importedModuleProvider { get; }
+	public IImportedModuleProvider ImportedModuleProvider { get; }
 
 	public AuraTypeChecker(IGlobalSymbolsTable symbolsTable, IEnclosingClassStore enclosingClassStore,
 		IEnclosingFunctionDeclarationStore enclosingFunctionDeclarationStore,
@@ -40,7 +40,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingExpressionStore = enclosingExpressionStore;
 		_enclosingStatementStore = enclosingStatementStore;
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
-		_importedModuleProvider = importedFileProvider;
+		ImportedModuleProvider = importedFileProvider;
 		ProjectName = projectName;
 	}
 
@@ -52,7 +52,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingExpressionStore = new EnclosingNodeStore<IUntypedAuraExpression>();
 		_enclosingStatementStore = new EnclosingNodeStore<IUntypedAuraStatement>();
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
-		_importedModuleProvider = importedModuleProvider;
+		ImportedModuleProvider = importedModuleProvider;
 		ProjectName = projectName;
 	}
 
@@ -64,7 +64,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingExpressionStore = new EnclosingNodeStore<IUntypedAuraExpression>();
 		_enclosingStatementStore = new EnclosingNodeStore<IUntypedAuraStatement>();
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
-		_importedModuleProvider = importedModuleProvider;
+		ImportedModuleProvider = importedModuleProvider;
 		ProjectName = projectName;
 	}
 
@@ -76,7 +76,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_enclosingExpressionStore = new EnclosingNodeStore<IUntypedAuraExpression>();
 		_enclosingStatementStore = new EnclosingNodeStore<IUntypedAuraStatement>();
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
-		_importedModuleProvider = new AuraLocalFileSystemImportedModuleProvider();
+		ImportedModuleProvider = new AuraLocalFileSystemImportedModuleProvider();
 		ProjectName = projectName;
 	}
 
@@ -91,7 +91,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 				switch (stmt)
 				{
 					case UntypedImport i:
-						var im = Visit(i);
+						Visit(i);
 						break;
 					case UntypedLet l:
 						AddLetStmtToSymbolsTable(l);
@@ -218,7 +218,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private AuraSymbol FindOrThrow(string varName, string symbolNamespace, Range range)
 	{
 		var local = _symbolsTable.GetSymbol(varName, symbolNamespace) ?? throw new UnknownVariableException(varName, range);
-		return local!;
+		return local;
 	}
 
 	/// <summary>
@@ -344,9 +344,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					else if (f.ReturnType?.Count > 1)
 					{
 						returnType = new AuraAnonymousStruct(
-							parameters: f.ReturnType!.Select((typ, i) =>
-							{
-								return new Param(
+							parameters: f.ReturnType!.Select((typ, i) => new Param(
 									Name: new Tok(
 										typ: TokType.Identifier,
 										value: i.ToString()
@@ -356,8 +354,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 										Variadic: false,
 										DefaultValue: null
 									)
-								);
-							}).ToList(),
+								)
+							).ToList(),
 							pub: Visibility.Private
 						);
 					}
@@ -380,9 +378,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		if (f.ReturnType?.Count > 1)
 		{
 			returnType = new AuraAnonymousStruct(
-				parameters: f.ReturnType!.Select((typ, i) =>
-				{
-					return new Param(
+				parameters: f.ReturnType!.Select((typ, i) => new Param(
 						Name: new Tok(
 							typ: TokType.Identifier,
 							value: i.ToString()
@@ -392,8 +388,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							Variadic: false,
 							DefaultValue: null
 						)
-					);
-				}).ToList(),
+					)
+				).ToList(),
 				pub: Visibility.Private
 			);
 		}
@@ -409,9 +405,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		if (f.ReturnType?.Count > 1)
 		{
 			returnType = new AuraAnonymousStruct(
-				parameters: f.ReturnType!.Select((typ, i) =>
-				{
-					return new Param(
+				parameters: f.ReturnType!.Select((typ, i) => new Param(
 						Name: new Tok(
 							typ: TokType.Identifier,
 							value: i.ToString()
@@ -421,8 +415,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							Variadic: false,
 							DefaultValue: null
 						)
-					);
-				}).ToList(),
+					)
+				).ToList(),
 				pub: Visibility.Private
 			);
 		}
@@ -457,8 +451,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	private void AddLetStmtToSymbolsTable(UntypedLet let)
 	{
 		// Ensure that all variables being created either have a type annotation or a missing a type annotation (they cannot mix)
-		var annotations = let.NameTyps.All(nt => nt is not null);
-		var missingAnnotations = let.NameTyps.All(nt => nt is null);
+		var annotations = let.NameTyps.All(nt => nt is not AuraUnknown);
+		var missingAnnotations = let.NameTyps.All(nt => nt is AuraUnknown);
 		if (!annotations && !missingAnnotations) throw new CannotMixTypeAnnotationsException(let.Range);
 
 		if (missingAnnotations)
@@ -473,7 +467,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			return;
 		}
 
-		var nameTyp = let.NameTyps[0]!;
+		var nameTyp = let.NameTyps[0];
 		// Type check initializer
 		var defaultable = nameTyp as IDefaultable;
 		if (let.Initializer is null && defaultable is null)
@@ -485,7 +479,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		_symbolsTable.TryAddSymbol(
 			symbol: new AuraSymbol(
 				Name: let.Names[0].Value,
-				Kind: typedInit?.Typ ?? new AuraNil()
+				Kind: typedInit.Typ
 			),
 			symbolsNamespace: ModuleName!
 		);
@@ -495,21 +489,19 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		// Package the let statement's variable names into an anonymous struct
 		var names = new AuraAnonymousStruct(
-			parameters: let.Names.Select((name, i) =>
-			{
-				return new Param(
+			parameters: let.Names.Select((_, i) => new Param(
 					Name: new Tok(
 						typ: TokType.Identifier,
 						value: i.ToString(),
 						range: let.Range
 					),
 					ParamType: new(
-						Typ: let.NameTyps[i]!,
+						Typ: let.NameTyps[i],
 						Variadic: false,
 						DefaultValue: null
 					)
-				);
-			}).ToList(),
+				)
+			).ToList(),
 			pub: Visibility.Private
 		);
 		// Type check initializer
@@ -520,7 +512,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			_symbolsTable.TryAddSymbol(
 				symbol: new AuraSymbol(
 					Name: name.Value,
-					Kind: typ!
+					Kind: typ
 				),
 				symbolsNamespace: ModuleName!
 			);
@@ -557,7 +549,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			_symbolsTable.TryAddSymbol(
 				symbol: new AuraSymbol(
 					Name: name.Value,
-					Kind: typ!
+					Kind: typ
 				),
 				symbolsNamespace: ModuleName!
 			);
@@ -572,8 +564,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	public ITypedAuraStatement Visit(UntypedLet let)
 	{
 		// Ensure that all variables being created either have a type annotation or a missing a type annotation (they cannot mix)
-		var annotations = let.NameTyps.All(nt => nt is not null);
-		var missingAnnotations = let.NameTyps.All(nt => nt is null);
+		var annotations = let.NameTyps.All(nt => nt is not AuraUnknown);
+		var missingAnnotations = let.NameTyps.All(nt => nt is AuraUnknown);
 		if (!annotations && !missingAnnotations) throw new CannotMixTypeAnnotationsException(let.Range);
 
 		if (missingAnnotations) return ShortLetStmt(let);
@@ -583,7 +575,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		var typedLet = WithEnclosingStmt(
 			f: () =>
 			{
-				var nameTyp = let.NameTyps[0]!;
+				var nameTyp = let.NameTyps[0];
 				// Type check initializer
 				var defaultable = nameTyp as IDefaultable;
 				if (let.Initializer is null && defaultable is null)
@@ -617,21 +609,19 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			{
 				// Package the let statement's variable names into an anonymous struct
 				var names = new AuraAnonymousStruct(
-					parameters: let.Names!.Select((name, i) =>
-					{
-						return new Param(
+					parameters: let.Names.Select((_, i) => new Param(
 							Name: new Tok(
 								typ: TokType.Identifier,
 								value: i.ToString(),
 								range: let.Range
 							),
 							ParamType: new(
-								Typ: let.NameTyps[i]!,
+								Typ: let.NameTyps[i],
 								Variadic: false,
 								DefaultValue: null
 							)
-						);
-					}).ToList(),
+						)
+					).ToList(),
 					pub: Visibility.Private
 				);
 				// Type check initializer
@@ -655,7 +645,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			_symbolsTable.TryAddSymbol(
 				symbol: new AuraSymbol(
 					Name: name.Value,
-					Kind: typ!
+					Kind: typ
 				),
 				symbolsNamespace: ModuleName!
 			);
@@ -722,7 +712,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			_symbolsTable.TryAddSymbol(
 				symbol: new AuraSymbol(
 					Name: name.Value,
-					Kind: typ!
+					Kind: typ
 				),
 				symbolsNamespace: ModuleName!
 			);
@@ -764,9 +754,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 							value: "struct",
 							range: r.Range
 						),
-						Params: typedReturnValues.Select((v, i) =>
-						{
-							return new Param(
+						Params: typedReturnValues.Select((v, i) => new Param(
 								Name: new Tok(
 									typ: TokType.Identifier,
 									value: i.ToString(),
@@ -777,8 +765,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 									Variadic: false,
 									DefaultValue: null
 								)
-							);
-						}).ToList(),
+							)
+						).ToList(),
 						Values: typedReturnValues.ToList(),
 						ClosingParen: new Tok(
 							typ: TokType.RightParen,
@@ -792,9 +780,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		);
 	}
 
-	private AuraClass ParseClassSignature(UntypedClass class_)
+	private AuraClass ParseClassSignature(UntypedClass @class)
 	{
-		var typedParams = class_.Params.Select(p =>
+		var typedParams = @class.Params.Select(p =>
 		{
 			var typedDefaultValue = p.ParamType.DefaultValue is not null
 				? (ILiteral)Expression(p.ParamType.DefaultValue)
@@ -802,18 +790,18 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var paramTyp = p.ParamType.Typ;
 			return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 		});
-		var methodSignatures = class_.Methods.Select(ParseFunctionSignature);
-		var implements = class_.Implementing.Any()
-			? class_.Implementing.Select(impl =>
+		var methodSignatures = @class.Methods.Select(ParseFunctionSignature);
+		var implements = @class.Implementing.Any()
+			? @class.Implementing.Select(impl =>
 			{
-				var local = FindOrThrow(impl.Value, ModuleName!, class_.Range);
+				var local = FindOrThrow(impl.Value, ModuleName!, @class.Range);
 				var i = local.Kind as AuraInterface ??
-						throw new CannotImplementNonInterfaceException(impl.Value, class_.Range);
+						throw new CannotImplementNonInterfaceException(impl.Value, @class.Range);
 				return i;
 			})
 			: new List<AuraInterface>();
 
-		return new AuraClass(class_.Name.Value, typedParams.ToList(), methodSignatures.ToList(), implements.ToList(), class_.Public);
+		return new AuraClass(@class.Name.Value, typedParams.ToList(), methodSignatures.ToList(), implements.ToList(), @class.Public);
 	}
 
 	/// <summary>
@@ -835,7 +823,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 					return new Param(p.Name, new ParamType(paramTyp, p.ParamType.Variadic, typedDefaultValue));
 				});
 
-				var methodSignatures = @class.Methods.Select(m => ParseFunctionSignature(m)).ToList();
+				var methodSignatures = @class.Methods.Select(ParseFunctionSignature).ToList();
 				var methodTypes = methodSignatures
 					.Select(method =>
 					{
@@ -1139,7 +1127,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
-			string? namespace_ = null;
+			string? @namespace = null;
 			if (call.Callee is UntypedGet ug)
 			{
 				var typedGet = (TypedGet)Visit(ug);
@@ -1159,11 +1147,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 					return new TypedCall(typedGet, typedArgs, call.ClosingParen, funcDeclaration_);
 				}
-				if (typedGet.Obj.Typ is AuraModule m) namespace_ = m.Name;
+				if (typedGet.Obj.Typ is AuraModule m) @namespace = m.Name;
 			}
-			if (IsSymbolInPreludeNamespace(call.GetName())) namespace_ = "prelude";
+			if (IsSymbolInPreludeNamespace(call.GetName())) @namespace = "prelude";
 
-			var f = FindOrThrow(call.Callee.GetName(), namespace_ ?? ModuleName!, call.Range);
+			var f = FindOrThrow(call.Callee.GetName(), @namespace ?? ModuleName!, call.Range);
 			var funcDeclaration = f.Kind as ICallable;
 			// Type check arguments
 			if (call.Arguments.Any())
@@ -1179,13 +1167,13 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 			var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
 			if (!funcDeclaration!.GetParams().Any())
 			{
-				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), call.ClosingParen, funcDeclaration!);
+				return new TypedCall(typedCallee!, new List<ITypedAuraExpression>(), call.ClosingParen, funcDeclaration);
 			}
 			else
 			{
 				// Add default values, if any
 				var typedArgs = new List<ITypedAuraExpression>();
-				foreach (var arg in funcDeclaration!.GetParams())
+				foreach (var arg in funcDeclaration.GetParams())
 				{
 					var index = funcDeclaration.GetParamIndex(arg.Name.Value);
 					var defaultValue = arg.ParamType.DefaultValue ??
@@ -1314,7 +1302,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
 			var typedObj = Expression(set.Obj);
-			if (typedObj.Typ is not IGettable g) throw new CannotSetOnNonClassException(typedObj.Typ, set.Range);
+			if (typedObj.Typ is not IGettable) throw new CannotSetOnNonClassException(typedObj.Typ, set.Range);
 			var typedValue = Expression(set.Value);
 			return new TypedSet(typedObj, set.Name, typedValue, typedValue.Typ);
 		}, set);
@@ -1414,7 +1402,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 
 	public ITypedAuraExpression Visit(StringLiteral literal) => literal;
 
-	public ITypedAuraExpression Visit<U>(ListLiteral<U> literal) where U : IAuraAstNode
+	public ITypedAuraExpression Visit<TU>(ListLiteral<TU> literal) where TU : IAuraAstNode
 	{
 		return _enclosingExpressionStore.WithEnclosing(() =>
 		{
@@ -1493,22 +1481,22 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>, IUn
 	/// <returns>A valid, type checked variable expression</returns>
 	public ITypedAuraExpression Visit(UntypedVariable v)
 	{
-		var namespace_ = IsSymbolInPreludeNamespace(v.Name.Value)
+		var @namespace = IsSymbolInPreludeNamespace(v.Name.Value)
 			? "prelude"
 			: ModuleName!;
-		var localVar = FindOrThrow(v.Name.Value, namespace_, v.Range);
+		var localVar = FindOrThrow(v.Name.Value, @namespace, v.Range);
 		var kind = !localVar.Kind.IsSameType(new AuraUnknown(string.Empty))
 			? localVar.Kind
 			: FindOrThrow(((AuraUnknown)localVar.Kind).Name, ModuleName!, v.Range).Kind;
 		return new TypedVariable(v.Name, kind);
 	}
 
-	public ITypedAuraExpression Visit(UntypedIs is_)
+	public ITypedAuraExpression Visit(UntypedIs @is)
 	{
-		var typedExpr = Expression(is_.Expr);
+		var typedExpr = Expression(@is.Expr);
 		// Ensure the expected type is an interface
-		var i = FindAndConfirm(is_.Expected.Value, ModuleName!,
-			new AuraInterface(string.Empty, new List<AuraNamedFunction>(), Visibility.Private), is_.Range);
+		var i = FindAndConfirm(@is.Expected.Value, ModuleName!,
+			new AuraInterface(string.Empty, new List<AuraNamedFunction>(), Visibility.Private), @is.Range);
 
 		return new TypedIs(typedExpr, i);
 	}
