@@ -4,5 +4,7 @@ namespace AuraLang.Types;
 
 public interface ICompletable
 {
-	CompletionList ProvideCompletableOptions();
+	IEnumerable<string> SupportedTriggerCharacters { get; }
+	bool IsTriggerCharacterSupported(string triggerCharacter);
+	CompletionList ProvideCompletableOptions(string triggerCharacter);
 }
