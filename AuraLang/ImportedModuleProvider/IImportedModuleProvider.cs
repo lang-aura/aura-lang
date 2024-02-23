@@ -12,13 +12,13 @@
 /// </summary>
 public interface IImportedModuleProvider
 {
-    /// <summary>
-    ///     Fetches the Aura source file identified by the module and file name
-    /// </summary>
-    /// <param name="moduleName">The name of the imported Aura module</param>
-    /// <returns>
-    ///     A list of tuples, with each tuple containing the source file's name as its first item and the source
-    ///     file's contents as its second item
-    /// </returns>
-    List<(string, string)> GetImportedModule(string moduleName);
+	/// <summary>
+	///     Fetches the Aura source file identified by the module and file name
+	/// </summary>
+	/// <param name="moduleName">The name of the imported Aura module</param>
+	/// <returns>
+	///     A list of tuples, with each tuple containing the source file's name as its first item and the source
+	///     file's contents as its second item
+	/// </returns>
+	List<(string, string)> GetImportedModule(string moduleName);
 }

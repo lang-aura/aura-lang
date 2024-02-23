@@ -7,7 +7,7 @@ namespace AuraLang.Exceptions.Scanner;
 /// </summary>
 public abstract class ScannerException : AuraException
 {
-    protected ScannerException(string message, Range range) : base(message, range) { }
+	protected ScannerException(string message, Range range) : base(message, range) { }
 }
 
 /// <summary>
@@ -15,7 +15,7 @@ public abstract class ScannerException : AuraException
 /// </summary>
 public class UnterminatedStringException : ScannerException
 {
-    public UnterminatedStringException(Range range) : base("Unterminated string", range) { }
+	public UnterminatedStringException(Range range) : base("Unterminated string", range) { }
 }
 
 /// <summary>
@@ -23,7 +23,7 @@ public class UnterminatedStringException : ScannerException
 /// </summary>
 public class UnterminatedCharException : ScannerException
 {
-    public UnterminatedCharException(Range range) : base("Unterminated char", range) { }
+	public UnterminatedCharException(Range range) : base("Unterminated char", range) { }
 }
 
 /// <summary>
@@ -31,7 +31,7 @@ public class UnterminatedCharException : ScannerException
 /// </summary>
 public class CharLengthGreaterThanOneException : ScannerException
 {
-    public CharLengthGreaterThanOneException(Range range) : base("Char length greater than 1", range) { }
+	public CharLengthGreaterThanOneException(Range range) : base("Char length greater than 1", range) { }
 }
 
 /// <summary>
@@ -39,7 +39,7 @@ public class CharLengthGreaterThanOneException : ScannerException
 /// </summary>
 public class EmptyCharException : ScannerException
 {
-    public EmptyCharException(Range range) : base("Empty char", range) { }
+	public EmptyCharException(Range range) : base("Empty char", range) { }
 }
 
 /// <summary>
@@ -47,5 +47,5 @@ public class EmptyCharException : ScannerException
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {
-    public InvalidCharacterException(char found, Range range) : base($"Invalid character: `{found}`", range) { }
+	public InvalidCharacterException(char found, Range range) : base($"Invalid character: `{found}`", range) { }
 }

@@ -39,39 +39,39 @@ public class GoDocument
 	///     should be written to
 	/// </param>
 	public void WriteStmt(string s, int line, ITypedAuraStatement typ)
-    {
-        switch (typ)
-        {
-            case TypedMod:
-                _pkg.WriteString(
-                    s,
-                    line,
-                    typ
-                );
-                break;
-            case TypedImport:
-                _imports[s] = true;
-                break;
-            default:
-                _statements.WriteString(
-                    s,
-                    line,
-                    typ
-                );
-                break;
-        }
-    }
+	{
+		switch (typ)
+		{
+			case TypedMod:
+				_pkg.WriteString(
+					s,
+					line,
+					typ
+				);
+				break;
+			case TypedImport:
+				_imports[s] = true;
+				break;
+			default:
+				_statements.WriteString(
+					s,
+					line,
+					typ
+				);
+				break;
+		}
+	}
 
 	/// <summary>
 	///     Assembles the final Go output file
 	/// </summary>
 	/// <returns>A valid Go file</returns>
 	public string Assemble()
-    {
-        var imports = _imports.Count == 0
-            ? string.Empty
-            : _imports.Select(i => i.Key).Aggregate("\n", (prev, curr) => $"{prev}\n{curr}").ToString();
-        var statements = _statements.String() == string.Empty ? string.Empty : $"\n\n{_statements.String()}";
-        return $"{_pkg.String()}{imports}{statements}\n";
-    }
+	{
+		var imports = _imports.Count == 0
+			? string.Empty
+			: _imports.Select(i => i.Key).Aggregate("\n", (prev, curr) => $"{prev}\n{curr}").ToString();
+		var statements = _statements.String() == string.Empty ? string.Empty : $"\n\n{_statements.String()}";
+		return $"{_pkg.String()}{imports}{statements}\n";
+	}
 }

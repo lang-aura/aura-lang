@@ -14,7 +14,7 @@ public class AuraStringBuilder
 	/// Keeps track of the line of the most recent string that was written to the string builder
 	/// </summary>
 	private int _lastLine;
-	
+
 	public void WriteString(string s, int line, ITypedAuraStatement typ)
 	{
 		// A value of 0 for `lastLine` indicates that no string has previously been written to this struct

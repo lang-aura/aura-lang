@@ -32,7 +32,7 @@ public interface IUntypedAuraStatement : IUntypedAuraAstNode, IUntypedAuraStmtVi
 /// </summary>
 public interface IUntypedAuraCallable : IUntypedAuraAstNode
 {
-    string GetName();
+	string GetName();
 }
 
 /// <summary>
@@ -44,9 +44,9 @@ public interface IUntypedAuraCallable : IUntypedAuraAstNode
 /// <param name="Value">The variable's new value</param>
 public record UntypedAssignment(Tok Name, IUntypedAuraExpression Value) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Name.Range.Start, Value.Range.End);
+	public Range Range => new(Name.Range.Start, Value.Range.End);
 }
 
 /// <summary>
@@ -59,9 +59,9 @@ public record UntypedAssignment(Tok Name, IUntypedAuraExpression Value) : IUntyp
 /// </param>
 public record UntypedPlusPlusIncrement(IUntypedAuraExpression Name, Tok PlusPlus) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Name.Range.Start, PlusPlus.Range.End);
+	public Range Range => new(Name.Range.Start, PlusPlus.Range.End);
 }
 
 /// <summary>
@@ -74,9 +74,9 @@ public record UntypedPlusPlusIncrement(IUntypedAuraExpression Name, Tok PlusPlus
 /// </param>
 public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, Tok MinusMinus) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Name.Range.Start, MinusMinus.Range.End);
+	public Range Range => new(Name.Range.Start, MinusMinus.Range.End);
 }
 
 /// <summary>
@@ -93,11 +93,11 @@ public record UntypedMinusMinusDecrement(IUntypedAuraExpression Name, Tok MinusM
 /// <param name="Operator">The binary expression's operator</param>
 /// <param name="Right">The expression on the right side of the binary expression</param>
 public record UntypedBinary
-    (IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right) : IUntypedAuraExpression
+	(IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Left.Range.Start, Right.Range.End);
+	public Range Range => new(Left.Range.Start, Right.Range.End);
 }
 
 /// <summary>
@@ -118,11 +118,11 @@ public record UntypedBinary
 ///     position in the Aura source file
 /// </param>
 public record UntypedBlock
-    (Tok OpeningBrace, List<IUntypedAuraStatement> Statements, Tok ClosingBrace) : IUntypedAuraExpression
+	(Tok OpeningBrace, List<IUntypedAuraStatement> Statements, Tok ClosingBrace) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(OpeningBrace.Range.Start, ClosingBrace.Range.End);
+	public Range Range => new(OpeningBrace.Range.Start, ClosingBrace.Range.End);
 }
 
 /// <summary>
@@ -143,14 +143,14 @@ public record UntypedBlock
 ///     position in the Aura source file
 /// </param>
 public record UntypedCall
-    (IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, Tok ClosingParen)
-    : IUntypedAuraExpression, IUntypedAuraCallable
+	(IUntypedAuraCallable Callee, List<(Tok?, IUntypedAuraExpression)> Arguments, Tok ClosingParen)
+	: IUntypedAuraExpression, IUntypedAuraCallable
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public string GetName() { return Callee.GetName(); }
+	public string GetName() { return Callee.GetName(); }
 
-    public Range Range => new(Callee.Range.Start, ClosingParen.Range.End);
+	public Range Range => new(Callee.Range.Start, ClosingParen.Range.End);
 }
 
 /// <summary>
@@ -167,11 +167,11 @@ public record UntypedCall
 /// <param name="Name">The attribute being fetched</param>
 public record UntypedGet(IUntypedAuraExpression Obj, Tok Name) : IUntypedAuraExpression, IUntypedAuraCallable
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public string GetName() { return Name.Value; }
+	public string GetName() { return Name.Value; }
 
-    public Range Range => new(Obj.Range.Start, Name.Range.End);
+	public Range Range => new(Obj.Range.Start, Name.Range.End);
 }
 
 /// <summary>
@@ -184,11 +184,11 @@ public record UntypedGet(IUntypedAuraExpression Obj, Tok Name) : IUntypedAuraExp
 ///     position in the Aura source file
 /// </param>
 public record UntypedGetIndex
-    (IUntypedAuraExpression Obj, IUntypedAuraExpression Index, Tok ClosingBracket) : IUntypedAuraExpression
+	(IUntypedAuraExpression Obj, IUntypedAuraExpression Index, Tok ClosingBracket) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Obj.Range.Start, ClosingBracket.Range.End);
+	public Range Range => new(Obj.Range.Start, ClosingBracket.Range.End);
 }
 
 /// <summary>
@@ -202,12 +202,12 @@ public record UntypedGetIndex
 ///     in the Aura source file
 /// </param>
 public record UntypedGetIndexRange
-    (IUntypedAuraExpression Obj, IUntypedAuraExpression Lower, IUntypedAuraExpression Upper, Tok ClosingBracket)
-    : IUntypedAuraExpression
+	(IUntypedAuraExpression Obj, IUntypedAuraExpression Lower, IUntypedAuraExpression Upper, Tok ClosingBracket)
+	: IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Obj.Range.Start, ClosingBracket.Range.End);
+	public Range Range => new(Obj.Range.Start, ClosingBracket.Range.End);
 }
 
 /// <summary>
@@ -226,9 +226,9 @@ public record UntypedGetIndexRange
 /// </param>
 public record UntypedGrouping(Tok OpeningParen, IUntypedAuraExpression Expr, Tok ClosingParen) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(OpeningParen.Range.Start, ClosingParen.Range.End);
+	public Range Range => new(OpeningParen.Range.Start, ClosingParen.Range.End);
 }
 
 /// <summary>
@@ -256,11 +256,11 @@ public record UntypedGrouping(Tok OpeningParen, IUntypedAuraExpression Expr, Tok
 /// <param name="Then">The branch that will be executed if the <see cref="Condition" /> evaluates to true</param>
 /// <param name="Else">The branch that will be executed if the <see cref="Condition" /> evalutes to false</param>
 public record UntypedIf
-    (Tok If, IUntypedAuraExpression Condition, UntypedBlock Then, IUntypedAuraExpression? Else) : IUntypedAuraExpression
+	(Tok If, IUntypedAuraExpression Condition, UntypedBlock Then, IUntypedAuraExpression? Else) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(If.Range.Start, Else?.Range.End ?? Then.Range.End);
+	public Range Range => new(If.Range.Start, Else?.Range.End ?? Then.Range.End);
 }
 
 /// <summary>
@@ -269,9 +269,9 @@ public record UntypedIf
 /// <param name="Nil">A token representing the <c>nil</c> keyword</param>
 public record UntypedNil(Tok Nil) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => Nil.Range;
+	public Range Range => Nil.Range;
 }
 
 /// <summary>
@@ -282,11 +282,11 @@ public record UntypedNil(Tok Nil) : IUntypedAuraExpression
 /// <param name="Operator">The logical expression's operator</param>
 /// <param name="Right">The expression on the right side of the expression</param>
 public record UntypedLogical
-    (IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right) : IUntypedAuraExpression
+	(IUntypedAuraExpression Left, Tok Operator, IUntypedAuraExpression Right) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Left.Range.Start, Right.Range.End);
+	public Range Range => new(Left.Range.Start, Right.Range.End);
 }
 
 /// <summary>
@@ -303,9 +303,9 @@ public record UntypedLogical
 /// <param name="Value">The new value</param>
 public record UntypedSet(IUntypedAuraExpression Obj, Tok Name, IUntypedAuraExpression Value) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Obj.Range.Start, Value.Range.End);
+	public Range Range => new(Obj.Range.Start, Value.Range.End);
 }
 
 /// <summary>
@@ -314,9 +314,9 @@ public record UntypedSet(IUntypedAuraExpression Obj, Tok Name, IUntypedAuraExpre
 /// <param name="This">The <c>this</c> keyword</param>
 public record UntypedThis(Tok This) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => This.Range;
+	public Range Range => This.Range;
 }
 
 /// <summary>
@@ -332,9 +332,9 @@ public record UntypedThis(Tok This) : IUntypedAuraExpression
 /// </param>
 public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Operator.Range.Start, Right.Range.End);
+	public Range Range => new(Operator.Range.Start, Right.Range.End);
 }
 
 /// <summary>
@@ -344,11 +344,11 @@ public record UntypedUnary(Tok Operator, IUntypedAuraExpression Right) : IUntype
 /// <param name="Name">The variable's name</param>
 public record UntypedVariable(Tok Name) : IUntypedAuraExpression, IUntypedAuraCallable
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public string GetName() { return Name.Value; }
+	public string GetName() { return Name.Value; }
 
-    public Range Range => new(Name.Range.Start, Name.Range.End);
+	public Range Range => new(Name.Range.Start, Name.Range.End);
 }
 
 /// <summary>
@@ -358,9 +358,9 @@ public record UntypedVariable(Tok Name) : IUntypedAuraExpression, IUntypedAuraCa
 /// <param name="Expected">The expected type that the expression's type is compared against</param>
 public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Expr.Range.Start, Expected.Range.End);
+	public Range Range => new(Expr.Range.Start, Expected.Range.End);
 }
 
 /// <summary>
@@ -374,9 +374,9 @@ public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected) : IUntypedAur
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function scope</param>
 public record UntypedDefer(Tok Defer, IUntypedAuraCallable Call) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Defer.Range.Start, Call.Range.End);
+	public Range Range => new(Defer.Range.Start, Call.Range.End);
 }
 
 /// <summary>
@@ -386,9 +386,9 @@ public record UntypedDefer(Tok Defer, IUntypedAuraCallable Call) : IUntypedAuraS
 /// <param name="Expression">The expression that was present in a context where a statement was expected</param>
 public record UntypedExpressionStmt(IUntypedAuraExpression Expression) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => Expression.Range;
+	public Range Range => Expression.Range;
 }
 
 /// <summary>
@@ -418,17 +418,17 @@ public record UntypedExpressionStmt(IUntypedAuraExpression Expression) : IUntype
 /// </param>
 public record UntypedFor
 (
-    Tok For,
-    IUntypedAuraStatement? Initializer,
-    IUntypedAuraExpression? Condition,
-    IUntypedAuraExpression? Increment,
-    List<IUntypedAuraStatement> Body,
-    Tok ClosingBrace
+	Tok For,
+	IUntypedAuraStatement? Initializer,
+	IUntypedAuraExpression? Condition,
+	IUntypedAuraExpression? Increment,
+	List<IUntypedAuraStatement> Body,
+	Tok ClosingBrace
 ) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(For.Range.Start, ClosingBrace.Range.End);
+	public Range Range => new(For.Range.Start, ClosingBrace.Range.End);
 }
 
 /// <summary>
@@ -451,12 +451,12 @@ public record UntypedFor
 ///     in the Aura source file
 /// </param>
 public record UntypedForEach
-    (Tok ForEach, Tok EachName, IUntypedAuraExpression Iterable, List<IUntypedAuraStatement> Body, Tok ClosingBrace)
-    : IUntypedAuraStatement
+	(Tok ForEach, Tok EachName, IUntypedAuraExpression Iterable, List<IUntypedAuraStatement> Body, Tok ClosingBrace)
+	: IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(ForEach.Range.Start, ClosingBrace.Range.End);
+	public Range Range => new(ForEach.Range.Start, ClosingBrace.Range.End);
 }
 
 /// <summary>
@@ -478,22 +478,22 @@ public record UntypedForEach
 /// </param>
 public record UntypedNamedFunction
 (
-    Tok Fn,
-    Tok Name,
-    List<Param> Params,
-    UntypedBlock Body,
-    List<AuraType>? ReturnType,
-    Visibility Public,
-    string? Documentation
+	Tok Fn,
+	Tok Name,
+	List<Param> Params,
+	UntypedBlock Body,
+	List<AuraType>? ReturnType,
+	Visibility Public,
+	string? Documentation
 ) : IUntypedAuraStatement, IUntypedFunction
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public List<Param> GetParams() { return Params; }
+	public List<Param> GetParams() { return Params; }
 
-    public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
+	public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
 
-    public Range Range => new(Fn.Range.Start, Body.Range.End);
+	public Range Range => new(Fn.Range.Start, Body.Range.End);
 }
 
 /// <summary>
@@ -511,16 +511,16 @@ public record UntypedNamedFunction
 ///     /// been type checked yet.
 /// </param>
 public record UntypedAnonymousFunction
-    (Tok Fn, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType)
-    : IUntypedAuraExpression, IUntypedFunction
+	(Tok Fn, List<Param> Params, UntypedBlock Body, List<AuraType>? ReturnType)
+	: IUntypedAuraExpression, IUntypedFunction
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public List<Param> GetParams() { return Params; }
+	public List<Param> GetParams() { return Params; }
 
-    public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
+	public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
 
-    public Range Range => new(Fn.Range.Start, Body.Range.End);
+	public Range Range => new(Fn.Range.Start, Body.Range.End);
 }
 
 /// <summary>
@@ -546,16 +546,16 @@ public record UntypedAnonymousFunction
 ///     may be omitted.
 /// </param>
 public record UntypedLet
-    (Tok? Let, List<Tok> Names, List<AuraType> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer)
-    : IUntypedAuraStatement
+	(Tok? Let, List<Tok> Names, List<AuraType> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer)
+	: IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range =>
-        new(
-            Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
-            Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
-        );
+	public Range Range =>
+		new(
+			Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
+			Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
+		);
 }
 
 /// <summary>
@@ -570,9 +570,9 @@ public record UntypedLet
 /// <param name="Value">The module's name</param>
 public record UntypedMod(Tok Mod, Tok Value) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Mod.Range.Start, Value.Range.End);
+	public Range Range => new(Mod.Range.Start, Value.Range.End);
 }
 
 /// <summary>
@@ -586,9 +586,9 @@ public record UntypedMod(Tok Mod, Tok Value) : IUntypedAuraStatement
 /// <param name="Value">The value to be returned</param>
 public record UntypedReturn(Tok Return, List<IUntypedAuraExpression>? Value) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Return.Range.Start, Value is not null ? Value.Last().Range.End : Return.Range.End);
+	public Range Range => new(Return.Range.Start, Value is not null ? Value.Last().Range.End : Return.Range.End);
 }
 
 /// <summary>
@@ -609,11 +609,11 @@ public record UntypedReturn(Tok Return, List<IUntypedAuraExpression>? Value) : I
 ///     declaration in the Aura source file
 /// </param>
 public record UntypedStruct
-    (Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string? Documentation) : IUntypedAuraStatement
+	(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string? Documentation) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Struct.Range.End, ClosingParen.Range.End);
+	public Range Range => new(Struct.Range.End, ClosingParen.Range.End);
 }
 
 /// <summary>
@@ -630,11 +630,11 @@ public record UntypedStruct
 ///     ending position in the Aura source file
 /// </param>
 public record UntypedAnonymousStruct
-    (Tok Struct, List<Param> Params, List<IUntypedAuraExpression> Values, Tok ClosingParen) : IUntypedAuraExpression
+	(Tok Struct, List<Param> Params, List<IUntypedAuraExpression> Values, Tok ClosingParen) : IUntypedAuraExpression
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Struct.Range.Start, ClosingParen.Range.End);
+	public Range Range => new(Struct.Range.Start, ClosingParen.Range.End);
 }
 
 /// <summary>
@@ -660,26 +660,26 @@ public record UntypedAnonymousStruct
 /// </param>
 public record UntypedClass
 (
-    Tok Class,
-    Tok Name,
-    List<Param> Params,
-    List<IUntypedAuraStatement> Body,
-    Visibility Public,
-    List<Tok> Implementing,
-    Tok ClosingBrace,
-    string? Documentation
+	Tok Class,
+	Tok Name,
+	List<Param> Params,
+	List<IUntypedAuraStatement> Body,
+	Visibility Public,
+	List<Tok> Implementing,
+	Tok ClosingBrace,
+	string? Documentation
 ) : IUntypedAuraStatement, IUntypedFunction
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public List<Param> GetParams() { return Params; }
+	public List<Param> GetParams() { return Params; }
 
-    public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
+	public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
 
-    public List<UntypedNamedFunction> Methods =>
-        Body.Where(item => item is not UntypedComment).Select(m => (UntypedNamedFunction)m).ToList();
+	public List<UntypedNamedFunction> Methods =>
+		Body.Where(item => item is not UntypedComment).Select(m => (UntypedNamedFunction)m).ToList();
 
-    public Range Range => new(Class.Range.Start, ClosingBrace.Range.End);
+	public Range Range => new(Class.Range.Start, ClosingBrace.Range.End);
 }
 
 /// <summary>
@@ -703,23 +703,23 @@ public record UntypedClass
 /// </param>
 public record UntypedInterface
 (
-    Tok Interface,
-    Tok Name,
-    List<UntypedFunctionSignature> Methods,
-    Visibility Public,
-    Tok ClosingBrace,
-    string? Documentation
+	Tok Interface,
+	Tok Name,
+	List<UntypedFunctionSignature> Methods,
+	Visibility Public,
+	Tok ClosingBrace,
+	string? Documentation
 ) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range =>
-        new(
-            Public == Visibility.Public
-                ? Interface.Range.Start with { Character = Interface.Range.Start.Character - 4 }
-                : Interface.Range.Start,
-            ClosingBrace.Range.End
-        );
+	public Range Range =>
+		new(
+			Public == Visibility.Public
+				? Interface.Range.Start with { Character = Interface.Range.Start.Character - 4 }
+				: Interface.Range.Start,
+			ClosingBrace.Range.End
+		);
 }
 
 /// <summary>
@@ -748,20 +748,20 @@ public record UntypedInterface
 /// </param>
 public record UntypedFunctionSignature
 (
-    Tok? Visibility,
-    Tok Fn,
-    Tok Name,
-    List<Param> Params,
-    Tok ClosingParen,
-    AuraType ReturnType,
-    string? Documentation
+	Tok? Visibility,
+	Tok Fn,
+	Tok Name,
+	List<Param> Params,
+	Tok ClosingParen,
+	AuraType ReturnType,
+	string? Documentation
 )
-    : IUntypedAuraStatement
+	: IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range =>
-        new(Visibility is not null ? Visibility.Value.Range.Start : Fn.Range.Start, ClosingParen.Range.End);
+	public Range Range =>
+		new(Visibility is not null ? Visibility.Value.Range.Start : Fn.Range.Start, ClosingParen.Range.End);
 }
 
 /// <summary>
@@ -783,12 +783,12 @@ public record UntypedFunctionSignature
 ///     in the Aura source file
 /// </param>
 public record UntypedWhile
-    (Tok While, IUntypedAuraExpression Condition, List<IUntypedAuraStatement> Body, Tok ClosingBrace)
-    : IUntypedAuraStatement
+	(Tok While, IUntypedAuraExpression Condition, List<IUntypedAuraStatement> Body, Tok ClosingBrace)
+	: IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(While.Range.Start, ClosingBrace.Range.End);
+	public Range Range => new(While.Range.Start, ClosingBrace.Range.End);
 }
 
 /// <summary>
@@ -802,9 +802,9 @@ public record UntypedWhile
 /// <param name="Alias">Will contain a value if the import has an alias</param>
 public record UntypedImport(Tok Import, Tok Package, Tok? Alias) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Import.Range.Start, Alias is not null ? Alias.Value.Range.End : Package.Range.End);
+	public Range Range => new(Import.Range.Start, Alias is not null ? Alias.Value.Range.End : Package.Range.End);
 }
 
 /// <summary>
@@ -821,9 +821,9 @@ public record UntypedImport(Tok Import, Tok Package, Tok? Alias) : IUntypedAuraS
 /// </param>
 public record UntypedMultipleImport(Tok Import, List<UntypedImport> Packages, Tok ClosingBrace) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Import.Range.Start, ClosingBrace.Range.End);
+	public Range Range => new(Import.Range.Start, ClosingBrace.Range.End);
 }
 
 /// <summary>
@@ -835,9 +835,9 @@ public record UntypedMultipleImport(Tok Import, List<UntypedImport> Packages, To
 /// <param name="Text">The comment's text</param>
 public record UntypedComment(Tok Text) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => Text.Range;
+	public Range Range => Text.Range;
 }
 
 /// <summary>
@@ -847,9 +847,9 @@ public record UntypedComment(Tok Text) : IUntypedAuraStatement
 /// <param name="Continue">A token representing the <c>continue</c> keyword</param>
 public record UntypedContinue(Tok Continue) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => Continue.Range;
+	public Range Range => Continue.Range;
 }
 
 /// <summary>
@@ -859,9 +859,9 @@ public record UntypedContinue(Tok Continue) : IUntypedAuraStatement
 /// <param name="Break">A token representing the <c>break</c> keyword</param>
 public record UntypedBreak(Tok Break) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => Break.Range;
+	public Range Range => Break.Range;
 }
 
 /// <summary>
@@ -875,9 +875,9 @@ public record UntypedBreak(Tok Break) : IUntypedAuraStatement
 /// <param name="Value">The value to be yielded from the enclosing scope</param>
 public record UntypedYield(Tok Yield, IUntypedAuraExpression Value) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Yield.Range.Start, Value.Range.End);
+	public Range Range => new(Yield.Range.Start, Value.Range.End);
 }
 
 /// <summary>
@@ -886,9 +886,9 @@ public record UntypedYield(Tok Yield, IUntypedAuraExpression Value) : IUntypedAu
 /// <param name="Newline">A token representing the newline character</param>
 public record UntypedNewLine(Tok Newline) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => Newline.Range;
+	public Range Range => Newline.Range;
 }
 
 /// <summary>
@@ -901,7 +901,7 @@ public record UntypedNewLine(Tok Newline) : IUntypedAuraStatement
 /// <param name="Call">The call to defer</param>
 public record UntypedCheck(Tok Check, UntypedCall Call) : IUntypedAuraStatement
 {
-    public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public Range Range => new(Check.Range.Start, Call.Range.End);
+	public Range Range => new(Check.Range.Start, Call.Range.End);
 }

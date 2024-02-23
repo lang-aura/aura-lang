@@ -20,23 +20,23 @@ namespace AuraLang.AST;
 /// <param name="Typ">The class's type</param>
 public record PartiallyTypedClass
 (
-    Tok Class,
-    Tok Name,
-    List<Param> Params,
-    List<AuraNamedFunction> Methods,
-    Visibility Public,
-    Tok ClosingBrace,
-    AuraType Typ
+	Tok Class,
+	Tok Name,
+	List<Param> Params,
+	List<AuraNamedFunction> Methods,
+	Visibility Public,
+	Tok ClosingBrace,
+	AuraType Typ
 ) : ITypedAuraStatement, IUntypedFunction
 {
-    public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public List<ParamType> GetParamTypes() { return Params.Select(param => param.ParamType).ToList(); }
+	public List<ParamType> GetParamTypes() { return Params.Select(param => param.ParamType).ToList(); }
 
-    public List<Param> GetParams() { return Params; }
+	public List<Param> GetParams() { return Params; }
 
-    public Range Range => new(
-        Class.Range.Start,
-        ClosingBrace.Range.End
-    );
+	public Range Range => new(
+		Class.Range.Start,
+		ClosingBrace.Range.End
+	);
 }

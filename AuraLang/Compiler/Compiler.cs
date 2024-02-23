@@ -268,7 +268,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				{
 					var b = _enclosingType.TryPeek(out var @for);
 					if (!b ||
-					    @for is not TypedFor)
+						@for is not TypedFor)
 					{
 						return $"var {let.Names[0].Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}

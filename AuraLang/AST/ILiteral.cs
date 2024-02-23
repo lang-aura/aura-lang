@@ -21,10 +21,10 @@ public interface ILiteral : IUntypedAuraExpression, ITypedAuraExpression
 /// <typeparam name="T">The literal value's C# type</typeparam>
 public interface ILiteral<out T> : ILiteral
 {
-    /// <summary>
-    ///     Returns the literal's inner value
-    /// </summary>
-    public T Value { get; }
+	/// <summary>
+	///     Returns the literal's inner value
+	/// </summary>
+	public T Value { get; }
 }
 
 /// <summary>
@@ -33,15 +33,15 @@ public interface ILiteral<out T> : ILiteral
 /// <param name="Int">The integer value</param>
 public record IntLiteral(Tok Int) : ILiteral<long>
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraInt();
-    public long Value => int.Parse(Int.Value);
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraInt();
+	public long Value => int.Parse(Int.Value);
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => Int.Range;
+	public Range Range => Int.Range;
 }
 
 /// <summary>
@@ -50,15 +50,15 @@ public record IntLiteral(Tok Int) : ILiteral<long>
 /// <param name="Float">The float value</param>
 public record FloatLiteral(Tok Float) : ILiteral<double>
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraFloat();
-    public double Value => float.Parse(Float.Value, CultureInfo.InvariantCulture);
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraFloat();
+	public double Value => float.Parse(Float.Value, CultureInfo.InvariantCulture);
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => Float.Range;
+	public Range Range => Float.Range;
 }
 
 /// <summary>
@@ -67,15 +67,15 @@ public record FloatLiteral(Tok Float) : ILiteral<double>
 /// <param name="String">The string value</param>
 public record StringLiteral(Tok String) : ILiteral<string>
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraString();
-    public string Value => String.Value;
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraString();
+	public string Value => String.Value;
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => String.Range;
+	public Range Range => String.Range;
 }
 
 /// <summary>
@@ -92,20 +92,20 @@ public record StringLiteral(Tok String) : ILiteral<string>
 ///     point of the literal value's range in the source file
 /// </param>
 public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok ClosingBrace) : ILiteral<List<T>>
-    where T : IAuraAstNode
+	where T : IAuraAstNode
 {
-    public TU Accept<TU>(IUntypedAuraExprVisitor<TU> visitor) { return visitor.Visit(this); }
+	public TU Accept<TU>(IUntypedAuraExprVisitor<TU> visitor) { return visitor.Visit(this); }
 
-    public TU Accept<TU>(ITypedAuraExprVisitor<TU> visitor) { return visitor.Visit(this); }
+	public TU Accept<TU>(ITypedAuraExprVisitor<TU> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraList(Kind);
-    public List<T> Value => L;
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraList(Kind);
+	public List<T> Value => L;
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => new(
-        OpeningBracket.Range.Start,
-        ClosingBrace.Range.End
-    );
+	public Range Range => new(
+		OpeningBracket.Range.Start,
+		ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -134,23 +134,23 @@ public record ListLiteral<T>(Tok OpeningBracket, List<T> L, AuraType Kind, Tok C
 ///     in the Aura source file
 /// </param>
 public record MapLiteral<TK, TV>
-    (Tok Map, Dictionary<TK, TV> M, AuraType KeyType, AuraType ValueType, Tok ClosingBrace)
-    : ILiteral<Dictionary<TK, TV>>
-    where TK : IAuraAstNode
-    where TV : IAuraAstNode
+	(Tok Map, Dictionary<TK, TV> M, AuraType KeyType, AuraType ValueType, Tok ClosingBrace)
+	: ILiteral<Dictionary<TK, TV>>
+	where TK : IAuraAstNode
+	where TV : IAuraAstNode
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraMap(KeyType, ValueType);
-    public Dictionary<TK, TV> Value => M;
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraMap(KeyType, ValueType);
+	public Dictionary<TK, TV> Value => M;
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => new(
-        Map.Range.Start,
-        ClosingBrace.Range.End
-    );
+	public Range Range => new(
+		Map.Range.Start,
+		ClosingBrace.Range.End
+	);
 }
 
 /// <summary>
@@ -159,15 +159,15 @@ public record MapLiteral<TK, TV>
 /// <param name="Bool">The boolean value</param>
 public record BoolLiteral(Tok Bool) : ILiteral<bool>
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraBool();
-    public bool Value => bool.Parse(Bool.Value);
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraBool();
+	public bool Value => bool.Parse(Bool.Value);
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => Bool.Range;
+	public Range Range => Bool.Range;
 }
 
 /// <summary>
@@ -176,13 +176,13 @@ public record BoolLiteral(Tok Bool) : ILiteral<bool>
 /// <param name="Char">The char value</param>
 public record CharLiteral(Tok Char) : ILiteral<char>
 {
-    public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
-    public AuraType Typ => new AuraChar();
-    public char Value => char.Parse(Char.Value);
-    public override string ToString() { return $"{Value}"; }
+	public AuraType Typ => new AuraChar();
+	public char Value => char.Parse(Char.Value);
+	public override string ToString() { return $"{Value}"; }
 
-    public Range Range => Char.Range;
+	public Range Range => Char.Range;
 }
