@@ -9,27 +9,27 @@ namespace AuraLang.Test.Scanner;
 public class ScannerTest
 {
 	private readonly Position _startPosition = new(
-		character: 0,
-		line: 0
+		0,
+		0
 	);
 	private readonly Range _singleCharRange = new(
-		start: new Position(
-			character: 0,
-			line: 0
+		new Position(
+			0,
+			0
 		),
-		end: new Position(
-			character: 1,
-			line: 0
+		new Position(
+			1,
+			0
 		)
 	);
 	private readonly Range _doubleCharRange = new(
-		start: new Position(
-			character: 0,
-			line: 0
+		new Position(
+			0,
+			0
 		),
-		end: new Position(
-			character: 2,
-			line: 0
+		new Position(
+			2,
+			0
 		)
 	);
 
@@ -284,10 +284,10 @@ public class ScannerTest
 				typ: TokType.Comment,
 				value: "// comment",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 11,
-						line: 0
+					_startPosition,
+					new Position(
+						11,
+						0
 					)
 				)
 			)
@@ -306,10 +306,10 @@ public class ScannerTest
 					typ: TokType.Comment,
 					value:"/* multi-line",
 					range: new Range(
-						start: _startPosition,
-						end: new Position(
-							character: 14,
-							line: 0
+						_startPosition,
+						new Position(
+							14,
+							0
 						)
 					)
 				),
@@ -317,13 +317,13 @@ public class ScannerTest
 					typ: TokType.Semicolon,
 					value:";",
 					range: new Range(
-						start: new Position(
-							character: 13,
-							line: 0
+						new Position(
+							13,
+							0
 						),
-						end: new Position(
-							character: 14,
-							line: 0
+						new Position(
+							14,
+							0
 						)
 					)
 				),
@@ -331,13 +331,13 @@ public class ScannerTest
 					typ: TokType.Comment,
 					value:"comment*/",
 					range: new Range(
-						start: new Position(
-							character: 0,
-							line: 1
+						new Position(
+							0,
+							1
 						),
-						end: new Position(
-							character: 10,
-							line: 1
+						new Position(
+							10,
+							1
 						)
 					)
 				)
@@ -476,10 +476,10 @@ public class ScannerTest
 				typ: TokType.StringLiteral,
 				value: "string literal",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 16,
-						line: 0
+					_startPosition,
+					new Position(
+						16,
+						0
 					)
 				)
 			)
@@ -497,10 +497,10 @@ public class ScannerTest
 				typ: TokType.CharLiteral,
 				value: "a",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 3,
-						line: 0
+					_startPosition,
+					new Position(
+						3,
+						0
 					)
 				)
 			)
@@ -615,10 +615,10 @@ public class ScannerTest
 				typ: TokType.Yield,
 				value: "yield",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 5,
-						line: 0
+					_startPosition,
+					new Position(
+						5,
+						0
 					)
 				)
 			)
@@ -689,10 +689,10 @@ public class ScannerTest
 				typ: TokType.Interface,
 				value: "interface",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 9,
-						line: 0
+					_startPosition,
+					new Position(
+						9,
+						0
 					)
 				)
 			)
@@ -712,10 +712,10 @@ public class ScannerTest
 					typ: TokType.Class,
 					value:"class",
 					range: new Range(
-						start: _startPosition,
-						end: new Position(
-							character: 5,
-							line: 0
+						_startPosition,
+						new Position(
+							5,
+							0
 						)
 					)
 				),
@@ -723,13 +723,13 @@ public class ScannerTest
 					typ: TokType.Identifier,
 					value:"Greeter",
 					range: new Range(
-						start: new Position(
-							character: 6,
-							line: 0
+						new Position(
+							6,
+							0
 						),
-						end: new Position(
-							character: 13,
-							line: 0
+						new Position(
+							13,
+							0
 						)
 					)
 				),
@@ -737,13 +737,13 @@ public class ScannerTest
 					typ: TokType.LeftParen,
 					value:"(",
 					range: new Range(
-						start: new Position(
-							character: 13,
-							line: 0
+						new Position(
+							13,
+							0
 						),
-						end: new Position(
-							character: 14,
-							line: 0
+						new Position(
+							14,
+							0
 						)
 					)
 				),
@@ -751,13 +751,13 @@ public class ScannerTest
 					typ: TokType.RightParen,
 					value:")",
 					range: new Range(
-						start: new Position(
-							character: 14,
-							line: 0
+						new Position(
+							14,
+							0
 						),
-						end: new Position(
-							character: 15,
-							line: 0
+						new Position(
+							15,
+							0
 						)
 					)
 				),
@@ -765,13 +765,13 @@ public class ScannerTest
 					typ: TokType.Colon,
 					value:":",
 					range: new Range(
-						start: new Position(
-							character: 16,
-							line: 0
+						new Position(
+							16,
+							0
 						),
-						end: new Position(
-							character: 17,
-							line: 0
+						new Position(
+							17,
+							0
 						)
 					)
 				),
@@ -779,13 +779,13 @@ public class ScannerTest
 					typ: TokType.Identifier,
 					value:"IGreeter",
 					range: new Range(
-						start: new Position(
-							character: 18,
-							line: 0
+						new Position(
+							18,
+							0
 						),
-						end: new Position(
-							character: 26,
-							line: 0
+						new Position(
+							26,
+							0
 						)
 					)
 				)
@@ -820,10 +820,10 @@ public class ScannerTest
 				typ: TokType.Error,
 				value: "error",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 5,
-						line: 0
+					_startPosition,
+					new Position(
+						5,
+						0
 					)
 				)
 			)
@@ -841,10 +841,10 @@ public class ScannerTest
 				typ: TokType.Check,
 				value: "check",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 5,
-						line: 0
+					_startPosition,
+					new Position(
+						5,
+						0
 					)
 				)
 			)
@@ -862,10 +862,10 @@ public class ScannerTest
 				typ: TokType.Struct,
 				value: "struct",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 6,
-						line: 0
+					_startPosition,
+					new Position(
+						6,
+						0
 					)
 				)
 			)
@@ -883,10 +883,10 @@ public class ScannerTest
 				typ: TokType.Result,
 				value: "result",
 				range: new Range(
-					start: _startPosition,
-					end: new Position(
-						character: 6,
-						line: 0
+					_startPosition,
+					new Position(
+						6,
+						0
 					)
 				)
 			)
