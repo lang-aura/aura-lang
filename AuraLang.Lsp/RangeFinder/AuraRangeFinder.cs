@@ -305,11 +305,6 @@ public class AuraRangeFinder : ITypedAuraStmtVisitor<ITypedAuraAstNode?>, ITyped
 		return yield.Range.End == Position ? yield : null;
 	}
 
-	public ITypedAuraAstNode? Visit(PartiallyTypedFunction partiallyTypedFunction)
-	{
-		return null;
-	}
-
 	public ITypedAuraAstNode? Visit(PartiallyTypedClass partiallyTypedClass)
 	{
 		return null;

@@ -31,6 +31,13 @@ public record Position
 		Line = 0;
 	}
 
+	/// <summary>
+	///     Converts a Microsoft <see cref="MsPosition" /> object to an Aura <see cref="Position" /> object. This is useful
+	///     when handling
+	///     messages received from an LSP client
+	/// </summary>
+	/// <param name="pos">The Microsoft <see cref="MsPosition" /> to convert</param>
+	/// <returns>An Aura <see cref="Position" /> record</returns>
 	public static Position FromMicrosoftPosition(MsPosition pos)
 	{
 		return new Position

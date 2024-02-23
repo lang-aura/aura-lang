@@ -32,7 +32,8 @@ public class AuraPrelude
 						)
 					},
 					returnType: new AuraError()
-				)
+				),
+				"Returns a new error value containing the supplied message"
 			)
 		},
 		publicInterfaces: new List<AuraInterface>(),

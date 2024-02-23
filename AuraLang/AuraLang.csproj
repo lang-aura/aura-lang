@@ -26,7 +26,6 @@
     <Folder Include="Parser\" />
     <Folder Include="Exceptions\Scanner\" />
     <Folder Include="Exceptions\Parser\" />
-    <Folder Include="ErrorReporter\" />
     <Folder Include="Exceptions\TypeChecker\" />
     <Folder Include="Compiler\" />
     <Folder Include="Exceptions\Compiler\" />

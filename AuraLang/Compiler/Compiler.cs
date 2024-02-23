@@ -11,6 +11,9 @@ using AuraLang.Visitor;
 
 namespace AuraLang.Compiler;
 
+/// <summary>
+///     Responsible for compiling a typed Abstract Syntax Tree to valid Go output
+/// </summary>
 public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor<string>
 {
 	/// <summary>
@@ -20,21 +23,18 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	/// <summary>
 	///     Aura allows implicit returns in certain situations, and the behavior of the return statement differs depending on
-	///     the situaiton and whether its implicit
-	///     or explicit. Because of that, the compiler keeps track of any enclosing types, which it refers to when compiling a
-	///     return statement. The enclosing types
+	///     the situation and whether its implicit or explicit. Because of that, the compiler keeps track of any enclosing
+	///     types, which it refers to when compiling a return statement. The enclosing types
 	///     that the compiler is interested in are `if` expressions, blocks, functions, and classes.
 	/// </summary>
 	private readonly Stack<ITypedAuraAstNode> _enclosingType = new();
 
 	/// <summary>
 	///     The compiler keeps track of variables declared in the Aura typed AST, but it doesn't need to keep track of all
-	///     available information about these variables.
-	///     Instead, it needs to know if the variables were declared as public or not. This is because public functions,
-	///     classes, etc. in Aura are declared with the
-	///     `pub` keyword, but in Go they are denoted with a leading capital letter. Therefore, the compiler refers to this
-	///     field to determine if the variable's name
-	///     should be in title case in the outputted Go file.
+	///     available information about these variables. Instead, it needs to know if the variables were declared as public or
+	///     not. This is because public functions, classes, etc. in Aura are declared with the <c>pub</c> keyword, but in Go
+	///     they are denoted with a leading capital letter. Therefore, the compiler refers to this field to determine if the
+	///     variable's name should be in title case in the outputted Go file.
 	/// </summary>
 	private readonly Dictionary<string, Visibility> _declaredVariables = new();
 
@@ -48,9 +48,26 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	/// </summary>
 	private readonly CompilerExceptionContainer _exContainer;
 
+	/// <summary>
+	///     The name of the Aura project where the Aura source file is located
+	/// </summary>
 	private string ProjectName { get; }
+
+	/// <summary>
+	///     Writes the compiled output to the project's <c>build</c> directory
+	/// </summary>
 	private readonly CompiledOutputWriter _outputWriter;
+
+	/// <summary>
+	///     The prelude contains exported methods, etc. that can be used in an Aura source file without explicitly importing
+	///     them
+	/// </summary>
 	private readonly AuraModule _prelude;
+
+	/// <summary>
+	///     Used to keep track of whether the code being compiled is located inside a function, which may impact the behavior
+	///     of the compiler when encountering certain AST nodes
+	/// </summary>
 	private readonly Stack<TypedNamedFunction> _enclosingFunctionDeclarationStore;
 
 	public AuraCompiler(
@@ -69,6 +86,14 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		_enclosingFunctionDeclarationStore = enclosingFunctionDeclarationStore;
 	}
 
+	/// <summary>
+	///     Compiles the supplied AST to valid Go code
+	/// </summary>
+	/// <returns>A string of valid Go code</returns>
+	/// <exception cref="CompilerExceptionContainer">
+	///     Thrown when the compiler encounters an error during the compilation
+	///     process. An exception container is used because the compiler may report more than one error
+	/// </exception>
 	public string Compile()
 	{
 		foreach (var node in _typedAst)
@@ -96,11 +121,21 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return _goDocument.Assemble();
 	}
 
+	/// <summary>
+	///     Compiles an AST statement
+	/// </summary>
+	/// <param name="stmt">The statement to compile</param>
+	/// <returns>A valid Go string</returns>
 	private string Statement(ITypedAuraStatement stmt)
 	{
 		return stmt.Accept(this);
 	}
 
+	/// <summary>
+	///     Compiles an AST expression
+	/// </summary>
+	/// <param name="expr">The expression to compile</param>
+	/// <returns>A valid Go string</returns>
 	private string Expression(ITypedAuraExpression expr)
 	{
 		return expr.Accept(this);
@@ -117,36 +152,33 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return Expression(es.Expression);
 	}
 
-	public string Visit(TypedFor for_)
+	public string Visit(TypedFor @for)
 	{
 		return InNewEnclosingType(
 			() =>
 			{
-				var init = for_.Initializer is not null ? Statement(for_.Initializer) : string.Empty;
-				var cond = for_.Condition is not null ? Expression(for_.Condition) : string.Empty;
-				var inc = for_.Increment is not null ? $"{Expression(for_.Increment)} " : string.Empty;
-				var body = CompileLoopBody(for_.Body);
-				// The compiler will always compile an Aura `for` loop to a Go `for` loop without the increment part of the `for` loop's signature. The increment is instead
-				// added to the end of the loop's body. The loop's execution will remain the same, so it doesn't seem worth it to extract it from the body and put it back
-				// into the loop's signature.
+				var init = @for.Initializer is not null ? Statement(@for.Initializer) : string.Empty;
+				var cond = @for.Condition is not null ? Expression(@for.Condition) : string.Empty;
+				var inc = @for.Increment is not null ? $"{Expression(@for.Increment)} " : string.Empty;
+				var body = CompileLoopBody(@for.Body);
 				return body != string.Empty ? $"for {init}; {cond}; {inc}{{{body}\n}}" : $"for {init}; {cond}; {{}}";
 			},
-			for_
+			@for
 		);
 	}
 
-	public string Visit(TypedForEach foreach_)
+	public string Visit(TypedForEach @foreach)
 	{
 		return InNewEnclosingType(
 			() =>
 			{
-				var iter = Expression(foreach_.Iterable);
-				var body = CompileLoopBody(foreach_.Body);
+				var iter = Expression(@foreach.Iterable);
+				var body = CompileLoopBody(@foreach.Body);
 				return body != string.Empty
-					? $"for _, {foreach_.EachName.Value} := range {iter} {{{body}\n}}"
-					: $"for _, {foreach_.EachName.Value} := range {iter} {{}}";
+					? $"for _, {@foreach.EachName.Value} := range {iter} {{{body}\n}}"
+					: $"for _, {@foreach.EachName.Value} := range {iter} {{}}";
 			},
-			foreach_
+			@foreach
 		);
 	}
 
@@ -202,7 +234,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		}
 
 		// Since Go's `if` statements and blocks are not expressions like they are in Aura, the compiler will first declare the variable without an initializer,
-		// and then convert the `return` statement in the block or `if` expression into an assignment where the value that would be returned is instead assigned
+		// and then convert the `yield` statement in the block or `if` expression into an assignment where the value that would be returned is instead assigned
 		// to the declared variable.
 		switch (let.Initializer)
 		{
@@ -210,21 +242,21 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				var decl = $"var {let.Names[0].Value} {AuraTypeToGoType(let.Typ)}";
 				var body = ParseReturnableBody(block.Statements, let.Names[0].Value);
 				return $"{decl}\n{{{body}\n}}";
-			case TypedIf if_:
+			case TypedIf iff:
 				var varName = let.Names[0].Value;
-				var decl_ = $"var {varName} {AuraTypeToGoType(let.Initializer.Typ)}";
-				var init = Expression(if_.Condition);
-				var then = ParseReturnableBody(if_.Then.Statements, varName);
+				var decll = $"var {varName} {AuraTypeToGoType(let.Initializer.Typ)}";
+				var init = Expression(iff.Condition);
+				var then = ParseReturnableBody(iff.Then.Statements, varName);
 				// The `else` block can either be a block or another `if` expression
-				var else_ = if_.Else switch
+				var @else = iff.Else switch
 				{
 					TypedIf @if => Visit(@if),
 					TypedBlock b => ParseReturnableBody(b.Statements, varName),
 					_ => string.Empty
 				};
-				return $"{decl_}\nif {init} {{{then}\n}} else {{{else_}\n}}";
-			case TypedIs is_:
-				var typedIs = Expression(is_);
+				return $"{decll}\nif {init} {{{then}\n}} else {{{@else}\n}}";
+			case TypedIs @is:
+				var typedIs = Expression(@is);
 				return $"_, {let.Names[0].Value} := {typedIs}";
 			default:
 				var value = let.Initializer is not null ? Expression(let.Initializer) : string.Empty;
@@ -234,9 +266,9 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				// loop, it must be compiled to the short syntax in the final Go file.
 				if (let.TypeAnnotation)
 				{
-					var b = _enclosingType.TryPeek(out var for_);
+					var b = _enclosingType.TryPeek(out var @for);
 					if (!b ||
-						for_ is not TypedFor)
+					    @for is not TypedFor)
 					{
 						return $"var {let.Names[0].Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}
@@ -246,6 +278,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		}
 	}
 
+	/// <summary>
+	///     Compiles a short let statement when assigning to multiple variables
+	/// </summary>
+	/// <param name="let">The let statement that contains multiple variables</param>
+	/// <returns>A valid Go string representing the let statement</returns>
 	private string LetStmtMultipleNames(TypedLet let)
 	{
 		var names = string.Join(", ", let.Names.Select(n => n.Value));
@@ -335,6 +372,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"import {CompileImportStmt(i)}";
 	}
 
+	/// <summary>
+	///     Compiles an import statement
+	/// </summary>
+	/// <param name="i">The import statement to compile</param>
+	/// <returns>A valid Go string representing the supplied import statement</returns>
 	private string CompileImportStmt(TypedImport i)
 	{
 		if (IsStdlibImportName(i.Package.Value))
@@ -472,32 +514,47 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"{callee}({string.Join(", ", compiledParams)})";
 	}
 
+	/// <summary>
+	///     Compiles a call expression when the callee is a class
+	/// </summary>
+	/// <param name="c">The call expression</param>
+	/// <returns>A valid Go string</returns>
 	private string CallExpr_Class(TypedCall c)
 	{
 		var v = c.Callee as TypedVariable;
-		var class_ = v!.Typ as AuraClass;
+		var @class = v!.Typ as AuraClass;
 
-		var params_ = string.Join(
+		var @params = string.Join(
 			"\n",
-			class_!.GetParams().Zip(c.Arguments).Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},")
+			@class!.GetParams().Zip(c.Arguments).Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},")
 		);
 		return
-			$"{(class_.Public is Visibility.Public ? class_.Name.ToUpper() : class_.Name.ToLower())}{{\n{params_}\n}}";
+			$"{(@class.Public is Visibility.Public ? @class.Name.ToUpper() : @class.Name.ToLower())}{{\n{@params}\n}}";
 	}
 
+	/// <summary>
+	///     Compiles a call expression when the callee is a struct
+	/// </summary>
+	/// <param name="c">The call expression</param>
+	/// <returns>A valid Go string</returns>
 	private string CallExpr_Struct(TypedCall c)
 	{
 		var v = c.Callee as TypedVariable;
 		var @struct = v!.Typ as AuraStruct;
 
-		var params_ = string.Join(
+		var @params = string.Join(
 			"\n",
 			@struct!.GetParams().Zip(c.Arguments).Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},")
 		);
 
-		return $"{@struct.Name.ToLower()}{{\n{params_}\n}}";
+		return $"{@struct.Name.ToLower()}{{\n{@params}\n}}";
 	}
 
+	/// <summary>
+	///     Compiles a call expression when the callee is a get expression
+	/// </summary>
+	/// <param name="c">The call expression</param>
+	/// <returns>A valid Go string</returns>
 	private string CallExpr_GetCallee(TypedCall c)
 	{
 		var get = c.Callee as TypedGet;
@@ -570,12 +627,12 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"({expr})";
 	}
 
-	public string Visit(TypedIf if_)
+	public string Visit(TypedIf @if)
 	{
-		var cond = Expression(if_.Condition);
-		var then = Expression(if_.Then);
-		var else_ = if_.Else is not null ? $" else {Expression(if_.Else)}" : string.Empty;
-		return if_.Condition is TypedIs ? $"if _, ok := {cond}; ok {then}{else_}" : $"if {cond} {then}{else_}";
+		var cond = Expression(@if.Condition);
+		var then = Expression(@if.Then);
+		var @else = @if.Else is not null ? $" else {Expression(@if.Else)}" : string.Empty;
+		return @if.Condition is TypedIs ? $"if _, ok := {cond}; ok {then}{@else}" : $"if {cond} {then}{@else}";
 	}
 
 	public string Visit(StringLiteral literal)
@@ -680,11 +737,21 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return $"x = {value}";
 	}
 
+	/// <summary>
+	///     Converts an Aura type to its corresponding Go string representation
+	/// </summary>
+	/// <param name="typ">The Aura type to convert to a Go type</param>
+	/// <returns>The Aura type's corresponding Go type</returns>
 	private string AuraTypeToGoType(AuraType typ)
 	{
 		return typ.ToString();
 	}
 
+	/// <summary>
+	///     Compiles the body of a loop statement
+	/// </summary>
+	/// <param name="body">A list of statements comprising the loop's body</param>
+	/// <returns>A valid Go string</returns>
 	private string CompileLoopBody(List<ITypedAuraStatement> body)
 	{
 		return body.Any()
@@ -692,16 +759,38 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			: string.Empty;
 	}
 
-	private string CompileParams(List<Param> params_, string sep)
+	/// <summary>
+	///     Compiles parameters
+	/// </summary>
+	/// <param name="params">The parameters to compile</param>
+	/// <param name="sep">The separator between each parameters</param>
+	/// <returns>A valid Go string</returns>
+	private string CompileParams(List<Param> @params, string sep)
 	{
-		return string.Join(sep, params_.Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
+		return string.Join(sep, @params.Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
 	}
 
-	private string CompileArgs(List<ITypedAuraExpression> args)
-	{
-		return args.Select(Expression).Aggregate(string.Empty, (prev, curr) => $"{prev}, {curr}");
-	}
-
+	/// <summary>
+	///     Compiles a return-able body. Because Go does not allow <c>if</c> statements or blocks to return a value, Aura's
+	///     workaround
+	///     is to first declare a variable without an initializer, and then convert <c>yield</c> statements to an assignment.
+	///     For example:
+	///     <code>
+	///  let i = {
+	/// 		yield 5
+	///  }
+	///  </code>
+	///     is compiled to
+	///     <code>
+	///  var i int
+	///  {
+	/// 		i = 5
+	///  }
+	///  </code>
+	/// </summary>
+	/// <param name="stmts">The body's statements</param>
+	/// <param name="decl">The original declaration without an initializer</param>
+	/// <returns>A valid Go string</returns>
 	private string ParseReturnableBody(List<ITypedAuraStatement> stmts, string decl)
 	{
 		var body = new StringBuilder();
@@ -728,6 +817,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return body.ToString();
 	}
 
+	/// <summary>
+	///     Determines if the supplied type refers to a standard library module
+	/// </summary>
+	/// <param name="typ">An Aura type</param>
+	/// <returns>A boolean value indicating if the supplied Aura type refers to a stdlib module</returns>
 	private bool IsStdlibPkgType(AuraType typ)
 	{
 		return typ switch
@@ -737,6 +831,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		};
 	}
 
+	/// <summary>
+	///     Converts an Aura type to a string
+	/// </summary>
+	/// <param name="typ">An Aura type</param>
+	/// <returns>A string representation of the Aura type</returns>
 	private string AuraTypeToString(AuraType typ)
 	{
 		return typ switch
@@ -749,6 +848,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		};
 	}
 
+	/// <summary>
+	///     Determines if the supplied module name refers to a stdlib module
+	/// </summary>
+	/// <param name="pkg">A module name</param>
+	/// <returns>A boolean value indicating if the supplied module name refers to a stdlib module</returns>
 	private bool IsStdlibPkg(string pkg)
 	{
 		return pkg switch
@@ -758,6 +862,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		};
 	}
 
+	/// <summary>
+	///     Determines if the supplied module name refers to a stdlib module import name
+	/// </summary>
+	/// <param name="pkg">A module name</param>
+	/// <returns>A boolean value indicating if the supplied module name refers to a stdlib module import name</returns>
 	private bool IsStdlibImportName(string pkg)
 	{
 		return pkg switch
@@ -767,21 +876,31 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		};
 	}
 
+	/// <summary>
+	///     Extracts the stdlib module name from an import path
+	/// </summary>
+	/// <param name="pkg">An import path</param>
+	/// <returns>The stdlib module name extracted from the import path</returns>
 	private string ExtractStdlibPkgName(string pkg)
 	{
 		return pkg.Split('/').Last();
 	}
 
-	private string BuildStdlibPkgImportStmt(string pkg)
-	{
-		return $"import {BuildStdlibPkgName(pkg)}";
-	}
-
+	/// <summary>
+	///     Constructs a complete stdlib module import path
+	/// </summary>
+	/// <param name="pkg">The stdlib module's name</param>
+	/// <returns>A complete stdlib module import path</returns>
 	private string BuildStdlibPkgName(string pkg)
 	{
 		return $"{pkg} \"{ProjectName}/stdlib/{pkg}\"";
 	}
 
+	/// <summary>
+	///     Converts an Aura logical operator to a Go logical operator
+	/// </summary>
+	/// <param name="op">An Aura logical operator</param>
+	/// <returns>A valid Go string</returns>
 	private string LogicalOperatorToGoOperator(Tok op)
 	{
 		return op.Typ switch
@@ -792,6 +911,12 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		};
 	}
 
+	/// <summary>
+	///     Executes the supplied function within the context of an enclosing AST node
+	/// </summary>
+	/// <param name="f">The function to execute</param>
+	/// <param name="node">The enclosing AST node</param>
+	/// <returns>A valid Go string</returns>
 	private string InNewEnclosingType(Func<string> f, ITypedAuraAstNode node)
 	{
 		_enclosingType.Push(node);
@@ -800,6 +925,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return s;
 	}
 
+	/// <summary>
+	///     Converts a snake case variable name to camel case
+	/// </summary>
+	/// <param name="s">The variable name in snake case format</param>
+	/// <returns>A valid Go string</returns>
 	private string ConvertSnakeCaseToCamelCase(string s)
 	{
 		var camelCase = new StringBuilder();
@@ -825,6 +955,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return camelCase.ToString();
 	}
 
+	/// <summary>
+	///     Determines if a variable is defined in Aura's prelude
+	/// </summary>
+	/// <param name="name">A variable name</param>
+	/// <returns>A boolean indicating if the variable is defined in the prelude</returns>
 	private bool IsVariableInPrelude(string name)
 	{
 		if (_prelude.PublicVariables.ContainsKey(name))
@@ -845,6 +980,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return false;
 	}
 
+	/// <summary>
+	///     Adds an import statement for the <c>prelude</c> module and appends the <c>prelude</c> prefix to the variable's name
+	/// </summary>
+	/// <param name="name">A variable's name</param>
+	/// <returns>A valid Go string</returns>
 	private string AddPreludePrefix(string name)
 	{
 		var typedImport = new TypedImport(
@@ -859,11 +999,6 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			typedImport
 		);
 		return $"prelude.{ConvertSnakeCaseToCamelCase(name)}";
-	}
-
-	public string Visit(PartiallyTypedFunction partiallyTypedFunction)
-	{
-		throw new NotImplementedException();
 	}
 
 	public string Visit(PartiallyTypedClass partiallyTypedClass)
@@ -888,16 +1023,5 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		var items = string.Join(", ", anonymousStruct.Params.Select(p => p.Name.Value));
 		return $"{items}";
-	}
-
-	private string GoTypeDefaultValue(AuraType typ)
-	{
-		return typ switch
-		{
-			AuraString => "\"\"",
-			AuraInt => "0",
-			AuraFloat => "0.0",
-			_ => string.Empty
-		};
 	}
 }

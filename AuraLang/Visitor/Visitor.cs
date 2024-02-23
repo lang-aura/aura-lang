@@ -21,7 +21,6 @@ public interface ITypedAuraStmtVisitor<out T>
 	public T Visit(TypedContinue @continue);
 	public T Visit(TypedBreak @break);
 	public T Visit(TypedYield yield);
-	public T Visit(PartiallyTypedFunction partiallyTypedFunction);
 	public T Visit(PartiallyTypedClass partiallyTypedClass);
 	public T Visit(TypedCheck check);
 	public T Visit(TypedStruct @struct);

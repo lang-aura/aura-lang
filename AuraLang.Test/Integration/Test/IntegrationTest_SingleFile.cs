@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using AuraLang.AST;
-using AuraLang.Cli.LocalFileSystemModuleProvider;
 using AuraLang.Exceptions;
 using AuraLang.FileCompiler;
+using AuraLang.LocalFileSystemModuleProvider;
 using AuraLang.Stores;
 using AuraLang.Symbol;
 using AuraLang.TypeChecker;
