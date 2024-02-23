@@ -7,32 +7,62 @@ using Range = AuraLang.Location.Range;
 
 namespace AuraLang.AST;
 
+/// <summary>
+///     Represents a typed AST node
+/// </summary>
 public interface ITypedAuraAstNode : IAuraAstNode
 {
+	/// <summary>
+	///     The AST node's type
+	/// </summary>
 	AuraType Typ { get; }
 
-	IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable>();
-	}
+	/// <summary>
+	///     Recursively collects all the <see cref="IHoverable" /> nodes contained in the current node. This method must be
+	///     implemented by all typed AST nodes, even if the node is not itself <c>IHoverable</c>, because it may still contain
+	///     <c>IHoverable</c> nodes that need to be captured by the LSP server's Hover Provider.
+	/// </summary>
+	/// <returns>A list of all <see cref="IHoverable" /> nodes contained in the current node</returns>
+	IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable>(); }
 }
 
+/// <summary>
+///     Represents a typed Aura expression
+/// </summary>
 public interface ITypedAuraExpression : ITypedAuraAstNode, ITypedAuraExprVisitable
 {
 }
 
+/// <summary>
+///     Represents a typed Aura statement
+/// </summary>
 public interface ITypedAuraStatement : ITypedAuraAstNode, ITypedAuraStmtVisitable
 {
 }
 
+/// <summary>
+///     Represents an Aura node that can be called (i.e. by suffixing the node with a pair of parentheses and zero or more
+///     arguments
+/// </summary>
 public interface ITypedAuraCallable : ITypedAuraAstNode
 {
 	string GetName();
 }
 
+/// <summary>
+///     Represents an AST node that returns useful information when hovered over in an IDE, such as VS Code
+/// </summary>
 public interface IHoverable : IAuraAstNode
 {
+	/// <summary>
+	///     The text to be shown to the user when this AST node is hovered over
+	/// </summary>
 	string HoverText { get; }
+
+	/// <summary>
+	///     The range in which the user must hover over to see the <see cref="HoverText" />. This range may differ from the
+	///     node's <see cref="Range" /> if the user must hover over a specific part of the node to see the hover pop-up.
+	/// </summary>
 	Range HoverableRange { get; }
 }
 
@@ -47,10 +77,7 @@ public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ
 
 	public Range HoverableRange => Name.Range;
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Name.Range.Start, Value.Range.End);
 
@@ -65,39 +92,35 @@ public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ
 /// <summary>
 ///     Represents an increment operation where the value of the variable is incremented by 1.
 /// </summary>
-/// <param name="Name">The variable being incremented</param>
+/// <param name="Name">The value being incremented</param>
+/// <param name="PlusPlus">
+///     A token representing the <c>++</c> suffix operator, which is used to determine the node's
+///     ending position in the Aura source file
+/// </param>
 public record TypedPlusPlusIncrement(ITypedAuraExpression Name, Tok PlusPlus, AuraType Typ) : ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Name.Range.Start, PlusPlus.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return Name.ExtractHoverables();
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return Name.ExtractHoverables(); }
 }
 
 /// <summary>
 ///     Represents a decrement operation where the value of the variable is decremented by 1.
 /// </summary>
-/// <param name="Name">The variable being decremented</param>
+/// <param name="Name">The value being decremented</param>
+/// <param name="MinusMinus">
+///     A token representing the <c>--</c> suffix operator, which is used to determine the node's
+///     ending position in the Aura source file
+/// </param>
 public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus, AuraType Typ) : ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Name.Range.Start, MinusMinus.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return Name.ExtractHoverables();
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return Name.ExtractHoverables(); }
 }
 
 /// <summary>
@@ -109,10 +132,7 @@ public record TypedMinusMinusDecrement(ITypedAuraExpression Name, Tok MinusMinus
 public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExpression Right, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Left.Range.Start, Right.Range.End);
 
@@ -128,24 +148,26 @@ public record TypedBinary(ITypedAuraExpression Left, Tok Operator, ITypedAuraExp
 /// <summary>
 ///     Represents a typed block expression
 /// </summary>
+/// <param name="OpeningBrace">
+///     A token representing the block's opening brace, which is used to determine the node's
+///     starting position in the Aura source file
+/// </param>
 /// <param name="Statements">A collection of statements</param>
+/// <param name="ClosingBrace">
+///     A token representing the block's closing brace, which is used to determine the node's
+///     ending position in the Aura source file
+/// </param>
 public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements, Tok ClosingBrace, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(OpeningBrace.Range.Start, ClosingBrace.Range.End);
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable>();
-		foreach (var stmt in Statements)
-		{
-			hoverables.AddRange(stmt.ExtractHoverables());
-		}
+		foreach (var stmt in Statements) hoverables.AddRange(stmt.ExtractHoverables());
 
 		return hoverables;
 	}
@@ -154,8 +176,18 @@ public record TypedBlock(Tok OpeningBrace, List<ITypedAuraStatement> Statements,
 /// <summary>
 ///     Represents a typed call expression
 /// </summary>
-/// <param name="Callee">The callee expressions</param>
+/// <param name="Callee">The callee expression</param>
 /// <param name="Arguments">The call's arguments</param>
+/// <param name="ClosingParen">
+///     A token representing the call's closing parenthesis, which is used to determine the node's
+///     ending position in the Aura source file
+/// </param>
+/// <param name="FnTyp">
+///     The original declaration of the function being called. This parameter must implement the <see cref="ICallable" />
+///     interface instead of being of type <see cref="AuraNamedFunction" /> because other declarations can also be called
+///     by this type of node, such
+///     as a class, which is instantiated by calling the class's name like a function call
+/// </param>
 public record TypedCall
 	(ITypedAuraCallable Callee, List<ITypedAuraExpression> Arguments, Tok ClosingParen, ICallable FnTyp)
 	: ITypedAuraExpression, IHoverable
@@ -164,10 +196,7 @@ public record TypedCall
 	{
 		get
 		{
-			if (FnTyp.Documentation != string.Empty)
-			{
-				return FnTyp.Documentation;
-			}
+			if (FnTyp.Documentation != string.Empty) return FnTyp.Documentation;
 
 			return FnTyp.ToAuraString();
 		}
@@ -175,20 +204,14 @@ public record TypedCall
 
 	public Range HoverableRange => Callee.Range;
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Callee.Range.Start, ClosingParen.Range.End);
 
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		foreach (var argument in Arguments)
-		{
-			hoverables.AddRange(argument.ExtractHoverables());
-		}
+		foreach (var argument in Arguments) hoverables.AddRange(argument.ExtractHoverables());
 
 		return hoverables;
 	}
@@ -206,15 +229,9 @@ public record TypedCall
 /// <param name="Name">The name of the attribute to get</param>
 public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ) : ITypedAuraExpression, ITypedAuraCallable
 {
-	public string GetName()
-	{
-		return Name.Value;
-	}
+	public string GetName() { return Name.Value; }
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Obj.Range.Start, Name.Range.End);
 
@@ -231,13 +248,14 @@ public record TypedGet(ITypedAuraExpression Obj, Tok Name, AuraType Typ) : IType
 /// </summary>
 /// <param name="Obj">The collection object being queried.</param>
 /// <param name="Index">The index in the collection to fetch</param>
+/// <param name="ClosingBracket">
+///     A token representing a right bracket, which is used to determine the node's ending
+///     position in the Aura source file
+/// </param>
 public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index, Tok ClosingBracket, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Obj.Range.Start, ClosingBracket.Range.End);
 
@@ -256,14 +274,15 @@ public record TypedGetIndex(ITypedAuraExpression Obj, ITypedAuraExpression Index
 /// <param name="Obj">The collection object being queried</param>
 /// <param name="Lower">The lower bound of the range being fetched. This bound is inclusive.</param>
 /// <param name="Upper">The upper bound of the range being fetched. This bound is exclusive.</param>
+/// <param name="ClosingBracket">
+///     A token representing a right bracket, which is used to determine the node's ending
+///     position in the Aura source file
+/// </param>
 public record TypedGetIndexRange
 	(ITypedAuraExpression Obj, ITypedAuraExpression Lower, ITypedAuraExpression Upper, Tok ClosingBracket, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Obj.Range.Start, ClosingBracket.Range.End);
 
@@ -280,16 +299,17 @@ public record TypedGetIndexRange
 /// <summary>
 ///     Represents a typed <c>if</c> expression
 /// </summary>
+/// <param name="If">
+///     A token representing the <c>if</c> keyword, which is used to determine the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="Condition">The condition that will determine which branch is executed</param>
 /// <param name="Then">The branch that will be executed if the <see cref="Condition" /> evaluates to true</param>
 /// <param name="Else">The branch that will be executed if the <see cref="Condition" /> evalutes to false</param>
 public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, ITypedAuraExpression? Else, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(If.Range.Start, Else is not null ? Else.Range.End : Then.Range.End);
 
@@ -298,10 +318,7 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 		var hoverables = new List<IHoverable>();
 		hoverables.AddRange(Condition.ExtractHoverables());
 		hoverables.AddRange(Then.Statements.OfType<IHoverable>());
-		if (Else is TypedBlock b)
-		{
-			hoverables.AddRange(b.Statements.OfType<IHoverable>());
-		}
+		if (Else is TypedBlock b) hoverables.AddRange(b.Statements.OfType<IHoverable>());
 
 		return hoverables;
 	}
@@ -316,10 +333,7 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraExpression Right, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Left.Range.Start, Right.Range.End);
 
@@ -341,10 +355,7 @@ public record TypedLogical(ITypedAuraExpression Left, Tok Operator, ITypedAuraEx
 public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression Value, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Obj.Range.Start, Value.Range.End);
 
@@ -360,24 +371,18 @@ public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression 
 /// <summary>
 ///     Represents a type-checked <c>this</c> token
 /// </summary>
-/// <param name="This">The <c>this</c> token</param>
+/// <param name="This">A token representing the <c>this</c> keyword</param>
 public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
 	public string HoverText => $"{Typ}";
 
 	public Range HoverableRange => This.Range;
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => This.Range;
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
 /// <summary>
@@ -387,17 +392,11 @@ public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression, IHoverab
 /// <param name="Right">The expression onto which the operator will be applied</param>
 public record TypedUnary(Tok Operator, ITypedAuraExpression Right, AuraType Typ) : ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Operator.Range.Start, Right.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return Right.ExtractHoverables();
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return Right.ExtractHoverables(); }
 }
 
 /// <summary>
@@ -410,22 +409,13 @@ public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITyp
 
 	public Range HoverableRange => Name.Range;
 
-	public string GetName()
-	{
-		return Name.Value;
-	}
+	public string GetName() { return Name.Value; }
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => Name.Range;
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
 /// <summary>
@@ -435,10 +425,7 @@ public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITyp
 /// <param name="Expected">The expected type</param>
 public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	/// <summary>
 	///     An <c>is</c> expression always returns a boolean indicating if the <c>expr</c> matches the <c>expected</c> type
@@ -451,23 +438,25 @@ public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : IType
 			new Position() // TODO add range to AuraInterface
 		);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return Expr.ExtractHoverables();
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return Expr.ExtractHoverables(); }
 }
 
 /// <summary>
 ///     Represents a type-checked grouping expression
 /// </summary>
+/// <param name="OpeningParen">
+///     A token representing the grouping's opening parenthesis, which determines the node's
+///     starting position in the Aura source file
+/// </param>
 /// <param name="Expr">The expression contained in the grouping expression</param>
+/// <param name="ClosingParen">
+///     A token representing the grouping's closing parenthesis, which determines the node's
+///     ending position in the Aura source file
+/// </param>
 public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok ClosingParen, AuraType Typ)
 	: ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(OpeningParen.Range.Start, ClosingParen.Range.End);
 
@@ -482,6 +471,10 @@ public record TypedGrouping(Tok OpeningParen, ITypedAuraExpression Expr, Tok Clo
 /// <summary>
 ///     Represents a type-checked <c>defer</c> statement
 /// </summary>
+/// <param name="Defer">
+///     A token representing the <c>defer</c> keyword, which is used to determine the node's starting
+///     position in the Aura source file
+/// </param>
 /// <param name="Call">The call expression to be deferred until the end of the enclosing function's scope</param>
 public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement, IHoverable
 {
@@ -490,10 +483,7 @@ public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement, IHove
 
 	public Range HoverableRange => Defer.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -513,29 +503,32 @@ public record TypedDefer(Tok Defer, TypedCall Call) : ITypedAuraStatement, IHove
 /// <param name="Expression">The enclosed expression</param>
 public record TypedExpressionStmt(ITypedAuraExpression Expression) : ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 	public Range Range => Expression.Range;
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return Expression.ExtractHoverables();
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return Expression.ExtractHoverables(); }
 }
 
 /// <summary>
 ///     Represents a valid type-checked <c>for</c> loop
 /// </summary>
+/// <param name="For">
+///     A token representing the <c>for</c> keyword, which is used to determine the node's starting
+///     position in the Aura source file
+/// </param>
 /// <param name="Initializer">
 ///     The loop's initializer. The variable initialized here will be available inside the loop's
 ///     body.
 /// </param>
 /// <param name="Condition">The loop's condition. The loop will exit when the condition evaluates to false.</param>
+/// <param name="Increment">The increment expression that is executed at the end of each iteration</param>
 /// <param name="Body">Collection of statements that will be executed once per iteration.</param>
+/// <param name="ClosingBrace">
+///     A token representing the closing brace, which determines the node's ending position in
+///     the Aura source file
+/// </param>
 public record TypedFor
 (
 	Tok For,
@@ -546,10 +539,7 @@ public record TypedFor
 	Tok ClosingBrace
 ) : ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -558,20 +548,11 @@ public record TypedFor
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable>();
-		if (Initializer is not null)
-		{
-			hoverables.AddRange(Initializer.ExtractHoverables());
-		}
+		if (Initializer is not null) hoverables.AddRange(Initializer.ExtractHoverables());
 
-		if (Condition is not null)
-		{
-			hoverables.AddRange(Condition.ExtractHoverables());
-		}
+		if (Condition is not null) hoverables.AddRange(Condition.ExtractHoverables());
 
-		if (Increment is not null)
-		{
-			hoverables.AddRange(Increment.ExtractHoverables());
-		}
+		if (Increment is not null) hoverables.AddRange(Increment.ExtractHoverables());
 
 		hoverables.AddRange(Body.OfType<IHoverable>());
 		return hoverables;
@@ -579,19 +560,24 @@ public record TypedFor
 }
 
 /// <summary>
-///     Represents a valid type-checked  <c>foreach</c> loop
+///     Represents a valid type-checked <c>foreach</c> loop
 /// </summary>
+/// <param name="ForEach">
+///     A token representing the <c>foreach</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="EachName">Represents the current item in the collection being iterated over</param>
 /// <param name="Iterable">The collection being iterated over</param>
 /// <param name="Body">Collection of statements that will be executed once per iteration</param>
+/// <param name="ClosingBrace">
+///     A token representing the closing brace, which determines the node's closing position in
+///     the Aura source file
+/// </param>
 public record TypedForEach
 	(Tok ForEach, Tok EachName, ITypedAuraExpression Iterable, List<ITypedAuraStatement> Body, Tok ClosingBrace)
 	: ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -609,10 +595,18 @@ public record TypedForEach
 /// <summary>
 ///     Represents a valid type-checked named function declaration
 /// </summary>
+/// <param name="Fn">
+///     A token representing the <c>fn</c> keyword, which determines the node's starting position in the
+///     Aura source file
+/// </param>
 /// <param name="Name">The function's name</param>
 /// <param name="Params">The function's parameters</param>
 /// <param name="Body">The function's body</param>
 /// <param name="ReturnType">The function's return type</param>
+/// <param name="Documentation">
+///     The optional documentation comment appearing on the line above the named function in the
+///     Aura source file
+/// </param>
 public record TypedNamedFunction
 (
 	Tok Fn,
@@ -639,10 +633,7 @@ public record TypedNamedFunction
 
 	public Range HoverableRange => Name.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ =>
 		new AuraNamedFunction(
@@ -657,24 +648,15 @@ public record TypedNamedFunction
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		foreach (var param in Params)
-		{
-			hoverables.Add(param);
-		}
+		foreach (var param in Params) hoverables.Add(param);
 
 		hoverables.AddRange(Body.ExtractHoverables());
 		return hoverables;
 	}
 
-	public List<Param> GetParams()
-	{
-		return Params;
-	}
+	public List<Param> GetParams() { return Params; }
 
-	public List<ParamType> GetParamTypes()
-	{
-		return Params.Select(param => param.ParamType).ToList();
-	}
+	public List<ParamType> GetParamTypes() { return Params.Select(param => param.ParamType).ToList(); }
 
 	/// <summary>
 	///     Gets the type of the declared function. This differs from the <c>Typ</c> field because this function
@@ -695,6 +677,10 @@ public record TypedNamedFunction
 /// <summary>
 ///     Represents a valid type-checked anonymous function
 /// </summary>
+/// <param name="Fn">
+///     A token representing the <c>fn</c> keyword, which determines the node's starting position in the
+///     Aura source file
+/// </param>
 /// <param name="Params">The anonymous function's parameters</param>
 /// <param name="Body">The anonymous function's body</param>
 /// <param name="ReturnType">The anonymous function's return type</param>
@@ -706,10 +692,7 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 
 	public Range HoverableRange => Fn.Range;
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraFunction(Params, ReturnType);
 
@@ -722,20 +705,18 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 		return hoverables;
 	}
 
-	public List<Param> GetParams()
-	{
-		return Params;
-	}
+	public List<Param> GetParams() { return Params; }
 
-	public List<ParamType> GetParamTypes()
-	{
-		return Params.Select(param => param.ParamType).ToList();
-	}
+	public List<ParamType> GetParamTypes() { return Params.Select(param => param.ParamType).ToList(); }
 }
 
 /// <summary>
 ///     Represents a valid type-checked variable declaration
 /// </summary>
+/// <param name="Let">
+///     A token representing the <c>let</c> keyword, which determines the node's starting position in the
+///     Aura source file
+/// </param>
 /// <param name="Names">The name(s) of the newly-declared variable(s)</param>
 /// <param name="TypeAnnotation">Indicates whether the variables were declared with a type annotation</param>
 /// <param name="Mutable">Indicates whether the variable was declared as mutable</param>
@@ -755,10 +736,7 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 
 	public Range HoverableRange => new(Names.First().Range.Start, Names.Last().Range.End);
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -771,10 +749,7 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		if (Initializer is not null)
-		{
-			hoverables.AddRange(Initializer.ExtractHoverables());
-		}
+		if (Initializer is not null) hoverables.AddRange(Initializer.ExtractHoverables());
 
 		return hoverables;
 	}
@@ -783,37 +758,36 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 /// <summary>
 ///     Represents a type-checked module declaration
 /// </summary>
+/// <param name="Mod">
+///     A token representing the <c>mod</c> keyword, which determines the node's starting position in the
+///     Aura source file
+/// </param>
 /// <param name="Value">The module's name</param>
 public record TypedMod(Tok Mod, Tok Value) : ITypedAuraStatement, IHoverable
 {
 	public string HoverText => $"mod {Value.Value}";
 	public Range HoverableRange => new(Mod.Range.Start, Value.Range.End);
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
 	public Range Range => new(Mod.Range.Start, Value.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
 /// <summary>
 ///     Represents a valid type-checked <c>return</c> statement
 /// </summary>
+/// <param name="Return">
+///     A token representing the <c>return</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="Value">The value to return</param>
 public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -822,10 +796,7 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable>();
-		if (Value is not null)
-		{
-			hoverables.AddRange(Value.ExtractHoverables());
-		}
+		if (Value is not null) hoverables.AddRange(Value.ExtractHoverables());
 
 		return hoverables;
 	}
@@ -834,9 +805,21 @@ public record TypedReturn(Tok Return, ITypedAuraExpression? Value) : ITypedAuraS
 /// <summary>
 ///     Represents a valid type-checked interface declaration
 /// </summary>
+/// <param name="Interface">
+///     A token representing the <c>interface</c> keyword, which helps determine the node's starting
+///     position in the Aura source file
+/// </param>
 /// <param name="Name">The interface's declaration</param>
 /// <param name="Methods">The interface's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
+/// <param name="ClosingBrace">
+///     A token representing the interface's closing brace, which determines the node's ending
+///     position in the Aura source file
+/// </param>
+/// <param name="Documentation">
+///     The optional documentation comment appearing on the line above the interface in the Aura
+///     source file
+/// </param>
 public record TypedInterface
 (
 	Tok Interface,
@@ -862,10 +845,7 @@ public record TypedInterface
 
 	public Range HoverableRange => Name.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -880,15 +860,35 @@ public record TypedInterface
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		foreach (var method in Methods)
-		{
-			hoverables.AddRange(method.ExtractHoverables());
-		}
+		foreach (var method in Methods) hoverables.AddRange(method.ExtractHoverables());
 
 		return hoverables;
 	}
 }
 
+/// <summary>
+///     Represents a function signature. This node is used to represent the function signatures that appear inside the body
+///     of an Aura interface.
+/// </summary>
+/// <param name="Visibility">
+///     A token representing the function's visibility (public or private), which helps determine the
+///     node's starting position in the Aura source file
+/// </param>
+/// <param name="Fn">
+///     A token representing the <c>fn</c> keyword, which helps determine the node's starting position in
+///     the Aura source file when the <c>pub</c> keyword is omitted
+/// </param>
+/// <param name="Name">The function's name</param>
+/// <param name="Params">the function's parameters</param>
+/// <param name="ClosingParen">
+///     The function's closing parenthesis, which helps determine the node's ending position in
+///     the Aura source file when a return type is omitted
+/// </param>
+/// <param name="ReturnType">The function's return type</param>
+/// <param name="Documentation">
+///     The optional documentation comment that appears on the line directly above the function
+///     signature in the Aura source file
+/// </param>
 public record TypedFunctionSignature
 (
 	Tok? Visibility,
@@ -901,10 +901,7 @@ public record TypedFunctionSignature
 )
 	: ITypedAuraStatement, IHoverable
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range => new(Visibility?.Range.Start ?? Fn.Range.Start, ClosingParen.Range.End);
 	public Range HoverableRange => Name.Range;
@@ -919,12 +916,26 @@ public record TypedFunctionSignature
 
 	public string HoverText => ((AuraNamedFunction)Typ).Documentation;
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
+/// <summary>
+///     Represents a type-checked Aura struct
+/// </summary>
+/// <param name="Struct">
+///     A token representing the <c>struct</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
+/// <param name="Name">The struct's name</param>
+/// <param name="Params">The struct's parameters</param>
+/// <param name="ClosingParen">
+///     A token representing the struct's closing parenthesis, which determines the node's ending
+///     position in the Aura source file
+/// </param>
+/// <param name="Documentation">
+///     The optional documentation comment that appears on the line directly above the struct in
+///     the Aura source file
+/// </param>
 public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingParen, string? Documentation)
 	: ITypedAuraStatement, ITypedFunction, ITypedAuraCallable, IHoverable
 {
@@ -940,15 +951,9 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 
 	public Range HoverableRange => Name.Range;
 
-	public string GetName()
-	{
-		return Name.Value;
-	}
+	public string GetName() { return Name.Value; }
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -957,25 +962,29 @@ public record TypedStruct(Tok Struct, Tok Name, List<Param> Params, Tok ClosingP
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		foreach (var param in Params)
-		{
-			hoverables.Add(param);
-		}
+		foreach (var param in Params) hoverables.Add(param);
 
 		return hoverables;
 	}
 
-	public List<Param> GetParams()
-	{
-		return Params;
-	}
+	public List<Param> GetParams() { return Params; }
 
-	public List<ParamType> GetParamTypes()
-	{
-		return Params.Select(p => p.ParamType).ToList();
-	}
+	public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
 }
 
+/// <summary>
+///     Represents a type-checked anonymous struct
+/// </summary>
+/// <param name="Struct">
+///     A token representing the <c>struct</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
+/// <param name="Params">The struct's parameters</param>
+/// <param name="Values">The supplied values, which have been type checked against the anonymous struct's parameters</param>
+/// <param name="ClosingParen">
+///     The anonymous struct's closing parenthesis, which determines the node's ending position
+///     in the Aura source file
+/// </param>
 public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAuraExpression> Values, Tok ClosingParen)
 	: ITypedAuraExpression, ITypedFunction, IHoverable
 {
@@ -983,38 +992,39 @@ public record TypedAnonymousStruct(Tok Struct, List<Param> Params, List<ITypedAu
 
 	public Range HoverableRange => Struct.Range;
 
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraAnonymousStruct(Params, Visibility.Private);
 
 	public Range Range => new(Struct.Range.Start, ClosingParen.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 
-	public List<Param> GetParams()
-	{
-		return Params;
-	}
+	public List<Param> GetParams() { return Params; }
 
-	public List<ParamType> GetParamTypes()
-	{
-		return Params.Select(p => p.ParamType).ToList();
-	}
+	public List<ParamType> GetParamTypes() { return Params.Select(p => p.ParamType).ToList(); }
 }
 
 /// <summary>
 ///     Represents a valid type-checked class declaration
 /// </summary>
+/// <param name="Class">
+///     A token representing the <c>class</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="Name">The class's name</param>
 /// <param name="Params">The class's parameters</param>
 /// <param name="Methods">The class's methods</param>
 /// <param name="Public">Indicates whether the class is declared as public</param>
+/// <param name="Implementing">A list of Aura interfaces implemented by this class</param>
+/// <param name="ClosingBrace">
+///     A token representing the class's closing brace, which determines the node's ending
+///     position in the Aura source file
+/// </param>
+/// <param name="Documentation">
+///     The optional documentation comment appearing on the line directly above the class in
+///     the Aura source file
+/// </param>
 public record FullyTypedClass
 (
 	Tok Class,
@@ -1046,15 +1056,9 @@ public record FullyTypedClass
 
 	public Range HoverableRange => Name.Range;
 
-	public string GetName()
-	{
-		return Name.Value;
-	}
+	public string GetName() { return Name.Value; }
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -1063,42 +1067,35 @@ public record FullyTypedClass
 	public IEnumerable<IHoverable> ExtractHoverables()
 	{
 		var hoverables = new List<IHoverable> { this };
-		foreach (var param in Params)
-		{
-			hoverables.Add(param);
-		}
+		foreach (var param in Params) hoverables.Add(param);
 
-		foreach (var method in Methods)
-		{
-			hoverables.AddRange(method.ExtractHoverables());
-		}
+		foreach (var method in Methods) hoverables.AddRange(method.ExtractHoverables());
 
 		return hoverables;
 	}
 
-	public List<Param> GetParams()
-	{
-		return Params;
-	}
+	public List<Param> GetParams() { return Params; }
 
-	public List<ParamType> GetParamTypes()
-	{
-		return Params.Select(param => param.ParamType).ToList();
-	}
+	public List<ParamType> GetParamTypes() { return Params.Select(param => param.ParamType).ToList(); }
 }
 
 /// <summary>
 ///     Represents a valid type-checked <c>while</c> loop
 /// </summary>
+/// <param name="While">
+///     A token representing the <c>while</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="Condition">The loop's condition. The loop will exit when the condition evaluates to false</param>
 /// <param name="Body">Collection of statements executed once per iteration</param>
+/// <param name="ClosingBrace">
+///     A token representing the loop's closing brace, which determines the node's ending position
+///     in the Aura source file
+/// </param>
 public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedAuraStatement> Body, Tok ClosingBrace)
 	: ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -1116,6 +1113,10 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 /// <summary>
 ///     Represents a valid type-checked <c>import</c> statement
 /// </summary>
+/// <param name="Import">
+///     A token representing the <c>import</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="Package">The name of the package being imported</param>
 /// <param name="Alias">Will have a value if the package is being imported under an alias</param>
 public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraStatement, IHoverable
@@ -1125,27 +1126,30 @@ public record TypedImport(Tok Import, Tok Package, Tok? Alias) : ITypedAuraState
 	public Range HoverableRange =>
 		new(Package.Range.Start, Alias is not null ? Alias.Value.Range.End : Package.Range.End);
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
 	public Range Range => new(Import.Range.Start, Alias is not null ? Alias.Value.Range.End : Package.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
+/// <summary>
+///     Represents a type-checked multiple import statement
+/// </summary>
+/// <param name="Import">
+///     A token representing the <c>import</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
+/// <param name="Packages">The packages to be imported</param>
+/// <param name="ClosingParen">
+///     A token representing the closing parenthesis, which determines the node's ending position
+///     in the Aura source file
+/// </param>
 public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok ClosingParen) : ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
@@ -1158,10 +1162,7 @@ public record TypedMultipleImport(Tok Import, List<TypedImport> Packages, Tok Cl
 /// <param name="Text">The text of the comment</param>
 public record TypedComment(Tok Text) : ITypedAuraStatement
 {
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 	public Range Range => Text.Range;
@@ -1170,58 +1171,46 @@ public record TypedComment(Tok Text) : ITypedAuraStatement
 /// <summary>
 ///     Represents a type-checked <c>continue</c> statement
 /// </summary>
+/// <param name="Continue">A token representing the <c>continue</c> keyword</param>
 public record TypedContinue(Tok Continue) : ITypedAuraStatement, IHoverable
 {
 	public string HoverText => "Immediately advances execution to the enclosing loop's next iteration";
 
 	public Range HoverableRange => Continue.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 	public Range Range => Continue.Range;
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
 /// <summary>
 ///     Represents a type-checked <c>break</c> statement
 /// </summary>
+/// <param name="Break">A token representing the <c>break</c> keyword</param>
 public record TypedBreak(Tok Break) : ITypedAuraStatement, IHoverable
 {
 	public string HoverText => "Immediately stops the enclosing loop's execution";
 
 	public Range HoverableRange => Break.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 	public Range Range => Break.Range;
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
 /// <summary>
 ///     Represents a type-checked <c>nil</c> keyword
 /// </summary>
+/// <param name="Nil">a token representing the <c>nil</c> keyword</param>
 public record TypedNil(Tok Nil) : ITypedAuraExpression
 {
-	public T Accept<T>(ITypedAuraExprVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNil();
 	public Range Range => Nil.Range;
@@ -1230,6 +1219,10 @@ public record TypedNil(Tok Nil) : ITypedAuraExpression
 /// <summary>
 ///     Represents a type-checked <c>yield</c> statement
 /// </summary>
+/// <param name="Yield">
+///     A token representing the <c>yield</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
 /// <param name="Value">The value to be yielded from the enclosing expression</param>
 public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStatement, IHoverable
 {
@@ -1238,21 +1231,23 @@ public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStat
 
 	public Range HoverableRange => Yield.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
 	public Range Range => new(Yield.Range.Start, Value.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }
 
+/// <summary>
+///     Represents a type-checked <c>check</c> statement
+/// </summary>
+/// <param name="Check">
+///     A token representing the <c>check</c> keyword, which determines the node's starting position
+///     in the Aura source file
+/// </param>
+/// <param name="Call">The call to be checked</param>
 public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement, IHoverable
 {
 	public string HoverText =>
@@ -1260,17 +1255,11 @@ public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement, IHove
 
 	public Range HoverableRange => Check.Range;
 
-	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor)
-	{
-		return visitor.Visit(this);
-	}
+	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public AuraType Typ => new AuraNone();
 
 	public Range Range => new(Check.Range.Start, Call.Range.End);
 
-	public IEnumerable<IHoverable> ExtractHoverables()
-	{
-		return new List<IHoverable> { this };
-	}
+	public IEnumerable<IHoverable> ExtractHoverables() { return new List<IHoverable> { this }; }
 }

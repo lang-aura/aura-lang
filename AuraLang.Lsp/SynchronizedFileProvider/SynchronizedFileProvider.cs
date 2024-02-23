@@ -1,4 +1,4 @@
-﻿using AuraLang.ImportedFileProvider;
+﻿using AuraLang.ImportedModuleProvider;
 using AuraLang.Lsp.DocumentManager;
 
 namespace AuraLang.Lsp.SynchronizedFileProvider;

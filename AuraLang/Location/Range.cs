@@ -26,6 +26,11 @@ public record Range
 		End = new Position();
 	}
 
+	/// <summary>
+	///     Checks if the supplied position is located inside this range
+	/// </summary>
+	/// <param name="position">The position in question</param>
+	/// <returns>A boolean value indicating if the supplied position is located inside this range</returns>
 	public bool Contains(Position position)
 	{
 		if (position.Line < Start.Line || position.Line > End.Line) return false;

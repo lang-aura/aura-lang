@@ -2,13 +2,16 @@
 
 namespace AuraLang.Exceptions.Scanner;
 
+/// <summary>
+///     Represents an error encountered by the scanner
+/// </summary>
 public abstract class ScannerException : AuraException
 {
 	protected ScannerException(string message, Range range) : base(message, range) { }
 }
 
 /// <summary>
-/// Indicates that a string literal in the source code does not have a closing double quote
+///     Indicates that a string literal in the source code does not have a closing double quote
 /// </summary>
 public class UnterminatedStringException : ScannerException
 {
@@ -16,7 +19,7 @@ public class UnterminatedStringException : ScannerException
 }
 
 /// <summary>
-/// Indicates that a char literal in the source code does not have a closing single quote
+///     Indicates that a char literal in the source code does not have a closing single quote
 /// </summary>
 public class UnterminatedCharException : ScannerException
 {
@@ -24,7 +27,7 @@ public class UnterminatedCharException : ScannerException
 }
 
 /// <summary>
-/// Indicates that a char literal in the source code contains more than one character
+///     Indicates that a char literal in the source code contains more than one character
 /// </summary>
 public class CharLengthGreaterThanOneException : ScannerException
 {
@@ -32,7 +35,7 @@ public class CharLengthGreaterThanOneException : ScannerException
 }
 
 /// <summary>
-/// Indicates that a char literal in the source code contains zero characters
+///     Indicates that a char literal in the source code contains zero characters
 /// </summary>
 public class EmptyCharException : ScannerException
 {
@@ -40,7 +43,7 @@ public class EmptyCharException : ScannerException
 }
 
 /// <summary>
-/// Indicates that an invalid character is present in the source code
+///     Indicates that an invalid character is present in the source code
 /// </summary>
 public class InvalidCharacterException : ScannerException
 {

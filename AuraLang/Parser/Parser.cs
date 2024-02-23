@@ -6,12 +6,30 @@ using AuraLang.Types;
 
 namespace AuraLang.Parser;
 
+/// <summary>
+///     Responsible for parsing a list of tokens
+/// </summary>
 public class AuraParser
 {
+	/// <summary>
+	///     The tokens to parse
+	/// </summary>
 	private readonly List<Tok> _tokens;
+
+	/// <summary>
+	///     The current index in the tokens list
+	/// </summary>
 	private int _index;
+
+	/// <summary>
+	///     Used to store any errors encountered during the parsing process
+	/// </summary>
 	private readonly ParserExceptionContainer _exContainer;
-	private const int MAX_PARAMS = 255;
+
+	/// <summary>
+	///     The maximum number of parameters that any function declaration, class declaration, etc. may contain
+	/// </summary>
+	private const int MaxParams = 255;
 
 	public AuraParser(List<Tok> tokens, string filePath)
 	{
@@ -23,12 +41,11 @@ public class AuraParser
 	/// <summary>
 	///     Parses each token in <see cref="_tokens" /> and produces an untyped AST
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>An untyped Abstract Syntax Tree</returns>
 	public List<IUntypedAuraStatement> Parse()
 	{
 		var statements = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd())
-		{
 			try
 			{
 				statements.Add(Declaration());
@@ -38,13 +55,10 @@ public class AuraParser
 				_exContainer.Add(ex);
 				Synchronize();
 			}
-		}
 
-		if (!_exContainer.IsEmpty())
-		{
-			throw _exContainer;
-		}
+		if (!_exContainer.IsEmpty()) throw _exContainer;
 
+		// Ensure that the file begins with a mod declaration
 		var nonComments = statements.Where(stmt => stmt is not UntypedComment);
 		if (nonComments.First() is not UntypedMod)
 		{
@@ -66,10 +80,7 @@ public class AuraParser
 		return tokTypes.Any(
 			tt =>
 			{
-				if (!Check(tt))
-				{
-					return false;
-				}
+				if (!Check(tt)) return false;
 
 				Advance();
 				return true;
@@ -86,10 +97,7 @@ public class AuraParser
 	/// <returns>The next token, if it matched the supplied token type</returns>
 	private Tok Consume(TokType tokType, ParserException ex)
 	{
-		if (Check(tokType))
-		{
-			return Advance();
-		}
+		if (Check(tokType)) return Advance();
 
 		throw ex;
 	}
@@ -104,12 +112,8 @@ public class AuraParser
 	private Tok ConsumeMultiple(ParserException ex, params TokType[] tokTypes)
 	{
 		foreach (var tokType in tokTypes)
-		{
 			if (Check(tokType))
-			{
 				return Advance();
-			}
-		}
 
 		throw ex;
 	}
@@ -121,10 +125,7 @@ public class AuraParser
 	/// <returns>A boolean indicating if the next token matches <c>tokType</c></returns>
 	private bool Check(TokType tokType)
 	{
-		if (IsAtEnd())
-		{
-			return false;
-		}
+		if (IsAtEnd()) return false;
 
 		return Peek().Typ == tokType;
 	}
@@ -135,10 +136,7 @@ public class AuraParser
 	/// <returns>The token just advanced past</returns>
 	private Tok Advance()
 	{
-		if (!IsAtEnd())
-		{
-			_index++;
-		}
+		if (!IsAtEnd()) _index++;
 
 		return Previous();
 	}
@@ -147,37 +145,25 @@ public class AuraParser
 	///     Checks if we've reached the end of the parser's tokens
 	/// </summary>
 	/// <returns>A boolean indicating if the end of the source has been reached</returns>
-	private bool IsAtEnd()
-	{
-		return Peek().Typ == TokType.Eof;
-	}
+	private bool IsAtEnd() { return Peek().Typ == TokType.Eof; }
 
 	/// <summary>
 	///     Returns the current token without advancing the counter
 	/// </summary>
 	/// <returns>The current token</returns>
-	private Tok Peek()
-	{
-		return _tokens[_index];
-	}
+	private Tok Peek() { return _tokens[_index]; }
 
 	/// <summary>
 	///     Returns the next token without advancing the counter
 	/// </summary>
 	/// <returns>The next token</returns>
-	private Tok PeekNext()
-	{
-		return _tokens[_index + 1];
-	}
+	private Tok PeekNext() { return _tokens[_index + 1]; }
 
 	/// <summary>
 	///     Returns the previous token without advancing the counter
 	/// </summary>
 	/// <returns>The previous token</returns>
-	private Tok Previous()
-	{
-		return _tokens[_index - 1];
-	}
+	private Tok Previous() { return _tokens[_index - 1]; }
 
 	/// <summary>
 	///     Returns the token two before the current index
@@ -199,10 +185,7 @@ public class AuraParser
 				continue;
 			}
 
-			if (_tokens[i].Typ == TokType.Comment)
-			{
-				return _tokens[i].Value;
-			}
+			if (_tokens[i].Typ == TokType.Comment) return _tokens[i].Value;
 
 			return null;
 		}
@@ -218,10 +201,7 @@ public class AuraParser
 		Advance();
 		while (!IsAtEnd())
 		{
-			if (Previous().Typ == TokType.Semicolon)
-			{
-				return;
-			}
+			if (Previous().Typ == TokType.Semicolon) return;
 
 			switch (Peek().Typ)
 			{
@@ -241,36 +221,42 @@ public class AuraParser
 		}
 	}
 
+	/// <summary>
+	///     Parses a list of parameters
+	/// </summary>
+	/// <returns>A list of parameters</returns>
+	/// <exception cref="TooManyParametersException">
+	///     Thrown if the list of parameters contains more than
+	///     <see cref="MaxParams" />
+	/// </exception>
 	private List<Param> ParseParameters()
 	{
 		var @params = new List<Param>();
 
 		if (!Check(TokType.RightParen))
-		{
 			while (true)
 			{
 				// Max of 255 parameters
-				if (@params.Count >= MAX_PARAMS)
-				{
-					throw new TooManyParametersException(MAX_PARAMS, Peek().Range);
-				}
+				if (@params.Count >= MaxParams) throw new TooManyParametersException(MaxParams, Peek().Range);
 
 				// Parse parameter
 				var param = ParseParameter();
 				@params.Add(param);
 
-				if (Check(TokType.RightParen))
-				{
-					return @params;
-				}
+				if (Check(TokType.RightParen)) return @params;
 
 				Consume(TokType.Comma, new ExpectEitherRightParenOrCommaAfterParam(Peek().Value, Peek().Range));
 			}
-		}
 
 		return @params;
 	}
 
+	/// <summary>
+	///     Converts a type token to an Aura type
+	/// </summary>
+	/// <param name="tok">The type token in question</param>
+	/// <returns>An Aura type</returns>
+	/// <exception cref="UnexpectedTypeException">Thrown if the type token does not correspond to an Aura type</exception>
 	private AuraType TypeTokenToType(Tok tok)
 	{
 		switch (tok.Typ)
@@ -296,12 +282,12 @@ public class AuraParser
 				Tok? name = Match(TokType.Identifier) ? Previous() : null;
 				// Parse parameters
 				Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, tok.Range));
-				var paramz = ParseParameters();
+				var @params = ParseParameters();
 				Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, tok.Range));
 				// Parse return type (if there is one)
 				var returnType = Match(TokType.Arrow) ? TypeTokenToType(Advance()) : new AuraNil();
 
-				var f = new AuraFunction(paramz, returnType);
+				var f = new AuraFunction(@params, returnType);
 				return name is null
 					? f
 					: new AuraNamedFunction(
@@ -331,6 +317,16 @@ public class AuraParser
 		}
 	}
 
+	/// <summary>
+	///     Parses a parameter's type information, which includes its type, whether or not its variadic, and whether or not it
+	///     has been defined with a default value
+	/// </summary>
+	/// <returns>A parameter's type information</returns>
+	/// <exception cref="ExpectParameterTypeException">Thrown if the parameter does not contain valid type information</exception>
+	/// <exception cref="ParameterDefaultValueMustBeALiteralException">
+	///     Thrown if the parameter's optional default value is not
+	///     a literal value
+	/// </exception>
 	private ParamType ParseParameterType()
 	{
 		// Parse variadic
@@ -355,26 +351,19 @@ public class AuraParser
 				TokType.Identifier,
 				TokType.Map
 			))
-		{
 			throw new ExpectParameterTypeException(Peek().Value, Peek().Range);
-		}
 
 		var pt = TypeTokenToType(Previous());
 		// Parse default value
 		if (!Match(TokType.Equal))
-		{
 			return new ParamType(
 				pt,
 				variadic,
 				null
 			);
-		}
 
 		var defaultValue = Expression();
-		if (defaultValue is not ILiteral lit)
-		{
-			throw new ParameterDefaultValueMustBeALiteralException(Peek().Range);
-		}
+		if (defaultValue is not ILiteral lit) throw new ParameterDefaultValueMustBeALiteralException(Peek().Range);
 
 		return new ParamType(
 			pt,
@@ -383,6 +372,10 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a single parameter
+	/// </summary>
+	/// <returns>The parsed parameter</returns>
 	private Param ParseParameter()
 	{
 		// Consume the parameter name
@@ -393,42 +386,30 @@ public class AuraParser
 		return new Param(name, pt);
 	}
 
+	/// <summary>
+	///     Parses a declaration statement
+	/// </summary>
+	/// <returns>An untyped statement</returns>
+	/// <exception cref="InvalidTokenAfterPubKeywordException">Thrown if a <c>pub</c> keyword is followed by an invalid token</exception>
+	/// <exception cref="InvalidTokenAfterMutKeywordException">Thrown if a <c>mut</c> keyword is followed by an invalid token</exception>
 	private IUntypedAuraStatement Declaration()
 	{
 		if (Match(TokType.Pub))
 		{
-			if (Match(TokType.Class))
-			{
-				return ClassDeclaration(Visibility.Public);
-			}
+			if (Match(TokType.Class)) return ClassDeclaration(Visibility.Public);
 
-			if (Match(TokType.Fn))
-			{
-				return NamedFunction(FunctionType.Function, Visibility.Public);
-			}
+			if (Match(TokType.Fn)) return NamedFunction(FunctionType.Function, Visibility.Public);
 
-			if (Match(TokType.Interface))
-			{
-				return InterfaceDeclaration(Visibility.Public);
-			}
+			if (Match(TokType.Interface)) return InterfaceDeclaration(Visibility.Public);
 
 			throw new InvalidTokenAfterPubKeywordException(Peek().Value, Peek().Range);
 		}
 
-		if (Match(TokType.Interface))
-		{
-			return InterfaceDeclaration(Visibility.Private);
-		}
+		if (Match(TokType.Interface)) return InterfaceDeclaration(Visibility.Private);
 
-		if (Match(TokType.Class))
-		{
-			return ClassDeclaration(Visibility.Private);
-		}
+		if (Match(TokType.Class)) return ClassDeclaration(Visibility.Private);
 
-		if (Match(TokType.Struct))
-		{
-			return StructDeclaration();
-		}
+		if (Match(TokType.Struct)) return StructDeclaration();
 
 		if (Check(TokType.Fn) &&
 			PeekNext().Typ == TokType.Identifier)
@@ -438,15 +419,9 @@ public class AuraParser
 			return NamedFunction(FunctionType.Function, Visibility.Private);
 		}
 
-		if (Match(TokType.Let))
-		{
-			return LetDeclaration();
-		}
+		if (Match(TokType.Let)) return LetDeclaration();
 
-		if (Match(TokType.Mod))
-		{
-			return ModDeclaration();
-		}
+		if (Match(TokType.Mod)) return ModDeclaration();
 
 		if (Match(TokType.Import))
 		{
@@ -527,9 +502,7 @@ public class AuraParser
 			// The only statement that can being with `mut` is a short let declaration (i.e. `mut s := "Hello world")
 			if (Peek().Typ is TokType.Identifier &&
 				PeekNext().Typ is TokType.ColonEqual)
-			{
 				return ShortLetDeclaration(true);
-			}
 
 			throw new InvalidTokenAfterMutKeywordException(Peek().Value, Peek().Range);
 		}
@@ -537,6 +510,11 @@ public class AuraParser
 		return Statement();
 	}
 
+	/// <summary>
+	///     Parses an interface declaration
+	/// </summary>
+	/// <param name="pub">The interface's visibility</param>
+	/// <returns>The parsed interface</returns>
 	private IUntypedAuraStatement InterfaceDeclaration(Visibility pub)
 	{
 		var doc = IsPrecededByComment();
@@ -549,10 +527,7 @@ public class AuraParser
 		while (!IsAtEnd() &&
 			   !Check(TokType.RightBrace))
 		{
-			if (Match(TokType.Comment))
-			{
-				Advance(); // Check for comment and advance past semicolon, if necessary
-			}
+			if (Match(TokType.Comment)) Advance(); // Check for comment and advance past semicolon, if necessary
 
 			var fnSignature = ParseFunctionSignature();
 			methods.Add(fnSignature);
@@ -572,14 +547,15 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a function signature
+	/// </summary>
+	/// <returns>A parse function signature</returns>
 	private UntypedFunctionSignature ParseFunctionSignature()
 	{
 		var doc = IsPrecededByComment();
 		Tok? visibility = null;
-		if (Check(TokType.Pub))
-		{
-			visibility = Advance();
-		}
+		if (Check(TokType.Pub)) visibility = Advance();
 
 		var fn = Consume(TokType.Fn, new ExpectFunctionSignatureException(Peek().Range));
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
@@ -588,10 +564,7 @@ public class AuraParser
 		var closingParen = Advance();
 
 		AuraType returnType = new AuraNil();
-		if (Match(TokType.Arrow))
-		{
-			returnType = TypeTokenToType(Advance());
-		}
+		if (Match(TokType.Arrow)) returnType = TypeTokenToType(Advance());
 
 		return new UntypedFunctionSignature(
 			visibility,
@@ -604,6 +577,11 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a class declaration
+	/// </summary>
+	/// <param name="pub">The class's visibility</param>
+	/// <returns>The parsed class</returns>
 	private IUntypedAuraStatement ClassDeclaration(Visibility pub)
 	{
 		var doc = IsPrecededByComment();
@@ -635,6 +613,10 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a struct declaration
+	/// </summary>
+	/// <returns>The parsed declaration</returns>
 	private IUntypedAuraStatement StructDeclaration()
 	{
 		var doc = IsPrecededByComment();
@@ -657,16 +639,17 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses the list of interfaces that a class's implements
+	/// </summary>
+	/// <returns>A list of tokens representing all of the interfaces implemented by the class</returns>
 	private List<Tok> ParseImplementingInterfaces()
 	{
 		var interfaces = new List<Tok>();
 		while (!Check(TokType.LeftBrace))
 		{
 			var interfaceName = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
-			if (!Check(TokType.LeftBrace))
-			{
-				Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
-			}
+			if (!Check(TokType.LeftBrace)) Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
 
 			interfaces.Add(interfaceName);
 		}
@@ -674,6 +657,10 @@ public class AuraParser
 		return interfaces;
 	}
 
+	/// <summary>
+	///     Parses a class's body
+	/// </summary>
+	/// <returns>A list of untyped statements representing the class's body</returns>
 	private List<IUntypedAuraStatement> ParseClassBody()
 	{
 		var body = new List<IUntypedAuraStatement>();
@@ -681,10 +668,7 @@ public class AuraParser
 			   !Check(TokType.RightBrace))
 		{
 			// Parse comments, if necessary
-			while (Match(TokType.Comment))
-			{
-				body.Add(Comment());
-			}
+			while (Match(TokType.Comment)) body.Add(Comment());
 
 			// Methods can be public or private, just like regular functions
 			var pub = Match(TokType.Pub) ? Visibility.Public : Visibility.Private;
@@ -696,12 +680,21 @@ public class AuraParser
 		return body;
 	}
 
+	/// <summary>
+	///     Parses a single method inside of a class's body
+	/// </summary>
+	/// <param name="pub">The method's visibility</param>
+	/// <returns>The parsed function</returns>
 	private UntypedNamedFunction ParseClassMethod(Visibility pub)
 	{
 		Consume(TokType.Fn, new InvalidTokenAfterPubKeywordException(Peek().Value, Peek().Range));
 		return NamedFunction(FunctionType.Method, pub);
 	}
 
+	/// <summary>
+	///     Parses a mod statement
+	/// </summary>
+	/// <returns>The parsed module declaration</returns>
 	private IUntypedAuraStatement ModDeclaration()
 	{
 		var mod = Previous();
@@ -711,68 +704,37 @@ public class AuraParser
 		return new UntypedMod(mod, val);
 	}
 
+	/// <summary>
+	///     Parses a statement
+	/// </summary>
+	/// <returns>The parsed statement</returns>
 	private IUntypedAuraStatement Statement()
 	{
-		if (Match(TokType.For))
-		{
-			return ForStatement();
-		}
+		if (Match(TokType.For)) return ForStatement();
 
-		if (Match(TokType.ForEach))
-		{
-			return ForEachStatement();
-		}
+		if (Match(TokType.ForEach)) return ForEachStatement();
 
-		if (Match(TokType.Return))
-		{
-			return ReturnStatement();
-		}
+		if (Match(TokType.Return)) return ReturnStatement();
 
-		if (Match(TokType.While))
-		{
-			return WhileStatement();
-		}
+		if (Match(TokType.While)) return WhileStatement();
 
-		if (Match(TokType.Defer))
-		{
-			return DeferStatement();
-		}
+		if (Match(TokType.Defer)) return DeferStatement();
 
 		if (Peek().Typ is TokType.Identifier &&
 			(PeekNext().Typ is TokType.ColonEqual || PeekNext().Typ is TokType.Comma))
-		{
 			return ShortLetDeclaration(false);
-		}
 
-		if (Match(TokType.Comment))
-		{
-			return Comment();
-		}
+		if (Match(TokType.Comment)) return Comment();
 
-		if (Match(TokType.Continue))
-		{
-			return new UntypedContinue(Previous());
-		}
+		if (Match(TokType.Continue)) return new UntypedContinue(Previous());
 
-		if (Match(TokType.Break))
-		{
-			return new UntypedBreak(Previous());
-		}
+		if (Match(TokType.Break)) return new UntypedBreak(Previous());
 
-		if (Match(TokType.Yield))
-		{
-			return Yield();
-		}
+		if (Match(TokType.Yield)) return Yield();
 
-		if (Match(TokType.Newline))
-		{
-			return new UntypedNewLine(Previous());
-		}
+		if (Match(TokType.Newline)) return new UntypedNewLine(Previous());
 
-		if (Match(TokType.Check))
-		{
-			return CheckStatement();
-		}
+		if (Match(TokType.Check)) return CheckStatement();
 
 		// If the statement doesn't begin with any of the Aura statement identifiers, parse it as an expression and
 		// wrap it in an Expression Statement
@@ -783,6 +745,10 @@ public class AuraParser
 		return new UntypedExpressionStmt(expr);
 	}
 
+	/// <summary>
+	///     Parses a <c>for</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>for</c> statement</returns>
 	private IUntypedAuraStatement ForStatement()
 	{
 		var @for = Previous();
@@ -790,38 +756,24 @@ public class AuraParser
 		// Parse initializer
 		IUntypedAuraStatement? initializer;
 		if (Match(TokType.Semicolon))
-		{
 			initializer = null;
-		}
 		else if (Match(TokType.Let))
-		{
 			initializer = LetDeclaration();
-		}
 		else if (Peek().Typ is TokType.Identifier &&
 				 PeekNext().Typ is TokType.ColonEqual)
-		{
 			initializer = ShortLetDeclaration(false);
-		}
 		else
-		{
 			initializer = ExpressionStatement();
-		}
 
 		// Parse condition
 		IUntypedAuraExpression? condition = null;
-		if (!Check(TokType.Semicolon))
-		{
-			condition = Expression();
-		}
+		if (!Check(TokType.Semicolon)) condition = Expression();
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 
 		// Parse increment
 		IUntypedAuraExpression? increment = null;
-		if (!Check(TokType.LeftBrace))
-		{
-			increment = Expression();
-		}
+		if (!Check(TokType.LeftBrace)) increment = Expression();
 
 		Consume(TokType.LeftBrace, new ExpectLeftBraceException(Peek().Value, Peek().Range));
 
@@ -829,9 +781,7 @@ public class AuraParser
 		var body = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd() &&
 			   !Check(TokType.RightBrace))
-		{
 			body.Add(Declaration());
-		}
 
 		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Range));
 		// Consume trailing semicolon
@@ -847,6 +797,10 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a <c>foreach</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>foreach</c> statement</returns>
 	private IUntypedAuraStatement ForEachStatement()
 	{
 		var @foreach = Previous();
@@ -860,9 +814,7 @@ public class AuraParser
 		var body = new List<IUntypedAuraStatement>();
 		while (!IsAtEnd() &&
 			   !Check(TokType.RightBrace))
-		{
 			body.Add(Declaration());
-		}
 
 		var closingBrace = Consume(TokType.RightBrace, new ExpectRightBraceException(Peek().Value, Peek().Range));
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
@@ -876,25 +828,23 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a <c>return</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>return</c> statement</returns>
 	private UntypedReturn ReturnStatement()
 	{
 		var @return = Previous();
 
 		// The return keyword does not need to be followed by an expression, in which case the return statement
 		// will return a value of `nil`
-		if (Match(TokType.Semicolon))
-		{
-			return new UntypedReturn(@return, null);
-		}
+		if (Match(TokType.Semicolon)) return new UntypedReturn(@return, null);
 
 		var returnTypes = new List<IUntypedAuraExpression>();
 		while (!IsAtEnd())
 		{
 			returnTypes.Add(Expression());
-			if (!Match(TokType.Comma))
-			{
-				break;
-			}
+			if (!Match(TokType.Comma)) break;
 		}
 
 		// Parse the trailing semicolon
@@ -903,6 +853,10 @@ public class AuraParser
 		return new UntypedReturn(@return, returnTypes);
 	}
 
+	/// <summary>
+	///     Parses a <c>while</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>while</c> statement</returns>
 	private IUntypedAuraStatement WhileStatement()
 	{
 		// Store while keyword
@@ -930,6 +884,11 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a <c>defer</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>defer</c> statement</returns>
+	/// <exception cref="CanOnlyDeferFunctionCallException"></exception>
 	private UntypedDefer DeferStatement()
 	{
 		var defer = Previous();
@@ -938,14 +897,16 @@ public class AuraParser
 		var expression = Expression();
 		// Make sure the deferred expression is a function call
 		if (expression is not IUntypedAuraCallable callableExpr)
-		{
 			throw new CanOnlyDeferFunctionCallException(Peek().Range);
-		}
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 		return new UntypedDefer(defer, callableExpr);
 	}
 
+	/// <summary>
+	///     Parses a <c>let</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>let</c> statement</returns>
 	private IUntypedAuraStatement LetDeclaration()
 	{
 		var let = Previous();
@@ -955,10 +916,7 @@ public class AuraParser
 		var names = ParseLongVariableNames();
 		// Parse the variable's initializer (if there is one)
 		IUntypedAuraExpression? initializer = null;
-		if (Match(TokType.Equal))
-		{
-			initializer = Expression();
-		}
+		if (Match(TokType.Equal)) initializer = Expression();
 
 		// Parse the trailing semicolon
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
@@ -972,6 +930,11 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a short <c>let</c> statement
+	/// </summary>
+	/// <param name="isMutable">The newly-declared variable's mutability</param>
+	/// <returns>The parsed short <c>let</c> statement</returns>
 	private IUntypedAuraStatement ShortLetDeclaration(bool isMutable)
 	{
 		// Parse the variable's name
@@ -991,6 +954,13 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses the variable names being declared in a <c>let</c> statement
+	/// </summary>
+	/// <returns>
+	///     The parsed variable names, where each tuple in the returned list contains a token representing the variable's
+	///     name and the variable's type
+	/// </returns>
 	private List<(Tok, AuraType)> ParseLongVariableNames()
 	{
 		var names = new List<(Tok, AuraType)>();
@@ -1003,18 +973,18 @@ public class AuraParser
 
 			if (Peek().Typ != TokType.Equal &&
 				Peek().Typ != TokType.Semicolon)
-			{
 				Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
-			}
 			else
-			{
 				break;
-			}
 		}
 
 		return names;
 	}
 
+	/// <summary>
+	///     Parses the variable names being declared in a short <c>let</c> statement
+	/// </summary>
+	/// <returns>The parsed variable names</returns>
 	private List<Tok> ParseShortVariableNames()
 	{
 		var names = new List<Tok>();
@@ -1023,18 +993,18 @@ public class AuraParser
 			names.Add(Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range)));
 
 			if (Peek().Typ != TokType.ColonEqual)
-			{
 				Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
-			}
 			else
-			{
 				break;
-			}
 		}
 
 		return names;
 	}
 
+	/// <summary>
+	///     Parses a comment
+	/// </summary>
+	/// <returns>The parsed comment</returns>
 	private IUntypedAuraStatement Comment()
 	{
 		var text = Previous();
@@ -1044,6 +1014,10 @@ public class AuraParser
 		return new UntypedComment(text);
 	}
 
+	/// <summary>
+	///     Parses a <c>yield</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>yield</c> statement</returns>
 	private IUntypedAuraStatement Yield()
 	{
 		// Store the yield keyword
@@ -1056,6 +1030,11 @@ public class AuraParser
 		return new UntypedYield(yield, value);
 	}
 
+	/// <summary>
+	///     Parses a <c>check</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>check</c> statement</returns>
+	/// <exception cref="CanOnlyCheckFunctionCallException">Thrown if the <c>check</c> keyword does not precede a function call</exception>
 	private IUntypedAuraStatement CheckStatement()
 	{
 		// Store the check keyword
@@ -1063,15 +1042,16 @@ public class AuraParser
 		// Parse the expression to be checked
 		var expression = Expression();
 		// Make sure the checked expression is a function call
-		if (expression is not UntypedCall callableExpr)
-		{
-			throw new CanOnlyCheckFunctionCallException(Peek().Range);
-		}
+		if (expression is not UntypedCall callableExpr) throw new CanOnlyCheckFunctionCallException(Peek().Range);
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 		return new UntypedCheck(check, callableExpr);
 	}
 
+	/// <summary>
+	///     Parses an expression statement
+	/// </summary>
+	/// <returns>The parsed expression statement</returns>
 	private IUntypedAuraStatement ExpressionStatement()
 	{
 		// Parse expression
@@ -1082,6 +1062,12 @@ public class AuraParser
 		return new UntypedExpressionStmt(expr);
 	}
 
+	/// <summary>
+	///     Parses a named function declaration
+	/// </summary>
+	/// <param name="kind">The function's kind (i.e. function, method, etc.)</param>
+	/// <param name="pub">The function's visibility</param>
+	/// <returns>The parsed named function</returns>
 	private UntypedNamedFunction NamedFunction(FunctionType kind, Visibility pub)
 	{
 		var doc = IsPrecededByComment();
@@ -1110,6 +1096,10 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses an anonymous function
+	/// </summary>
+	/// <returns>The parsed anonymous function</returns>
 	private UntypedAnonymousFunction AnonymousFunction()
 	{
 		var fn = Previous();
@@ -1131,18 +1121,23 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a function's return type
+	/// </summary>
+	/// <returns>A list of types returned from the function</returns>
 	private List<AuraType>? ParseFunctionReturnTypes()
 	{
-		if (!Match(TokType.Arrow))
-		{
-			return null;
-		}
+		if (!Match(TokType.Arrow)) return null;
 
 		return Match(TokType.LeftParen)
 			? ParseMultipleFunctionReturnTypes()
 			: new List<AuraType> { TypeTokenToType(Advance()) };
 	}
 
+	/// <summary>
+	///     Parses a function's return type when the function returns more than one type
+	/// </summary>
+	/// <returns>A list of types returned from the function</returns>
 	private List<AuraType> ParseMultipleFunctionReturnTypes()
 	{
 		var returnTypes = new List<AuraType>();
@@ -1150,44 +1145,44 @@ public class AuraParser
 		{
 			returnTypes.Add(TypeTokenToType(Advance()));
 			if (Peek().Typ != TokType.RightParen)
-			{
 				Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
-			}
 			else
-			{
 				break;
-			}
 		}
 
 		Advance(); // Advance past closing right parenthesis
 		return returnTypes;
 	}
 
+	/// <summary>
+	///     Parses an expression
+	/// </summary>
+	/// <returns>The parsed expression</returns>
 	private IUntypedAuraExpression Expression()
 	{
 		var expr = Assignment();
 		return Match(TokType.Is) ? Is(expr) : expr;
 	}
 
+	/// <summary>
+	///     Parses an assignment expression
+	/// </summary>
+	/// <returns>The parsed assignment expression</returns>
+	/// <exception cref="InvalidAssignmentTargetException">Thrown if the target of the assignment is not able to be assigned to</exception>
 	private IUntypedAuraExpression Assignment()
 	{
 		var expression = Or();
 		if (Match(TokType.Equal))
 		{
 			var value = Assignment();
-			if (expression is UntypedVariable v)
-			{
-				return new UntypedAssignment(v.Name, value);
-			}
+			if (expression is UntypedVariable v) return new UntypedAssignment(v.Name, value);
 
 			if (expression is UntypedGet g)
-			{
 				return new UntypedSet(
 					g.Obj,
 					g.Name,
 					value
 				);
-			}
 
 			throw new InvalidAssignmentTargetException(Peek().Range);
 		}
@@ -1196,22 +1191,22 @@ public class AuraParser
 		{
 			var variable = expression as UntypedVariable;
 			if (variable is not null)
-			{
 				return new UntypedPlusPlusIncrement(new UntypedVariable(variable.Name), Previous());
-			}
 		}
 		else if (Match(TokType.MinusMinus))
 		{
 			var variable = expression as UntypedVariable;
 			if (variable is not null)
-			{
 				return new UntypedMinusMinusDecrement(new UntypedVariable(variable.Name), Previous());
-			}
 		}
 
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses an <c>if</c> expression
+	/// </summary>
+	/// <returns>The parsed <c>if</c> expression</returns>
 	private IUntypedAuraExpression IfExpr()
 	{
 		var @if = Previous();
@@ -1254,6 +1249,14 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses a block expression
+	/// </summary>
+	/// <returns>The parsed block expression</returns>
+	/// <exception cref="UnreachableCodeException">
+	///     Thrown if the block contains one or more lines of code after a <c>return</c>
+	///     or <c>yield</c> statement
+	/// </exception>
 	private UntypedBlock Block()
 	{
 		var openingBrace = Previous();
@@ -1266,12 +1269,8 @@ public class AuraParser
 			// If the statement is a return statement, it should be the last line of the block.
 			// Otherwise, any lines after it will be unreachable.
 			if (decl is UntypedReturn)
-			{
 				if (!Check(TokType.RightBrace))
-				{
 					throw new UnreachableCodeException(Peek().Range);
-				}
-			}
 
 			statements.Add(decl);
 		}
@@ -1285,6 +1284,10 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses an <c>or</c> expression
+	/// </summary>
+	/// <returns>The parsed <c>or</c> expression</returns>
 	private IUntypedAuraExpression Or()
 	{
 		var expression = And();
@@ -1302,6 +1305,10 @@ public class AuraParser
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses an <c>and</c> expression
+	/// </summary>
+	/// <returns>The parsed <c>and</c> expression</returns>
 	private IUntypedAuraExpression And()
 	{
 		var expression = Equality();
@@ -1319,6 +1326,10 @@ public class AuraParser
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses an equality expression
+	/// </summary>
+	/// <returns>The parsed equality expression</returns>
 	private IUntypedAuraExpression Equality()
 	{
 		var expression = Comparison();
@@ -1336,6 +1347,10 @@ public class AuraParser
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses a comparison expression
+	/// </summary>
+	/// <returns>The parsed comparison expression</returns>
 	private IUntypedAuraExpression Comparison()
 	{
 		var expression = Term();
@@ -1358,6 +1373,10 @@ public class AuraParser
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses an arithmetic binary expression
+	/// </summary>
+	/// <returns>The parsed arithmetic binary expression</returns>
 	private IUntypedAuraExpression Term()
 	{
 		var expression = Factor();
@@ -1380,6 +1399,10 @@ public class AuraParser
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses a multiplication or division binary expression
+	/// </summary>
+	/// <returns>The parsed binary expression</returns>
 	private IUntypedAuraExpression Factor()
 	{
 		var expression = Unary();
@@ -1402,6 +1425,10 @@ public class AuraParser
 		return expression;
 	}
 
+	/// <summary>
+	///     Parses a unary expression
+	/// </summary>
+	/// <returns>The parsed unary expression</returns>
 	private IUntypedAuraExpression Unary()
 	{
 		if (Match(TokType.Bang, TokType.Minus))
@@ -1414,12 +1441,15 @@ public class AuraParser
 		return Call();
 	}
 
+	/// <summary>
+	///     Parses a function call
+	/// </summary>
+	/// <returns>The parsed function call</returns>
 	private IUntypedAuraExpression Call()
 	{
 		// Parse the callee
 		var expression = Primary();
 		while (true)
-		{
 			if (!IsAtEnd() &&
 				Match(TokType.LeftParen))
 			{
@@ -1439,23 +1469,27 @@ public class AuraParser
 			{
 				break;
 			}
-		}
 
 		return expression;
 	}
 
+	/// <summary>
+	///     Finishes parsing a function call
+	/// </summary>
+	/// <param name="callee">The expression used as the function call</param>
+	/// <returns>The parsed function call</returns>
+	/// <exception cref="TooManyParametersException">
+	///     Thrown when the function call is invoked with more parameters than allowed
+	///     as defined in <see cref="MaxParams" />
+	/// </exception>
 	private IUntypedAuraExpression FinishCall(IUntypedAuraExpression callee)
 	{
 		var arguments = new List<(Tok?, IUntypedAuraExpression)>();
 		if (!Check(TokType.RightParen))
-		{
 			while (true)
 			{
 				// Function declarations have a max of 255 arguments, so function calls have the same limit
-				if (arguments.Count >= MAX_PARAMS)
-				{
-					throw new TooManyParametersException(MAX_PARAMS, Peek().Range);
-				}
+				if (arguments.Count >= MaxParams) throw new TooManyParametersException(MaxParams, Peek().Range);
 
 				Tok? tag = null;
 				if (PeekNext().Typ is TokType.Colon)
@@ -1466,14 +1500,10 @@ public class AuraParser
 
 				var expression = Expression();
 				arguments.Add((tag, expression));
-				if (Check(TokType.RightParen))
-				{
-					break;
-				}
+				if (Check(TokType.RightParen)) break;
 
 				Match(TokType.Comma);
 			}
-		}
 
 		var closingParen = Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Range));
 		return new UntypedCall(
@@ -1483,6 +1513,11 @@ public class AuraParser
 		);
 	}
 
+	/// <summary>
+	///     Parses an <c>is</c> expression
+	/// </summary>
+	/// <param name="expr">The expression that will be compared against the expected type</param>
+	/// <returns>The parsed <c>is</c> expression</returns>
 	private UntypedIs Is(IUntypedAuraExpression expr)
 	{
 		// Parse the expected type's token
@@ -1490,57 +1525,32 @@ public class AuraParser
 		return new UntypedIs(expr, expected);
 	}
 
+	/// <summary>
+	///     Parses a primary expression, such as literal values, etc.
+	/// </summary>
+	/// <returns>The parsed primary expression</returns>
+	/// <exception cref="ExpectExpressionException">Thrown if no expression is able to be parsed</exception>
 	private IUntypedAuraExpression Primary()
 	{
-		if (Match(TokType.False))
-		{
-			return new BoolLiteral(new Tok(TokType.False, "false"));
-		}
+		if (Match(TokType.False)) return new BoolLiteral(new Tok(TokType.False, "false"));
 
-		if (Match(TokType.True))
-		{
-			return new BoolLiteral(new Tok(TokType.True, "true"));
-		}
+		if (Match(TokType.True)) return new BoolLiteral(new Tok(TokType.True, "true"));
 
-		if (Match(TokType.Nil))
-		{
-			return new UntypedNil(Previous());
-		}
+		if (Match(TokType.Nil)) return new UntypedNil(Previous());
 
-		if (Match(TokType.StringLiteral))
-		{
-			return new StringLiteral(Previous());
-		}
+		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous());
 
-		if (Match(TokType.CharLiteral))
-		{
-			return new CharLiteral(Previous());
-		}
+		if (Match(TokType.CharLiteral)) return new CharLiteral(Previous());
 
-		if (Match(TokType.IntLiteral))
-		{
-			return new IntLiteral(Previous());
-		}
+		if (Match(TokType.IntLiteral)) return new IntLiteral(Previous());
 
-		if (Match(TokType.FloatLiteral))
-		{
-			return new FloatLiteral(Previous());
-		}
+		if (Match(TokType.FloatLiteral)) return new FloatLiteral(Previous());
 
-		if (Match(TokType.This))
-		{
-			return new UntypedThis(Previous());
-		}
+		if (Match(TokType.This)) return new UntypedThis(Previous());
 
-		if (Match(TokType.Identifier))
-		{
-			return ParseIdentifier(Previous());
-		}
+		if (Match(TokType.Identifier)) return ParseIdentifier(Previous());
 
-		if (Match(TokType.If))
-		{
-			return IfExpr();
-		}
+		if (Match(TokType.If)) return IfExpr();
 
 		if (Match(TokType.LeftParen))
 		{
@@ -1554,10 +1564,7 @@ public class AuraParser
 			);
 		}
 
-		if (Match(TokType.LeftBrace))
-		{
-			return Block();
-		}
+		if (Match(TokType.LeftBrace)) return Block();
 
 		if (Match(TokType.LeftBracket))
 		{
@@ -1573,9 +1580,7 @@ public class AuraParser
 				var expr = Expression();
 				items.Add(expr);
 				if (!Check(TokType.RightBrace))
-				{
 					Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
-				}
 			}
 
 			var closingBrace = Previous();
@@ -1588,10 +1593,7 @@ public class AuraParser
 			return Match(TokType.LeftBracket) ? ParseGetAccess(listExpr) : listExpr;
 		}
 
-		if (Match(TokType.Fn))
-		{
-			return AnonymousFunction();
-		}
+		if (Match(TokType.Fn)) return AnonymousFunction();
 
 		if (Match(TokType.Map))
 		{
@@ -1634,10 +1636,7 @@ public class AuraParser
 
 	private IUntypedAuraExpression ParseIdentifier(Tok iden)
 	{
-		if (!Match(TokType.LeftBracket))
-		{
-			return new UntypedVariable(iden);
-		}
+		if (!Match(TokType.LeftBracket)) return new UntypedVariable(iden);
 
 		return ParseGetAccess(new UntypedVariable(iden));
 	}
@@ -1674,13 +1673,11 @@ public class AuraParser
 		{
 			var lower = ParseIndex();
 			if (Match(TokType.RightBracket))
-			{
 				return new UntypedGetIndex(
 					obj,
 					lower,
 					Previous()
 				);
-			}
 
 			Consume(TokType.Colon, new ExpectColonException(Peek().Value, Peek().Range));
 
@@ -1706,12 +1703,14 @@ public class AuraParser
 		throw new PostfixIndexCannotBeEmptyException(Peek().Range);
 	}
 
+	/// <summary>
+	///     Parses an index value
+	/// </summary>
+	/// <returns>The parsed index value</returns>
+	/// <exception cref="InvalidIndexTypeException">Thrown if the parsed index is not of a valid type</exception>
 	private IUntypedAuraExpression ParseIndex()
 	{
-		if (Match(TokType.IntLiteral))
-		{
-			return new IntLiteral(Previous());
-		}
+		if (Match(TokType.IntLiteral)) return new IntLiteral(Previous());
 
 		if (Match(TokType.Minus))
 		{
@@ -1720,15 +1719,9 @@ public class AuraParser
 			return new IntLiteral(new Tok(TokType.IntLiteral, $"-{i}"));
 		}
 
-		if (Match(TokType.Identifier))
-		{
-			return new UntypedVariable(Previous());
-		}
+		if (Match(TokType.Identifier)) return new UntypedVariable(Previous());
 
-		if (Match(TokType.StringLiteral))
-		{
-			return new StringLiteral(Previous());
-		}
+		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous());
 
 		throw new InvalidIndexTypeException(Peek().Range);
 	}

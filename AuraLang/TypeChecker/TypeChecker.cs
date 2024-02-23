@@ -1,7 +1,7 @@
 ﻿using AuraLang.AST;
-using AuraLang.Cli.LocalFileSystemModuleProvider;
 using AuraLang.Exceptions.TypeChecker;
-using AuraLang.ImportedFileProvider;
+using AuraLang.ImportedModuleProvider;
+using AuraLang.LocalFileSystemModuleProvider;
 using AuraLang.ModuleCompiler;
 using AuraLang.Prelude;
 using AuraLang.Shared;

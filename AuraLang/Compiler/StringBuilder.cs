@@ -9,32 +9,25 @@ namespace AuraLang.Compiler;
 /// </summary>
 public class AuraStringBuilder
 {
-	private StringBuilder sb;
-	private int lastLine = 0;
-
-	public AuraStringBuilder()
-	{
-		sb = new(string.Empty);
-	}
-
-	public AuraStringBuilder(string s)
-	{
-		sb = new(s);
-	}
+	private readonly StringBuilder _sb = new(string.Empty);
+	/// <summary>
+	/// Keeps track of the line of the most recent string that was written to the string builder
+	/// </summary>
+	private int _lastLine;
 
 	public void WriteString(string s, int line, ITypedAuraStatement typ)
 	{
 		// A value of 0 for `lastLine` indicates that no string has previously been written to this struct
-		if (lastLine == 0)
+		if (_lastLine == 0)
 		{
-			sb.Append(s);
-			lastLine = line;
+			_sb.Append(s);
+			_lastLine = line;
 		}
-		// If `lastLine` is less than the current string's line, we prepend a newlin to the string before writing it to the string builder
-		else if (lastLine < line)
+		// If `lastLine` is less than the current string's line, we prepend a newline to the string before writing it to the string builder
+		else if (_lastLine < line)
 		{
-			sb.Append($"\n{s}");
-			lastLine = line;
+			_sb.Append($"\n{s}");
+			_lastLine = line;
 		}
 		else
 		{
@@ -42,14 +35,14 @@ public class AuraStringBuilder
 			// (if the new string is a comment), or an explicit semicolon
 			if (typ is TypedComment)
 			{
-				sb.Append($" {s}");
+				_sb.Append($" {s}");
 			}
 			else
 			{
-				sb.Append($"; {s}");
+				_sb.Append($"; {s}");
 			}
 		}
 	}
 
-	public string String() => sb.ToString();
+	public string String() => _sb.ToString();
 }
