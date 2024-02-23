@@ -5,31 +5,18 @@ namespace AuraLang.Location;
 /// <summary>
 /// Represents a single position in an Aura source file
 /// </summary>
-public record Position
+/// <param name="Character">
+/// The zero-based character position. Because Aura source files are indented with four
+/// spaces instead of a single tab character, the first character on a line with a single
+/// indentation would be at position 4.
+/// </param>
+/// <param name="Line">
+/// The zero-based line in the Aura source file. Blank lines are included when counting
+/// lines.
+/// </param>
+public record Position(int Character, int Line)
 {
-	/// <summary>
-	/// The zero-based character position. Because Aura source files are indented with four
-	/// spaces instead of a single tab character, the first character on a line with a single
-	/// indentation would be at position 4.
-	/// </summary>
-	public int Character;
-	/// <summary>
-	/// The zero-based lined in the Aura source file. Blank lines are included when counting
-	/// lines.
-	/// </summary>
-	public int Line;
-
-	public Position(int character, int line)
-	{
-		Character = character;
-		Line = line;
-	}
-
-	public Position()
-	{
-		Character = 0;
-		Line = 0;
-	}
+	public Position() : this(0, 0) { }
 
 	/// <summary>
 	///     Converts a Microsoft <see cref="MsPosition" /> object to an Aura <see cref="Position" /> object. This is useful

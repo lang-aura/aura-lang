@@ -3,28 +3,11 @@
 /// <summary>
 /// Represents a range in an Aura source file. Ranges can be used to place both tokens and AST nodes in an source file.
 /// </summary>
-public record Range
+/// <param name="Start">The starting position, inclusive</param>
+/// <param name="End">The ending position, exclusive</param>
+public record Range(Position Start, Position End)
 {
-	/// <summary>
-	/// The starting position, inclusive
-	/// </summary>
-	public Position Start;
-	/// <summary>
-	/// The ending position, exclusive
-	/// </summary>
-	public Position End;
-
-	public Range(Position start, Position end)
-	{
-		Start = start;
-		End = end;
-	}
-
-	public Range()
-	{
-		Start = new Position();
-		End = new Position();
-	}
+	public Range() : this(new Position(), new Position()) { }
 
 	/// <summary>
 	///     Checks if the supplied position is located inside this range
@@ -34,8 +17,7 @@ public record Range
 	public bool Contains(Position position)
 	{
 		if (position.Line < Start.Line || position.Line > End.Line) return false;
-		if (position.Character < Start.Character || position.Character >= End.Character) return false;
-		return true;
+		return position.Character >= Start.Character && position.Character < End.Character;
 	}
 
 	public override string ToString() => $"{Start}-{End}";
