@@ -2,6 +2,10 @@
 
 namespace AuraLang.Visitor;
 
+/// <summary>
+///     Visits a <see cref="ITypedAuraStmtVisitable" /> AST node
+/// </summary>
+/// <typeparam name="T">The value returned from the visit</typeparam>
 public interface ITypedAuraStmtVisitor<out T>
 {
 	public T Visit(TypedDefer defer);
@@ -27,6 +31,10 @@ public interface ITypedAuraStmtVisitor<out T>
 	public T Visit(TypedFunctionSignature fnSignature);
 }
 
+/// <summary>
+///     Visits a <see cref="ITypedAuraExprVisitable" /> AST node
+/// </summary>
+/// <typeparam name="T">The value returned from the visit</typeparam>
 public interface ITypedAuraExprVisitor<out T>
 {
 	public T Visit(TypedAssignment assignment);
@@ -60,6 +68,10 @@ public interface ITypedAuraExprVisitor<out T>
 	public T Visit(TypedAnonymousStruct anonymousStruct);
 }
 
+/// <summary>
+///     Visits a <see cref="IUntypedAuraStmtVisitable" /> AST node
+/// </summary>
+/// <typeparam name="T">The value returned from the visit</typeparam>
 public interface IUntypedAuraStmtVisitor<out T>
 {
 	public T Visit(UntypedDefer defer);
@@ -85,6 +97,10 @@ public interface IUntypedAuraStmtVisitor<out T>
 	public T Visit(UntypedFunctionSignature fnSignature);
 }
 
+/// <summary>
+///     Visits a <see cref="IUntypedAuraExprVisitable" /> AST node
+/// </summary>
+/// <typeparam name="T">The value returned from the visit</typeparam>
 public interface IUntypedAuraExprVisitor<out T>
 {
 	public T Visit(UntypedAssignment assignment);
