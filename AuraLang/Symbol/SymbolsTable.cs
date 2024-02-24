@@ -13,7 +13,7 @@ public interface IGlobalSymbolsTable
 	void AddModule(AuraModule module);
 	bool TryAddSymbol(AuraSymbol symbol, string symbolsNamespace);
 	void AddScope(string symbolsNamespace);
-	void ExitScope(string namespace_);
+	void ExitScope(string @namespace);
 }
 
 public class GlobalSymbolsTable : IGlobalSymbolsTable
@@ -38,18 +38,14 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 
 	public AuraModule? GetNamespaceAsModule(string name)
 	{
-		var namespace_ = GetNamespace(name);
-		if (namespace_ is null) return null;
-
-		return namespace_.ParseAsModule();
+		var @namespace = GetNamespace(name);
+		return @namespace?.ParseAsModule();
 	}
 
 	public AuraSymbol? GetSymbol(string name, string symbolsNamespace)
 	{
-		var namespace_ = GetNamespace(symbolsNamespace);
-		if (namespace_ is null) return null;
-
-		return namespace_.Find(name);
+		var @namespace = GetNamespace(symbolsNamespace);
+		return @namespace?.Find(name);
 	}
 
 	public void AddNamespace(string name) => _symbolsTable.TryAdd(name, new SymbolsNamespace(name));
@@ -103,14 +99,14 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 
 	public bool TryAddSymbol(AuraSymbol symbol, string symbolsNamespace)
 	{
-		var namespace_ = GetNamespace(symbolsNamespace);
-		if (namespace_ is null)
+		var @namespace = GetNamespace(symbolsNamespace);
+		if (@namespace is null)
 		{
 			AddNamespace(symbolsNamespace);
-			namespace_ = GetNamespace(symbolsNamespace);
+			@namespace = GetNamespace(symbolsNamespace);
 		}
 
-		namespace_!.AddSymbol(symbol);
+		@namespace!.AddSymbol(symbol);
 		return true;
 	}
 
@@ -127,12 +123,10 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 		n!.AddScope();
 	}
 
-	public void ExitScope(string namespace_)
+	public void ExitScope(string @namespace)
 	{
-		var n = GetNamespace(namespace_);
-		if (n is null) return;
-
-		n.ExitScope();
+		var n = GetNamespace(@namespace);
+		n?.ExitScope();
 	}
 }
 

@@ -335,13 +335,13 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 					.Methods.Select(
 						m =>
 						{
-							var params_ = CompileParams(m.Params, ",");
+							var @params = CompileParams(m.Params, ",");
 							var body = Expression(m.Body);
 							var returnType = m.ReturnType is AuraNil
 								? string.Empty
 								: $" {AuraTypeToGoType(m.ReturnType)}";
 							// To make the handling of `this` expressions a little easier for the compiler, all method receivers in the outputted Go code have an identifier of `this`
-							return $"func (this {className}) {m.Name.Value}({params_}){returnType} {body}";
+							return $"func (this {className}) {m.Name.Value}({@params}){returnType} {body}";
 						}
 					)
 					.Aggregate(string.Empty, (prev, curr) => $"{prev}\n\n{curr}");
@@ -429,7 +429,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			() =>
 			{
 				var interfaceName = i.Public == Visibility.Public ? i.Name.Value.ToUpper() : i.Name.Value.ToLower();
-				var methods = i.Methods.Select(Visit);
+				var methods = i.Methods.Select(Visit).ToList();
 
 				return methods.Any()
 					? $"type {interfaceName} interface {{\n{string.Join("\n", methods)}\n}}"
@@ -492,26 +492,16 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedCall c)
 	{
-		if (c.Callee is TypedGet)
+		switch (c.Callee)
 		{
-			return CallExpr_GetCallee(c);
+			case TypedGet: return CallExpr_GetCallee(c);
+			case TypedVariable { Typ: AuraClass }: return CallExpr_Class(c);
+			case TypedVariable { Typ: AuraStruct }: return CallExpr_Struct(c);
+			default:
+				var callee = Expression((ITypedAuraExpression)c.Callee);
+				var compiledParams = c.Arguments.Select(Expression);
+				return $"{callee}({string.Join(", ", compiledParams)})";
 		}
-
-		if (c.Callee is TypedVariable cv &&
-			cv.Typ is AuraClass)
-		{
-			return CallExpr_Class(c);
-		}
-
-		if (c.Callee is TypedVariable sv &&
-			sv.Typ is AuraStruct)
-		{
-			return CallExpr_Struct(c);
-		}
-
-		var callee = Expression((ITypedAuraExpression)c.Callee);
-		var compiledParams = c.Arguments.Select(Expression);
-		return $"{callee}({string.Join(", ", compiledParams)})";
 	}
 
 	/// <summary>
@@ -582,7 +572,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		}
 		else
 		{
-			callee = get!.Obj.Typ is AuraModule m
+			callee = get.Obj.Typ is AuraModule m
 				? IsStdlibPkg(m.Name)
 					? $"{obj}.{ConvertSnakeCaseToCamelCase(get.Name.Value)}"
 					: $"{obj}.{get.Name.Value.ToUpper()}"
@@ -593,7 +583,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			get.Obj.Typ is not AuraClass &&
 			get.Obj.Typ is not AuraInterface)
 		{
-			c.Arguments.Insert(0, get!.Obj);
+			c.Arguments.Insert(0, get.Obj);
 		}
 
 		var compiledParams = c.Arguments.Select(Expression);
@@ -664,7 +654,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return literal.Value ? "true" : "false";
 	}
 
-	public string Visit<U>(ListLiteral<U> literal) where U : IAuraAstNode
+	public string Visit<TU>(ListLiteral<TU> literal) where TU : IAuraAstNode
 	{
 		var items = literal.Value.Select(item => Expression((ITypedAuraExpression)item));
 		return $"{AuraTypeToGoType(literal.Typ)}{{{string.Join(", ", items)}}}";
@@ -684,7 +674,8 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				var valueExpr = Expression((ITypedAuraExpression)pair.Value);
 				return $"{keyExpr}: {valueExpr}";
 			}
-		);
+			)
+			.ToList();
 		return items.Any()
 			? $"{AuraTypeToGoType(literal.Typ)}{{\n{string.Join(", ", items)}\n}}"
 			: $"{AuraTypeToGoType(literal.Typ)}{{}}";
@@ -725,10 +716,10 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return v.Name.Value;
 	}
 
-	public string Visit(TypedIs is_)
+	public string Visit(TypedIs @is)
 	{
-		var expr = Expression(is_.Expr);
-		return $"{expr}.({is_.Expected.Name})";
+		var expr = Expression(@is.Expr);
+		return $"{expr}.({@is.Expected.Name})";
 	}
 
 	public string Visit(TypedYield y)
@@ -967,17 +958,12 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			return true;
 		}
 
-		if (_prelude.PublicClasses.Where(c => c.Name == name).Any())
+		if (_prelude.PublicClasses.Any(c => c.Name == name))
 		{
 			return true;
 		}
 
-		if (_prelude.PublicFunctions.Where(f => f.Name == name).Any())
-		{
-			return true;
-		}
-
-		return false;
+		return _prelude.PublicFunctions.Any(f => f.Name == name);
 	}
 
 	/// <summary>
