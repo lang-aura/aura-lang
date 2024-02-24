@@ -74,10 +74,11 @@ public class AuraModuleCompiler
 					var parsedOutput = new AuraFileCompiler(p, ProjectName).ParseFile();
 					return (p, parsedOutput);
 				}
-			);
+			)
+			.ToList();
 
 		// Ensure all source files in the module have the same `mod` name
-		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod));
+		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod)).ToList();
 		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
 			// TODO get the name of the file whose module name doesn't match
 			throw new DirectoryCannotContainMultipleModulesException(
@@ -117,10 +118,11 @@ public class AuraModuleCompiler
 					var parsedOutput = new AuraFileCompiler(p, ProjectName).ParseFile();
 					return (p, parsedOutput);
 				}
-			);
+			)
+			.ToList();
 
 		// Ensure all source files in the module have the same `mod` name
-		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod));
+		var modNames = untypedAsts.Select(pair => pair.parsedOutput.Find(node => node is UntypedMod)).ToList();
 		if (!modNames.All(name => ((UntypedMod)name!).Value.Value == ((UntypedMod)modNames.First()!).Value.Value))
 			// TODO get the name of the file whose module name doesn't match
 			throw new DirectoryCannotContainMultipleModulesException(

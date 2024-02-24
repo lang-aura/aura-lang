@@ -1017,7 +1017,7 @@ public class AuraScanner
 	/// </summary>
 	/// <param name="c">The character that will be checked to see if its alphabetic</param>
 	/// <returns>A boolean indicating if the supplied character is alphabetic</returns>
-	private bool IsAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'; }
+	private bool IsAlpha(char c) { return c is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or '_'; }
 
 	/// <summary>
 	///     Checks if the next character in the Aura source file is a whitespace character
@@ -1030,5 +1030,5 @@ public class AuraScanner
 	/// </summary>
 	/// <param name="c">The next character in the Aura source file</param>
 	/// <returns>A boolean indicating if the next character in the Aura source file is a whitespace character</returns>
-	private bool IsDigit(char c) { return c >= '0' && c <= '9'; }
+	private bool IsDigit(char c) { return c is >= '0' and <= '9'; }
 }

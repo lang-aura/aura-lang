@@ -876,7 +876,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				}
 
 				// If the return statement contains more than one expression, we package the expressions up as a struct
-				var typedReturnValues = r.Value.Select(Expression);
+				var typedReturnValues = r.Value.Select(Expression).ToList();
 				return new TypedReturn(
 					r.Return,
 					new TypedAnonymousStruct(
@@ -986,7 +986,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							)
 						);
 					}
-				);
+					)
+					.ToList();
 
 				var methodSignatures = @class.Methods.Select(ParseFunctionSignature).ToList();
 				var methodTypes = methodSignatures
@@ -1035,7 +1036,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 									throw new CannotImplementNonInterfaceException(impl.Value, @class.Range);
 							return i;
 						}
-					)
+						)
+						.ToList()
 					: new List<AuraInterface>();
 
 				// Store the partially typed class as the current enclosing class
@@ -1048,9 +1050,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					@class.ClosingBrace,
 					new AuraClass(
 						@class.Name.Value,
-						typedParams.ToList(),
+						typedParams,
 						methodTypes,
-						implements.ToList(),
+						implements,
 						@class.Public
 					)
 				);
@@ -1883,7 +1885,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		return _enclosingExpressionStore.WithEnclosing(
 			() =>
 			{
-				var items = literal.Value.Select(item => (IUntypedAuraExpression)item);
+				var items = literal.Value.Select(item => (IUntypedAuraExpression)item).ToList();
 				var typedItem = Expression(items.First());
 				var typedItems = items.Select(item => ExpressionAndConfirm(item, typedItem.Typ)).ToList();
 				return new ListLiteral<ITypedAuraExpression>(

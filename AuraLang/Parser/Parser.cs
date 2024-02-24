@@ -59,7 +59,7 @@ public class AuraParser
 		if (!_exContainer.IsEmpty()) throw _exContainer;
 
 		// Ensure that the file begins with a mod declaration
-		var nonComments = statements.Where(stmt => stmt is not UntypedComment);
+		var nonComments = statements.Where(stmt => stmt is not UntypedComment).ToList();
 		if (nonComments.First() is not UntypedMod)
 		{
 			_exContainer.Add(new FileMustBeginWithModStmtException(nonComments.First().Range));
@@ -433,7 +433,7 @@ public class AuraParser
 				var packages = new List<UntypedImport>();
 				while (!Match(TokType.RightParen))
 				{
-					var tok_ = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
+					var tokk = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
 					if (Match(TokType.As))
 					{
 						var alias = Consume(
@@ -445,7 +445,7 @@ public class AuraParser
 						packages.Add(
 							new UntypedImport(
 								import,
-								tok_,
+								tokk,
 								alias
 							)
 						);
@@ -457,7 +457,7 @@ public class AuraParser
 						packages.Add(
 							new UntypedImport(
 								import,
-								tok_,
+								tokk,
 								null
 							)
 						);
@@ -590,7 +590,7 @@ public class AuraParser
 		var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
 		Consume(TokType.LeftParen, new ExpectLeftParenException(Peek().Value, Peek().Range));
 		// Parse parameters
-		var paramz = ParseParameters();
+		var @params = ParseParameters();
 		Consume(TokType.RightParen, new ExpectRightParenException(Peek().Value, Peek().Range));
 		// Check if class implements an interface
 		var interfaceNames = Match(TokType.Colon) ? ParseImplementingInterfaces() : new List<Tok>();
@@ -604,7 +604,7 @@ public class AuraParser
 		return new UntypedClass(
 			@class,
 			name,
-			paramz,
+			@params,
 			body,
 			pub,
 			interfaceNames,
@@ -1189,15 +1189,11 @@ public class AuraParser
 
 		if (Match(TokType.PlusPlus))
 		{
-			var variable = expression as UntypedVariable;
-			if (variable is not null)
-				return new UntypedPlusPlusIncrement(new UntypedVariable(variable.Name), Previous());
+			if (expression is UntypedVariable variable) return new UntypedPlusPlusIncrement(new UntypedVariable(variable.Name), Previous());
 		}
 		else if (Match(TokType.MinusMinus))
 		{
-			var variable = expression as UntypedVariable;
-			if (variable is not null)
-				return new UntypedMinusMinusDecrement(new UntypedVariable(variable.Name), Previous());
+			if (expression is UntypedVariable variable) return new UntypedMinusMinusDecrement(new UntypedVariable(variable.Name), Previous());
 		}
 
 		return expression;

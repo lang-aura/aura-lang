@@ -34,7 +34,7 @@ public class AuraLocalFileSystemImportedModuleProvider : IImportedModuleProvider
 	/// <summary>
 	///     Finds the project's root directory. This is useful as a starting point when searching for an Aura module or file
 	/// </summary>
-	protected void FindProjectRoot() => FindProjectRootRecur(".");
+	private void FindProjectRoot() { FindProjectRootRecur("."); }
 
 	/// <summary>
 	///     Recursively searches for the project's root directory
