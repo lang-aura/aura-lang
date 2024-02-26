@@ -34,5 +34,15 @@ public record Position(int Character, int Line)
 		};
 	}
 
+	/// <summary>
+	///     Returns a new position located one position before the current position
+	/// </summary>
+	/// <returns>A new position located one position before the current position</returns>
+	public Position OnePositionBefore()
+	{
+		// TODO what if character is 0?
+		return this with { Character = Character - 1 };
+	}
+
 	public override string ToString() => $"{Line}:{Character}";
 }

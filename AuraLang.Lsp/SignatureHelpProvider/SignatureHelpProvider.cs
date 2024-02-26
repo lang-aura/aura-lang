@@ -1,5 +1,5 @@
 ﻿using AuraLang.AST;
-using AuraLang.Lsp.RangeFinder;
+using AuraLang.Lsp.PrecedingNodeFinder;
 using AuraLang.Types;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Position = AuraLang.Location.Position;
@@ -13,7 +13,7 @@ public class AuraSignatureHelpProvider
 		IEnumerable<ITypedAuraStatement> typedAst
 	)
 	{
-		var rangeFinder = new AuraRangeFinder(position with { Character = position.Character - 1 }, typedAst);
+		var rangeFinder = new AuraPrecedingNodeFinder(position, typedAst);
 		return rangeFinder.FindImmediatelyPrecedingNode();
 	}
 

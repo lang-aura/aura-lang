@@ -2,19 +2,55 @@
 using AuraLang.Location;
 using AuraLang.Visitor;
 
-namespace AuraLang.Lsp.RangeFinder;
+namespace AuraLang.Lsp.PrecedingNodeFinder;
 
-public class AuraRangeFinder : ITypedAuraStmtVisitor<ITypedAuraAstNode?>, ITypedAuraExprVisitor<ITypedAuraAstNode?>
+/// <summary>
+///     Responsible for finding the AST node that immediately precedes a specific position in an Aura source file
+/// </summary>
+public class AuraPrecedingNodeFinder : ITypedAuraStmtVisitor<ITypedAuraAstNode?>,
+	ITypedAuraExprVisitor<ITypedAuraAstNode?>
 {
+	/// <summary>
+	///     The specific position in question. This class is responsible for finding the AST node immediately preceding this
+	///     position
+	/// </summary>
 	private Position Position { get; }
+
+	/// <summary>
+	///     The typed AST representing the Aura source file to be searched
+	/// </summary>
 	private IEnumerable<ITypedAuraStatement> TypedAst { get; }
 
-	public AuraRangeFinder(Position position, IEnumerable<ITypedAuraStatement> typedAst)
+	/// <summary>
+	///     Constructs an <see cref="AuraPrecedingNodeFinder" /> object
+	/// </summary>
+	/// <param name="position">
+	///     This class will search for an AST node immediately preceding this position. The supplied
+	///     position should be the actual position received from the LSP client
+	/// </param>
+	/// <param name="typedAst">The typed AST representing the Aura source file</param>
+	public AuraPrecedingNodeFinder(Position position, IEnumerable<ITypedAuraStatement> typedAst)
 	{
-		Position = position;
+		// When an LSP client sends, for example, a completion request, it will include the current position in the Aura
+		// source file, which is one character beyond the completion trigger character. However, we want to know the position
+		// of the trigger character. This is because all ranges stored by the compiler are inclusive start and exclusive end; therefore,
+		// if we have the starting position of the trigger character, we can do a simple comparison between that starting
+		// position and the ending position of all relevant AST nodes to find the AST node that immediately precedes the trigger
+		// character. (By the way, the reason we use a Visitor-implementing class to do this and can't just do something like
+		// `typedAst.Where(node => node.Range.End == triggerCharacter.Range.Start)` is that some AST nodes end with an
+		// expression, and they recursively compare the trigger character's starting position to their ending expression
+		// so that, if its a match, completion options can be appropriately constructed based on the ending expression's type.
+		Position = position.OnePositionBefore();
 		TypedAst = typedAst;
 	}
 
+	/// <summary>
+	///     Finds the node in the Aura source file that immediately precedes <see cref="Position" />
+	/// </summary>
+	/// <returns>
+	///     The immediately preceding node, if it exists. A null value would be returned in situations such as when
+	///     <see cref="Position" /> is the first character of the first line in the Aura source file
+	/// </returns>
 	public ITypedAuraAstNode? FindImmediatelyPrecedingNode()
 	{
 		foreach (var node in TypedAst)
@@ -39,6 +75,16 @@ public class AuraRangeFinder : ITypedAuraStmtVisitor<ITypedAuraAstNode?>, ITyped
 		return expr.Accept(this);
 	}
 
+	/// <summary>
+	///     Visits an assignment statement, determining if it immediately precedes the position in question. In reality, this
+	///     method will always return either null or the assignment's value expression. This is because the expression will
+	///     always end the assignment node, and the user may be wanting to get completion suggestions for the expression. The
+	///     assignment expression itself does not offer any completion suggestions. For example, the LSP server may receive a
+	///     completion request for this partially-finished expression in an Aura source file: <code>i = f.</code> In this case,
+	///     the user is looking for completion suggestions for <c>f</c>, which may be a module or class.
+	/// </summary>
+	/// <param name="assignment">The assignment to visit</param>
+	/// <returns>The assignment's value expression (if it immediately precedes the node in question) or null</returns>
 	public ITypedAuraAstNode? Visit(TypedAssignment assignment)
 	{
 		return Expression(assignment.Value);
