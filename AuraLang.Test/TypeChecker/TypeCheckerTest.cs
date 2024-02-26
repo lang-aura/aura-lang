@@ -2341,7 +2341,7 @@ public class TypeCheckerTest
 				new UntypedExpressionStmt(
 					new UntypedIs(
 						new UntypedVariable(new Tok(TokType.Identifier, "v")),
-						new Tok(TokType.Identifier, "IGreeter")
+						new UntypedInterfacePlaceholder(new Tok(TokType.Identifier, "IGreeter"))
 					)
 				)
 			}
@@ -2351,10 +2351,13 @@ public class TypeCheckerTest
 			new TypedExpressionStmt(
 				new TypedIs(
 					new TypedVariable(new Tok(TokType.Identifier, "v"), new AuraInt()),
-					new AuraInterface(
-						"IGreeter",
-						new List<AuraNamedFunction>(),
-						Visibility.Private
+					new TypedInterfacePlaceholder(
+						new Tok(TokType.Identifier, "IGreeter"),
+						new AuraInterface(
+							"IGreeter",
+							new List<AuraNamedFunction>(),
+							Visibility.Private
+						)
 					)
 				)
 			)

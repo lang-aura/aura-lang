@@ -1518,7 +1518,7 @@ public class AuraParser
 	{
 		// Parse the expected type's token
 		var expected = Advance();
-		return new UntypedIs(expr, expected);
+		return new UntypedIs(expr, new UntypedInterfacePlaceholder(expected));
 	}
 
 	/// <summary>

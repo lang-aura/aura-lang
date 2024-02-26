@@ -1,5 +1,4 @@
-﻿using AuraLang.Location;
-using AuraLang.Shared;
+﻿using AuraLang.Shared;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
@@ -423,7 +422,7 @@ public record TypedVariable(Tok Name, AuraType Typ) : ITypedAuraExpression, ITyp
 /// </summary>
 /// <param name="Expr">The expression whose type will be checked against the expected type</param>
 /// <param name="Expected">The expected type</param>
-public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : ITypedAuraExpression
+public record TypedIs(ITypedAuraExpression Expr, TypedInterfacePlaceholder Expected) : ITypedAuraExpression
 {
 	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
@@ -435,7 +434,7 @@ public record TypedIs(ITypedAuraExpression Expr, AuraInterface Expected) : IType
 	public Range Range =>
 		new(
 			Expr.Range.Start,
-			new Position() // TODO add range to AuraInterface
+			Expected.Range.End
 		);
 
 	public IEnumerable<IHoverable> ExtractHoverables() { return Expr.ExtractHoverables(); }
@@ -864,6 +863,17 @@ public record TypedInterface
 
 		return hoverables;
 	}
+}
+
+/// <summary>
+///     Represents a valid interface placeholder
+/// </summary>
+/// <param name="InterfaceValue">A token representing a specific interface type</param>
+/// <param name="Typ">The interface type</param>
+public record TypedInterfacePlaceholder(Tok InterfaceValue, AuraType Typ) : ITypedAuraExpression
+{
+	public T Accept<T>(ITypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+	public Range Range => InterfaceValue.Range;
 }
 
 /// <summary>

@@ -1293,6 +1293,22 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		);
 	}
 
+	public ITypedAuraExpression Visit(UntypedInterfacePlaceholder ip)
+	{
+		// Ensure the expected type is an interface
+		var i = FindAndConfirm(
+			ip.InterfaceValue.Value,
+			ModuleName!,
+			new AuraInterface(
+				ip.InterfaceValue.Value,
+				new List<AuraNamedFunction>(),
+				Visibility.Private
+			),
+			ip.Range
+		);
+		return new TypedInterfacePlaceholder(ip.InterfaceValue, i);
+	}
+
 	public ITypedAuraStatement Visit(UntypedFunctionSignature fnSignature)
 	{
 		return new TypedFunctionSignature(
@@ -2034,19 +2050,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	public ITypedAuraExpression Visit(UntypedIs @is)
 	{
 		var typedExpr = Expression(@is.Expr);
-		// Ensure the expected type is an interface
-		var i = FindAndConfirm(
-			@is.Expected.Value,
-			ModuleName!,
-			new AuraInterface(
-				string.Empty,
-				new List<AuraNamedFunction>(),
-				Visibility.Private
-			),
-			@is.Range
-		);
-
-		return new TypedIs(typedExpr, i);
+		var typedInterfacePlaceholder = Visit(@is.Expected);
+		return new TypedIs(typedExpr, (TypedInterfacePlaceholder)typedInterfacePlaceholder);
 	}
 
 	/// <summary>

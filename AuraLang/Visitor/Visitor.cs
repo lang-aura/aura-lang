@@ -66,6 +66,7 @@ public interface ITypedAuraExprVisitor<out T>
 	public T Visit(BoolLiteral boolLiteral);
 	public T Visit(CharLiteral charLiteral);
 	public T Visit(TypedAnonymousStruct anonymousStruct);
+	public T Visit(TypedInterfacePlaceholder interfacePlaceholder);
 }
 
 /// <summary>
@@ -132,4 +133,5 @@ public interface IUntypedAuraExprVisitor<out T>
 	public T Visit(BoolLiteral boolLiteral);
 	public T Visit(CharLiteral charLiteral);
 	public T Visit(UntypedAnonymousStruct anonymousStruct);
+	public T Visit(UntypedInterfacePlaceholder interfacePlaceholder);
 }

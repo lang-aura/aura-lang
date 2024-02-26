@@ -719,8 +719,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	public string Visit(TypedIs @is)
 	{
 		var expr = Expression(@is.Expr);
-		return $"{expr}.({@is.Expected.Name})";
+		var expectedInterface = Visit(@is.Expected);
+		return $"{expr}.({expectedInterface})";
 	}
+
+	public string Visit(TypedInterfacePlaceholder ip) { return ip.InterfaceValue.Value; }
 
 	public string Visit(TypedYield y)
 	{

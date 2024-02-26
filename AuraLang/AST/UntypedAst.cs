@@ -356,7 +356,7 @@ public record UntypedVariable(Tok Name) : IUntypedAuraExpression, IUntypedAuraCa
 /// </summary>
 /// <param name="Expr">The expression whose type is being tested</param>
 /// <param name="Expected">The expected type that the expression's type is compared against</param>
-public record UntypedIs(IUntypedAuraExpression Expr, Tok Expected) : IUntypedAuraExpression
+public record UntypedIs(IUntypedAuraExpression Expr, UntypedInterfacePlaceholder Expected) : IUntypedAuraExpression
 {
 	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
 
@@ -720,6 +720,18 @@ public record UntypedInterface
 				: Interface.Range.Start,
 			ClosingBrace.Range.End
 		);
+}
+
+/// <summary>
+///     Represents an interface placeholder, which is used in an <c>is</c> expression to represent the expected interface
+///     type
+/// </summary>
+/// <param name="InterfaceValue">A token representing a specific interface type</param>
+public record UntypedInterfacePlaceholder(Tok InterfaceValue) : IUntypedAuraExpression
+{
+	public T Accept<T>(IUntypedAuraExprVisitor<T> visitor) { return visitor.Visit(this); }
+
+	public Range Range => InterfaceValue.Range;
 }
 
 /// <summary>
