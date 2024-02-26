@@ -565,33 +565,347 @@ public class PrecedingNodeFinderTest
 		);
 	}
 
-	/*[Test]
-    public void TestPrecedingNodeFinder_Is()
-    {
-        var @is = new TypedIs(
-            new TypedVariable(
-                new Tok(
-                    TokType.Identifier,
-                    "x",
-                    new Range(new Position(), new Position(1, 0))
-                ),
-                new AuraInt()
-            ),
-            new AuraInterface(
-                "IGreeter",
-                new List<AuraNamedFunction>(),
-                Visibility.Public
-            )
-        );
-        var after = new Position(2, 0);
-        var notAfter = new Position();
+	[Test]
+	public void TestPrecedingNodeFinder_Is()
+	{
+		var @is = new TypedIs(
+			new TypedVariable(
+				new Tok(
+					TokType.Identifier,
+					"x",
+					new Range(new Position(), new Position(1, 0))
+				),
+				new AuraInt()
+			),
+			new TypedInterfacePlaceholder(
+				new Tok(
+					TokType.Identifier,
+					"IGreeter",
+					new Range(new Position(5, 0), new Position(12, 0))
+				),
+				new AuraInterface(
+					"IGreeter",
+					new List<AuraNamedFunction>(),
+					Visibility.Public
+				)
+			)
+		);
+		var after = new Position(13, 0);
+		var notAfter = new Position();
 
-        ActAndAssert_Expression(
-            @is,
-            new List<Position> { after, notAfter },
-            new List<ITypedAuraAstNode?> { @is, null }
-        );
-    }*/
+		ActAndAssert_Expression(
+			@is,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @is, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_InterfacePlaceholder()
+	{
+		var ip = new TypedInterfacePlaceholder(
+			new Tok(
+				TokType.Identifier,
+				"IGreeter",
+				new Range(new Position(), new Position(7, 0))
+			),
+			new AuraInterface(
+				"IGreeter",
+				new List<AuraNamedFunction>(),
+				Visibility.Public
+			)
+		);
+		var after = new Position(8, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			ip,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { ip, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_IntLiteral()
+	{
+		var intLiteral = new IntLiteral(
+			new Tok(
+				TokType.IntLiteral,
+				"5",
+				new Range(new Position(), new Position(1, 0))
+			)
+		);
+		var after = new Position(2, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			intLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { intLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_FloatLiteral()
+	{
+		var floatLiteral = new FloatLiteral(
+			new Tok(
+				TokType.FloatLiteral,
+				"5.0",
+				new Range(new Position(), new Position(3, 0))
+			)
+		);
+		var after = new Position(4, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			floatLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { floatLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_StringLiteral()
+	{
+		var stringLiteral = new StringLiteral(
+			new Tok(
+				TokType.StringLiteral,
+				"Hello",
+				new Range(new Position(), new Position(5, 0))
+			)
+		);
+		var after = new Position(6, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			stringLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { stringLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_BoolLiteral()
+	{
+		var boolLiteral = new BoolLiteral(
+			new Tok(
+				TokType.True,
+				"true",
+				new Range(new Position(), new Position(4, 0))
+			)
+		);
+		var after = new Position(5, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			boolLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { boolLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_CharLiteral()
+	{
+		var charLiteral = new CharLiteral(
+			new Tok(
+				TokType.CharLiteral,
+				"a",
+				new Range(new Position(), new Position(1, 0))
+			)
+		);
+		var after = new Position(2, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			charLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { charLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_AnonymousStruct()
+	{
+		var anonymousStruct = new TypedAnonymousStruct(
+			new Tok(
+				TokType.Identifier,
+				"s",
+				new Range(new Position(), new Position(1, 0))
+			),
+			new List<Param>(),
+			new List<ITypedAuraExpression>(),
+			new Tok(
+				TokType.RightParen,
+				")",
+				new Range(new Position(8, 0), new Position(9, 0))
+			)
+		);
+		var after = new Position(10, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			anonymousStruct,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { anonymousStruct, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_MapLiteral()
+	{
+		var mapLiteral = new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
+			new Tok(
+				TokType.Map,
+				"map",
+				new Range()
+			),
+			new Dictionary<ITypedAuraExpression, ITypedAuraExpression>(),
+			new AuraString(),
+			new AuraInt(),
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(15, 0), new Position(16, 0))
+			)
+		);
+		var after = new Position(17, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			mapLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { mapLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_ListLiteral()
+	{
+		var listLiteral = new ListLiteral<ITypedAuraExpression>(
+			new Tok(
+				TokType.LeftBracket,
+				"[",
+				new Range()
+			),
+			new List<ITypedAuraExpression>(),
+			new AuraString(),
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(10, 0), new Position(11, 0))
+			)
+		);
+		var after = new Position(12, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Expression(
+			listLiteral,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { listLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Defer()
+	{
+		var typedCall = new TypedCall(
+			new TypedVariable(
+				new Tok(TokType.Identifier, "f"),
+				new AuraNamedFunction(
+					"f",
+					Visibility.Private,
+					new AuraFunction(new List<Param>(), new AuraNil())
+				)
+			),
+			new List<ITypedAuraExpression>(),
+			new Tok(
+				TokType.RightParen,
+				")",
+				new Range(new Position(8, 0), new Position(9, 0))
+			),
+			new AuraFunction(new List<Param>(), new AuraNil())
+		);
+		var defer = new TypedDefer(
+			new Tok(
+				TokType.Defer,
+				"defer",
+				new Range()
+			),
+			typedCall
+		);
+		var after = new Position(10, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			defer,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { typedCall, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_For()
+	{
+		var forLoop = new TypedFor(
+			new Tok(
+				TokType.For,
+				"for",
+				new Range()
+			),
+			null,
+			null,
+			null,
+			new List<ITypedAuraStatement>(),
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(10, 0), new Position(11, 0))
+			)
+		);
+		var after = new Position(12, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			forLoop,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { forLoop, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_ForEach()
+	{
+		var foreachLoop = new TypedForEach(
+			new Tok(
+				TokType.ForEach,
+				"foreach",
+				new Range()
+			),
+			new Tok(TokType.Identifier, "each"),
+			new ListLiteral<ITypedAuraExpression>(
+				new Tok(TokType.LeftBracket, "["),
+				new List<ITypedAuraExpression>(),
+				new AuraString(),
+				new Tok(TokType.RightBrace, "}")
+			),
+			new List<ITypedAuraStatement>(),
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(10, 0), new Position(11, 0))
+			)
+		);
+		var after = new Position(12, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			foreachLoop,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { foreachLoop, null }
+		);
+	}
 
 	private static void ActAndAssert_Expression(
 		ITypedAuraExpression node,
@@ -600,6 +914,21 @@ public class PrecedingNodeFinderTest
 	)
 	{
 		var nodes = new List<ITypedAuraStatement> { new TypedExpressionStmt(node) };
+		var positionAndExpected = positions.Zip(expected);
+		foreach (var (pos, ex) in positionAndExpected)
+		{
+			var precedingNodeFinder = new AuraPrecedingNodeFinder(pos, nodes);
+			Assert.That(precedingNodeFinder.FindImmediatelyPrecedingNode(), Is.EqualTo(ex));
+		}
+	}
+
+	private static void ActAndAssert_Statement(
+		ITypedAuraStatement node,
+		IEnumerable<Position> positions,
+		IEnumerable<ITypedAuraAstNode?> expected
+	)
+	{
+		var nodes = new List<ITypedAuraStatement> { node };
 		var positionAndExpected = positions.Zip(expected);
 		foreach (var (pos, ex) in positionAndExpected)
 		{
