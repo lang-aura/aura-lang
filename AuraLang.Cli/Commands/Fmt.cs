@@ -47,10 +47,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		var formatted = Format(untypedAst);
 		// Turn back into a string
 		var s = string.Join(string.Empty, formatted);
-		if (s[^1] is not '\n')
-		{
-			s += '\n';
-		}
+		if (s[^1] is not '\n') s += '\n';
 
 		return s;
 	}
@@ -71,25 +68,13 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return nodes.Select(Statement).ToList();
 	}
 
-	private string Statement(IUntypedAuraStatement stmt)
-	{
-		return stmt.Accept(this);
-	}
+	private string Statement(IUntypedAuraStatement stmt) { return stmt.Accept(this); }
 
-	private string Expression(IUntypedAuraExpression expr)
-	{
-		return expr.Accept(this);
-	}
+	private string Expression(IUntypedAuraExpression expr) { return expr.Accept(this); }
 
-	public string Visit(UntypedDefer defer)
-	{
-		return $"defer {Visit((UntypedCall)defer.Call)}";
-	}
+	public string Visit(UntypedDefer defer) { return $"defer {Visit((UntypedCall)defer.Call)}"; }
 
-	public string Visit(UntypedExpressionStmt expressionStmt)
-	{
-		return Expression(expressionStmt.Expression);
-	}
+	public string Visit(UntypedExpressionStmt expressionStmt) { return Expression(expressionStmt.Expression); }
 
 	public string Visit(UntypedFor for_)
 	{
@@ -127,10 +112,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	public string Visit(UntypedLet let)
 	{
-		if (let.NameTyps.Count == 0)
-		{
-			return ShortLetStmt(let);
-		}
+		if (let.NameTyps.Count == 0) return ShortLetStmt(let);
 
 		var mut = let.Mutable ? "mut " : string.Empty;
 		return let.Initializer is not null
@@ -145,10 +127,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"{mut}{let.Names[0].Value} := {init}";
 	}
 
-	public string Visit(UntypedMod mod)
-	{
-		return $"mod {mod.Value.Value}";
-	}
+	public string Visit(UntypedMod mod) { return $"mod {mod.Value.Value}"; }
 
 	public string Visit(UntypedReturn r)
 	{
@@ -179,10 +158,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	public string Visit(UntypedMultipleImport imports)
 	{
-		if (imports.Packages.Count == 1)
-		{
-			return Statement(imports.Packages.First());
-		}
+		if (imports.Packages.Count == 1) return Statement(imports.Packages.First());
 
 		var importNames = string.Join("\n    ", imports.Packages.Select(i => i.Package.Value));
 		return $"import (\n    {importNames}\n)";
@@ -194,25 +170,13 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"import (\n    {importNames}\n)";
 	}
 
-	public string Visit(UntypedComment c)
-	{
-		return c.Text.Value;
-	}
+	public string Visit(UntypedComment c) { return c.Text.Value; }
 
-	public string Visit(UntypedContinue cont)
-	{
-		return "continue";
-	}
+	public string Visit(UntypedContinue cont) { return "continue"; }
 
-	public string Visit(UntypedBreak b)
-	{
-		return "break";
-	}
+	public string Visit(UntypedBreak b) { return "break"; }
 
-	public string Visit(UntypedYield y)
-	{
-		return "yield";
-	}
+	public string Visit(UntypedYield y) { return "yield"; }
 
 	public string Visit(UntypedInterface inter)
 	{
@@ -231,20 +195,11 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 			$"{name}({@params}){(fnSignature.ReturnType.IsSameType(new AuraNil()) ? string.Empty : $" -> {fnSignature.ReturnType}")}";
 	}
 
-	public string Visit(UntypedAssignment assign)
-	{
-		return $"{assign.Name.Value} = {Expression(assign.Value)}";
-	}
+	public string Visit(UntypedAssignment assign) { return $"{assign.Name.Value} = {Expression(assign.Value)}"; }
 
-	public string Visit(UntypedPlusPlusIncrement inc)
-	{
-		return $"{Expression(inc.Name)}++";
-	}
+	public string Visit(UntypedPlusPlusIncrement inc) { return $"{Expression(inc.Name)}++"; }
 
-	public string Visit(UntypedMinusMinusDecrement dec)
-	{
-		return $"{Expression(dec.Name)}--";
-	}
+	public string Visit(UntypedMinusMinusDecrement dec) { return $"{Expression(dec.Name)}--"; }
 
 	public string Visit(UntypedBinary binary)
 	{
@@ -282,10 +237,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"{Expression((IUntypedAuraExpression)call.Callee)}({paramz})";
 	}
 
-	public string Visit(UntypedGet get)
-	{
-		return $"{Expression(get.Obj)}.{get.Name.Value}";
-	}
+	public string Visit(UntypedGet get) { return $"{Expression(get.Obj)}.{get.Name.Value}"; }
 
 	public string Visit(UntypedGetIndex getIndex)
 	{
@@ -297,10 +249,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"{Expression(getIndexRange.Obj)}[{Expression(getIndexRange.Lower)}:{Expression(getIndexRange.Upper)}]";
 	}
 
-	public string Visit(UntypedGrouping grouping)
-	{
-		return $"({Expression(grouping.Expr)})";
-	}
+	public string Visit(UntypedGrouping grouping) { return $"({Expression(grouping.Expr)})"; }
 
 	public string Visit(UntypedIf iff)
 	{
@@ -310,20 +259,11 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"if {cond} {then}{@else}";
 	}
 
-	public string Visit(IntLiteral i)
-	{
-		return $"{i.Value}";
-	}
+	public string Visit(IntLiteral i) { return $"{i.Value}"; }
 
-	public string Visit(FloatLiteral f)
-	{
-		return $"{f.Value}";
-	}
+	public string Visit(FloatLiteral f) { return $"{f.Value}"; }
 
-	public string Visit(StringLiteral s)
-	{
-		return $"\"{s.Value}\"";
-	}
+	public string Visit(StringLiteral s) { return $"\"{s.Value}\""; }
 
 	public string Visit<U>(ListLiteral<U> l) where U : IAuraAstNode
 	{
@@ -339,45 +279,24 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"map[{m.KeyType} : {m.ValueType}]{{ {values} }}";
 	}
 
-	public string Visit(BoolLiteral b)
-	{
-		return $"{b.Value}";
-	}
+	public string Visit(BoolLiteral b) { return $"{b.Value}"; }
 
-	public string Visit(UntypedNil n)
-	{
-		return "nil";
-	}
+	public string Visit(UntypedNil n) { return "nil"; }
 
-	public string Visit(CharLiteral c)
-	{
-		return $"'{c.Value}'";
-	}
+	public string Visit(CharLiteral c) { return $"'{c.Value}'"; }
 
 	public string Visit(UntypedLogical lo)
 	{
 		return $"{Expression(lo.Left)} {lo.Operator.Value} {Expression(lo.Right)}";
 	}
 
-	public string Visit(UntypedSet set)
-	{
-		return $"{Expression(set.Obj)}.{set.Name.Value} = {Expression(set.Value)}";
-	}
+	public string Visit(UntypedSet set) { return $"{Expression(set.Obj)}.{set.Name.Value} = {Expression(set.Value)}"; }
 
-	public string Visit(UntypedThis th)
-	{
-		return "this";
-	}
+	public string Visit(UntypedThis th) { return "this"; }
 
-	public string Visit(UntypedUnary u)
-	{
-		return $"{u.Operator.Value}{Expression(u.Right)}";
-	}
+	public string Visit(UntypedUnary u) { return $"{u.Operator.Value}{Expression(u.Right)}"; }
 
-	public string Visit(UntypedVariable v)
-	{
-		return $"{v.Name.Value}";
-	}
+	public string Visit(UntypedVariable v) { return $"{v.Name.Value}"; }
 
 	public string Visit(UntypedAnonymousFunction af)
 	{
@@ -387,10 +306,9 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"fn({paramz}){returnType} {body}";
 	}
 
-	public string Visit(UntypedIs @is)
-	{
-		return "is";
-	}
+	public string Visit(UntypedIs @is) { return "is"; }
+
+	public string Visit(UntypedInterfacePlaceholder ip) { return ip.InterfaceValue.Value; }
 
 	private string WithIndent(Func<string> a)
 	{
@@ -400,28 +318,13 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return result;
 	}
 
-	private string AddTabs(int n)
-	{
-		return new string(' ', n * 4);
-	}
+	private string AddTabs(int n) { return new string(' ', n * 4); }
 
-	public string Visit(UntypedNewLine newline)
-	{
-		return "\n";
-	}
+	public string Visit(UntypedNewLine newline) { return "\n"; }
 
-	public string Visit(UntypedCheck check)
-	{
-		throw new NotImplementedException();
-	}
+	public string Visit(UntypedCheck check) { throw new NotImplementedException(); }
 
-	public string Visit(UntypedStruct @struct)
-	{
-		throw new NotImplementedException();
-	}
+	public string Visit(UntypedStruct @struct) { throw new NotImplementedException(); }
 
-	public string Visit(UntypedAnonymousStruct anonymousStruct)
-	{
-		throw new NotImplementedException();
-	}
+	public string Visit(UntypedAnonymousStruct anonymousStruct) { throw new NotImplementedException(); }
 }

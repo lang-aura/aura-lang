@@ -941,10 +941,16 @@ public class CompilerTest
 					new TypedVariable(
 						new Tok(TokType.Identifier, "v"),
 						new AuraInt()),
+					new TypedInterfacePlaceholder(
+						new Tok(TokType.Identifier, "IGreeter"),
 					new AuraInterface(
 						"IGreeter",
 						new List<AuraNamedFunction>(),
-						Visibility.Private)))
+						Visibility.Private
+						)
+					)
+				)
+			)
 		});
 		MakeAssertions(output, "v.(IGreeter)");
 	}
@@ -963,10 +969,16 @@ public class CompilerTest
 					new TypedVariable(
 						new Tok(TokType.Identifier, "v"),
 						new AuraInt()),
+					new TypedInterfacePlaceholder(
+						new Tok(TokType.Interface, "IGreeter"),
 					new AuraInterface(
 						"IGreeter",
 						new List<AuraNamedFunction>(),
-						Visibility.Private)))
+						Visibility.Private
+						)
+					)
+				)
+			)
 		});
 		MakeAssertions(output, "_, b := v.(IGreeter)");
 	}
@@ -983,10 +995,15 @@ public class CompilerTest
 						new TypedVariable(
 							new Tok(TokType.Identifier, "v"),
 							new AuraInt()),
+						new TypedInterfacePlaceholder(
+							new Tok(TokType.Identifier, "IGreeter"),
 						new AuraInterface(
 							"IGreeter",
 							new List<AuraNamedFunction>(),
-							Visibility.Private)),
+							Visibility.Private
+							)
+						)
+					),
 					new TypedBlock(
 						new Tok(TokType.LeftBrace, "{"),
 						new List<ITypedAuraStatement>(),
