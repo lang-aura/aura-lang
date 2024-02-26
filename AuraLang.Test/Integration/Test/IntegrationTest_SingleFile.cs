@@ -117,6 +117,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "s = HELLO WORLD; e = <nil>\nst = HELLO WORLD; er = <nil>\nupper = HELLO WORLD; lower = hello world; n = <nil>\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_IsAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/is.aura");
+		MakeAssertions(output, "is IGreeter\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

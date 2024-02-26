@@ -720,10 +720,15 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		var expr = Expression(@is.Expr);
 		var expectedInterface = Visit(@is.Expected);
-		return $"{expr}.({expectedInterface})";
+		return $"interface{{}}({expr}).({expectedInterface})";
 	}
 
-	public string Visit(TypedInterfacePlaceholder ip) { return ip.InterfaceValue.Value; }
+	public string Visit(TypedInterfacePlaceholder ip)
+	{
+		return ((AuraInterface)ip.Typ).Public == Visibility.Public
+			? ip.InterfaceValue.Value.ToUpper()
+			: ip.InterfaceValue.Value.ToLower();
+	}
 
 	public string Visit(TypedYield y)
 	{

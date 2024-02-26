@@ -952,7 +952,7 @@ public class CompilerTest
 				)
 			)
 		});
-		MakeAssertions(output, "v.(IGreeter)");
+		MakeAssertions(output, "interface{}(v).(igreeter)");
 	}
 
 	[Test]
@@ -980,7 +980,7 @@ public class CompilerTest
 				)
 			)
 		});
-		MakeAssertions(output, "_, b := v.(IGreeter)");
+		MakeAssertions(output, "_, b := interface{}(v).(igreeter)");
 	}
 
 	[Test]
@@ -1012,7 +1012,7 @@ public class CompilerTest
 					null,
 					new AuraNil()))
 		});
-		MakeAssertions(output, "if _, ok := v.(IGreeter); ok {}");
+		MakeAssertions(output, "if _, ok := interface{}(v).(igreeter); ok {}");
 	}
 
 	[Test]
