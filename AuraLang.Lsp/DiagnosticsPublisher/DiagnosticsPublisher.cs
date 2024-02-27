@@ -37,8 +37,8 @@ public class AuraDiagnosticsPublisher
 			Severity = DiagnosticSeverity.Error,
 			Range = new LspRange
 			{
-				Start = new Position { Line = ex.Range.Start.Line - 1, Character = ex.Range.Start.Character },
-				End = new Position { Line = ex.Range.End.Line - 1, Character = ex.Range.End.Character }
+				Start = new Position { Line = ex.Range.Start.Line, Character = ex.Range.Start.Character },
+				End = new Position { Line = ex.Range.End.Line, Character = ex.Range.End.Character }
 
 			}
 		};
