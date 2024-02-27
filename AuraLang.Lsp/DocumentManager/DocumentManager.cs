@@ -70,7 +70,7 @@ public class AuraDocumentManager
 	{
 		var (module, file) = GetModuleAndFileNames(path);
 		var modDict = _documents[module];
-		modDict.TryRemove(file, out var _);
+		modDict.TryRemove(file, out _);
 		if (!modDict.IsEmpty)
 			_documents[module] = modDict;
 		else
@@ -90,7 +90,7 @@ public class AuraDocumentManager
 		return new List<(string, string)>();
 	}
 
-	public IHoverable? FindStmtByPosition(TextDocumentPositionParams hoverParams)
+	public IHoverable? GetHoverText(TextDocumentPositionParams hoverParams)
 	{
 		var position = hoverParams.Position;
 		var fileContents = GetDocument(hoverParams.TextDocument.Uri.ToString());
