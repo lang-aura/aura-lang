@@ -33,16 +33,16 @@ public class AuraDiagnosticsPublisher
 		var diagnostics = ex
 			.Range.Select(
 				r => new Diagnostic
-		{
-			Code = "Warning",
-			Message = ex.Message,
-			Severity = DiagnosticSeverity.Error,
-			Range = new LspRange
-			{
-				Start = new Position { Line = r.Start.Line, Character = r.Start.Character },
-				End = new Position { Line = r.End.Line, Character = r.End.Character }
-			}
-		}
+				{
+					Code = "Warning",
+					Message = ex.Message,
+					Severity = DiagnosticSeverity.Error,
+					Range = new LspRange
+					{
+						Start = new Position { Line = r.Start.Line, Character = r.Start.Character },
+						End = new Position { Line = r.End.Line, Character = r.End.Character }
+					}
+				}
 			)
 			.ToArray();
 		var publish = new PublishDiagnosticParams { Uri = uri, Diagnostics = diagnostics };
