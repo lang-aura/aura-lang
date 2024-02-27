@@ -907,6 +907,471 @@ public class PrecedingNodeFinderTest
 		);
 	}
 
+	[Test]
+	public void TestPrecedingNodeFinder_NamedFunction()
+	{
+		var namedFunction = new TypedNamedFunction(
+			new Tok(
+				TokType.Fn,
+				"fn",
+				new Range(new Position(), new Position(2, 0))
+			),
+			new Tok(TokType.Identifier, "f"),
+			new List<Param>(),
+			new TypedBlock(
+				new Tok(TokType.LeftBrace, "{"),
+				new List<ITypedAuraStatement>(),
+				new Tok(
+					TokType.RightBrace,
+					"}",
+					new Range(new Position(8, 0), new Position(9, 0))
+				),
+				new AuraNil()
+			),
+			new AuraNil(),
+			Visibility.Private,
+			null
+		);
+		var after = new Position(10, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			namedFunction,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { namedFunction, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Let()
+	{
+		var init = new IntLiteral(
+			new Tok(
+				TokType.IntLiteral,
+				"5",
+				new Range(new Position(10, 0), new Position(11, 0))
+			)
+		);
+		var let = new TypedLet(
+			new Tok(
+				TokType.Let,
+				"let",
+				new Range(new Position(), new Position(3, 0))
+			),
+			new List<Tok> { new(TokType.Identifier, "i") },
+			true,
+			false,
+			init
+		);
+		var after = new Position(12, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			let,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { init, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Mod()
+	{
+		var mod = new TypedMod(
+			new Tok(
+				TokType.Mod,
+				"mod",
+				new Range(new Position(), new Position(3, 0))
+			),
+			new Tok(
+				TokType.Identifier,
+				"main",
+				new Range(new Position(4, 0), new Position(8, 0))
+			)
+		);
+		var after = new Position(9, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			mod,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { mod, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Return_NoValue()
+	{
+		var @return = new TypedReturn(
+			new Tok(
+				TokType.Return,
+				"return",
+				new Range(new Position(), new Position(6, 0))
+			),
+			null
+		);
+		var after = new Position(7, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@return,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @return, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Return_Value()
+	{
+		var intLiteral = new IntLiteral(
+			new Tok(
+				TokType.IntLiteral,
+				"5",
+				new Range(new Position(7, 0), new Position(8, 0))
+			)
+		);
+		var @return = new TypedReturn(
+			new Tok(
+				TokType.Return,
+				"return",
+				new Range(new Position(), new Position(6, 0))
+			),
+			intLiteral
+		);
+		var after = new Position(9, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@return,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { intLiteral, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Class()
+	{
+		var @class = new FullyTypedClass(
+			new Tok(
+				TokType.Class,
+				"class",
+				new Range(new Position(), new Position(5, 0))
+			),
+			new Tok(TokType.Identifier, "c"),
+			new List<Param>(),
+			new List<TypedNamedFunction>(),
+			Visibility.Private,
+			new List<AuraInterface>(),
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(8, 0), new Position(9, 0))
+			),
+			null
+		);
+		var after = new Position(10, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@class,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @class, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Interface()
+	{
+		var @interface = new TypedInterface(
+			new Tok(
+				TokType.Interface,
+				"interface",
+				new Range(new Position(), new Position(9, 0))
+			),
+			new Tok(TokType.Identifier, "i"),
+			new List<TypedFunctionSignature>(),
+			Visibility.Private,
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(10, 0), new Position(11, 0))
+			),
+			null
+		);
+		var after = new Position(12, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@interface,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @interface, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_FnSignature()
+	{
+		var fnSignature = new TypedFunctionSignature(
+			null,
+			new Tok(
+				TokType.Fn,
+				"fn",
+				new Range(new Position(), new Position(2, 0))
+			),
+			new Tok(TokType.Identifier, "f"),
+			new List<Param>(),
+			new Tok(
+				TokType.RightParen,
+				")",
+				new Range(new Position(5, 0), new Position(6, 0))
+			),
+			new AuraNil(),
+			null
+		);
+		var after = new Position(7, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			fnSignature,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { fnSignature, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_While()
+	{
+		var @while = new TypedWhile(
+			new Tok(
+				TokType.While,
+				"while",
+				new Range(new Position(), new Position(5, 0))
+			),
+			new BoolLiteral(new Tok(TokType.True, "true")),
+			new List<ITypedAuraStatement>(),
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				new Range(new Position(7, 0), new Position(8, 0))
+			)
+		);
+		var after = new Position(9, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@while,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @while, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Import()
+	{
+		var import = new TypedImport(
+			new Tok(
+				TokType.Import,
+				"import",
+				new Range(new Position(), new Position(6, 0))
+			),
+			new Tok(
+				TokType.Identifier,
+				"tmp",
+				new Range(new Position(8, 0), new Position(9, 0))
+			),
+			null
+		);
+		var after = new Position(10, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			import,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { import, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_MultipleImport()
+	{
+		var multipleImport = new TypedMultipleImport(
+			new Tok(
+				TokType.Import,
+				"import",
+				new Range(new Position(), new Position(6, 0))
+			),
+			new List<TypedImport>(),
+			new Tok(
+				TokType.RightParen,
+				")",
+				new Range(new Position(8, 0), new Position(9, 0))
+			)
+		);
+		var after = new Position(10, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			multipleImport,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { multipleImport, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Comment()
+	{
+		var comment = new TypedComment(
+			new Tok(
+				TokType.Comment,
+				"// comment",
+				new Range(new Position(), new Position(10, 0))
+			)
+		);
+		var after = new Position(11, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			comment,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { comment, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Continue()
+	{
+		var @continue = new TypedContinue(
+			new Tok(
+				TokType.Continue,
+				"continue",
+				new Range(new Position(), new Position(8, 0))
+			)
+		);
+		var after = new Position(9, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@continue,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @continue, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Break()
+	{
+		var @break = new TypedBreak(
+			new Tok(
+				TokType.Break,
+				"break",
+				new Range(new Position(), new Position(5, 0))
+			)
+		);
+		var after = new Position(6, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@break,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @break, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Yield()
+	{
+		var yield = new TypedYield(
+			new Tok(
+				TokType.Yield,
+				"yield",
+				new Range(new Position(), new Position(5, 0))
+			),
+			new IntLiteral(
+				new Tok(
+					TokType.IntLiteral,
+					"5",
+					new Range(new Position(6, 0), new Position(7, 0))
+				)
+			)
+		);
+		var after = new Position(8, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			yield,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { yield, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Check()
+	{
+		var check = new TypedCheck(
+			new Tok(
+				TokType.Check,
+				"check",
+				new Range(new Position(), new Position(5, 0))
+			),
+			new TypedCall(
+				new TypedVariable(
+					new Tok(TokType.Identifier, "f"),
+					new AuraNamedFunction(
+						"f",
+						Visibility.Private,
+						new AuraFunction(new List<Param>(), new AuraNil())
+					)
+				),
+				new List<ITypedAuraExpression>(),
+				new Tok(
+					TokType.RightParen,
+					")",
+					new Range(new Position(6, 0), new Position(7, 0))
+				),
+				new AuraNamedFunction(
+					"f",
+					Visibility.Private,
+					new AuraFunction(new List<Param>(), new AuraNil())
+				)
+			)
+		);
+		var after = new Position(8, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			check,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { check, null }
+		);
+	}
+
+	[Test]
+	public void TestPrecedingNodeFinder_Struct()
+	{
+		var @struct = new TypedStruct(
+			new Tok(
+				TokType.Struct,
+				"struct",
+				new Range(new Position(), new Position(5, 0))
+			),
+			new Tok(TokType.Identifier, "s"),
+			new List<Param>(),
+			new Tok(
+				TokType.RightParen,
+				")",
+				new Range(new Position(7, 0), new Position(8, 0))
+			),
+			null
+		);
+		var after = new Position(9, 0);
+		var notAfter = new Position();
+
+		ActAndAssert_Statement(
+			@struct,
+			new List<Position> { after, notAfter },
+			new List<ITypedAuraAstNode?> { @struct, null }
+		);
+	}
+
 	private static void ActAndAssert_Expression(
 		ITypedAuraExpression node,
 		IEnumerable<Position> positions,
