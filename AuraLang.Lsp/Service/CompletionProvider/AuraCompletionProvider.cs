@@ -1,32 +1,16 @@
 ﻿using AuraLang.AST;
-using AuraLang.Lsp.PrecedingNodeFinder;
 using AuraLang.Types;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Position = AuraLang.Location.Position;
 
-namespace AuraLang.Lsp.CompletionProvider;
+namespace AuraLang.Lsp.Service.CompletionProvider;
 
 /// <summary>
 ///     Responsible for providing completion options when triggered by a predefined trigger character. The completion items
 ///     returned depends on the immediately preceding AST node and the specific trigger character
 /// </summary>
-public class AuraCompletionProvider
+public class AuraCompletionProvider : AuraLspService
 {
-	/// <summary>
-	///     Finds the immediately preceding node in the supplied Abstract Syntax Tree
-	/// </summary>
-	/// <param name="position">The position of the trigger character</param>
-	/// <param name="typedAst">A typed Abstract Syntax Tree</param>
-	/// <returns></returns>
-	private ITypedAuraAstNode? FindImmediatelyPrecedingNode(
-		Position position,
-		IEnumerable<ITypedAuraStatement> typedAst
-	)
-	{
-		var rangeFinder = new AuraPrecedingNodeFinder(position, typedAst);
-		return rangeFinder.FindImmediatelyPrecedingNode();
-	}
-
 	/// <summary>
 	///     Provides a list of completion options
 	/// </summary>

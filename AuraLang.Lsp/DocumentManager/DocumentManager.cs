@@ -1,10 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using AuraLang.AST;
 using AuraLang.Exceptions;
-using AuraLang.Lsp.CompletionProvider;
 using AuraLang.Lsp.Document;
-using AuraLang.Lsp.HoverProvider;
-using AuraLang.Lsp.SignatureHelpProvider;
+using AuraLang.Lsp.Service.CompletionProvider;
+using AuraLang.Lsp.Service.HoverProvider;
+using AuraLang.Lsp.Service.SignatureHelpProvider;
 using AuraLang.Lsp.SynchronizedFileProvider;
 using AuraLang.Parser;
 using AuraLang.Scanner;
