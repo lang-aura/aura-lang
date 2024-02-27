@@ -30,19 +30,22 @@ public class AuraDiagnosticsPublisher
 	/// <param name="uri">The path of the Aura source file where the error was encountered</param>
 	public async Task SendAsync(AuraException ex, Uri uri)
 	{
-		var diagnostic = new Diagnostic
+		var diagnostics = ex
+			.Range.Select(
+				r => new Diagnostic
 		{
 			Code = "Warning",
 			Message = ex.Message,
 			Severity = DiagnosticSeverity.Error,
 			Range = new LspRange
 			{
-				Start = new Position { Line = ex.Range.Start.Line, Character = ex.Range.Start.Character },
-				End = new Position { Line = ex.Range.End.Line, Character = ex.Range.End.Character }
-
+				Start = new Position { Line = r.Start.Line, Character = r.Start.Character },
+				End = new Position { Line = r.End.Line, Character = r.End.Character }
 			}
-		};
-		var publish = new PublishDiagnosticParams { Uri = uri, Diagnostics = new[] { diagnostic } };
+		}
+			)
+			.ToArray();
+		var publish = new PublishDiagnosticParams { Uri = uri, Diagnostics = diagnostics };
 
 		// Send 'textDocument/publishDiagnostics' notification to the client
 		await Rpc.NotifyWithParameterObjectAsync("textDocument/publishDiagnostics", publish);
