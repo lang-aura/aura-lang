@@ -6,6 +6,9 @@ using Position = AuraLang.Location.Position;
 
 namespace AuraLang.Lsp.SignatureHelpProvider;
 
+/// <summary>
+///     Responsible for providing signature help to display in the LSP client
+/// </summary>
 public class AuraSignatureHelpProvider
 {
 	private ITypedAuraAstNode? FindImmediatelyPrecedingNode(
@@ -17,6 +20,13 @@ public class AuraSignatureHelpProvider
 		return rangeFinder.FindImmediatelyPrecedingNode();
 	}
 
+	/// <summary>
+	///     Computes signature help
+	/// </summary>
+	/// <param name="position">The position of the trigger character</param>
+	/// <param name="triggerCharacter">The specific trigger character</param>
+	/// <param name="typedAst">A typed Abstract Syntax Tree that contains the trigger character</param>
+	/// <returns>Signature help information</returns>
 	public SignatureHelp? ComputeSignatureHelp(
 		Position position,
 		string triggerCharacter,

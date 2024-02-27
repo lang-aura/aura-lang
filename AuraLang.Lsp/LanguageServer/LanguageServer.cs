@@ -9,18 +9,35 @@ using Range = Microsoft.VisualStudio.LanguageServer.Protocol.Range;
 
 namespace AuraLang.Lsp.LanguageServer;
 
+/// <summary>
+///     Responsible for communicating with an LSP client to provide an enhanced Aura development experience
+/// </summary>
 public class AuraLanguageServer : IDisposable
 {
+	/// <summary>
+	///     The JSON RPC connection to communicate over
+	/// </summary>
 	private JsonRpc? _rpc;
 	private readonly ManualResetEvent _disconnectEvent = new(false);
 	private bool _isDisposed;
 	private static readonly object Object = new();
 	private bool Verbose { get; }
+
+	/// <summary>
+	///     Manages the Aura source files currently owned by the LSP client
+	/// </summary>
 	private readonly AuraDocumentManager _documents = new();
+
+	/// <summary>
+	///     Sends diagnostics to the LSP client
+	/// </summary>
 	private AuraDiagnosticsPublisher? DiagnosticsPublisher { get; set; }
 
 	public AuraLanguageServer(bool verbose) { Verbose = verbose; }
 
+	/// <summary>
+	///     Initializes the Aura LSP server
+	/// </summary>
 	public async Task InitAsync()
 	{
 		_rpc = JsonRpc.Attach(
@@ -33,6 +50,9 @@ public class AuraLanguageServer : IDisposable
 		await _rpc.Completion;
 	}
 
+	/// <summary>
+	///     Responds to the LSP client's <c>initialize</c> event
+	/// </summary>
 	[JsonRpcMethod(Methods.InitializeName)]
 	public InitializeResult Initialize(JToken arg)
 	{
@@ -78,6 +98,9 @@ public class AuraLanguageServer : IDisposable
 		}
 	}
 
+	/// <summary>
+	///     Responds to the LSP client's <c>initialized</c> event
+	/// </summary>
 	[JsonRpcMethod(Methods.InitializedName)]
 	public void Initialized(JToken arg)
 	{
