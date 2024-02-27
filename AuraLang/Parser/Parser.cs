@@ -185,9 +185,16 @@ public class AuraParser
 				continue;
 			}
 
-			if (_tokens[i].Typ == TokType.Comment) return _tokens[i].Value;
+			if (_tokens[i].Typ != TokType.Comment) return null;
 
-			return null;
+			var doc = string.Empty;
+			while (_tokens[i].Typ == TokType.Comment)
+			{
+				doc = _tokens[i].Value + '\n' + doc;
+				i -= 2; // Advance past the semicolon token
+			}
+
+			return doc;
 		}
 
 		return null;
