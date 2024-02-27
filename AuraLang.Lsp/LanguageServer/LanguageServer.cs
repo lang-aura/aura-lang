@@ -5,7 +5,6 @@ using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
-using Range = Microsoft.VisualStudio.LanguageServer.Protocol.Range;
 
 namespace AuraLang.Lsp.LanguageServer;
 
@@ -199,25 +198,7 @@ public class AuraLanguageServer : IDisposable
 	public Hover HoverProvider(JToken jToken)
 	{
 		var @params = DeserializeJToken<TextDocumentPositionParams>(jToken);
-		var node = _documents.GetHoverText(@params);
-		if (node is null) return new Hover();
-		return new Hover
-		{
-			Contents = new MarkupContent { Value = $"```\n{node.HoverText}\n```", Kind = MarkupKind.Markdown },
-			Range = new Range
-			{
-				Start = new Position
-				{
-					Character = node.HoverableRange.Start.Character,
-					Line = node.HoverableRange.Start.Line
-				},
-				End = new Position
-				{
-					Character = node.HoverableRange.End.Character,
-					Line = node.HoverableRange.End.Line
-				}
-			}
-		};
+		return _documents.GetHoverText(@params);
 	}
 
 	[JsonRpcMethod(Methods.TextDocumentCompletionName)]

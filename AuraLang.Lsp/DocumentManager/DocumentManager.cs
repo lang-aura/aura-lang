@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using AuraLang.AST;
 using AuraLang.Exceptions;
 using AuraLang.Lsp.Document;
 using AuraLang.Lsp.Service.CompletionProvider;
@@ -131,11 +130,11 @@ public class AuraDocumentManager
 	/// </summary>
 	/// <param name="hoverParams">The hover parameters provided by the LSP client</param>
 	/// <returns>A typed AST node that will provide the necessary hover text</returns>
-	public IHoverable? GetHoverText(TextDocumentPositionParams hoverParams)
+	public Hover GetHoverText(TextDocumentPositionParams hoverParams)
 	{
 		var position = hoverParams.Position;
 		var fileContents = GetDocument(hoverParams.TextDocument.Uri.ToString());
-		return _hoverProvider.FindStmtByPosition(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
+		return _hoverProvider.GetHoverText(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
 	}
 
 	/// <summary>
