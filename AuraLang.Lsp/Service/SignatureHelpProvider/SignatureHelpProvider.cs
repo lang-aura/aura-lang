@@ -1,25 +1,15 @@
 ﻿using AuraLang.AST;
-using AuraLang.Lsp.PrecedingNodeFinder;
 using AuraLang.Types;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Position = AuraLang.Location.Position;
 
-namespace AuraLang.Lsp.SignatureHelpProvider;
+namespace AuraLang.Lsp.Service.SignatureHelpProvider;
 
 /// <summary>
 ///     Responsible for providing signature help to display in the LSP client
 /// </summary>
-public class AuraSignatureHelpProvider
+public class AuraSignatureHelpProvider : AuraLspService
 {
-	private ITypedAuraAstNode? FindImmediatelyPrecedingNode(
-		Position position,
-		IEnumerable<ITypedAuraStatement> typedAst
-	)
-	{
-		var rangeFinder = new AuraPrecedingNodeFinder(position, typedAst);
-		return rangeFinder.FindImmediatelyPrecedingNode();
-	}
-
 	/// <summary>
 	///     Computes signature help
 	/// </summary>

@@ -1,12 +1,12 @@
 ﻿using AuraLang.AST;
 using AuraLang.Location;
 
-namespace AuraLang.Lsp.HoverProvider;
+namespace AuraLang.Lsp.Service.HoverProvider;
 
 /// <summary>
 ///     Responsible for providing hover information to display in the LSP client
 /// </summary>
-public class AuraHoverProvider
+public class AuraHoverProvider : AuraLspService
 {
 	public IHoverable? FindStmtByPosition(Position position, IEnumerable<ITypedAuraStatement> typedAst)
 	{
