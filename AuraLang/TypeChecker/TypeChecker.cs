@@ -11,7 +11,6 @@ using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
-using Newtonsoft.Json;
 using Range = AuraLang.Location.Range;
 
 namespace AuraLang.TypeChecker;
@@ -1460,7 +1459,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	/// </summary>
 	/// <param name="call">The call expression to type check</param>
 	/// <returns>A valid, type checked call expression</returns>
-	/// <exception cref="IncorrectNumberOfArgumentsException">
+	/// <exception cref="TooFewArgumentsException">
 	///     Thrown if the number of arguments provided does
 	///     not match the expected number of parameters
 	/// </exception>
@@ -1486,16 +1485,16 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						{
 							if (call.Arguments.Count + 1 > funcDeclaration_.GetParams().Count)
 								throw new TooManyArgumentsException(
-									call.Arguments.Count,
-									funcDeclaration_.GetParams().Count,
+									call.Arguments.Select(arg => Expression(arg.Item2)),
+									funcDeclaration_.GetParams(),
 									call
 										.Arguments.Skip(funcDeclaration_.GetParams().Count)
 										.Select(arg => arg.Item2.Range)
 										.ToArray()
 								);
-							throw new IncorrectNumberOfArgumentsException(
-								call.Arguments.Count,
-								funcDeclaration_.GetParams().Count,
+							throw new TooFewArgumentsException(
+								call.Arguments.Select(arg => Expression(arg.Item2)),
+								funcDeclaration_.GetParams(),
 								call.ClosingParen.Range
 							);
 						}
@@ -2173,44 +2172,31 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		{
 			if (call.Arguments.Count + 1 > declaration.GetParams().Count)
 				throw new TooManyArgumentsException(
-					call.Arguments.Count,
-					declaration.GetParams().Count,
+					call.Arguments.Select(arg => Expression(arg.Item2)),
+					declaration.GetParams(),
 					call.Arguments.Skip(declaration.GetParams().Count).Select(arg => arg.Item2.Range).ToArray()
 				);
-			throw new IncorrectNumberOfArgumentsException(
-				call.Arguments.Count,
-				declaration.GetParams().Count,
+			throw new TooFewArgumentsException(
+				call.Arguments.Select(arg => Expression(arg.Item2)),
+				declaration.GetParams(),
 				call.ClosingParen.Range
 			);
-			/*throw new IncorrectNumberOfArgumentsException(
-				call.Arguments.Count,
-				declaration.GetParams().Count,
-				call.ClosingParen.Range
-			);*/
 		}
 
 		if (!declaration.HasVariadicParam() &&
 			declaration.GetParamTypes().Count != call.Arguments.Count)
 		{
-			Console.Error.WriteLine(
-				$"args = {JsonConvert.SerializeObject(call.Arguments.Skip(declaration.GetParams().Count))}; declaration params count = {declaration.GetParams().Count}"
-			);
 			if (call.Arguments.Count + 1 > declaration.GetParams().Count)
 				throw new TooManyArgumentsException(
-					call.Arguments.Count,
-					declaration.GetParams().Count,
+					call.Arguments.Select(arg => Expression(arg.Item2)),
+					declaration.GetParams(),
 					call.Arguments.Skip(declaration.GetParams().Count).Select(arg => arg.Item2.Range).ToArray()
 				);
-			throw new IncorrectNumberOfArgumentsException(
-				call.Arguments.Count,
-				declaration.GetParams().Count,
+			throw new TooFewArgumentsException(
+				call.Arguments.Select(arg => Expression(arg.Item2)),
+				declaration.GetParams(),
 				call.ClosingParen.Range
 			);
-			/*throw new IncorrectNumberOfArgumentsException(
-				call.Arguments.Count,
-				declaration.GetParams().Count,
-				call.ClosingParen.Range
-			);*/
 		}
 
 		// The arguments are already in order when using positional arguments, so just extract the arguments

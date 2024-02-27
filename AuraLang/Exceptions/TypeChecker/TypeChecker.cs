@@ -1,4 +1,6 @@
-﻿using AuraLang.Types;
+﻿using AuraLang.AST;
+using AuraLang.Shared;
+using AuraLang.Types;
 using Range = AuraLang.Location.Range;
 
 namespace AuraLang.Exceptions.TypeChecker;
@@ -88,16 +90,21 @@ public class ExpectRangeIndexableException : TypeCheckerException
 /// <summary>
 ///     Thrown when the number of arguments supplied does not match the expected number of parameters
 /// </summary>
-public class IncorrectNumberOfArgumentsException : TypeCheckerException
+public class TooFewArgumentsException : TypeCheckerException
 {
-	public IncorrectNumberOfArgumentsException(int have, int want, Range range)
-		: base($"Incorrect number of arguments. Have {have}, but want {want}.", range) { }
+	public TooFewArgumentsException(IEnumerable<ITypedAuraExpression> have, IEnumerable<Param> want, Range range)
+		: base(
+			$"Incorrect number of arguments\n\thave ({string.Join(", ", have.Select(arg => arg.Typ.ToAuraString()))}),\n\tbut want ({string.Join(", ", want.Select(p => p.ParamType.Typ.ToAuraString()))}).",
+			range
+		)
+	{ }
 }
 
 public class TooManyArgumentsException : TypeCheckerException
 {
-	public TooManyArgumentsException(int have, int want, Range[] range) : base(
-		$"Incorrect number of arguments. Have {have}, but want {want}.",
+	public TooManyArgumentsException(IEnumerable<ITypedAuraExpression> have, IEnumerable<Param> want, Range[] range) :
+		base(
+			$"Incorrect number of arguments\n\thave ({string.Join(", ", have.Select(arg => arg.Typ.ToAuraString()))}),\n\tbut want ({string.Join(", ", want.Select(p => p.ParamType.Typ.ToAuraString()))}).",
 		range
 	)
 	{ }
