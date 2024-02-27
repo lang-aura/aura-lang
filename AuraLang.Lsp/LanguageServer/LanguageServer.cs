@@ -176,7 +176,7 @@ public class AuraLanguageServer : IDisposable
 	public Hover HoverProvider(JToken jToken)
 	{
 		var @params = DeserializeJToken<TextDocumentPositionParams>(jToken);
-		var node = _documents.FindStmtByPosition(@params);
+		var node = _documents.GetHoverText(@params);
 		if (node is null) return new Hover();
 		return new Hover
 		{
