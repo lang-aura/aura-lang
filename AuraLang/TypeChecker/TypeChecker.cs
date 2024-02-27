@@ -11,6 +11,7 @@ using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
+using Newtonsoft.Json;
 using Range = AuraLang.Location.Range;
 
 namespace AuraLang.TypeChecker;
@@ -942,7 +943,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					var local = FindOrThrow(
 						impl.Value,
 						ModuleName!,
-						@class.Range
+						impl.Range
 					);
 					var i = local.Kind as AuraInterface ??
 							throw new CannotImplementNonInterfaceException(impl.Value, @class.Range);
@@ -1030,7 +1031,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							var local = FindOrThrow(
 								impl.Value,
 								ModuleName!,
-								@class.Range
+								impl.Range
 							);
 							var i = local.Kind as AuraInterface ??
 									throw new CannotImplementNonInterfaceException(impl.Value, @class.Range);
@@ -1336,7 +1337,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				var v = FindOrThrow(
 					assignment.Name.Value,
 					ModuleName!,
-					assignment.Range
+					assignment.Name.Range
 				);
 				// Ensure that the new value and the variable have the same type
 				var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
@@ -1477,16 +1478,25 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						var f_ = FindOrThrow(
 							ug.GetName(),
 							im.GetModuleName(),
-							call.Range
+							ug.Range
 						);
 						var funcDeclaration_ = f_.Kind as ICallable;
 						// Ensure the function call has the correct number of arguments
 						if (funcDeclaration_!.GetParams().Count != call.Arguments.Count + 1)
 						{
+							if (call.Arguments.Count + 1 > funcDeclaration_.GetParams().Count)
+								throw new TooManyArgumentsException(
+									call.Arguments.Count,
+									funcDeclaration_.GetParams().Count,
+									call
+										.Arguments.Skip(funcDeclaration_.GetParams().Count)
+										.Select(arg => arg.Item2.Range)
+										.ToArray()
+								);
 							throw new IncorrectNumberOfArgumentsException(
 								call.Arguments.Count,
 								funcDeclaration_.GetParams().Count,
-								call.Range
+								call.ClosingParen.Range
 							);
 						}
 
@@ -1523,7 +1533,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				var f = FindOrThrow(
 					call.Callee.GetName(),
 					@namespace ?? ModuleName!,
-					call.Range
+					call.Callee.Range
 				);
 				var funcDeclaration = f.Kind as ICallable;
 				// Type check arguments
@@ -1566,7 +1576,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 										   throw new MustSpecifyValueForArgumentWithoutDefaultValueException(
 											   call.GetName(),
 											   arg.Name.Value,
-											   call.Range
+											   call.ClosingParen.Range
 										   );
 						if (index >= typedArgs.Count)
 						{
@@ -1611,7 +1621,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						var attribute = FindOrThrow(
 							get.Name.Value,
 							symbolNamespace,
-							get.Range
+							get.Name.Range
 						);
 						return new TypedGet(
 							new TypedVariable(
@@ -2034,7 +2044,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		var localVar = FindOrThrow(
 			v.Name.Value,
 			@namespace,
-			v.Range
+			v.Name.Range
 		);
 		var kind = !localVar.Kind.IsSameType(new AuraUnknown(string.Empty))
 			? localVar.Kind
@@ -2161,21 +2171,46 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		if (declaration.HasVariadicParam() &&
 			call.Arguments.Count < declaration.GetParams().Count)
 		{
+			if (call.Arguments.Count + 1 > declaration.GetParams().Count)
+				throw new TooManyArgumentsException(
+					call.Arguments.Count,
+					declaration.GetParams().Count,
+					call.Arguments.Skip(declaration.GetParams().Count).Select(arg => arg.Item2.Range).ToArray()
+				);
 			throw new IncorrectNumberOfArgumentsException(
 				call.Arguments.Count,
 				declaration.GetParams().Count,
-				call.Range
+				call.ClosingParen.Range
 			);
+			/*throw new IncorrectNumberOfArgumentsException(
+				call.Arguments.Count,
+				declaration.GetParams().Count,
+				call.ClosingParen.Range
+			);*/
 		}
 
 		if (!declaration.HasVariadicParam() &&
 			declaration.GetParamTypes().Count != call.Arguments.Count)
 		{
+			Console.Error.WriteLine(
+				$"args = {JsonConvert.SerializeObject(call.Arguments.Skip(declaration.GetParams().Count))}; declaration params count = {declaration.GetParams().Count}"
+			);
+			if (call.Arguments.Count + 1 > declaration.GetParams().Count)
+				throw new TooManyArgumentsException(
+					call.Arguments.Count,
+					declaration.GetParams().Count,
+					call.Arguments.Skip(declaration.GetParams().Count).Select(arg => arg.Item2.Range).ToArray()
+				);
 			throw new IncorrectNumberOfArgumentsException(
 				call.Arguments.Count,
 				declaration.GetParams().Count,
-				call.Range
+				call.ClosingParen.Range
 			);
+			/*throw new IncorrectNumberOfArgumentsException(
+				call.Arguments.Count,
+				declaration.GetParams().Count,
+				call.ClosingParen.Range
+			);*/
 		}
 
 		// The arguments are already in order when using positional arguments, so just extract the arguments

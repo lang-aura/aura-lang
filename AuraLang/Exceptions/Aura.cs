@@ -47,9 +47,9 @@ public abstract class AuraException : Exception
 	/// <summary>
 	///     The range of the AST node that triggered the error
 	/// </summary>
-	public Range Range { get; }
+	public Range[] Range { get; }
 
-	protected AuraException(string message, Range range) : base(message)
+	protected AuraException(string message, params Range[] range) : base(message)
 	{
 		Range = range;
 	}
@@ -63,7 +63,7 @@ public abstract class AuraException : Exception
 	{
 		// The starting and ending positions in the range store the line as a 0-based index, so we increment the
 		// line by 1 to get a value that humans expect.
-		return $"[{filePath} line {Range.Start.Line + 1}] {Message}";
+		return $"[{filePath} line {Range[0].Start.Line + 1}] {Message}";
 	}
 }
 

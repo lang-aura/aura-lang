@@ -8,7 +8,7 @@ namespace AuraLang.Exceptions.TypeChecker;
 /// </summary>
 public abstract class TypeCheckerException : AuraException
 {
-	protected TypeCheckerException(string message, Range range) : base(message, range) { }
+	protected TypeCheckerException(string message, params Range[] range) : base(message, range) { }
 }
 
 /// <summary>
@@ -16,7 +16,11 @@ public abstract class TypeCheckerException : AuraException
 /// </summary>
 public class UnexpectedTypeException : TypeCheckerException
 {
-	public UnexpectedTypeException(AuraType expected, AuraType found, Range range) : base($"Unexpected type. Expected {expected}, but found {found}", range) { }
+	public UnexpectedTypeException(AuraType expected, AuraType found, Range range) : base(
+		$"Unexpected type. Expected {expected}, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -24,7 +28,11 @@ public class UnexpectedTypeException : TypeCheckerException
 /// </summary>
 public class ExpectIterableException : TypeCheckerException
 {
-	public ExpectIterableException(AuraType found, Range range) : base($"Expected iterable type, but found {found}", range) { }
+	public ExpectIterableException(AuraType found, Range range) : base(
+		$"Expected iterable type, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -32,7 +40,11 @@ public class ExpectIterableException : TypeCheckerException
 /// </summary>
 public class TypeMismatchException : TypeCheckerException
 {
-	public TypeMismatchException(AuraType expected, AuraType found, Range range) : base($"Type mismatch. Expected {expected}, but found {found}", range) { }
+	public TypeMismatchException(AuraType expected, AuraType found, Range range) : base(
+		$"Type mismatch. Expected {expected}, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -42,7 +54,11 @@ public class TypeMismatchException : TypeCheckerException
 public class MismatchedUnaryOperatorAndOperandException : TypeCheckerException
 {
 	public MismatchedUnaryOperatorAndOperandException(string unaryOperator, AuraType operandType, Range range)
-		: base($"Mismatched unary operator and operand. Operator `{unaryOperator}` not valid with type {operandType}.", range) { }
+		: base(
+			$"Mismatched unary operator and operand. Operator `{unaryOperator}` not valid with type {operandType}.",
+			range
+		)
+	{ }
 }
 
 /// <summary>
@@ -50,7 +66,11 @@ public class MismatchedUnaryOperatorAndOperandException : TypeCheckerException
 /// </summary>
 public class ExpectIndexableException : TypeCheckerException
 {
-	public ExpectIndexableException(AuraType found, Range range) : base($"Expected indexable type, but found {found}", range) { }
+	public ExpectIndexableException(AuraType found, Range range) : base(
+		$"Expected indexable type, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -58,7 +78,11 @@ public class ExpectIndexableException : TypeCheckerException
 /// </summary>
 public class ExpectRangeIndexableException : TypeCheckerException
 {
-	public ExpectRangeIndexableException(AuraType found, Range range) : base($"Expected range indexable type, but found {found}", range) { }
+	public ExpectRangeIndexableException(AuraType found, Range range) : base(
+		$"Expected range indexable type, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -70,13 +94,31 @@ public class IncorrectNumberOfArgumentsException : TypeCheckerException
 		: base($"Incorrect number of arguments. Have {have}, but want {want}.", range) { }
 }
 
+public class TooManyArgumentsException : TypeCheckerException
+{
+	public TooManyArgumentsException(int have, int want, Range[] range) : base(
+		$"Incorrect number of arguments. Have {have}, but want {want}.",
+		range
+	)
+	{ }
+}
+
 /// <summary>
 ///     Thrown when the object of a <c>get</c> expression is not a valid get-able type
 /// </summary>
 public class CannotGetFromNonClassException : TypeCheckerException
 {
-	public CannotGetFromNonClassException(string varName, AuraType varType, string attributeName, Range range)
-		: base($"Cannot get attribute from non-class. Trying to get attribute `{attributeName}` from `{varName}`, which has type `{varType}`.", range) { }
+	public CannotGetFromNonClassException(
+		string varName,
+		AuraType varType,
+		string attributeName,
+		Range range
+	)
+		: base(
+			$"Cannot get attribute from non-class. Trying to get attribute `{attributeName}` from `{varName}`, which has type `{varType}`.",
+			range
+		)
+	{ }
 }
 
 /// <summary>
@@ -95,7 +137,11 @@ public class ClassAttributeDoesNotExistException : TypeCheckerException
 /// </summary>
 public class InvalidUseOfYieldKeywordException : TypeCheckerException
 {
-	public InvalidUseOfYieldKeywordException(Range range) : base("Invalid use of yield keyword. The yield keyword may only be used inside of an if expression or block to return a value from the enclosing context", range) { }
+	public InvalidUseOfYieldKeywordException(Range range) : base(
+		"Invalid use of yield keyword. The yield keyword may only be used inside of an if expression or block to return a value from the enclosing context",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -104,7 +150,11 @@ public class InvalidUseOfYieldKeywordException : TypeCheckerException
 /// </summary>
 public class InvalidUseOfBreakKeywordException : TypeCheckerException
 {
-	public InvalidUseOfBreakKeywordException(Range range) : base("Invalid use of `break` keyword. The `break` keyword may only be used inside of a loop to break out of the loop's execution", range) { }
+	public InvalidUseOfBreakKeywordException(Range range) : base(
+		"Invalid use of `break` keyword. The `break` keyword may only be used inside of a loop to break out of the loop's execution",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -113,7 +163,11 @@ public class InvalidUseOfBreakKeywordException : TypeCheckerException
 /// </summary>
 public class InvalidUseOfContinueKeywordException : TypeCheckerException
 {
-	public InvalidUseOfContinueKeywordException(Range range) : base("Invalid use of `continue` keyword. The `continue` keyword may only be used inside of a loop to immediately advance to the loop's next iteration", range) { }
+	public InvalidUseOfContinueKeywordException(Range range) : base(
+		"Invalid use of `continue` keyword. The `continue` keyword may only be used inside of a loop to immediately advance to the loop's next iteration",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -132,7 +186,11 @@ public class CannotMixNamedAndUnnamedArgumentsException : TypeCheckerException
 public class MustSpecifyValueForArgumentWithoutDefaultValueException : TypeCheckerException
 {
 	public MustSpecifyValueForArgumentWithoutDefaultValueException(string functionName, string argument, Range range)
-		: base($"Argument `{argument}` in call to `{functionName}` does not have a default value specified, so a value must be specified.", range) { }
+		: base(
+			$"Argument `{argument}` in call to `{functionName}` does not have a default value specified, so a value must be specified.",
+			range
+		)
+	{ }
 }
 
 /// <summary>
@@ -141,7 +199,11 @@ public class MustSpecifyValueForArgumentWithoutDefaultValueException : TypeCheck
 public class MustSpecifyInitialValueForNonDefaultableTypeException : TypeCheckerException
 {
 	public MustSpecifyInitialValueForNonDefaultableTypeException(AuraType typ, Range range)
-		: base($"The type `{typ}` does not have a default value specified, so an initial value must be provided.", range) { }
+		: base(
+			$"The type `{typ}` does not have a default value specified, so an initial value must be provided.",
+			range
+		)
+	{ }
 }
 
 /// <summary>
@@ -176,7 +238,11 @@ public class MissingInterfaceMethodException : TypeCheckerException
 /// </summary>
 public class CannotSetOnNonClassException : TypeCheckerException
 {
-	public CannotSetOnNonClassException(AuraType typ, Range range) : base($"Trying to set a value on type {typ}, which is not permitted. ", range) { }
+	public CannotSetOnNonClassException(AuraType typ, Range range) : base(
+		$"Trying to set a value on type {typ}, which is not permitted. ",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -184,7 +250,11 @@ public class CannotSetOnNonClassException : TypeCheckerException
 /// </summary>
 public class CannotIncrementNonNumberException : TypeCheckerException
 {
-	public CannotIncrementNonNumberException(AuraType found, Range range) : base($"Cannot increment non-number type. Expected either int or float, but found {found}", range) { }
+	public CannotIncrementNonNumberException(AuraType found, Range range) : base(
+		$"Cannot increment non-number type. Expected either int or float, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -192,7 +262,11 @@ public class CannotIncrementNonNumberException : TypeCheckerException
 /// </summary>
 public class CannotDecrementNonNumberException : TypeCheckerException
 {
-	public CannotDecrementNonNumberException(AuraType found, Range range) : base($"Cannot decrement non-number. Expected either int or float, but found {found}", range) { }
+	public CannotDecrementNonNumberException(AuraType found, Range range) : base(
+		$"Cannot decrement non-number. Expected either int or float, but found {found}",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -200,7 +274,11 @@ public class CannotDecrementNonNumberException : TypeCheckerException
 /// </summary>
 public class DirectoryCannotContainMultipleModulesException : TypeCheckerException
 {
-	public DirectoryCannotContainMultipleModulesException(List<string> found, Range range) : base($"Directory cannot contain multiple modules. Expected only one module name, but found [{string.Join(", ", found)}]", range) { }
+	public DirectoryCannotContainMultipleModulesException(List<string> found, Range range) : base(
+		$"Directory cannot contain multiple modules. Expected only one module name, but found [{string.Join(", ", found)}]",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -209,7 +287,11 @@ public class DirectoryCannotContainMultipleModulesException : TypeCheckerExcepti
 /// </summary>
 public class InvalidUseOfCheckKeywordException : TypeCheckerException
 {
-	public InvalidUseOfCheckKeywordException(Range range) : base("Invalid use of `check` keyword. The `check` keyword may only be used with function calls whose return type is `Result`", range) { }
+	public InvalidUseOfCheckKeywordException(Range range) : base(
+		"Invalid use of `check` keyword. The `check` keyword may only be used with function calls whose return type is `Result`",
+		range
+	)
+	{ }
 }
 
 /// <summary>
@@ -219,5 +301,9 @@ public class InvalidUseOfCheckKeywordException : TypeCheckerException
 /// </summary>
 public class CannotMixTypeAnnotationsException : TypeCheckerException
 {
-	public CannotMixTypeAnnotationsException(Range range) : base("Cannot mix type annotations in `let` statement", range) { }
+	public CannotMixTypeAnnotationsException(Range range) : base(
+		"Cannot mix type annotations in `let` statement",
+		range
+	)
+	{ }
 }
