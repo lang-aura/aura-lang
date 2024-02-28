@@ -539,7 +539,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				throw new TypeMismatchException(
 					r.Failure,
 					typedBody.Typ,
-					f.Range
+					f.Body.ClosingBrace.Range
 				);
 			}
 		}
@@ -550,7 +550,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				throw new TypeMismatchException(
 					returnType,
 					typedBody.Typ,
-					f.Range
+					f.Body.ClosingBrace.Range
 				);
 			}
 		}
