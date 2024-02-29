@@ -107,10 +107,14 @@ public class AuraDocumentManager
 	/// </summary>
 	/// <param name="path">The path of the Aura source file to fetch</param>
 	/// <returns>A document representing the Aura source file located at the supplied path</returns>
-	public AuraLspDocument? GetDocument(string path)
+	private AuraLspDocument? GetDocument(string path)
 	{
 		var (module, file) = GetModuleAndFileNames(path);
-		return _documents[module][file];
+		if (_documents.TryGetValue(module, out var mod))
+			if (mod.TryGetValue(file, out var doc))
+				return doc;
+
+		return null;
 	}
 
 	/// <summary>
@@ -134,7 +138,8 @@ public class AuraDocumentManager
 	{
 		var position = hoverParams.Position;
 		var fileContents = GetDocument(hoverParams.TextDocument.Uri.ToString());
-		return _hoverProvider.GetHoverText(Position.FromMicrosoftPosition(position), fileContents!.TypedAst);
+		if (fileContents is null) return new Hover();
+		return _hoverProvider.GetHoverText(Position.FromMicrosoftPosition(position), fileContents.TypedAst);
 	}
 
 	/// <summary>
