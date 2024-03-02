@@ -64,6 +64,8 @@ public class Build : AuraCommand
 	{
 		var goPath = auraPath.Replace("src/", string.Empty);
 		goPath = Path.ChangeExtension(goPath, "go");
+		// Creating the directory may be necessary if the module being compiled isn't imported anywhere in the project
+		Directory.CreateDirectory($"./build/pkg/{Path.GetDirectoryName(goPath)}");
 		File.WriteAllText($"./build/pkg/{goPath}", content);
 	}
 
