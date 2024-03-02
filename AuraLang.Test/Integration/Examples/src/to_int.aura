@@ -1,0 +1,23 @@
+mod main
+
+import aura/io
+
+fn main() {
+    input := [string]{ "1x2x3", "1x2x3" }
+    io.printf("%d\n", f(input))
+}
+
+fn f(input: [string]) -> int {
+    total := 0
+
+    foreach line in input {
+        measurements := line.split("x")
+        m0 := measurements[0].to_int()
+        m1 := measurements[1].to_int()
+        m2 := measurements[2].to_int()
+        tmp := (2 * m0 * m1) + (2 * m1 * m2) + (2 * m2 * m0)
+        total += tmp
+    }
+
+    return total
+}

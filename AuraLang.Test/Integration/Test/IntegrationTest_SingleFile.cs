@@ -124,6 +124,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "is IGreeter\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_ToIntAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/to_int.aura");
+		MakeAssertions(output, "44\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
