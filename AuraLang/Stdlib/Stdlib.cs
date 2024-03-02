@@ -11,1006 +11,1008 @@ public static class AuraStdlib
 	{
 		{
 			"aura/io", new AuraModule(
-				name: "io",
-				publicFunctions: new List<AuraNamedFunction>
+				"io",
+				new List<AuraNamedFunction>
 				{
 					new(
-						name: "printf",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"printf",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "format"
+									new Tok(
+										TokType.Identifier,
+										"format"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new ParamType(
-										Typ: new AuraAny(),
-										Variadic: true,
-										DefaultValue: null
+									new ParamType(
+										new AuraAny(),
+										true,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraNil()
 						),
-						documentation: "Prints the supplied format string to stdout"
+						"Prints the supplied format string to stdout"
 					),
 					new(
-						name: "println",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"println",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraNil()
 						),
-						documentation: "Prints the supplied string to stdout, followed by a newline"
+						"Prints the supplied string to stdout, followed by a newline"
 					),
 					new(
-						name: "print",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"print",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraNil()
 						),
-						documentation: "Prints the supplied string to stdout"
+						"Prints the supplied string to stdout"
 					),
 					new(
-						name: "eprintln",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"eprintln",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraNil()
 						),
-						documentation: "Prints the supplied string to stderr, followed by a newline"
+						"Prints the supplied string to stderr, followed by a newline"
 					),
 					new(
-						name: "eprint",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"eprint",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraNil()
 						),
-						documentation: "Prints the supplied string to stderr"
+						"Prints the supplied string to stderr"
 					),
 					new(
-						name: "readln",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>(),
-							returnType: new AuraString()
+						"readln",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>(),
+							new AuraString()
 						),
-						documentation: "Reads a single line from stdin"
+						"Reads a single line from stdin"
 					),
 					new(
-						name: "read_file",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"read_file",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "path"
+									new Tok(
+										TokType.Identifier,
+										"path"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraString()
+							new AuraString()
 						),
-						documentation: "Reads the entire contents of the file located at the supplied path, returning the contents as a single string"
+						"Reads the entire contents of the file located at the supplied path, returning the contents as a single string"
 					),
 					new(
-						name: "read_lines",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"read_lines",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "path"
+									new Tok(
+										TokType.Identifier,
+										"path"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraList(kind: new AuraString())
+							new AuraList(new AuraString())
 						),
-						documentation: "Reads the entire contents of the file located at the supplied path, returning the contents as a list of strings, where each string represents a single line in the file"
+						"Reads the entire contents of the file located at the supplied path, returning the contents as a list of strings, where each string represents a single line in the file"
 					),
 					new(
-						name: "write_file",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"write_file",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "path"
+									new Tok(
+										TokType.Identifier,
+										"path"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "content"
+									new Tok(
+										TokType.Identifier,
+										"content"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraNil()
 						),
-						documentation: "Writes the supplied content to the file located at the supplied path"
+						"Writes the supplied content to the file located at the supplied path"
 					)
 				},
-				publicInterfaces: new List<AuraInterface>(),
-				publicClasses: new List<AuraClass>(),
-				publicVariables: new Dictionary<string, ITypedAuraExpression>()
+				new List<AuraInterface>(),
+				new List<AuraClass>(),
+				new Dictionary<string, ITypedAuraExpression>()
 			)
 		},
 		{
 			"aura/strings", new AuraModule(
-				name: "strings",
-				publicFunctions: new List<AuraNamedFunction>
+				"strings",
+				new List<AuraNamedFunction>
 				{
 					new(
-						name: "to_lower",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"to_lower",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraString()
+							new AuraString()
 						),
-						documentation: "Returns a new string where all characters in the original have been converted to lower case"
+						"Returns a new string where all characters in the original have been converted to lower case"
 					),
 					new(
-						name: "to_upper",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"to_upper",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraString()
+							new AuraString()
 						),
-						documentation: "Returns a new string where all characters in the original have been converted to upper case"
+						"Returns a new string where all characters in the original have been converted to upper case"
 					),
 					new(
-						name: "contains",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"contains",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "sub"
+									new Tok(
+										TokType.Identifier,
+										"sub"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraBool()
 						),
-						documentation: "Returns a boolean indicating if the string `s` contains the supplied substring"
+						"Returns a boolean indicating if the string `s` contains the supplied substring"
 					),
 					new(
-						name: "length",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"length",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraBool()
 						),
-						documentation: "Returns the number of characters in the supplied string"
+						"Returns the number of characters in the supplied string"
 					),
 					new(
-						name: "split",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"split",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "sep"
+									new Tok(
+										TokType.Identifier,
+										"sep"
 									),
-									ParamType: new ParamType(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraList(kind: new AuraString())
+							new AuraList(new AuraString())
 						),
-						documentation: "Separates `s` into all of the substrings separated by (but not including) `sep`"
+						"Separates `s` into all of the substrings separated by (but not including) `sep`"
 					),
 					new(
-						name: "to_int",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"to_int",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "s"
+									new Tok(
+										TokType.Identifier,
+										"s"
 									),
-									ParamType: new ParamType(
-										Typ: new AuraString(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraString(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraInt()
 						),
-						documentation: "Converts the supplied string to its corresponding integer value"
-					),
+						"Converts the supplied string to its corresponding integer value"
+					)
 				},
-				publicInterfaces: new List<AuraInterface>(),
-				publicClasses: new List<AuraClass>(),
-				publicVariables: new Dictionary<string, ITypedAuraExpression>())
+				new List<AuraInterface>(),
+				new List<AuraClass>(),
+				new Dictionary<string, ITypedAuraExpression>()
+			)
 		},
 		{
 			"aura/lists", new AuraModule(
-				name: "lists",
-				publicFunctions: new List<AuraNamedFunction>
+				"lists",
+				new List<AuraNamedFunction>
 				{
 					new(
-						name: "contains",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"contains",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "item"
+									new Tok(
+										TokType.Identifier,
+										"item"
 									),
-									ParamType: new(
-										Typ: new AuraAny(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraBool()
 						),
-						documentation: "Returns a boolean value indicating if the supplied list contains `item`"
+						"Returns a boolean value indicating if the supplied list contains `item`"
 					),
 					new(
-						name: "is_empty",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"is_empty",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new ParamType(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraBool()
 						),
-						documentation: "Returns a boolean value indicating if the supplied list is empty (i.e. contains zero items)"
+						"Returns a boolean value indicating if the supplied list is empty (i.e. contains zero items)"
 					),
 					new(
-						name: "length",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"length",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new ParamType(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraInt()
+							new AuraInt()
 						),
-						documentation: "Returns the number of items contained in the supplied list"
+						"Returns the number of items contained in the supplied list"
 					),
 					new(
-						name: "map_",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"map_",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "b"
+									new Tok(
+										TokType.Identifier,
+										"b"
 									),
-									ParamType: new(
-										Typ: new AuraFunction(
-											fParams: new List<Param>
+									new ParamType(
+										new AuraFunction(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "t"
+													new Tok(
+														TokType.Identifier,
+														"t"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												)
 											},
-											returnType: new AuraAny()
+											new AuraAny()
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraList(kind: new AuraAny())
+							new AuraList(new AuraAny())
 						),
-						documentation: "Applies the supplied function to each item in the supplied list, returning a new list containing the result of each invocation"
+						"Applies the supplied function to each item in the supplied list, returning a new list containing the result of each invocation"
 					),
 					new(
-						name: "filter",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"filter",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "f"
+									new Tok(
+										TokType.Identifier,
+										"f"
 									),
-									ParamType: new ParamType(
-										Typ: new AuraFunction(
-											fParams: new List<Param>
+									new ParamType(
+										new AuraFunction(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "t"
+													new Tok(
+														TokType.Identifier,
+														"t"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												)
 											},
-											returnType: new AuraBool()
+											new AuraBool()
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraList(kind: new AuraAny())
+							new AuraList(new AuraAny())
 						),
-						documentation: "Returns a new list containing only those items in the original list that return a value of `true` when passed in to the supplied anonymous function"
+						"Returns a new list containing only those items in the original list that return a value of `true` when passed in to the supplied anonymous function"
 					),
 					new(
-						name: "reduce",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"reduce",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "f"
+									new Tok(
+										TokType.Identifier,
+										"f"
 									),
-									ParamType: new(
-										Typ: new AuraFunction(
-											fParams: new List<Param>
+									new ParamType(
+										new AuraFunction(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "t1"
+													new Tok(
+														TokType.Identifier,
+														"t1"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												),
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "t2"
+													new Tok(
+														TokType.Identifier,
+														"t2"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												)
 											},
-											returnType: new AuraBool()
+											new AuraBool()
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								),
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "t"
+									new Tok(
+										TokType.Identifier,
+										"t"
 									),
-									ParamType: new(
-										Typ: new AuraAny(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
+									)
+								)
+							},
+							new AuraAny()
+						),
+						"Reduces the supplied list to a single item"
+					),
+					new(
+						"min",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(
+										TokType.Identifier,
+										"a"
+									),
+									new ParamType(
+										new AuraList(new AuraInt()),
+										false,
+										null
+									)
+								)
+							},
+							new AuraInt()
+						),
+						"Returns the minimum value contained in the list"
+					),
+					new(
+						"max",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(
+										TokType.Identifier,
+										"a"
+									),
+									new ParamType(
+										new AuraList(new AuraInt()),
+										false,
+										null
+									)
+								)
+							},
+							new AuraInt()
+						),
+						"Returns the maximum value contained in the list"
+					),
+					new(
+						"push",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(
+										TokType.Identifier,
+										"a"
+									),
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								),
-							},
-							returnType: new AuraAny()
-						),
-						documentation: "Reduces the supplied list to a single item"
-						),
-					new(
-						name: "min",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
-							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"t"
 									),
-									ParamType: new(
-										Typ: new AuraList(new AuraInt()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraInt()
+							new AuraNil()
 						),
-						documentation: "Returns the minimum value contained in the list"
+						"Adds a new item to the end of the supplied list"
 					),
 					new(
-						name: "max",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"pop",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraInt()),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraAny()),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraInt()
+							new AuraNil()
 						),
-						documentation: "Returns the maximum value contained in the list"
+						"Removes the last item in the list"
 					),
 					new(
-						name: "push",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"sum",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
+									new Tok(
+										TokType.Identifier,
+										"a"
 									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
-									)
-								),
-								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "t"
-									),
-									ParamType: new(
-										Typ: new AuraAny(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraList(new AuraInt()),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraNil()
+							new AuraInt()
 						),
-						documentation: "Adds a new item to the end of the supplied list"
-					),
-					new(
-						name: "pop",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
-							{
-								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
-									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraAny()),
-										Variadic: false,
-										DefaultValue: null
-									)
-								)
-							},
-							returnType: new AuraNil()
-						),
-						documentation: "Removes the last item in the list"
-					),
-					new(
-						name: "sum",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
-							{
-								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "a"
-									),
-									ParamType: new(
-										Typ: new AuraList(kind: new AuraInt()),
-										Variadic: false,
-										DefaultValue: null
-									)
-								)
-							},
-							returnType: new AuraInt()
-						),
-						documentation: "Sums together all items in the list"
-					),
+						"Sums together all items in the list"
+					)
 				},
-				publicInterfaces: new List<AuraInterface>(),
-				publicClasses: new List<AuraClass>(),
-				publicVariables: new Dictionary<string, ITypedAuraExpression>())
+				new List<AuraInterface>(),
+				new List<AuraClass>(),
+				new Dictionary<string, ITypedAuraExpression>()
+			)
 		},
 		{
 			"aura/errors", new AuraModule(
-				name: "errors",
-				publicFunctions: new List<AuraNamedFunction>
+				"errors",
+				new List<AuraNamedFunction>
 				{
 					new(
-						name: "message",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"message",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "err"
+									new Tok(
+										TokType.Identifier,
+										"err"
 									),
-									ParamType: new(
-										Typ: new AuraError(),
-										Variadic: false,
-										DefaultValue: null
+									new ParamType(
+										new AuraError(),
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraString()
+							new AuraString()
 						),
-						documentation: "Returns the error's message"
+						"Returns the error's message"
 					)
 				},
-				publicInterfaces: new List<AuraInterface>(),
-				publicClasses: new List<AuraClass>(),
-				publicVariables: new Dictionary<string, ITypedAuraExpression>()
+				new List<AuraInterface>(),
+				new List<AuraClass>(),
+				new Dictionary<string, ITypedAuraExpression>()
 			)
 		},
 		{
 			"aura/results", new AuraModule(
-				name: "results",
-				publicFunctions: new List<AuraNamedFunction>
+				"results",
+				new List<AuraNamedFunction>
 				{
 					new(
-						name: "is_success",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"is_success",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "st"
+									new Tok(
+										TokType.Identifier,
+										"st"
 									),
-									ParamType: new(
-										Typ: new AuraAnonymousStruct(
-											parameters: new List<Param>
+									new ParamType(
+										new AuraAnonymousStruct(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "success"
+													new Tok(
+														TokType.Identifier,
+														"success"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												),
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "failure"
+													new Tok(
+														TokType.Identifier,
+														"failure"
 													),
-													ParamType: new(
-														Typ: new AuraError(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraError(),
+														false,
+														null
 													)
 												)
 											},
-											pub: Visibility.Private
+											Visibility.Private
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraBool()
 						),
-						documentation: "Returns a boolean value indicating if the result type contains a success value"
+						"Returns a boolean value indicating if the result type contains a success value"
 					),
 					new(
-						name: "success",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"success",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "st"
+									new Tok(
+										TokType.Identifier,
+										"st"
 									),
-									ParamType: new(
-										Typ: new AuraAnonymousStruct(
-											parameters: new List<Param>
+									new ParamType(
+										new AuraAnonymousStruct(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "success"
+													new Tok(
+														TokType.Identifier,
+														"success"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												),
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "failure"
+													new Tok(
+														TokType.Identifier,
+														"failure"
 													),
-													ParamType: new(
-														Typ: new AuraError(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraError(),
+														false,
+														null
 													)
 												)
 											},
-											pub: Visibility.Private
+											Visibility.Private
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraAny()
+							new AuraAny()
 						),
-						documentation: "Returns the result's success type, if it exists"
+						"Returns the result's success type, if it exists"
 					),
 					new(
-						name: "is_failure",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"is_failure",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "st"
+									new Tok(
+										TokType.Identifier,
+										"st"
 									),
-									ParamType: new(
-										Typ: new AuraAnonymousStruct(
-											parameters: new List<Param>
+									new ParamType(
+										new AuraAnonymousStruct(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "success"
+													new Tok(
+														TokType.Identifier,
+														"success"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												),
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "failure"
+													new Tok(
+														TokType.Identifier,
+														"failure"
 													),
-													ParamType: new(
-														Typ: new AuraError(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraError(),
+														false,
+														null
 													)
 												)
 											},
-											pub: Visibility.Private
+											Visibility.Private
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraBool()
+							new AuraBool()
 						),
-						documentation: "Returns a boolean value indicating if the result type contains a failure value"
+						"Returns a boolean value indicating if the result type contains a failure value"
 					),
 					new(
-						name: "failure",
-						pub: Visibility.Public,
-						f: new AuraFunction(
-							fParams: new List<Param>
+						"failure",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
 							{
 								new(
-									Name: new Tok(
-										typ: TokType.Identifier,
-										value: "st"
+									new Tok(
+										TokType.Identifier,
+										"st"
 									),
-									ParamType: new(
-										Typ: new AuraAnonymousStruct(
-											parameters: new List<Param>
+									new ParamType(
+										new AuraAnonymousStruct(
+											new List<Param>
 											{
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "success"
+													new Tok(
+														TokType.Identifier,
+														"success"
 													),
-													ParamType: new(
-														Typ: new AuraAny(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraAny(),
+														false,
+														null
 													)
 												),
 												new(
-													Name: new Tok(
-														typ: TokType.Identifier,
-														value: "failure"
+													new Tok(
+														TokType.Identifier,
+														"failure"
 													),
-													ParamType: new(
-														Typ: new AuraError(),
-														Variadic: false,
-														DefaultValue: null
+													new ParamType(
+														new AuraError(),
+														false,
+														null
 													)
 												)
 											},
-											pub: Visibility.Private
+											Visibility.Private
 										),
-										Variadic: false,
-										DefaultValue: null
+										false,
+										null
 									)
 								)
 							},
-							returnType: new AuraError()
+							new AuraError()
 						),
-						documentation: "Returns the result type's failure value, if it exists"
-					),
+						"Returns the result type's failure value, if it exists"
+					)
 				},
-				publicInterfaces: new List<AuraInterface>(),
-				publicClasses: new List<AuraClass>(),
-				publicVariables: new Dictionary<string, ITypedAuraExpression>()
+				new List<AuraInterface>(),
+				new List<AuraClass>(),
+				new Dictionary<string, ITypedAuraExpression>()
 			)
 		}
 	};
 
-	public static Dictionary<string, AuraModule> GetAllModules() => Modules;
+	public static Dictionary<string, AuraModule> GetAllModules() { return Modules; }
 
-	public static bool TryGetModule(string name, out AuraModule? mod) => Modules.TryGetValue(name, out mod);
+	public static bool TryGetModule(string name, out AuraModule? mod) { return Modules.TryGetValue(name, out mod); }
 }
