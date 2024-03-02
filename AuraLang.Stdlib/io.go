@@ -43,7 +43,6 @@ func Readln() string {
 
 // ReadFile reads the entire contents of the file located at `path`
 func ReadFile(path string) string {
-	path = handleFilePath(path)
 	b, _ := os.ReadFile(path)
 	return string(b)
 }
@@ -58,15 +57,7 @@ func ReadLines(path string) []string {
 // WriteFile writes `content` to the file located at `path`. If the file already exists, it is truncated
 // before the write occurs.
 func WriteFile(path, content string) {
-	path = handleFilePath(path)
 	os.WriteFile(path, []byte(content), 0755)
-}
-
-func handleFilePath(path string) string {
-	if !isAbsolutePath(path) {
-		path = fmt.Sprintf("../../src/%s", path)
-	}
-	return path
 }
 
 // isAbsolutePath returns a bool indicating if the supplied `path` is an absolute path (i.e. from the root

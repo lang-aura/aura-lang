@@ -70,6 +70,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	/// </summary>
 	private readonly Stack<TypedNamedFunction> _enclosingFunctionDeclarationStore;
 
+	/// <summary>
+	///     The path of the Aura source file being compiled
+	/// </summary>
+	private string FilePath { get; }
+
 	public AuraCompiler(
 		List<ITypedAuraStatement> typedAst,
 		string projectName,
@@ -84,6 +89,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		_exContainer = new CompilerExceptionContainer(filePath);
 		_prelude = new AuraPrelude().GetPrelude();
 		_enclosingFunctionDeclarationStore = enclosingFunctionDeclarationStore;
+		FilePath = filePath;
 	}
 
 	/// <summary>
@@ -586,7 +592,15 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			c.Arguments.Insert(0, get.Obj);
 		}
 
-		var compiledParams = c.Arguments.Select(Expression);
+		var compiledParams = c.Arguments.Select(Expression).ToList();
+		if (new List<string> { "read_file", "read_lines", "write_file" }.Contains(get.Name.Value))
+		{
+			// The path is surrounded by double-quotes, which will mess with the check for absolute paths, so trim them off
+			var p = compiledParams[0].Trim('"');
+			if (!Path.IsPathRooted(p))
+				compiledParams[0] = "\"" + Path.GetDirectoryName(FilePath) + "/" + c.Arguments[0] + "\"";
+		}
+
 		return $"{callee}({string.Join(", ", compiledParams)})";
 	}
 
