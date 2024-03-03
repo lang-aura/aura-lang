@@ -1722,7 +1722,21 @@ public class AuraParser
 			return new IntLiteral(new Tok(TokType.IntLiteral, $"-{i}"));
 		}
 
-		if (Match(TokType.Identifier)) return new UntypedVariable(Previous());
+		if (Match(TokType.Identifier))
+		{
+			var callee = Previous();
+			if (!Match(TokType.LeftParen)) return new UntypedVariable(Previous());
+
+			var arguments = new List<(Tok?, IUntypedAuraExpression)>();
+			while (!Match(TokType.RightParen)) arguments.Add((null, Expression()));
+
+			return new UntypedCall(
+				new UntypedVariable(callee),
+				arguments,
+				Previous()
+			);
+		}
+
 
 		if (Match(TokType.StringLiteral)) return new StringLiteral(Previous());
 
