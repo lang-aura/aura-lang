@@ -3078,6 +3078,123 @@ public class ParserTest
 		);
 	}
 
+	[Test]
+	public void TestParse_CallAsIndexExpression_NoArgs()
+	{
+		var untypedAst = ArrangeAndAct(
+			new List<Tok>
+			{
+				new(TokType.Identifier, "collection"),
+				new(TokType.LeftBracket, "["),
+				new(TokType.Identifier, "f"),
+				new(TokType.LeftParen, "("),
+				new(TokType.RightParen, ")"),
+				new(TokType.RightBracket, "]"),
+				new(TokType.Semicolon, ";"),
+				new(TokType.Eof, "eof")
+			}
+		);
+		MakeAssertions(
+			untypedAst,
+			new UntypedExpressionStmt(
+				new UntypedGetIndex(
+					new UntypedVariable(new Tok(TokType.Identifier, "collection")),
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>(),
+						new Tok(TokType.RightParen, ")")
+					),
+					new Tok(TokType.RightBracket, "]")
+				)
+			)
+		);
+	}
+
+	[Test]
+	public void TestParse_CallAsIndexExpression()
+	{
+		var untypedAst = ArrangeAndAct(
+			new List<Tok>
+			{
+				new(TokType.Identifier, "collection"),
+				new(TokType.LeftBracket, "["),
+				new(TokType.Identifier, "f"),
+				new(TokType.LeftParen, "("),
+				new(TokType.IntLiteral, "5"),
+				new(TokType.RightParen, ")"),
+				new(TokType.RightBracket, "]"),
+				new(TokType.Semicolon, ";"),
+				new(TokType.Eof, "eof")
+			}
+		);
+		MakeAssertions(
+			untypedAst,
+			new UntypedExpressionStmt(
+				new UntypedGetIndex(
+					new UntypedVariable(new Tok(TokType.Identifier, "collection")),
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>
+						{
+							(null, new IntLiteral(new Tok(TokType.IntLiteral, "5")))
+						},
+						new Tok(TokType.RightParen, ")")
+					),
+					new Tok(TokType.RightBracket, "]")
+				)
+			)
+		);
+	}
+
+	[Test]
+	public void TestParse_CallAsRangeIndexExpression()
+	{
+		var untypedAst = ArrangeAndAct(
+			new List<Tok>
+			{
+				new(TokType.Identifier, "collection"),
+				new(TokType.LeftBracket, "["),
+				new(TokType.Identifier, "f"),
+				new(TokType.LeftParen, "("),
+				new(TokType.IntLiteral, "5"),
+				new(TokType.RightParen, ")"),
+				new(TokType.Colon, ":"),
+				new(TokType.Identifier, "g"),
+				new(TokType.LeftParen, "("),
+				new(TokType.StringLiteral, "hello"),
+				new(TokType.RightParen, ")"),
+				new(TokType.RightBracket, "]"),
+				new(TokType.Semicolon, ";"),
+				new(TokType.Eof, "eof")
+			}
+		);
+		MakeAssertions(
+			untypedAst,
+			new UntypedExpressionStmt(
+				new UntypedGetIndexRange(
+					new UntypedVariable(new Tok(TokType.Identifier, "collection")),
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "f")),
+						new List<(Tok?, IUntypedAuraExpression)>
+						{
+							(null, new IntLiteral(new Tok(TokType.IntLiteral, "5")))
+						},
+						new Tok(TokType.RightParen, ")")
+					),
+					new UntypedCall(
+						new UntypedVariable(new Tok(TokType.Identifier, "g")),
+						new List<(Tok?, IUntypedAuraExpression)>
+						{
+							(null, new StringLiteral(new Tok(TokType.StringLiteral, "hello")))
+						},
+						new Tok(TokType.RightParen, ")")
+					),
+					new Tok(TokType.RightBracket, "]")
+				)
+			)
+		);
+	}
+
 	private List<IUntypedAuraStatement> ArrangeAndAct(List<Tok> tokens)
 	{
 		// Arrange
