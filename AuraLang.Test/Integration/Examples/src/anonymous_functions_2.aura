@@ -1,0 +1,50 @@
+mod main
+
+import aura/io
+
+fn main() {
+    input := [string]{ "1x1x1" }
+    i := part1(input)
+    io.printf("%d\n", i)
+}
+
+fn part1(input: [string]) -> int {
+    total := 0
+
+    foreach line in input {
+        measurements := line.split("x")
+        m0 := measurements[0].to_int()
+        m1 := measurements[1].to_int()
+        m2 := measurements[2].to_int()
+        tmp := (2 * m0 * m1) + (2 * m1 * m2) + (2 * m2 * m0)
+        tmp += calc_smallest_side(m0, m1, m2, fn(x: int, y: int) -> int {
+            return x * y
+        })
+        total += tmp
+    }
+
+    return total
+}
+
+fn calc_smallest_side(x: int, y: int, z: int, f: fn(x1: int, x2: int) -> int) -> int {
+    if x <= y {
+        if y <= z {
+            return f(x, y)
+        } else {
+            return f(x, z)
+        }
+    } else if x <= z {
+        if z <= y {
+            return f(x, z)
+        } else {
+            return f(x, y)
+        }
+    } else {
+        if z <= x {
+            return f(y, z)
+        } else {
+            return f(y, x)
+        }
+    }
+    return 0
+}
