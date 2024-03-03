@@ -131,6 +131,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "44\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_AnonymousFunction2Async()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/anonymous_functions_2.aura");
+		MakeAssertions(output, "7\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
