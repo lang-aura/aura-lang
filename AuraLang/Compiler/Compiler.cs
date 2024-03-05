@@ -839,7 +839,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return typ switch
 		{
-			AuraString or AuraList or AuraError or AuraResult => true,
+			AuraString or AuraList or AuraError or AuraResult or AuraMap => true,
 			_ => false
 		};
 	}
@@ -857,6 +857,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			AuraList => "lists",
 			AuraError => "errors",
 			AuraResult => "results",
+			AuraMap => "maps",
 			_ => string.Empty
 		};
 	}
@@ -870,7 +871,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return pkg switch
 		{
-			"io" or "strings" or "lists" or "errors" => true,
+			"io" or "strings" or "lists" or "errors" or "maps" => true,
 			_ => false
 		};
 	}
@@ -884,7 +885,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return pkg switch
 		{
-			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" or "aura/results" => true,
+			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" or "aura/results" or "aura/maps" => true,
 			_ => false
 		};
 	}
