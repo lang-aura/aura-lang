@@ -740,7 +740,7 @@ public class AuraChar : AuraType
 ///     Represents a data type containing a series of key-value pairs. All the keys must have the same
 ///     type and all the values must have the same type.
 /// </summary>
-public class AuraMap : AuraType, IIndexable, IDefaultable
+public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportableModule
 {
 	public AuraType Key { get; }
 	public AuraType Value { get; }
@@ -782,6 +782,14 @@ public class AuraMap : AuraType, IIndexable, IDefaultable
 			)
 		);
 	}
+
+	public AuraType? Get(string attribute)
+	{
+		var stringMod = AuraStdlib.GetAllModules()["aura/maps"];
+		return stringMod.PublicFunctions.First(f => f.Name == attribute);
+	}
+
+	public string GetModuleName() { return "maps"; }
 }
 
 public class AuraError : AuraType, IGettable, IImportableModule, INilable

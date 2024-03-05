@@ -145,6 +145,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "1\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_MapsAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/maps.aura");
+		MakeAssertions(output, "5\ntrue\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

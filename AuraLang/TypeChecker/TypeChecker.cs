@@ -1694,6 +1694,15 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 				}
 
+				if (g is AuraMap)
+					Visit(
+						new UntypedImport(
+							new Tok(TokType.Import, "import"),
+							new Tok(TokType.Identifier, "aura/maps"),
+							new Tok(TokType.Identifier, "maps")
+						)
+					);
+
 				// Fetch the gettable's attribute
 				var attrTyp = g.Get(get.Name.Value) ??
 							  throw new ClassAttributeDoesNotExistException(

@@ -1009,6 +1009,106 @@ public static class AuraStdlib
 				new List<AuraClass>(),
 				new Dictionary<string, ITypedAuraExpression>()
 			)
+		},
+		{
+			"aura/maps", new AuraModule(
+				"maps",
+				new List<AuraNamedFunction>
+				{
+					new(
+						"add",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "m"),
+									new ParamType(
+										new AuraMap(new AuraAny(), new AuraAny()),
+										false,
+										null
+									)
+								),
+								new(
+									new Tok(TokType.Identifier, "key"),
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
+									)
+								),
+								new(
+									new Tok(TokType.Identifier, "value"),
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
+									)
+								)
+							},
+							new AuraNil()
+						),
+						"Adds the supplied key and value pair to a dictionary"
+					),
+					new(
+						"remove",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "m"),
+									new ParamType(
+										new AuraMap(new AuraAny(), new AuraAny()),
+										false,
+										null
+									)
+								),
+								new(
+									new Tok(TokType.Identifier, "key"),
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
+									)
+								)
+							},
+							new AuraNil()
+						),
+						"Removes a key from a dictionary"
+					),
+					new(
+						"contains",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "m"),
+									new ParamType(
+										new AuraMap(new AuraAny(), new AuraAny()),
+										false,
+										null
+									)
+								),
+								new(
+									new Tok(TokType.Identifier, "key"),
+									new ParamType(
+										new AuraAny(),
+										false,
+										null
+									)
+								)
+							},
+							new AuraBool()
+						),
+						"Determines if the supplied key is present in the map"
+					)
+				},
+				new List<AuraInterface>(),
+				new List<AuraClass>(),
+				new Dictionary<string, ITypedAuraExpression>()
+			)
 		}
 	};
 

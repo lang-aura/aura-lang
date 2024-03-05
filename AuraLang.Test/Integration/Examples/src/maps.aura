@@ -1,0 +1,14 @@
+mod main
+
+import aura/io
+
+fn main() {
+    m := map[string : int]{
+        "s": 1,
+    }
+    m.add("Hello", 4)
+    m.add("World", 5)
+    
+    io.printf("%d\n", m["World"])
+    io.printf("%v\n", m.contains("Hello"))
+}
