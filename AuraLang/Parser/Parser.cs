@@ -1728,7 +1728,11 @@ public class AuraParser
 			if (!Match(TokType.LeftParen)) return new UntypedVariable(Previous());
 
 			var arguments = new List<(Tok?, IUntypedAuraExpression)>();
-			while (!Match(TokType.RightParen)) arguments.Add((null, Expression()));
+			while (!Match(TokType.RightParen))
+			{
+				arguments.Add((null, Expression()));
+				Match(TokType.Comma);
+			}
 
 			return new UntypedCall(
 				new UntypedVariable(callee),

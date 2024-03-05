@@ -458,7 +458,7 @@ public class CompilerTest
 					new AuraInt(),
 					new Tok(TokType.RightBrace, "}")))
 		});
-		MakeAssertions(output, "map[string]int{\n\"Hello\": 1\n}");
+		MakeAssertions(output, "map[string]int{\n\"Hello\": 1,\n}");
 	}
 
 	[Test]

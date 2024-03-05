@@ -138,6 +138,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "7\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_StructAsMapKeysAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/struct_as_map_key.aura");
+		MakeAssertions(output, "1\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
