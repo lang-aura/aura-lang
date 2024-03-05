@@ -15,3 +15,8 @@ func Contains[TK comparable, TV any](m map[TK]TV, key TK) bool {
 	_, ok := m[key]
 	return ok
 }
+
+// Count returns the number of items contained in the supplied map
+func Count[TK comparable, TV any](m map[TK]TV) int {
+    return len(m)
+}
