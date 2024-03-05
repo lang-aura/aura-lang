@@ -1103,6 +1103,25 @@ public static class AuraStdlib
 							new AuraBool()
 						),
 						"Determines if the supplied key is present in the map"
+					),
+					new(
+						"count",
+						Visibility.Public,
+						new AuraFunction(
+							new List<Param>
+							{
+								new(
+									new Tok(TokType.Identifier, "m"),
+									new ParamType(
+										new AuraMap(new AuraAny(), new AuraAny()),
+										false,
+										null
+									)
+								)
+							},
+							new AuraInt()
+						),
+						"Returns the number of items contained in the map"
 					)
 				},
 				new List<AuraInterface>(),
