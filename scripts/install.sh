@@ -1,6 +1,6 @@
 #!/bin/bash
 
-stdlib_modules=(errors io lists results strings)
+stdlib_modules=(errors io lists results strings maps)
 
 mkdir -p "${HOME}/.aura"
 mkdir -p "${HOME}/.aura/stdlib"
