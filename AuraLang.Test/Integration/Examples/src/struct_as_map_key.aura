@@ -1,0 +1,18 @@
+mod main
+
+import aura/io
+
+struct Position(x: int, y: int)
+
+fn main() {
+    i := part1("Hello world")
+    io.printf("%d\n", i)
+}
+
+fn part1(input: string) -> int {
+    visited := map[Position : int]{
+        Position(0, 0): 1,
+    }
+
+    return visited[Position(0, 0)]
+}

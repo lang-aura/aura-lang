@@ -20,6 +20,7 @@ public abstract class AuraType
 	public abstract override string ToString();
 
 	public virtual string ToAuraString() { return ToString(); }
+	public virtual string ToType() { return ToAuraString(); }
 
 	public override bool Equals(object? obj)
 	{
@@ -757,7 +758,7 @@ public class AuraMap : AuraType, IIndexable, IDefaultable
 
 	public override bool IsSameType(AuraType other) { return other is AuraMap; }
 
-	public override string ToString() { return $"map[{Key}]{Value}"; }
+	public override string ToString() { return $"map[{Key.ToType()}]{Value}"; }
 
 	public AuraType IndexingType() { return Key; }
 
@@ -849,6 +850,8 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumen
 		var @params = string.Join(", ", Parameters.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
 		return $"struct {Name}({@params})";
 	}
+
+	public override string ToType() { return Name; }
 
 	public List<Param> GetParams() { return Parameters; }
 

@@ -543,7 +543,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			@struct!.GetParams().Zip(c.Arguments).Select(pair => $"{pair.First.Name.Value}: {Expression(pair.Second)},")
 		);
 
-		return $"{@struct.Name.ToLower()}{{\n{@params}\n}}";
+		return $"{@struct.Name}{{\n{@params}\n}}";
 	}
 
 	/// <summary>
@@ -686,7 +686,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			{
 				var keyExpr = Expression((ITypedAuraExpression)pair.Key);
 				var valueExpr = Expression((ITypedAuraExpression)pair.Value);
-				return $"{keyExpr}: {valueExpr}";
+				return $"{keyExpr}: {valueExpr},";
 			}
 			)
 			.ToList();
