@@ -327,7 +327,7 @@ public static class AuraStdlib
 									)
 								)
 							},
-							new AuraBool()
+							new AuraInt()
 						),
 						"Returns the number of characters in the supplied string"
 					),
