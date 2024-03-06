@@ -178,7 +178,9 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		return InNewEnclosingType(
 			() =>
 			{
-				var iter = Expression(@foreach.Iterable);
+				var iter = @foreach.Iterable.Typ is AuraString
+					? $"[]byte({Expression(@foreach.Iterable)})"
+					: Expression(@foreach.Iterable);
 				var body = CompileLoopBody(@foreach.Body);
 				return body != string.Empty
 					? $"for _, {@foreach.EachName.Value} := range {iter} {{{body}\n}}"
