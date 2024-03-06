@@ -159,6 +159,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "1\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_MultipleImportsAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/multiple_imports.aura");
+		MakeAssertions(output, "Hello world\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

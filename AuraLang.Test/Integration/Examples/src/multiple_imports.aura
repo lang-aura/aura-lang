@@ -1,0 +1,11 @@
+mod main
+
+import (
+    aura/io
+    to_be_imported
+)
+
+fn main() {
+    to_be_imported.do_stuff("Hi")
+    io.println("Hello world")
+}
