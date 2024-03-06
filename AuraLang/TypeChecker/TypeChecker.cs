@@ -480,6 +480,12 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			);
 		}
 
+		if (returnType is AuraUnknown u)
+		{
+			var symbol = _symbolsTable.GetSymbol(u.Name, ModuleName!);
+			returnType = symbol?.Kind ?? u;
+		}
+
 		return new AuraNamedFunction(
 			f.Name.Value,
 			f.Public,
@@ -515,6 +521,12 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					.ToList(),
 				Visibility.Private
 			);
+		}
+
+		if (returnType is AuraUnknown u)
+		{
+			var symbol = _symbolsTable.GetSymbol(u.Name, ModuleName!);
+			returnType = symbol?.Kind ?? u;
 		}
 
 		// Add parameters as local variables

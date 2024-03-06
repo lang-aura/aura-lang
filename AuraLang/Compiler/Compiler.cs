@@ -206,7 +206,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				}
 				else if (f.ReturnType is not AuraNil)
 				{
-					returnValue = AuraTypeToGoType(f.ReturnType);
+					returnValue = f.ReturnType.ToType();
 				}
 
 				var body = Expression(f.Body);
@@ -780,7 +780,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	/// <returns>A valid Go string</returns>
 	private string CompileParams(List<Param> @params, string sep)
 	{
-		return string.Join(sep, @params.Select(p => $"{p.Name.Value} {AuraTypeToGoType(p.ParamType.Typ)}"));
+		return string.Join(sep, @params.Select(p => $"{p.Name.Value} {p.ParamType.Typ.ToType()}"));
 	}
 
 	/// <summary>
