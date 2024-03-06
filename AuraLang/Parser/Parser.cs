@@ -436,7 +436,6 @@ public class AuraParser
 			if (Match(TokType.LeftParen))
 			{
 				Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
-				Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Range));
 				var packages = new List<UntypedImport>();
 				while (!Match(TokType.RightParen))
 				{
@@ -460,7 +459,6 @@ public class AuraParser
 					else
 					{
 						Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
-						Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Range));
 						packages.Add(
 							new UntypedImport(
 								import,
@@ -473,7 +471,6 @@ public class AuraParser
 
 				var rightParen = Previous(); // Store the closing right parenthesis
 				Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
-				Consume(TokType.Newline, new ExpectNewLineException(Peek().Value, Peek().Range));
 				return new UntypedMultipleImport(
 					import,
 					packages,
