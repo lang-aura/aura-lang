@@ -14,6 +14,7 @@ public enum TokType
 	Minus, // -
 	Slash, // /
 	Star, // *
+	Modulo, // %
 	Greater, // >
 	GreaterEqual, // >=
 	Less, // <

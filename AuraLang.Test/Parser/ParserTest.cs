@@ -58,6 +58,59 @@ public class ParserTest
 	}
 
 	[Test]
+	public void TestParse_Binary_Modulo()
+	{
+		var untypedAst = ArrangeAndAct(
+			new List<Tok>
+			{
+				new(
+					TokType.IntLiteral,
+					"1"
+				),
+				new(
+					TokType.Modulo,
+					"%"
+				),
+				new(
+					TokType.IntLiteral,
+					"2"
+				),
+				new(
+					TokType.Semicolon,
+					";"
+				),
+				new(
+					TokType.Eof,
+					"eof"
+				)
+			}
+		);
+		MakeAssertions(
+			untypedAst,
+			new UntypedExpressionStmt(
+				new UntypedBinary(
+					new IntLiteral(
+						new Tok(
+							TokType.IntLiteral,
+							"1"
+						)
+					),
+					new Tok(
+						TokType.Modulo,
+						"%"
+					),
+					new IntLiteral(
+						new Tok(
+							TokType.IntLiteral,
+							"2"
+						)
+					)
+				)
+			)
+		);
+	}
+
+	[Test]
 	public void TestParse_Binary()
 	{
 		var untypedAst = ArrangeAndAct(

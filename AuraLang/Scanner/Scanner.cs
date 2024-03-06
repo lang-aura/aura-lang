@@ -239,7 +239,8 @@ public class AuraScanner
 						_tokens.Add(MakeSingleCharToken(TokType.Semicolon, ';'));
 
 					while (!IsAtEnd() &&
-						   Peek() != '\n') Advance();
+						   Peek() != '\n')
+						Advance();
 					return MakeToken(
 						TokType.Comment,
 						_start,
@@ -301,6 +302,8 @@ public class AuraScanner
 						_current
 					);
 				return MakeSingleCharToken(TokType.Star, c);
+			case '%':
+				return MakeSingleCharToken(TokType.Modulo, c);
 			case '>':
 				if (!IsAtEnd() &&
 					Peek() == '=')
@@ -487,7 +490,8 @@ public class AuraScanner
 		var tok = "" + c;
 		// Scan the entire token
 		while (!IsAtEnd() &&
-			   (IsAlpha(Peek()) || IsDigit(Peek()) || Peek() == '/')) tok += Advance();
+			   (IsAlpha(Peek()) || IsDigit(Peek()) || Peek() == '/'))
+			tok += Advance();
 
 		switch (tok[0])
 		{
@@ -845,7 +849,8 @@ public class AuraScanner
 		var s = "";
 		// Scan the entire token, up until the closing double quote
 		while (!IsAtEnd() &&
-			   Peek() != '"') s += Advance();
+			   Peek() != '"')
+			s += Advance();
 		// If we've reached the end of the file without encountering the closing ", we throw an exception
 		if (IsAtEnd())
 			throw new UnterminatedStringException(
@@ -900,7 +905,8 @@ public class AuraScanner
 		var s = "";
 		// Scan the entire token, up until the closing single quote
 		while (!IsAtEnd() &&
-			   Peek() != '\'') s += Advance();
+			   Peek() != '\'')
+			s += Advance();
 		// If we've reached the end of the file without encountering the closing ', we throw an exception
 		if (IsAtEnd())
 			throw new UnterminatedCharException(
@@ -976,7 +982,8 @@ public class AuraScanner
 		var s = "" + c;
 		// Scan the entire token. Numbers in Aura can contain underscores to improve readability
 		while (!IsAtEnd() &&
-			   (IsDigit(Peek()) || Peek() == '_')) s += Advance();
+			   (IsDigit(Peek()) || Peek() == '_'))
+			s += Advance();
 		// When we reach the first non-numeric token, we check if its a dot - if so, we also scan the floating-point part
 		// of the number
 		if (!IsAtEnd() &&
@@ -984,7 +991,8 @@ public class AuraScanner
 		{
 			s += Advance();
 			while (!IsAtEnd() &&
-				   (IsDigit(Peek()) || Peek() == '_')) s += Advance();
+				   (IsDigit(Peek()) || Peek() == '_'))
+				s += Advance();
 			ttype = TokType.FloatLiteral;
 		}
 
