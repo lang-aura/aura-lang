@@ -1387,7 +1387,8 @@ public class AuraParser
 				   TokType.Minus,
 				   TokType.MinusEqual,
 				   TokType.Plus,
-				   TokType.PlusEqual
+				   TokType.PlusEqual,
+				   TokType.Modulo
 			   ))
 		{
 			var op = Previous();

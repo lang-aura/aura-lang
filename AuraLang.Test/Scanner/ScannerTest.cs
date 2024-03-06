@@ -12,6 +12,7 @@ public class ScannerTest
 		0,
 		0
 	);
+
 	private readonly Range _singleCharRange = new(
 		new Position(
 			0,
@@ -22,6 +23,7 @@ public class ScannerTest
 			0
 		)
 	);
+
 	private readonly Range _doubleCharRange = new(
 		new Position(
 			0,
@@ -38,12 +40,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("(");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.LeftParen,
-				value: "(",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.LeftParen,
+				"(",
+				_singleCharRange
 			)
 		);
 	}
@@ -53,12 +55,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(")");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.RightParen,
-				value: ")",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.RightParen,
+				")",
+				_singleCharRange
 			)
 		);
 	}
@@ -68,12 +70,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("{");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.LeftBrace,
-				value: "{",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.LeftBrace,
+				"{",
+				_singleCharRange
 			)
 		);
 	}
@@ -83,12 +85,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("}");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.RightBrace,
-				value: "}",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.RightBrace,
+				"}",
+				_singleCharRange
 			)
 		);
 	}
@@ -98,12 +100,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("[");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.LeftBracket,
-				value: "[",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.LeftBracket,
+				"[",
+				_singleCharRange
 			)
 		);
 	}
@@ -113,12 +115,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("]");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.RightBracket,
-				value: "]",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.RightBracket,
+				"]",
+				_singleCharRange
 			)
 		);
 	}
@@ -128,12 +130,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Equal,
-				value: "=",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Equal,
+				"=",
+				_singleCharRange
 			)
 		);
 	}
@@ -143,12 +145,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("==");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.EqualEqual,
-				value: "==",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.EqualEqual,
+				"==",
+				_doubleCharRange
 			)
 		);
 	}
@@ -158,12 +160,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("+");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Plus,
-				value: "+",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Plus,
+				"+",
+				_singleCharRange
 			)
 		);
 	}
@@ -173,12 +175,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("++");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.PlusPlus,
-				value: "++",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.PlusPlus,
+				"++",
+				_doubleCharRange
 			)
 		);
 	}
@@ -188,12 +190,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("+=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.PlusEqual,
-				value: "+=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.PlusEqual,
+				"+=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -203,12 +205,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("-");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Minus,
-				value: "-",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Minus,
+				"-",
+				_singleCharRange
 			)
 		);
 	}
@@ -218,12 +220,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("--");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.MinusMinus,
-				value: "--",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.MinusMinus,
+				"--",
+				_doubleCharRange
 			)
 		);
 	}
@@ -233,12 +235,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("-=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.MinusEqual,
-				value: "-=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.MinusEqual,
+				"-=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -248,12 +250,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("/");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Slash,
-				value: "/",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Slash,
+				"/",
+				_singleCharRange
 			)
 		);
 	}
@@ -263,12 +265,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("/=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.SlashEqual,
-				value: "/=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.SlashEqual,
+				"/=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -278,12 +280,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("// comment");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Comment,
-				value: "// comment",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Comment,
+				"// comment",
+				new Range(
 					_startPosition,
 					new Position(
 						11,
@@ -299,49 +301,47 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("/* multi-line\ncomment*/");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 4,
-			expected: new Tok[]{
-				new(
-					typ: TokType.Comment,
-					value:"/* multi-line",
-					range: new Range(
-						_startPosition,
-						new Position(
-							14,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.Semicolon,
-					value:";",
-					range: new Range(
-						new Position(
-							13,
-							0
-						),
-						new Position(
-							14,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.Comment,
-					value:"comment*/",
-					range: new Range(
-						new Position(
-							0,
-							1
-						),
-						new Position(
-							10,
-							1
-						)
+			tokens,
+			4,
+			new(
+				TokType.Comment,
+				"/* multi-line",
+				new Range(
+					_startPosition,
+					new Position(
+						14,
+						0
 					)
 				)
-			}
+			),
+			new(
+				TokType.Semicolon,
+				";",
+				new Range(
+					new Position(
+						13,
+						0
+					),
+					new Position(
+						14,
+						0
+					)
+				)
+			),
+			new(
+				TokType.Comment,
+				"comment*/",
+				new Range(
+					new Position(
+						0,
+						1
+					),
+					new Position(
+						10,
+						1
+					)
+				)
+			)
 		);
 	}
 
@@ -350,12 +350,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("*");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Star,
-				value: "*",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Star,
+				"*",
+				_singleCharRange
 			)
 		);
 	}
@@ -365,12 +365,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("*=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.StarEqual,
-				value: "*=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.StarEqual,
+				"*=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -380,12 +380,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(">");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Greater,
-				value: ">",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Greater,
+				">",
+				_singleCharRange
 			)
 		);
 	}
@@ -395,12 +395,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(">=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.GreaterEqual,
-				value: ">=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.GreaterEqual,
+				">=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -410,12 +410,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("<");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Less,
-				value: "<",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Less,
+				"<",
+				_singleCharRange
 			)
 		);
 	}
@@ -425,12 +425,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("<=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.LessEqual,
-				value: "<=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.LessEqual,
+				"<=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -440,12 +440,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("!");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Bang,
-				value: "!",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Bang,
+				"!",
+				_singleCharRange
 			)
 		);
 	}
@@ -455,12 +455,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("!=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.BangEqual,
-				value: "!=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.BangEqual,
+				"!=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -470,12 +470,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("\"string literal\"");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.StringLiteral,
-				value: "string literal",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.StringLiteral,
+				"string literal",
+				new Range(
 					_startPosition,
 					new Position(
 						16,
@@ -491,12 +491,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("'a'");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.CharLiteral,
-				value: "a",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.CharLiteral,
+				"a",
+				new Range(
 					_startPosition,
 					new Position(
 						3,
@@ -512,12 +512,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(":");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Colon,
-				value: ":",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Colon,
+				":",
+				_singleCharRange
 			)
 		);
 	}
@@ -527,12 +527,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(":=");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.ColonEqual,
-				value: ":=",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.ColonEqual,
+				":=",
+				_doubleCharRange
 			)
 		);
 	}
@@ -542,12 +542,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(";");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Semicolon,
-				value: ";",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Semicolon,
+				";",
+				_singleCharRange
 			)
 		);
 	}
@@ -557,12 +557,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(".");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Dot,
-				value: ".",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Dot,
+				".",
+				_singleCharRange
 			)
 		);
 	}
@@ -572,12 +572,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct(",");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Comma,
-				value: ",",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Comma,
+				",",
+				_singleCharRange
 			)
 		);
 	}
@@ -587,9 +587,9 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("    ");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 1,
-			expected: Array.Empty<Tok>()
+			tokens,
+			1,
+			Array.Empty<Tok>()
 		);
 	}
 
@@ -598,9 +598,9 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("\t");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 1,
-			expected: Array.Empty<Tok>()
+			tokens,
+			1,
+			Array.Empty<Tok>()
 		);
 	}
 
@@ -609,12 +609,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("yield");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Yield,
-				value: "yield",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Yield,
+				"yield",
+				new Range(
 					_startPosition,
 					new Position(
 						5,
@@ -630,21 +630,18 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("\n");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Newline,
-				value: "\n",
-				range: _singleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Newline,
+				"\n",
+				_singleCharRange
 			)
 		);
 	}
 
 	[Test]
-	public void TestScan_InvalidCharacter()
-	{
-		ArrangeAndAct_Invalid("?", typeof(InvalidCharacterException));
-	}
+	public void TestScan_InvalidCharacter() { ArrangeAndAct_Invalid("?", typeof(InvalidCharacterException)); }
 
 	[Test]
 	public void TestScan_UnterminatedString()
@@ -653,22 +650,13 @@ public class ScannerTest
 	}
 
 	[Test]
-	public void TestScan_UnterminatedChar()
-	{
-		ArrangeAndAct_Invalid("'c", typeof(UnterminatedCharException));
-	}
+	public void TestScan_UnterminatedChar() { ArrangeAndAct_Invalid("'c", typeof(UnterminatedCharException)); }
 
 	[Test]
-	public void TestScan_TooLongChar()
-	{
-		ArrangeAndAct_Invalid("'aa'", typeof(CharLengthGreaterThanOneException));
-	}
+	public void TestScan_TooLongChar() { ArrangeAndAct_Invalid("'aa'", typeof(CharLengthGreaterThanOneException)); }
 
 	[Test]
-	public void TestScan_EmptyChar()
-	{
-		ArrangeAndAct_Invalid("''", typeof(EmptyCharException));
-	}
+	public void TestScan_EmptyChar() { ArrangeAndAct_Invalid("''", typeof(EmptyCharException)); }
 
 	private static List<Tok> ArrangeAndAct(string source)
 	{
@@ -683,12 +671,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("interface");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Interface,
-				value: "interface",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Interface,
+				"interface",
+				new Range(
 					_startPosition,
 					new Position(
 						9,
@@ -704,94 +692,90 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("class Greeter() : IGreeter");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 7,
-			expected: new Tok[]
-			{
-				new(
-					typ: TokType.Class,
-					value:"class",
-					range: new Range(
-						_startPosition,
-						new Position(
-							5,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.Identifier,
-					value:"Greeter",
-					range: new Range(
-						new Position(
-							6,
-							0
-						),
-						new Position(
-							13,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.LeftParen,
-					value:"(",
-					range: new Range(
-						new Position(
-							13,
-							0
-						),
-						new Position(
-							14,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.RightParen,
-					value:")",
-					range: new Range(
-						new Position(
-							14,
-							0
-						),
-						new Position(
-							15,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.Colon,
-					value:":",
-					range: new Range(
-						new Position(
-							16,
-							0
-						),
-						new Position(
-							17,
-							0
-						)
-					)
-				),
-				new(
-					typ: TokType.Identifier,
-					value:"IGreeter",
-					range: new Range(
-						new Position(
-							18,
-							0
-						),
-						new Position(
-							26,
-							0
-						)
+			tokens,
+			7,
+			new(
+				TokType.Class,
+				"class",
+				new Range(
+					_startPosition,
+					new Position(
+						5,
+						0
 					)
 				)
-			}
+			),
+			new(
+				TokType.Identifier,
+				"Greeter",
+				new Range(
+					new Position(
+						6,
+						0
+					),
+					new Position(
+						13,
+						0
+					)
+				)
+			),
+			new(
+				TokType.LeftParen,
+				"(",
+				new Range(
+					new Position(
+						13,
+						0
+					),
+					new Position(
+						14,
+						0
+					)
+				)
+			),
+			new(
+				TokType.RightParen,
+				")",
+				new Range(
+					new Position(
+						14,
+						0
+					),
+					new Position(
+						15,
+						0
+					)
+				)
+			),
+			new(
+				TokType.Colon,
+				":",
+				new Range(
+					new Position(
+						16,
+						0
+					),
+					new Position(
+						17,
+						0
+					)
+				)
+			),
+			new(
+				TokType.Identifier,
+				"IGreeter",
+				new Range(
+					new Position(
+						18,
+						0
+					),
+					new Position(
+						26,
+						0
+					)
+				)
+			)
 		);
-
 	}
 
 	[Test]
@@ -799,12 +783,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("is");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Is,
-				value: "is",
-				range: _doubleCharRange
+			tokens,
+			2,
+			new Tok(
+				TokType.Is,
+				"is",
+				_doubleCharRange
 			)
 		);
 	}
@@ -814,12 +798,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("error");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Error,
-				value: "error",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Error,
+				"error",
+				new Range(
 					_startPosition,
 					new Position(
 						5,
@@ -835,12 +819,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("check");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Check,
-				value: "check",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Check,
+				"check",
+				new Range(
 					_startPosition,
 					new Position(
 						5,
@@ -856,12 +840,12 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("struct");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Struct,
-				value: "struct",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Struct,
+				"struct",
+				new Range(
 					_startPosition,
 					new Position(
 						6,
@@ -877,18 +861,33 @@ public class ScannerTest
 	{
 		var tokens = ArrangeAndAct("result");
 		MakeAssertions_Valid(
-			tokens: tokens,
-			count: 2,
-			expected: new Tok(
-				typ: TokType.Result,
-				value: "result",
-				range: new Range(
+			tokens,
+			2,
+			new Tok(
+				TokType.Result,
+				"result",
+				new Range(
 					_startPosition,
 					new Position(
 						6,
 						0
 					)
 				)
+			)
+		);
+	}
+
+	[Test]
+	public void TestScan_Modulo()
+	{
+		var tokens = ArrangeAndAct("%");
+		MakeAssertions_Valid(
+			tokens,
+			2,
+			new Tok(
+				TokType.Modulo,
+				"%",
+				new Range(_startPosition, new Position(1, 0))
 			)
 		);
 	}
@@ -910,14 +909,13 @@ public class ScannerTest
 
 	private static void MakeAssertions_Valid(List<Tok> tokens, int count, params Tok[] expected)
 	{
-		Assert.Multiple(() =>
-		{
-			Assert.That(tokens, Is.Not.Null);
-			Assert.That(tokens, Has.Count.EqualTo(count));
-		});
-		for (int i = 0; i < expected.Length; i++)
-		{
-			Assert.That(tokens[i], Is.EqualTo(expected[i]));
-		}
+		Assert.Multiple(
+			() =>
+			{
+				Assert.That(tokens, Is.Not.Null);
+				Assert.That(tokens, Has.Count.EqualTo(count));
+			}
+		);
+		for (var i = 0; i < expected.Length; i++) Assert.That(tokens[i], Is.EqualTo(expected[i]));
 	}
 }
