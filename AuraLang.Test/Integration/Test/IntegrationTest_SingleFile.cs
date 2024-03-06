@@ -152,6 +152,13 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "5\ntrue\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_ReturnStructAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/return_struct.aura");
+		MakeAssertions(output, "1\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
