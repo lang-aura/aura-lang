@@ -274,6 +274,57 @@ public class FmtTest
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
 
+	[Test]
+	public void TestFmt_ForEach_NoChange()
+	{
+		const string source = """
+		                      foreach item in list {
+		                          io.println("Hello world")
+		                      }
+
+		                      """;
+		var formatted = ArrangeAndAct_AddModStmt(source);
+		MakeAssertions_WithModStmt(formatted, source);
+	}
+
+	[Test]
+	public void TestFmt_ForEach_FixIndents()
+	{
+		const string expected = """
+		                        foreach item in list {
+		                            io.println("Hello world")
+		                        }
+
+		                        """;
+		const string source = """
+		                      foreach item in list {
+		                      io.println("Hello world")
+		                      }
+
+		                      """;
+		var formatted = ArrangeAndAct_AddModStmt(source);
+		MakeAssertions_WithModStmt(formatted, expected);
+	}
+
+	[Test]
+	public void TestFmt_ForEach_RemoveDoubleSpaces()
+	{
+		const string expected = """
+		                        foreach item in list {
+		                            io.println("Hello world")
+		                        }
+
+		                        """;
+		const string source = """
+		                      foreach  item  in  list  {
+		                      io.println("Hello world")
+		                      }
+
+		                      """;
+		var formatted = ArrangeAndAct_AddModStmt(source);
+		MakeAssertions_WithModStmt(formatted, expected);
+	}
+
 	private string ArrangeAndAct(string source)
 	{
 		var fmt = new AuraFmt(new FmtOptions());

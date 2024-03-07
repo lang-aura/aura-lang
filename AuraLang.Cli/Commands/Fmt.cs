@@ -120,8 +120,14 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	public string Visit(UntypedForEach @foreach)
 	{
-		var body = string.Join('\n', @foreach.Body.Select(Statement));
-		return $"foreach {@foreach.EachName.Value} in {Expression(@foreach.Iterable)} {{\n{body}\n}}";
+		var body = WithIndent(
+			() =>
+			{
+				var s = string.Join($"\n{AddIndent()}", @foreach.Body.Select(Statement));
+				return $"{AddIndent()}{s}";
+			}
+		);
+		return $"foreach {@foreach.EachName.Value} in {Expression(@foreach.Iterable)} {{\n{body}\n{AddIndent()}}}";
 	}
 
 	public string Visit(UntypedNamedFunction f)
