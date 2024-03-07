@@ -3,6 +3,7 @@ using AuraLang.Cli.Options;
 using AuraLang.Parser;
 using AuraLang.Scanner;
 using AuraLang.Shared;
+using AuraLang.Token;
 using AuraLang.Types;
 using AuraLang.Visitor;
 
@@ -41,12 +42,33 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	{
 		// Scan
 		var tokens = new AuraScanner(source, filePath).ScanTokens();
+		var newLines = new Stack<int>(
+			tokens
+				.Where((token, i) => token.Typ is TokType.Newline && i > 0 && tokens[i - 1].Typ is TokType.Newline)
+				.Select(nl => nl.Range.Start.Line)
+				.Reverse()
+		);
 		// Parse
-		var untypedAst = new AuraParser(tokens, filePath).Parse();
+		var untypedAst = new AuraParser(tokens.Where(token => token.Typ is not TokType.Newline).ToList(), filePath)
+			.Parse();
 		// Format AST
 		var formatted = Format(untypedAst);
 		// Turn back into a string
-		var s = string.Join(string.Empty, formatted);
+		var s = string.Empty;
+		var i = 0;
+		foreach (var line in formatted)
+		{
+			while (newLines.Count > 0 &&
+				   newLines.Peek() == i)
+			{
+				newLines.Pop();
+				s += '\n';
+				i++;
+			}
+
+			s += $"{line}\n";
+			i++;
+		}
 		if (s[^1] is not '\n') s += '\n';
 
 		return s;
