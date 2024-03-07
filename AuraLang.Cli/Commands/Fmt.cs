@@ -14,7 +14,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	/// <summary>
 	///     The number of tabs to precede the current line in the source file with. For top-level declarations, this will be 0.
 	/// </summary>
-	private int Tabs;
+	private int _spaces;
 
 	public AuraFmt(FmtOptions opts) : base(opts) { }
 
@@ -32,7 +32,8 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	///     Formats an individual Aura source file
 	/// </summary>
 	/// <param name="path">The path of the Aura source file</param>
-	public void FormatFile(string path, string contents)
+	/// <param name="contents">The current contents of the file to be formatted</param>
+	private void FormatFile(string path, string contents)
 	{
 		var formatted = FormatAuraSourceCode(contents, path);
 		File.WriteAllText(path, formatted);
@@ -98,38 +99,38 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	public string Visit(UntypedExpressionStmt expressionStmt) { return Expression(expressionStmt.Expression); }
 
-	public string Visit(UntypedFor for_)
+	public string Visit(UntypedFor @for)
 	{
-		var init = for_.Initializer is not null ? Statement(for_.Initializer) : string.Empty;
-		var cond = for_.Condition is not null ? Expression(for_.Condition) : string.Empty;
-		var inc = for_.Increment is not null ? Expression(for_.Increment) : string.Empty;
+		var init = @for.Initializer is not null ? Statement(@for.Initializer) : string.Empty;
+		var cond = @for.Condition is not null ? Expression(@for.Condition) : string.Empty;
+		var inc = @for.Increment is not null ? Expression(@for.Increment) : string.Empty;
 		var body = WithIndent(
 			() =>
 			{
-				return string.Join(
-					$"\n{AddTabs(Tabs)}",
-					for_.Body.Where(stmt => stmt is not UntypedNewLine).Select(Statement)
+				var s = string.Join(
+					$"\n{AddIndent()}",
+					@for.Body.Where(stmt => stmt is not UntypedNewLine).Select(Statement)
 				);
+				return $"{AddIndent()}{s}";
 			}
 		);
 
-		return $"for {init}; {cond}; {inc} {{\n{AddTabs(Tabs + 1)}{body}\n{AddTabs(Tabs)}}}";
+		return $"for {init}; {cond}; {inc} {{\n{body}\n{AddIndent()}}}";
 	}
 
-	public string Visit(UntypedForEach foreach_)
+	public string Visit(UntypedForEach @foreach)
 	{
-		var body = string.Join('\n', foreach_.Body.Select(Statement));
-		return $"foreach {foreach_.EachName.Value} in {Expression(foreach_.Iterable)} {{\n{body}\n}}";
+		var body = string.Join('\n', @foreach.Body.Select(Statement));
+		return $"foreach {@foreach.EachName.Value} in {Expression(@foreach.Iterable)} {{\n{body}\n}}";
 	}
 
 	public string Visit(UntypedNamedFunction f)
 	{
 		var pub = f.Public == Visibility.Public ? "pub " : string.Empty;
 		var @params = string.Join(", ", f.Params.Select(p => p.Name.Value));
-
 		var body = Expression(f.Body);
 
-		return $"{AddTabs(Tabs)}{pub}fn {f.Name.Value}({@params}) {body}";
+		return $"{pub}fn {f.Name.Value}({@params}) {body}";
 	}
 
 	public string Visit(UntypedLet let)
@@ -168,8 +169,8 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	public string Visit(UntypedWhile w)
 	{
 		var cond = Expression(w.Condition);
-		var body = string.Join("\n", w.Body.Select(Statement));
-		return $"while {cond} {{\n{body}\n}}";
+		var body = WithIndent(() => $"{AddIndent()}{string.Join($"\n{AddIndent()}", w.Body.Select(Statement))}");
+		return $"while {cond} {{\n{body}\n{AddIndent()}}}";
 	}
 
 	public string Visit(UntypedImport i)
@@ -230,18 +231,18 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	public string Visit(UntypedBlock block)
 	{
-		var s = $"{AddTabs(Tabs)}{{\n{AddTabs(Tabs)}";
 		var body = WithIndent(
 			() =>
 			{
-				return string.Join(
-					$"\n{AddTabs(Tabs)}",
+				var s = string.Join(
+					$"\n{AddIndent()}",
 					block.Statements.Where(stmt => stmt is not UntypedNewLine).Select(Statement)
 				);
+				return $"{AddIndent()}{s}";
 			}
 		);
 
-		return $"{{\n{AddTabs(Tabs + 1)}{body}\n{AddTabs(Tabs)}}}";
+		return $"{{\n{body}\n}}";
 	}
 
 	public string Visit(UntypedCall call)
@@ -301,7 +302,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		return $"map[{m.KeyType} : {m.ValueType}]{{ {values} }}";
 	}
 
-	public string Visit(BoolLiteral b) { return $"{b.Value}"; }
+	public string Visit(BoolLiteral b) { return $"{b.Value.ToString().ToLower()}"; }
 
 	public string Visit(UntypedNil n) { return "nil"; }
 
@@ -334,13 +335,13 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 
 	private string WithIndent(Func<string> a)
 	{
-		Tabs++;
+		_spaces += 4;
 		var result = a();
-		Tabs--;
+		_spaces -= 4;
 		return result;
 	}
 
-	private string AddTabs(int n) { return new string(' ', n * 4); }
+	private string AddIndent() { return new string(' ', _spaces); }
 
 	public string Visit(UntypedNewLine newline) { return "\n"; }
 

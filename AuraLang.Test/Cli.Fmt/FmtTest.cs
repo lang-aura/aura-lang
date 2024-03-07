@@ -118,8 +118,20 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_CorrectIndentation()
 	{
-		const string expected = "{\n    let i: int = 5\n    x := 5 * 2\n}\n";
-		const string source = "{\nlet i: int = 5\nx := 5 * 2\n}\n";
+		const string expected = """
+		                        {
+		                            let i: int = 5
+		                            x := 5 * 2
+		                        }
+
+		                        """;
+		const string source = """
+		                      {
+		                      let i: int = 5
+		                      x := 5 * 2
+		                      }
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
@@ -128,7 +140,14 @@ public class FmtTest
 	public void TestFmt_Function_NoChange()
 	{
 		const string source =
-			"fn main() {\n    for i := 0; i < 10; i++ {\n        io.println(\"Hello world\")\n    }\n}\n";
+			"""
+			fn main() {
+			    for i := 0; i < 10; i++ {
+			        io.println("Hello world")
+			    }
+			}
+
+			""";
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -137,8 +156,22 @@ public class FmtTest
 	public void TestFmt_Function_AddTabs()
 	{
 		const string expected =
-			"fn main() {\n    for i := 0; i < 10; i++ {\n        io.println(\"Hello world\")\n    }\n}\n";
-		const string source = "fn main() {\nfor i := 0; i < 10; i++ {\nio.println(\"Hello world\")\n}\n}\n";
+			"""
+			fn main() {
+			    for i := 0; i < 10; i++ {
+			        io.println("Hello world")
+			    }
+			}
+
+			""";
+		const string source = """
+		                      fn main() {
+		                          for i := 0; i < 10; i++ {
+		                              io.println("Hello world")
+		                          }
+		                      }
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
