@@ -9,7 +9,16 @@ public class FmtTest
 	public void TestFmt_HelloWorld_NoChange()
 	{
 		// Arrange
-		const string source = "mod main\n\nimport aura/io\n\nfn main() {\n    io.println(\"Hello world\")\n}\n";
+		const string source = """
+		                      mod main
+
+		                      import aura/io
+
+		                      fn main() {
+		                          io.println("Hello world")
+		                      }
+
+		                      """;
 		var fmt = new AuraFmt(new FmtOptions());
 		// Act
 		var formatted = fmt.FormatAuraSourceCode(source, "test.aura");
@@ -20,7 +29,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Defer_RemoveDoubleSpace()
 	{
-		const string expected = "defer f()\n";
+		const string expected = """
+		                        defer f()
+
+		                        """;
 		var formatted = ArrangeAndAct_AddModStmt("defer  f()\n");
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
@@ -28,7 +40,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Let_Long_NoChange()
 	{
-		const string source = "let i: int = 5\n";
+		const string source = """
+		                      let i: int = 5
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -36,7 +51,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Let_Long_Mut_NoChange()
 	{
-		const string source = "let mut i: int = 5\n";
+		const string source = """
+		                      let mut i: int = 5
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -44,7 +62,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_NoChange()
 	{
-		const string source = "let i: int\n";
+		const string source = """
+		                      let i: int
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -52,8 +73,14 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Let_Long_RemoveDoubleSpaces()
 	{
-		const string expected = "let mut i: int = 5\n";
-		const string source = "let  mut  i:  int  =  5\n";
+		const string expected = """
+		                        let mut i: int = 5
+
+		                        """;
+		const string source = """
+		                      let  mut  i:  int  =  5
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
@@ -61,7 +88,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Let_Short_NoChange()
 	{
-		const string source = "i := 5\n";
+		const string source = """
+		                      i := 5
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -69,7 +99,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Let_Short_Mut_NoChange()
 	{
-		const string source = "mut i := 5\n";
+		const string source = """
+		                      mut i := 5
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -77,7 +110,12 @@ public class FmtTest
 	[Test]
 	public void TestFmt_For_NoChange()
 	{
-		const string source = "for i := 0; i < 10; i++ {\n    io.println(\"Hi there\")\n}\n";
+		const string source = """
+		                      for i := 0; i < 10; i++ {
+		                          io.println("Hi there")
+		                      }
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -85,7 +123,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Assign_NoChange()
 	{
-		const string source = "x = 5\n";
+		const string source = """
+		                      x = 5
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -93,7 +134,10 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Assign_RemoveDoubleSpaces()
 	{
-		const string expected = "x = 5\n";
+		const string expected = """
+		                        x = 5
+
+		                        """;
 		var formatted = ArrangeAndAct_AddModStmt("x  =  5\n");
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
@@ -101,7 +145,12 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_NoChange()
 	{
-		const string source = "{\n    io.println(\"Hello world\")\n}\n";
+		const string source = """
+		                      {
+		                          io.println("Hello world")
+		                      }
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, source);
 	}
@@ -109,8 +158,21 @@ public class FmtTest
 	[Test]
 	public void TestFmt_Block_RemoveDoubleNewlines()
 	{
-		const string expected = "{\n    s := \"Hello world\"\n    io.println(s)\n}\n";
-		const string source = "{\ns := \"Hello world\"\n\nio.println(s)\n}\n";
+		const string expected = """
+		                        {
+		                            s := "Hello world"
+		                            io.println(s)
+		                        }
+
+		                        """;
+		const string source = """
+		                      {
+		                      s := "Hello world"
+
+		                      io.println(s)
+		                      }
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
@@ -179,8 +241,18 @@ public class FmtTest
 	[Test]
 	public void TestFmt_MultipleImports_Combine()
 	{
-		const string expected = "import (\n    aura/io\n    aura/strings\n)\n";
-		const string source = "import aura/io\nimport aura/strings\n";
+		const string expected = """
+		                        import (
+		                            aura/io
+		                            aura/strings
+		                        )
+
+		                        """;
+		const string source = """
+		                      import aura/io
+		                      import aura/strings
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
@@ -188,8 +260,16 @@ public class FmtTest
 	[Test]
 	public void TestFmt_MultipleImports_OneImport()
 	{
-		const string expected = "import aura/io\n";
-		const string source = "import (\n    aura/io\n)\n";
+		const string expected = """
+		                        import aura/io
+
+		                        """;
+		const string source = """
+		                      import (
+		                          aura/io
+		                      )
+
+		                      """;
 		var formatted = ArrangeAndAct_AddModStmt(source);
 		MakeAssertions_WithModStmt(formatted, expected);
 	}
