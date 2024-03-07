@@ -59,7 +59,7 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 		foreach (var line in formatted)
 		{
 			while (newLines.Count > 0 &&
-			       newLines.Peek() == i)
+				   newLines.Peek() == i)
 			{
 				newLines.Pop();
 				s += '\n';
