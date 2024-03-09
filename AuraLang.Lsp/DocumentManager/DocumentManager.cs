@@ -7,6 +7,7 @@ using AuraLang.Lsp.Service.SignatureHelpProvider;
 using AuraLang.Lsp.SynchronizedFileProvider;
 using AuraLang.Parser;
 using AuraLang.Scanner;
+using AuraLang.Symbol;
 using AuraLang.Token;
 using AuraLang.TypeChecker;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
@@ -20,9 +21,11 @@ namespace AuraLang.Lsp.DocumentManager;
 public class AuraDocumentManager
 {
 	/// <summary>
-	///     The Aura source files currently owned by the LSP client
+	///     The Aura source files currently owned by the LSP client. The keys are module names and each value is a dictionary
+	///     mapping the name of each file in the module to the file's contents and typed AST
 	/// </summary>
-	private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, AuraLspDocument>> _documents = new();
+	private readonly ConcurrentDictionary<string, (ConcurrentDictionary<string, AuraLspDocument>, IGlobalSymbolsTable)>
+		_documents = new();
 
 	/// <summary>
 	///     Responsible for providing hover text
@@ -55,7 +58,9 @@ public class AuraDocumentManager
 				.Where(tok => tok.Typ is not TokType.Newline)
 				.ToList();
 			var untypedAst = new AuraParser(tokens, path).Parse();
+			var symbolsTable = new GlobalSymbolsTable();
 			var typeChecker = new AuraTypeChecker(
+				symbolsTable,
 				new AuraSynchronizedFileProvider(this),
 				path,
 				"Test Project Name"
@@ -65,12 +70,16 @@ public class AuraDocumentManager
 
 			// Store file's new contents
 			var lspDoc = new AuraLspDocument(contents, typedAst);
-			var modDict = _documents.GetOrAdd(module, _ => new ConcurrentDictionary<string, AuraLspDocument>());
-			modDict.AddOrUpdate(
+			var modDict = _documents.GetOrAdd(
+				module,
+				_ => (new ConcurrentDictionary<string, AuraLspDocument>(), symbolsTable)
+			);
+			modDict.Item1.AddOrUpdate(
 				file,
 				lspDoc,
 				(_, _) => lspDoc
 			);
+			modDict.Item2 = symbolsTable;
 			_documents.AddOrUpdate(
 				module,
 				modDict,
@@ -95,8 +104,8 @@ public class AuraDocumentManager
 	{
 		var (module, file) = GetModuleAndFileNames(path);
 		var modDict = _documents[module];
-		modDict.TryRemove(file, out _);
-		if (!modDict.IsEmpty)
+		modDict.Item1.TryRemove(file, out _);
+		if (!modDict.Item1.IsEmpty)
 			_documents[module] = modDict;
 		else
 			_documents.Remove(module, out _);
@@ -111,7 +120,7 @@ public class AuraDocumentManager
 	{
 		var (module, file) = GetModuleAndFileNames(path);
 		if (_documents.TryGetValue(module, out var mod))
-			if (mod.TryGetValue(file, out var doc))
+			if (mod.Item1.TryGetValue(file, out var doc))
 				return doc;
 
 		return null;
@@ -125,7 +134,7 @@ public class AuraDocumentManager
 	public List<(string, string)> GetModule(string module)
 	{
 		if (_documents.TryGetValue(module, out var value))
-			return value.Select(item => (item.Key, item.Value.Contents)).ToList();
+			return value.Item1.Select(item => (item.Key, item.Value.Contents)).ToList();
 		return new List<(string, string)>();
 	}
 
