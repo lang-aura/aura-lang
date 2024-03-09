@@ -24,24 +24,28 @@ public class AuraDiagnosticsPublisher
 	///     Sends diagnostics to the LSP client corresponding to the supplied exception and Aura source file URI
 	/// </summary>
 	/// <param name="ex">
-	///     The <see cref="AuraException" /> encountered during the compilation process. The specific details of
+	///     The <see cref="AuraExceptionContainer" /> encountered during the compilation process. The specific details of
 	///     the diagnostic will be extracted from this exception
 	/// </param>
 	/// <param name="uri">The path of the Aura source file where the error was encountered</param>
-	public async Task SendAsync(AuraException ex, Uri uri)
+	public async Task SendAsync(AuraExceptionContainer ex, Uri uri)
 	{
-		var diagnostics = ex
-			.Range.Select(
-				r => new Diagnostic
+		var diagnostics = ex.Exs.SelectMany(
+				e =>
 				{
-					Code = "Warning",
-					Message = ex.Message,
-					Severity = DiagnosticSeverity.Error,
-					Range = new LspRange
-					{
-						Start = new Position { Line = r.Start.Line, Character = r.Start.Character },
-						End = new Position { Line = r.End.Line, Character = r.End.Character }
-					}
+					return e.Range.Select(
+						r => new Diagnostic
+						{
+							Code = "Warning",
+							Message = e.Message,
+							Severity = DiagnosticSeverity.Error,
+							Range = new LspRange
+							{
+								Start = new Position { Line = r.Start.Line, Character = r.Start.Character },
+								End = new Position { Line = r.End.Line, Character = r.End.Character }
+							}
+						}
+					);
 				}
 			)
 			.ToArray();
