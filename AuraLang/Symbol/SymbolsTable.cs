@@ -9,6 +9,7 @@ public interface IGlobalSymbolsTable
 	ISymbolsNamespace? GetNamespace(string name);
 	AuraModule? GetNamespaceAsModule(string name);
 	AuraSymbol? GetSymbol(string name, string symbolsNamespace);
+	List<AuraSymbol>? GetAllSymbols();
 	void AddNamespace(string name);
 	void AddModule(AuraModule module);
 	bool TryAddSymbol(AuraSymbol symbol, string symbolsNamespace);
@@ -47,6 +48,8 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 		var @namespace = GetNamespace(symbolsNamespace);
 		return @namespace?.Find(name);
 	}
+
+	public List<AuraSymbol>? GetAllSymbols() { }
 
 	public void AddNamespace(string name) => _symbolsTable.TryAdd(name, new SymbolsNamespace(name));
 

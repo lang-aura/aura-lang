@@ -127,6 +127,23 @@ public class AuraDocumentManager
 	}
 
 	/// <summary>
+	///     Fetches an existing document and its associated symbols table
+	/// </summary>
+	/// <param name="path">The path of the Aura source file to fetch</param>
+	/// <returns>
+	///     A tuple containing a document representing the Aura source file located at the supplied path and the source
+	///     file's associated symbols table
+	/// </returns>
+	private (AuraLspDocument, IGlobalSymbolsTable)? GetDocumentAndSymbolsTable(string path)
+	{
+		var (module, file) = GetModuleAndFileNames(path);
+		if (_documents.TryGetValue(module, out var mod))
+			if (mod.Item1.TryGetValue(file, out var doc))
+				return (doc, mod.Item2);
+		return null;
+	}
+
+	/// <summary>
 	///     Fetches all existing Aura source files located in the specified module
 	/// </summary>
 	/// <param name="module">The module in question</param>
@@ -159,11 +176,13 @@ public class AuraDocumentManager
 	public CompletionList? GetCompletionItems(CompletionParams completionParams)
 	{
 		var position = completionParams.Position;
-		var fileContents = GetDocument(completionParams.TextDocument.Uri.ToString());
+		var docAndSymbolsTable = GetDocumentAndSymbolsTable(completionParams.TextDocument.Uri.ToString());
+		if (docAndSymbolsTable is null) return null;
 		return _completionProvider.ComputeCompletionOptions(
 			Position.FromMicrosoftPosition(position),
 			completionParams.Context!.TriggerCharacter!,
-			fileContents!.TypedAst
+			docAndSymbolsTable.Value.Item1.TypedAst,
+			docAndSymbolsTable.Value.Item2
 		);
 	}
 

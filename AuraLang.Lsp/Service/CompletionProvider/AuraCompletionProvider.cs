@@ -1,4 +1,5 @@
 ﻿using AuraLang.AST;
+using AuraLang.Symbol;
 using AuraLang.Types;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Position = AuraLang.Location.Position;
@@ -20,15 +21,34 @@ public class AuraCompletionProvider : AuraLspService
 	///     A typed Abstract Syntax Tree. The <see cref="Position" /> of the trigger character is understood
 	///     to lie within this AST
 	/// </param>
+	/// <param name="symbolsTable">The symbols table associated with the file from where the completion request was triggered</param>
 	/// <returns></returns>
 	public CompletionList? ComputeCompletionOptions(
 		Position position,
-		string triggerCharacter,
-		IEnumerable<ITypedAuraStatement> typedAst
+		string? triggerCharacter,
+		IEnumerable<ITypedAuraStatement> typedAst,
+		IGlobalSymbolsTable symbolsTable
 	)
 	{
+		if (triggerCharacter is null)
+			return ComputeCompletionOptionsForNullTriggerCharacter(
+				position,
+				typedAst,
+				symbolsTable
+			);
 		var immediatelyPrecedingNode = FindImmediatelyPrecedingNode(position, typedAst);
 		if (immediatelyPrecedingNode?.Typ is ICompletable c) return c.ProvideCompletableOptions(triggerCharacter);
 		return null;
+	}
+
+	private CompletionList? ComputeCompletionOptionsForNullTriggerCharacter(
+		Position position,
+		IEnumerable<ITypedAuraStatement> typedAst,
+		IGlobalSymbolsTable symbolsTable
+	)
+	{
+		var immediatelyPrecedingNode = FindImmediatelyPrecedingNode(position, typedAst);
+		if (immediatelyPrecedingNode is not TypedVariable) return null;
+		// TODO Find all local symbols and keyword that start with the immediately preceding node (need the symbols table)
 	}
 }
