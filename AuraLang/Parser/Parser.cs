@@ -56,7 +56,11 @@ public class AuraParser
 				Synchronize();
 			}
 
-		if (!_exContainer.IsEmpty()) throw _exContainer;
+		if (!_exContainer.IsEmpty())
+		{
+			_exContainer.Valid = statements;
+			throw _exContainer;
+		}
 
 		// Ensure that the file begins with a mod declaration
 		var nonComments = statements.Where(stmt => stmt is not UntypedComment).ToList();

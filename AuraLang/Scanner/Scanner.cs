@@ -110,7 +110,6 @@ public class AuraScanner
 			}
 		}
 
-		if (!_exContainer.IsEmpty()) throw _exContainer;
 		// We append an EOF token to the end of the returned list of tokens to clearly delineate the end of the source
 		_tokens.Add(
 			new Tok(
@@ -128,6 +127,11 @@ public class AuraScanner
 				)
 			)
 		);
+		if (!_exContainer.IsEmpty())
+		{
+			_exContainer.Valid = _tokens;
+			throw _exContainer;
+		}
 		return _tokens;
 	}
 

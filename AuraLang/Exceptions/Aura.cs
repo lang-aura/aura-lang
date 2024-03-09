@@ -2,9 +2,6 @@
 
 namespace AuraLang.Exceptions;
 
-/// <summary>
-///     Acts as a container for Aura exceptions thrown during the compilation process
-/// </summary>
 public abstract class AuraExceptionContainer : Exception
 {
 	/// <summary>
@@ -23,12 +20,6 @@ public abstract class AuraExceptionContainer : Exception
 	}
 
 	/// <summary>
-	///     Determines if the container contains any exceptions
-	/// </summary>
-	/// <returns>A boolean value indicating if the container is empty</returns>
-	public bool IsEmpty() => Exs.Count == 0;
-
-	/// <summary>
 	///     Formats any contained errors into a human-readable format
 	/// </summary>
 	/// <returns>The formatted exception(s)</returns>
@@ -36,6 +27,31 @@ public abstract class AuraExceptionContainer : Exception
 	{
 		var errs = Exs.Select(ex => ex.Error(FilePath));
 		return string.Join("\n\n", errs);
+	}
+
+	/// <summary>
+	///     Determines if the container contains any exceptions
+	/// </summary>
+	/// <returns>A boolean value indicating if the container is empty</returns>
+	public bool IsEmpty()
+	{
+		return Exs.Count == 0;
+	}
+}
+
+/// <summary>
+///     Acts as a container for Aura exceptions thrown during the compilation process
+/// </summary>
+public abstract class AuraExceptionContainer<T> : AuraExceptionContainer
+{
+	/// <summary>
+	///     Returns the valid sections of the Aura source file that were successfully processed
+	/// </summary>
+	/// <typeparam name="T">The representation of the valid sections</typeparam>
+	public abstract T? Valid { get; set; }
+
+	protected AuraExceptionContainer(string filePath) : base(filePath)
+	{
 	}
 }
 
@@ -66,4 +82,3 @@ public abstract class AuraException : Exception
 		return $"[{filePath} line {Range[0].Start.Line + 1}] {Message}";
 	}
 }
-

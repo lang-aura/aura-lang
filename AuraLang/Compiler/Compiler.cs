@@ -119,12 +119,15 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			}
 		}
 
+		var goDoc = _goDocument.Assemble();
+
 		if (!_exContainer.IsEmpty())
 		{
+			_exContainer.Valid = goDoc;
 			throw _exContainer;
 		}
 
-		return _goDocument.Assemble();
+		return goDoc;
 	}
 
 	/// <summary>
