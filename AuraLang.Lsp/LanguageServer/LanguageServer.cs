@@ -129,7 +129,7 @@ public class AuraLanguageServer : IDisposable
 		}
 		catch (AuraExceptionContainer e)
 		{
-			foreach (var ex in e.Exs) await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
+			await DiagnosticsPublisher!.SendAsync(e, @params.TextDocument.Uri);
 
 			return;
 		}
@@ -147,7 +147,7 @@ public class AuraLanguageServer : IDisposable
 		}
 		catch (AuraExceptionContainer e)
 		{
-			foreach (var ex in e.Exs) await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
+			await DiagnosticsPublisher!.SendAsync(e, @params.TextDocument.Uri);
 
 			return;
 		}
@@ -178,7 +178,7 @@ public class AuraLanguageServer : IDisposable
 		}
 		catch (AuraExceptionContainer e)
 		{
-			foreach (var ex in e.Exs) await DiagnosticsPublisher!.SendAsync(ex, @params.TextDocument.Uri);
+			await DiagnosticsPublisher!.SendAsync(e, @params.TextDocument.Uri);
 
 			return;
 		}
