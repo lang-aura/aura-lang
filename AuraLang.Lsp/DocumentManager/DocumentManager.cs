@@ -1,5 +1,9 @@
 ﻿using System.Collections.Concurrent;
+using AuraLang.AST;
 using AuraLang.Exceptions;
+using AuraLang.Exceptions.Parser;
+using AuraLang.Exceptions.Scanner;
+using AuraLang.Exceptions.TypeChecker;
 using AuraLang.Lsp.Document;
 using AuraLang.Lsp.Service.CompletionProvider;
 using AuraLang.Lsp.Service.HoverProvider;
@@ -52,21 +56,12 @@ public class AuraDocumentManager
 		var (module, file) = GetModuleAndFileNames(path);
 		try
 		{
-			// Compile file's new contents
-			var tokens = new AuraScanner(contents, path)
-				.ScanTokens()
-				.Where(tok => tok.Typ is not TokType.Newline)
-				.ToList();
-			var untypedAst = new AuraParser(tokens, path).Parse();
 			var symbolsTable = new GlobalSymbolsTable();
-			var typeChecker = new AuraTypeChecker(
-				symbolsTable,
-				new AuraSynchronizedFileProvider(this),
+			var (typedAst, auraEx) = CompileFile(
 				path,
-				"Test Project Name"
+				contents,
+				symbolsTable
 			);
-			typeChecker.BuildSymbolsTable(untypedAst);
-			var typedAst = typeChecker.CheckTypes(untypedAst);
 
 			// Store file's new contents
 			var lspDoc = new AuraLspDocument(contents, typedAst);
@@ -85,6 +80,8 @@ public class AuraDocumentManager
 				modDict,
 				(_, _) => modDict
 			);
+
+			if (auraEx is not null) throw auraEx;
 		}
 		catch (AuraExceptionContainer)
 		{
@@ -198,5 +195,94 @@ public class AuraDocumentManager
 			? "src"
 			: module;
 		return (module, name);
+	}
+
+	private (List<ITypedAuraStatement>, AuraExceptionContainer?) CompileFile(
+		string path,
+		string contents,
+		IGlobalSymbolsTable symbolsTable
+	)
+	{
+		var (tokens, scannerEx) = Scan(path, contents);
+		if (scannerEx is not null)
+		{
+			var (uAst, _) = Parse(path, tokens);
+			var (tAst, _) = TypeCheck(
+				path,
+				uAst,
+				symbolsTable
+			);
+			return (tAst, scannerEx);
+		}
+
+		var (untypedAst, parserEx) = Parse(path, tokens);
+		if (parserEx is not null)
+		{
+			var (tyAst, _) = TypeCheck(
+				path,
+				untypedAst,
+				symbolsTable
+			);
+			return (tyAst, parserEx);
+		}
+
+		return TypeCheck(
+			path,
+			untypedAst,
+			symbolsTable
+		);
+	}
+
+	private (List<Tok>, AuraExceptionContainer?) Scan(string path, string contents)
+	{
+		try
+		{
+			var tokens = new AuraScanner(contents, path)
+				.ScanTokens()
+				.Where(tok => tok.Typ is not TokType.Newline)
+				.ToList();
+			return (tokens, null);
+		}
+		catch (ScannerExceptionContainer e)
+		{
+			return (e.Valid ?? new List<Tok>(), e);
+		}
+	}
+
+	private (List<IUntypedAuraStatement>, AuraExceptionContainer?) Parse(string path, List<Tok> tokens)
+	{
+		try
+		{
+			var untypedAst = new AuraParser(tokens, path).Parse();
+			return (untypedAst, null);
+		}
+		catch (ParserExceptionContainer e)
+		{
+			return (e.Valid ?? new List<IUntypedAuraStatement>(), e);
+		}
+	}
+
+	private (List<ITypedAuraStatement>, AuraExceptionContainer?) TypeCheck(
+		string path,
+		List<IUntypedAuraStatement> untypedAst,
+		IGlobalSymbolsTable symbolsTable
+	)
+	{
+		try
+		{
+			var typeChecker = new AuraTypeChecker(
+				symbolsTable,
+				new AuraSynchronizedFileProvider(this),
+				path,
+				"Test Project Name"
+			);
+			typeChecker.BuildSymbolsTable(untypedAst);
+			var typedAst = typeChecker.CheckTypes(untypedAst);
+			return (typedAst, null);
+		}
+		catch (TypeCheckerExceptionContainer e)
+		{
+			return (e.Valid ?? new List<ITypedAuraStatement>(), e);
+		}
 	}
 }
