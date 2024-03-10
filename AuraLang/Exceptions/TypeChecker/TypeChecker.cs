@@ -43,7 +43,7 @@ public class ExpectIterableException : TypeCheckerException
 public class TypeMismatchException : TypeCheckerException
 {
 	public TypeMismatchException(AuraType expected, AuraType found, Range range) : base(
-		$"Type mismatch. Expected {expected}, but found {found}",
+		$"Type mismatch. Expected {expected.ToAuraString()}, but found {found.ToAuraString()}",
 		range
 	)
 	{ }
