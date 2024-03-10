@@ -14,13 +14,32 @@ public abstract class AuraType
 		return IsSameType(other);
 	}
 
+	/// <summary>
+	///     Determines if the current type and the supplied type are the same type. In the case of a compound type, such as
+	///     <see cref="AuraList" /> or <see cref="AuraMap" />, this method will return true only if the supplied type is the
+	///     same compound type and all contained types also share a type
+	/// </summary>
+	/// <param name="other">The supplied type that will be compared to this type</param>
+	/// <returns>A boolean indicating if the two types are the same</returns>
 	public abstract bool IsSameType(AuraType other);
 
+	/// <summary>
+	///     Determines if the supplied type inherits from this type. This method will only return true if the supplied type is
+	///     a sub-type that inherits from this type. In the case when the supplied type is the same as this type, this method
+	///     will return false
+	/// </summary>
+	/// <param name="other">The supplied type that will be compared to this type</param>
+	/// <returns>A boolean indicating if the supplied type inherits from this type</returns>
 	public virtual bool IsInheritingType(AuraType other)
 	{
 		return false;
 	}
 
+	/// <summary>
+	///     Determines if the supplied type is either the same as this type or inherits from it.
+	/// </summary>
+	/// <param name="other">The supplied type which will be compared to this type</param>
+	/// <returns>A boolean indicating if the supplied type is the same or inherits from this type</returns>
 	public bool IsSameOrInheritingType(AuraType other)
 	{
 		return IsSameType(other) || IsInheritingType(other);
@@ -72,7 +91,12 @@ public abstract class AuraType
 /// </summary>
 public class AuraUnknown : AuraType
 {
-	public string Name { get; init; }
+	/// <summary>
+	///     The name of the unknown type. Since <c>Unknown</c> is primarily used for user-defined types before they've been
+	///     type checked or variables defined with type inference, this field will contain the name of the variable whose type
+	///     is still unknown
+	/// </summary>
+	public string Name { get; }
 
 	public AuraUnknown(string name)
 	{
@@ -91,8 +115,7 @@ public class AuraUnknown : AuraType
 }
 
 /// <summary>
-///     Used to represent the type of an Aura statement, which has no type because statements
-///     do not return a value.
+///     Used to represent the type of an Aura statement, which has no type because statements do not return a value.
 /// </summary>
 public class AuraNone : AuraType
 {
@@ -362,8 +385,16 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 /// </summary>
 public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureHelper
 {
+	/// <summary>
+	///     The function's name
+	/// </summary>
 	public string Name { get; }
+
+	/// <summary>
+	///     The function's visibility
+	/// </summary>
 	public Visibility Public { get; }
+
 	public AuraFunction F { get; }
 
 	public string Documentation
@@ -497,7 +528,14 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureH
 /// </summary>
 public class AuraFunction : AuraType, ICallable
 {
+	/// <summary>
+	///     The function's parameters
+	/// </summary>
 	public List<Param> Params { get; }
+
+	/// <summary>
+	///     The function's return type
+	/// </summary>
 	public AuraType ReturnType { get; }
 
 	public string Documentation => string.Empty;
@@ -551,11 +589,27 @@ public class AuraFunction : AuraType, ICallable
 	}
 }
 
+/// <summary>
+///     Represents an interface in Aura, which can be implemented by Aura classes
+/// </summary>
 public class AuraInterface : AuraType, IGettable, IDocumentable
 {
+	/// <summary>
+	///     The interface's visibility
+	/// </summary>
 	public Visibility Public { get; }
+
+	/// <summary>
+	///     The interface's name
+	/// </summary>
 	public string Name { get; }
+
+	/// <summary>
+	///     The interface's functions. When a class implements this interface, the class must provide an implementation for
+	///     each of the interface's functions
+	/// </summary>
 	public List<AuraNamedFunction> Functions { get; }
+
 	public string Documentation { get; }
 
 	public AuraInterface(
@@ -631,11 +685,31 @@ public class AuraInterface : AuraType, IGettable, IDocumentable
 /// </summary>
 public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocumentable
 {
+	/// <summary>
+	///     The class's visibility
+	/// </summary>
 	public Visibility Public { get; }
+
+	/// <summary>
+	///     The class's name
+	/// </summary>
 	public string Name { get; }
+
+	/// <summary>
+	///     The class's parameters
+	/// </summary>
 	public List<Param> Parameters { get; }
+
+	/// <summary>
+	///     The class's methods
+	/// </summary>
 	public List<AuraNamedFunction> Methods { get; }
+
+	/// <summary>
+	///     A list of zero or more interfaces implemented by the class
+	/// </summary>
 	public List<AuraInterface> Implementing { get; }
+
 	public string Documentation { get; }
 
 	public AuraClass(
@@ -1021,8 +1095,14 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 	}
 }
 
+/// <summary>
+///     Represents an error encountered during execution
+/// </summary>
 public class AuraError : AuraType, IGettable, IImportableModule, INilable
 {
+	/// <summary>
+	///     The error's message
+	/// </summary>
 	public string? Message;
 
 	public AuraError(string message)
@@ -1056,11 +1136,26 @@ public class AuraError : AuraType, IGettable, IImportableModule, INilable
 	}
 }
 
+/// <summary>
+///     Represents an Aura struct, which is similar to a class but does not contain any methods
+/// </summary>
 public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumentable
 {
+	/// <summary>
+	///     The struct's visibility
+	/// </summary>
 	public Visibility Public { get; }
+
+	/// <summary>
+	///     The struct's name
+	/// </summary>
 	public string Name { get; }
+
+	/// <summary>
+	///     The struct's parameters
+	/// </summary>
 	public List<Param> Parameters { get; }
+
 	public string Documentation { get; }
 
 	public AuraStruct(
@@ -1166,9 +1261,20 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumen
 	}
 }
 
+/// <summary>
+///     Represents an anonymous struct, which is instantiated without a name and must be stored in a variable in order to
+///     be referenced again
+/// </summary>
 public class AuraAnonymousStruct : AuraType
 {
+	/// <summary>
+	///     The struct's visibility
+	/// </summary>
 	public Visibility Public { get; }
+
+	/// <summary>
+	///     The struct's parameters
+	/// </summary>
 	public List<Param> Parameters { get; }
 
 	public AuraAnonymousStruct(List<Param> parameters, Visibility pub)
@@ -1193,9 +1299,19 @@ public class AuraAnonymousStruct : AuraType
 	}
 }
 
+/// <summary>
+///     Represents a data structure that contains either a success or failure value
+/// </summary>
 public class AuraResult : AuraType, IGettable, IImportableModule
 {
+	/// <summary>
+	///     The result's success type
+	/// </summary>
 	public AuraType Success { get; }
+
+	/// <summary>
+	///     The result's failure type
+	/// </summary>
 	public AuraError Failure { get; }
 
 	public AuraResult(AuraType success, AuraError failure)
