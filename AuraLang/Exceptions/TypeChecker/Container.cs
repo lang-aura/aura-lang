@@ -9,10 +9,17 @@ public class TypeCheckerExceptionContainer : AuraExceptionContainer<List<ITypedA
 {
 	public override List<ITypedAuraStatement>? Valid { get; set; }
 
-	public TypeCheckerExceptionContainer(string filePath) : base(filePath) { }
+	public TypeCheckerExceptionContainer(string filePath) : base(filePath)
+	{
+	}
 
 	public void Add(TypeCheckerException ex)
 	{
 		Exs.Add(ex);
+	}
+
+	public void Add(TypeCheckerExceptionContainer exC)
+	{
+		foreach (var ex in exC.Exs) Exs.Add(ex);
 	}
 }

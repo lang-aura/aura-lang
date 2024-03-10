@@ -28,6 +28,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	private string? ModuleName { get; set; }
 	private readonly AuraPrelude _prelude = new();
 	public IImportedModuleProvider ImportedModuleProvider { get; }
+	private string _filePath;
 
 	public AuraTypeChecker(
 		IGlobalSymbolsTable symbolsTable,
@@ -48,6 +49,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
 		ImportedModuleProvider = importedFileProvider;
 		ProjectName = projectName;
+		_filePath = filePath;
 	}
 
 	public AuraTypeChecker(
@@ -65,6 +67,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
 		ImportedModuleProvider = importedModuleProvider;
 		ProjectName = projectName;
+		_filePath = filePath;
 	}
 
 	public AuraTypeChecker(
@@ -81,6 +84,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
 		ImportedModuleProvider = importedModuleProvider;
 		ProjectName = projectName;
+		_filePath = filePath;
 	}
 
 	public AuraTypeChecker(string filePath, string projectName)
@@ -93,6 +97,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		_exContainer = new TypeCheckerExceptionContainer(filePath);
 		ImportedModuleProvider = new AuraLocalFileSystemImportedModuleProvider();
 		ProjectName = projectName;
+		_filePath = filePath;
 	}
 
 	public void BuildSymbolsTable(List<IUntypedAuraStatement> stmts)
@@ -179,6 +184,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			catch (TypeCheckerException ex)
 			{
 				_exContainer.Add(ex);
+			}
+			catch (TypeCheckerExceptionContainer exC)
+			{
+				typedAst = exC.Valid;
+				_exContainer.Add(exC);
 			}
 
 		if (!_exContainer.IsEmpty())
@@ -1358,11 +1368,20 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		return _enclosingExpressionStore.WithEnclosing(
 			() =>
 			{
+				var blockExContainer = new TypeCheckerExceptionContainer(_filePath);
 				return InNewScope(
 					() =>
 					{
 						var typedStmts = new List<ITypedAuraStatement>();
-						foreach (var stmt in block.Statements) typedStmts.Add(Statement(stmt));
+						foreach (var stmt in block.Statements)
+							try
+							{
+								typedStmts.Add(Statement(stmt));
+							}
+							catch (TypeCheckerException e)
+							{
+								blockExContainer.Add(e);
+							}
 
 						// The block's type is the type of its last statement
 						AuraType blockTyp = new AuraNil();
@@ -1376,6 +1395,12 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 								TypedYield y => y.Value.Typ,
 								_ => lastStmt.Typ is not AuraNone ? lastStmt.Typ : new AuraNil()
 							};
+						}
+
+						if (!blockExContainer.IsEmpty())
+						{
+							blockExContainer.Valid = typedStmts;
+							throw blockExContainer;
 						}
 
 						return new TypedBlock(
