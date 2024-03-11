@@ -1,0 +1,14 @@
+mod main
+
+import aura/io
+
+fn main() {
+	greeter := Greeter("Bob")
+    greeter.say_hi()
+}
+
+class Greeter(name: string) {
+    pub fn say_hi() {
+        io.println("Hi there, " + this.name)
+    }
+}

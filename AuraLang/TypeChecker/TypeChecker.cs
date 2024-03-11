@@ -1430,6 +1430,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		return _enclosingExpressionStore.WithEnclosing(
 			() =>
 			{
+				ICallable? funcDeclaration = null;
 				string? @namespace = null;
 				if (call.Callee is UntypedGet ug)
 				{
@@ -1481,16 +1482,31 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					}
 
 					if (typedGet.Obj.Typ is AuraModule m) @namespace = m.Name;
+					// A class's methods aren't added to the symbols table on their own, so if the object of the get expression is a class,
+					// we need to get the method from the class type instead of the symbols table
+					if (typedGet.Obj.Typ is AuraClass c)
+					{
+						var fn = c.Get(typedGet.Name.Value) ?? throw new UnknownVariableException(
+							typedGet.Name.Value,
+							typedGet.Name.Range
+						);
+						funcDeclaration = fn as ICallable;
+					}
 				}
 
-				if (IsSymbolInPreludeNamespace(call.GetName())) @namespace = "prelude";
+				if (funcDeclaration is null)
+				{
+					if (IsSymbolInPreludeNamespace(call.GetName())) @namespace = "prelude";
 
-				var f = FindOrThrow(
-					call.Callee.GetName(),
-					@namespace ?? ModuleName!,
-					call.Callee.Range
-				);
-				var funcDeclaration = f.Kind as ICallable;
+					var f = FindOrThrow(
+						call.Callee.GetName(),
+						@namespace ?? ModuleName!,
+						call.Callee.Range
+					);
+					funcDeclaration = f.Kind as ICallable;
+				}
+
+
 				// Type check arguments
 				if (call.Arguments.Any())
 				{
