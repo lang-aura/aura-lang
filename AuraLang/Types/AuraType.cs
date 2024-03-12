@@ -790,12 +790,13 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 		}
 	}
 
-	public AuraType? GetPublic(string name)
+	public (Visibility, AuraType)? GetWithVisibility(string name)
 	{
 		// Check if attribute is a param
 		try
 		{
-			return Parameters.First(p => p.Name.Value == name).ParamType.Typ;
+			var param = Parameters.First(p => p.Name.Value == name).ParamType.Typ;
+			return (Visibility.Public, param);
 		}
 		catch (InvalidOperationException)
 		{
@@ -803,7 +804,7 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 			try
 			{
 				var m = Methods.First(m => m.Name == name);
-				return m.Public == Visibility.Public ? m : null;
+				return (m.Public, m);
 			}
 			catch (InvalidOperationException)
 			{

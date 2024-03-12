@@ -1,4 +1,6 @@
-﻿namespace AuraLang.Types;
+﻿using AuraLang.Shared;
+
+namespace AuraLang.Types;
 
 /// <summary>
 ///     Represents a type that can be used as the object in a <c>get</c> expression
@@ -17,5 +19,10 @@ public interface IGettable
 	/// </summary>
 	/// <param name="attribute">The name of the attribute to get from this type</param>
 	/// <returns>The type of the attribute, if it exists and has public visibility; else null</returns>
-	AuraType? GetPublic(string attribute) { return Get(attribute); }
+	(Visibility, AuraType)? GetWithVisibility(string attribute)
+	{
+		var attr = Get(attribute);
+		if (attr is null) return null;
+		return (Visibility.Public, attr);
+	}
 }

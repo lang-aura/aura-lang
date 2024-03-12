@@ -179,7 +179,7 @@ public class IntegrationTest_SingleFile
 		var output = await ArrangeAndAct_SingleFileAsync("src/class_call_private_method.aura");
 		MakeAssertions(
 			output,
-			"[src/class_call_private_method.aura line 7] Unknown variable `build_greeting`.\n\n[src/class_call_private_method.aura line 8] Unknown variable `s`."
+			"[src/class_call_private_method.aura line 7] Cannot invoke method `build_greeting` outside of its defining class because it has private visibility\n\n[src/class_call_private_method.aura line 8] Unknown variable `s`."
 		);
 	}
 
