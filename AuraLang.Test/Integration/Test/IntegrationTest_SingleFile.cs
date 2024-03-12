@@ -173,6 +173,16 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "Hi there, Bob\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_ClassCallPrivateMethodAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/class_call_private_method.aura");
+		MakeAssertions(
+			output,
+			"[src/class_call_private_method.aura line 7] Unknown variable `build_greeting`.\n\n[src/class_call_private_method.aura line 8] Unknown variable `s`."
+		);
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

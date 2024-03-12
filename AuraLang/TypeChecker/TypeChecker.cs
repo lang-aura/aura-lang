@@ -1486,10 +1486,18 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					// we need to get the method from the class type instead of the symbols table
 					if (typedGet.Obj.Typ is AuraClass c)
 					{
-						var fn = c.Get(typedGet.Name.Value) ?? throw new UnknownVariableException(
-							typedGet.Name.Value,
-							typedGet.Name.Range
-						);
+						AuraType fn = new AuraNone();
+						if (typedGet.Obj is TypedThis)
+							fn = c.Get(typedGet.Name.Value) ?? throw new UnknownVariableException(
+								typedGet.Name.Value,
+								typedGet.Name.Range
+							);
+						else
+							fn = c.GetPublic(typedGet.Name.Value) ?? throw new UnknownVariableException(
+								typedGet.Name.Value,
+								typedGet.Name.Range
+							);
+
 						funcDeclaration = fn as ICallable;
 					}
 				}
