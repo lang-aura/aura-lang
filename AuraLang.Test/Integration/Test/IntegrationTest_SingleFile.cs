@@ -183,6 +183,16 @@ public class IntegrationTest_SingleFile
 		);
 	}
 
+	[Test]
+	public async Task TestIntegration_ClassIncompleteInterfaceImplementationAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/class_incomplete_interface_implementation.aura");
+		MakeAssertions(
+			output,
+			"[src/class_incomplete_interface_implementation.aura line 23] All implementors of `IGreeter` must implement the method `say_hello`."
+		);
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

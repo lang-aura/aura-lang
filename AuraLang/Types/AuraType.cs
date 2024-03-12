@@ -436,7 +436,7 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureH
 
 	public override bool IsEqual(AuraType other)
 	{
-		return other is AuraNamedFunction f && Name == f.Name && F.IsSameType(f.F);
+		return other is AuraNamedFunction f && Name == f.Name && F.IsEqual(f.F);
 	}
 
 	public override bool IsSameType(AuraType other)
