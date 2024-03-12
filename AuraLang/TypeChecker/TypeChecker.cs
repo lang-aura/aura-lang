@@ -908,6 +908,21 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 					var i = local.Kind as AuraInterface ??
 							throw new CannotImplementNonInterfaceException(impl.Value, @class.Range);
+					// TODO Ensure the class properly and completely implements the interface
+					var missingMethods = i
+						.Functions.Select(
+							f =>
+							{
+								return methodSignatures.Any(sig => sig.IsEqual(f)) ? null : f.Name;
+							}
+						)
+						.Where(item => item is not null);
+					foreach (var missingMethod in missingMethods)
+						throw new MissingInterfaceMethodException(
+							impl.Value,
+							missingMethod!,
+							@class.ClosingBrace.Range
+						);
 					return i;
 				}
 			)
