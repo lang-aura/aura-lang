@@ -1493,10 +1493,17 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 								typedGet.Name.Range
 							);
 						else
-							fn = c.GetPublic(typedGet.Name.Value) ?? throw new UnknownVariableException(
-								typedGet.Name.Value,
-								typedGet.Name.Range
-							);
+						{
+							var typeWithVis = c.GetWithVisibility(typedGet.Name.Value);
+							if (typeWithVis is null)
+								throw new UnknownVariableException(typedGet.Name.Value, typedGet.Name.Range);
+							if (typeWithVis.Value.Item1 is Visibility.Private)
+								throw new CannotInvokePrivateMethodOutsideClass(
+									typedGet.Name.Value,
+									typedGet.Name.Range
+								);
+							fn = typeWithVis!.Value.Item2;
+						}
 
 						funcDeclaration = fn as ICallable;
 					}

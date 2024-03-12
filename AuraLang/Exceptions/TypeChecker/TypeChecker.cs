@@ -314,3 +314,12 @@ public class CannotMixTypeAnnotationsException : TypeCheckerException
 	)
 	{ }
 }
+
+public class CannotInvokePrivateMethodOutsideClass : TypeCheckerException
+{
+	public CannotInvokePrivateMethodOutsideClass(string fnName, Range range) : base(
+		$"Cannot invoke method `{fnName}` outside of its defining class because it has private visibility",
+		range
+	)
+	{ }
+}
