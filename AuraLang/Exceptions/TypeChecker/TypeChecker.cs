@@ -239,12 +239,12 @@ public class MissingInterfaceMethodsException : TypeCheckerException
 	public MissingInterfaceMethodsException(
 		string interfaceName,
 		string className,
-		List<string> missingMethods,
-		List<string> privateMethods,
+		List<AuraNamedFunction> missingMethods,
+		List<AuraNamedFunction> privateMethods,
 		Range range
 	)
 		: base(
-			$"`{className}` implements the interface `{interfaceName}`, but does not implement all of the required functions. {(missingMethods.Count > 0 ? $"\n\nThe following methods are missing from `{className}`: \n{string.Join('\n', missingMethods)}" : string.Empty)}{(privateMethods.Count > 0 ? $"\n\nThe following methods are implemented by `{className}`, but do not have public visibility: \n{string.Join('\n', privateMethods)}" : string.Empty)}.",
+			$"`{className}` implements the interface `{interfaceName}`, but does not implement all of the required functions. {(missingMethods.Count > 0 ? $"\n\nThe following methods are missing from `{className}`: \n{string.Join('\n', missingMethods.Select(mm => mm.ToAuraString()))}" : string.Empty)}{(privateMethods.Count > 0 ? $"\n\nThe following methods are implemented by `{className}`, but do not have public visibility: \n{string.Join('\n', privateMethods.Select(pm => pm.ToAuraString()))}" : string.Empty)}",
 			range
 		)
 	{ }
