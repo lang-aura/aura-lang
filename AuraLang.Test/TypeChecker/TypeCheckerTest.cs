@@ -2006,7 +2006,7 @@ public class TypeCheckerTest
 					string.Empty
 				)
 			},
-			typeof(MissingInterfaceMethodException)
+			typeof(MissingInterfaceMethodsException)
 		);
 	}
 
@@ -2094,7 +2094,7 @@ public class TypeCheckerTest
 					string.Empty
 				)
 			},
-			typeof(MissingInterfaceMethodException)
+			typeof(MissingInterfaceMethodsException)
 		);
 	}
 

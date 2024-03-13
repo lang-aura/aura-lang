@@ -189,7 +189,7 @@ public class IntegrationTest_SingleFile
 		var output = await ArrangeAndAct_SingleFileAsync("src/class_incomplete_interface_implementation.aura");
 		MakeAssertions(
 			output,
-			"[src/class_incomplete_interface_implementation.aura line 23] All implementors of `IGreeter` must implement the method `say_hello`."
+			"[src/class_incomplete_interface_implementation.aura line 23] `Greeter` implements the interface `IGreeter`, but does not implement all of the required functions. \n\nThe following methods are missing from `Greeter`: \nsay_hello."
 		);
 	}
 

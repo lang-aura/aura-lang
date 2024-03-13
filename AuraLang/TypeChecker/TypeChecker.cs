@@ -896,7 +896,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				);
 			}
 		);
-		var methodSignatures = @class.Methods.Select(ParseFunctionSignature);
+		var methodSignatures = @class.Methods.Select(ParseFunctionSignature).ToList();
 		var implements = @class.Implementing.Any()
 			? @class.Implementing.Select(
 				impl =>
@@ -908,24 +908,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 					var i = local.Kind as AuraInterface ??
 							throw new CannotImplementNonInterfaceException(impl.Value, @class.Range);
-					// TODO Ensure the class properly and completely implements the interface
-					var missingMethods = i
-						.Functions.Select(
-							f =>
-							{
-								return methodSignatures.Any(sig => sig.IsEqual(f) && sig.Public == Visibility.Public)
-									? null
-									: f.Name;
-							}
-						)
-						.Where(item => item is not null);
-					foreach (var missingMethod in missingMethods)
-						throw new MissingInterfaceMethodException(
-							impl.Value,
-							missingMethod!,
-							@class.ClosingBrace.Range
-						);
-					return i;
+					// Ensure the class properly and completely implements the interface
+					return CheckForCompleteInterfaceImplementation(@class, i);
 				}
 			)
 			: new List<AuraInterface>();
@@ -1042,30 +1026,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				// If the class implements any interfaces, ensure that it contains all required methods
 				if (implements.Any())
 				{
-					var valid = implements
-						.Select(
-							impl =>
-							{
-								return impl
-									.Functions.Select(
-										f =>
-										{
-											return typedMethods
-												.Where(m => m.Public == Visibility.Public)
-												.Select(tm => tm.GetFunctionType())
-												.Contains(f);
-										}
-									)
-									.All(b => b);
-							}
-						)
-						.All(b => b);
-					if (!valid)
-						throw new MissingInterfaceMethodException(
-							string.Empty,
-							string.Empty,
-							@class.Range
-						); // TODO
+					foreach (var i in implements) CheckForCompleteInterfaceImplementation(@class, i);
 				}
 
 				_enclosingClassStore.Pop();
@@ -2313,5 +2274,30 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	public ITypedAuraExpression Visit(UntypedAnonymousStruct anonymousStruct)
 	{
 		throw new NotImplementedException();
+	}
+
+	private AuraInterface CheckForCompleteInterfaceImplementation(UntypedClass @class, AuraInterface @interface)
+	{
+		var methodSignatures = @class.Methods.Select(ParseFunctionSignature).ToList();
+		var missingMethods = new List<string>();
+		var privateMethods = new List<string>();
+		foreach (var f in @interface.Functions)
+		{
+			var matching = methodSignatures.Where(sig => sig.IsEqual(f)).ToList();
+			if (!matching.Any())
+				missingMethods.Add(f.Name);
+			else if (matching.All(m => m.Public == Visibility.Private)) privateMethods.Add(f.Name);
+		}
+
+		if (missingMethods.Any() ||
+			privateMethods.Any())
+			throw new MissingInterfaceMethodsException(
+				@interface.Name,
+				@class.Name.Value,
+				missingMethods,
+				privateMethods,
+				@class.ClosingBrace.Range
+			);
+		return @interface;
 	}
 }

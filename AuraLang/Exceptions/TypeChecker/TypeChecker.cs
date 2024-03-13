@@ -105,8 +105,8 @@ public class TooManyArgumentsException : TypeCheckerException
 	public TooManyArgumentsException(IEnumerable<ITypedAuraExpression> have, IEnumerable<Param> want, Range[] range) :
 		base(
 			$"Incorrect number of arguments\n\thave ({string.Join(", ", have.Select(arg => arg.Typ.ToAuraString()))}),\n\tbut want ({string.Join(", ", want.Select(p => p.ParamType.Typ.ToAuraString()))}).",
-		range
-	)
+			range
+		)
 	{ }
 }
 
@@ -234,10 +234,20 @@ public class CannotImplementNonInterfaceException : TypeCheckerException
 /// <summary>
 ///     Thrown when a class implements an interface, but does not implement all required methods
 /// </summary>
-public class MissingInterfaceMethodException : TypeCheckerException
+public class MissingInterfaceMethodsException : TypeCheckerException
 {
-	public MissingInterfaceMethodException(string interfaceName, string missingMethod, Range range)
-		: base($"All implementors of `{interfaceName}` must implement the method `{missingMethod}`.", range) { }
+	public MissingInterfaceMethodsException(
+		string interfaceName,
+		string className,
+		List<string> missingMethods,
+		List<string> privateMethods,
+		Range range
+	)
+		: base(
+			$"`{className}` implements the interface `{interfaceName}`, but does not implement all of the required functions. {(missingMethods.Count > 0 ? $"\n\nThe following methods are missing from `{className}`: \n{string.Join('\n', missingMethods)}" : string.Empty)}{(privateMethods.Count > 0 ? $"\n\nThe following methods are implemented by `{className}`, but do not have public visibility: \n{string.Join('\n', privateMethods)}" : string.Empty)}.",
+			range
+		)
+	{ }
 }
 
 /// <summary>
