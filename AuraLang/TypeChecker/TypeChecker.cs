@@ -913,7 +913,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						.Functions.Select(
 							f =>
 							{
-								return methodSignatures.Any(sig => sig.IsEqual(f)) ? null : f.Name;
+								return methodSignatures.Any(sig => sig.IsEqual(f) && sig.Public == Visibility.Public)
+									? null
+									: f.Name;
 							}
 						)
 						.Where(item => item is not null);
