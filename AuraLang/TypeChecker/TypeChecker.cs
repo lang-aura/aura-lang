@@ -2279,14 +2279,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	private AuraInterface CheckForCompleteInterfaceImplementation(UntypedClass @class, AuraInterface @interface)
 	{
 		var methodSignatures = @class.Methods.Select(ParseFunctionSignature).ToList();
-		var missingMethods = new List<string>();
-		var privateMethods = new List<string>();
+		var missingMethods = new List<AuraNamedFunction>();
+		var privateMethods = new List<AuraNamedFunction>();
 		foreach (var f in @interface.Functions)
 		{
 			var matching = methodSignatures.Where(sig => sig.IsEqual(f)).ToList();
 			if (!matching.Any())
-				missingMethods.Add(f.Name);
-			else if (matching.All(m => m.Public == Visibility.Private)) privateMethods.Add(f.Name);
+				missingMethods.Add(f);
+			else if (matching.All(m => m.Public == Visibility.Private)) privateMethods.Add(f);
 		}
 
 		if (missingMethods.Any() ||
