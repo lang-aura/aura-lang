@@ -187,7 +187,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			}
 			catch (TypeCheckerExceptionContainer exC)
 			{
-				typedAst = exC.Valid;
+				typedAst.AddRange(exC.Valid!);
 				_exContainer.Add(exC);
 			}
 
@@ -1386,6 +1386,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							{
 								blockExContainer.Add(e);
 							}
+							catch (TypeCheckerExceptionContainer ex)
+							{
+								typedStmts.AddRange(ex.Valid!);
+								blockExContainer.Add(ex);
+							}
 
 						// The block's type is the type of its last statement
 						AuraType blockTyp = new AuraNil();
@@ -1527,19 +1532,41 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 
 
 				// Type check arguments
+				var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
 				if (call.Arguments.Any())
 				{
-					var named = call.Arguments.All(arg => arg.Item1 is not null);
-					var positional = call.Arguments.All(arg => arg.Item1 is null);
+					try
+					{
+						var named = call.Arguments.All(arg => arg.Item1 is not null);
+						var positional = call.Arguments.All(arg => arg.Item1 is null);
 
-					if (named) return TypeCheckNamedParameters(call, funcDeclaration!);
+						if (named) return TypeCheckNamedParameters(call, funcDeclaration!);
 
-					if (positional) return TypeCheckPositionalParameters(call, funcDeclaration!);
+						if (positional) return TypeCheckPositionalParameters(call, funcDeclaration!);
 
-					throw new CannotMixNamedAndUnnamedArgumentsException(call.GetName(), call.Range);
+						throw new CannotMixNamedAndUnnamedArgumentsException(call.GetName(), call.Range);
+					}
+					catch (TypeCheckerException e)
+					{
+						throw new TypeCheckerExceptionContainer(_filePath)
+						{
+							Valid = new List<ITypedAuraStatement>
+							{
+								new TypedExpressionStmt(
+									new TypedCall(
+										typedCallee!,
+										new List<ITypedAuraExpression>(),
+										call.ClosingParen,
+										funcDeclaration!
+									)
+								)
+							},
+							Exs = { e }
+						};
+					}
+					
 				}
-
-				var typedCallee = Expression((IUntypedAuraExpression)call.Callee) as ITypedAuraCallable;
+				
 				if (!funcDeclaration!.GetParams().Any())
 					return new TypedCall(
 						typedCallee!,
@@ -1673,12 +1700,20 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 
 				// Fetch the gettable's attribute
-				var attrTyp = g.Get(get.Name.Value) ??
-							  throw new ClassAttributeDoesNotExistException(
-								  objExpr.ToString()!,
-								  get.GetName(),
-								  get.Range
-							  );
+				var attrTyp = g.Get(get.Name.Value);
+				if (attrTyp is null)
+				{
+					var ex = new ClassAttributeDoesNotExistException(
+						objExpr.ToString()!,
+						get.GetName(),
+						get.Range
+					);
+					throw new TypeCheckerExceptionContainer(_filePath)
+					{
+						Valid = new List<ITypedAuraStatement> { new TypedExpressionStmt(objExpr) }, Exs = { ex }
+					};
+				}
+
 				return new TypedGet(
 					objExpr,
 					get.Name,

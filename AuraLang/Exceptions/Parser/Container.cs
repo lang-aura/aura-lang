@@ -15,4 +15,6 @@ public class ParserExceptionContainer : AuraExceptionContainer<List<IUntypedAura
 	{
 		Exs.Add(ex);
 	}
+
+	public void Add(ParserExceptionContainer ex) { Exs.AddRange(ex.Exs); }
 }
