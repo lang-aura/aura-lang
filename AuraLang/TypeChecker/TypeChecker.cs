@@ -526,7 +526,33 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			_symbolsTable.TryAddSymbol(new AuraSymbol(param.Name.Value, paramTyp), ModuleName!);
 		}
 
-		var typedBody = (TypedBlock)Visit(f.Body);
+		TypedBlock typedBody;
+		try
+		{
+			typedBody = (TypedBlock)Visit(f.Body);
+		}
+		catch (TypeCheckerExceptionContainer e)
+		{
+			typedBody = new TypedBlock(
+				f.Body.OpeningBrace,
+				e.Valid ?? new List<ITypedAuraStatement>(),
+				f.Body.ClosingBrace,
+				new AuraNone()
+			);
+			e.Valid = new List<ITypedAuraStatement>
+			{
+				new TypedNamedFunction(
+					f.Fn,
+					f.Name,
+					typedParams,
+					typedBody,
+					returnType,
+					f.Public,
+					f.Documentation
+				)
+			};
+			throw;
+		}
 		// Ensure the function's body returns the same type specified in its signature
 		if (returnType is AuraResult r)
 		{
