@@ -1492,7 +1492,7 @@ public class AuraParser
 						Valid = new List<IUntypedAuraStatement> { new UntypedExpressionStmt(expression) }
 					};
 				}
-				
+
 			}
 			else
 			{

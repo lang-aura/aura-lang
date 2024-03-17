@@ -1564,9 +1564,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							Exs = { e }
 						};
 					}
-					
+
 				}
-				
+
 				if (!funcDeclaration!.GetParams().Any())
 					return new TypedCall(
 						typedCallee!,
@@ -1710,7 +1710,8 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 					throw new TypeCheckerExceptionContainer(_filePath)
 					{
-						Valid = new List<ITypedAuraStatement> { new TypedExpressionStmt(objExpr) }, Exs = { ex }
+						Valid = new List<ITypedAuraStatement> { new TypedExpressionStmt(objExpr) },
+						Exs = { ex }
 					};
 				}
 
