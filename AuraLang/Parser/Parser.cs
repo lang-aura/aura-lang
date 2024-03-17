@@ -31,11 +31,17 @@ public class AuraParser
 	/// </summary>
 	private const int MaxParams = 255;
 
+	/// <summary>
+	///     The path of the file being parsed
+	/// </summary>
+	private string FilePath { get; }
+
 	public AuraParser(List<Tok> tokens, string filePath)
 	{
 		_tokens = tokens;
 		_index = 0;
 		_exContainer = new ParserExceptionContainer(filePath);
+		FilePath = filePath;
 	}
 
 	/// <summary>
@@ -52,6 +58,12 @@ public class AuraParser
 			}
 			catch (ParserException ex)
 			{
+				_exContainer.Add(ex);
+				Synchronize();
+			}
+			catch (ParserExceptionContainer ex)
+			{
+				statements.AddRange(ex.Valid!);
 				_exContainer.Add(ex);
 				Synchronize();
 			}
@@ -1463,12 +1475,24 @@ public class AuraParser
 			else if (!IsAtEnd() &&
 					 Match(TokType.Dot))
 			{
-				var name = ConsumeMultiple(
-					new ExpectPropertyNameException(Peek().Value, Peek().Range),
-					TokType.Identifier,
-					TokType.IntLiteral
-				);
-				expression = new UntypedGet(expression, name);
+				try
+				{
+					var name = ConsumeMultiple(
+						new ExpectPropertyNameException(Peek().Value, Peek().Range),
+						TokType.Identifier,
+						TokType.IntLiteral
+					);
+					expression = new UntypedGet(expression, name);
+				}
+				catch (ParserException e)
+				{
+					throw new ParserExceptionContainer(FilePath)
+					{
+						Exs = { e },
+						Valid = new List<IUntypedAuraStatement> { new UntypedExpressionStmt(expression) }
+					};
+				}
+
 			}
 			else
 			{
