@@ -416,7 +416,7 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 /// <summary>
 ///     Represents an Aura function
 /// </summary>
-public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureHelper
+public class AuraNamedFunction : AuraType, ICallable, ISignatureHelper
 {
 	/// <summary>
 	///     The function's name
