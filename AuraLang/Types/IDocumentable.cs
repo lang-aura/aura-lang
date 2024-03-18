@@ -9,4 +9,6 @@ public interface IDocumentable
 	///     The type's documentation
 	/// </summary>
 	string Documentation { get; }
+
+	string AuraDocumentation => Documentation;
 }

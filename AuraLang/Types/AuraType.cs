@@ -403,7 +403,7 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 						Label = f.Name,
 						Kind = CompletionItemKind.Function,
 						Documentation =
-							new MarkupContent { Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown }
+							new MarkupContent { Value = $"```\n{f.AuraDocumentation}\n```", Kind = MarkupKind.Markdown }
 					}
 				);
 				return new CompletionList { Items = completionItems.ToArray() };
@@ -441,6 +441,15 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureH
 	}
 
 	private string? _documentation { get; }
+
+	public string AuraDocumentation
+	{
+		get
+		{
+			if (_documentation is null) return string.Empty;
+			return $"{ToAuraStringMinusFirstParam()}\n\n{_documentation}";
+		}
+	}
 
 	public AuraNamedFunction(
 		string name,
@@ -488,6 +497,17 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureH
 	{
 		var pub = Public == Visibility.Public ? "pub " : string.Empty;
 		var @params = string.Join(", ", F.Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
+		var returnType = F.ReturnType is not AuraNil ? $" -> {F.ReturnType.ToAuraString()}" : string.Empty;
+		return $"{pub}fn {Name}({@params}){returnType}";
+	}
+
+	public string ToAuraStringMinusFirstParam()
+	{
+		var pub = Public == Visibility.Public ? "pub " : string.Empty;
+		var @params = string.Join(
+			", ",
+			F.Params.Take(1..).Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}")
+		);
 		var returnType = F.ReturnType is not AuraNil ? $" -> {F.ReturnType.ToAuraString()}" : string.Empty;
 		return $"{pub}fn {Name}({@params}){returnType}";
 	}
@@ -1178,7 +1198,7 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 		switch (triggerCharacter)
 		{
 			case ".":
-				// Get "strings" module's methods
+				// Get "maps" module's methods
 				if (!AuraStdlib.TryGetModule("aura/maps", out var mapsModule)) return new CompletionList();
 
 				var completionItems = mapsModule!.PublicFunctions.Select(
@@ -1187,7 +1207,7 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 						Label = f.Name,
 						Kind = CompletionItemKind.Function,
 						Documentation =
-							new MarkupContent { Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown }
+							new MarkupContent { Value = $"```\n{f.AuraDocumentation}\n```", Kind = MarkupKind.Markdown }
 					}
 				);
 				return new CompletionList { Items = completionItems.ToArray() };
