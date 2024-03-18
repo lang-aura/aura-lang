@@ -851,7 +851,19 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 		switch (triggerCharacter)
 		{
 			case ".":
-				var completionItems = Methods
+				var completionParams = Parameters.Select(
+					param => new CompletionItem
+					{
+						Label = param.Name.Value,
+						Kind = CompletionItemKind.Property,
+						Documentation = new MarkupContent
+						{
+							Kind = MarkupKind.Markdown,
+							Value = $"```\n{param.ParamType.Typ.ToAuraString()}\n```"
+						}
+					}
+				);
+				var completionMethods = Methods
 					.Where(m => m.Public == Visibility.Public)
 					.Select(
 					m => new CompletionItem
@@ -866,6 +878,9 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 						}
 					}
 				);
+				var completionItems = new List<CompletionItem>();
+				completionItems.AddRange(completionParams);
+				completionItems.AddRange(completionMethods);
 				return new CompletionList { Items = completionItems.ToArray() };
 			default:
 				return new CompletionList();
