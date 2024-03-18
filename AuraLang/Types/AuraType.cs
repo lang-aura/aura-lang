@@ -861,7 +861,8 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 						Documentation = new MarkupContent
 						{
 							Kind = MarkupKind.Markdown,
-							Value = $"```\n{m.Documentation}\n```"
+							Value =
+								$"```\n{(m.Documentation != string.Empty ? $"{m.Documentation}" : m.ToAuraString())}\n```"
 						}
 					}
 				);
