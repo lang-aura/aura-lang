@@ -303,7 +303,8 @@ public class AuraBool : AuraType, IDefaultable
 /// <summary>
 ///     Represents a resizable array of elements, all of which must have the same type
 /// </summary>
-public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule
+public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefaultable, IGettable, IImportableModule,
+	ICompletable
 {
 	/// <summary>
 	///     The type of the elements in the list
@@ -335,10 +336,14 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 		return $"[]{Kind}";
 	}
 
+	public override string ToAuraString() { return $"[{Kind.ToAuraString()}]"; }
+
 	public AuraType IndexingType()
 	{
 		return new AuraInt();
 	}
+
+	public override string ToType() { return ToString(); }
 
 	public AuraType GetIndexedType()
 	{
@@ -378,12 +383,42 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 	{
 		return "lists";
 	}
+
+	public IEnumerable<string> SupportedTriggerCharacters => new List<string> { "." };
+
+	public bool IsTriggerCharacterSupported(string triggerCharacter)
+	{
+		return SupportedTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public CompletionList ProvideCompletableOptions(string triggerCharacter)
+	{
+		switch (triggerCharacter)
+		{
+			case ".":
+				// Get "lists" module's methods
+				if (!AuraStdlib.TryGetModule("aura/lists", out var listsModule)) return new CompletionList();
+
+				var completionItems = listsModule!.PublicFunctions.Select(
+					f => new CompletionItem
+					{
+						Label = f.Name,
+						Kind = CompletionItemKind.Function,
+						Documentation =
+							new MarkupContent { Value = $"```\n{f.AuraDocumentation}\n```", Kind = MarkupKind.Markdown }
+					}
+				);
+				return new CompletionList { Items = completionItems.ToArray() };
+			default:
+				return new CompletionList();
+		}
+	}
 }
 
 /// <summary>
 ///     Represents an Aura function
 /// </summary>
-public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureHelper
+public class AuraNamedFunction : AuraType, ICallable, ISignatureHelper
 {
 	/// <summary>
 	///     The function's name
@@ -408,6 +443,15 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureH
 	}
 
 	private string? _documentation { get; }
+
+	public string AuraDocumentation
+	{
+		get
+		{
+			if (_documentation is null) return string.Empty;
+			return $"{ToAuraStringMinusFirstParam()}\n\n{_documentation}";
+		}
+	}
 
 	public AuraNamedFunction(
 		string name,
@@ -454,8 +498,19 @@ public class AuraNamedFunction : AuraType, ICallable, IDocumentable, ISignatureH
 	public override string ToAuraString()
 	{
 		var pub = Public == Visibility.Public ? "pub " : string.Empty;
-		var @params = string.Join(", ", F.Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ}"));
-		var returnType = F.ReturnType is not AuraNil ? $" -> {F.ReturnType}" : string.Empty;
+		var @params = string.Join(", ", F.Params.Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}"));
+		var returnType = F.ReturnType is not AuraNil ? $" -> {F.ReturnType.ToAuraString()}" : string.Empty;
+		return $"{pub}fn {Name}({@params}){returnType}";
+	}
+
+	public string ToAuraStringMinusFirstParam()
+	{
+		var pub = Public == Visibility.Public ? "pub " : string.Empty;
+		var @params = string.Join(
+			", ",
+			F.Params.Take(1..).Select(p => $"{p.Name.Value}: {p.ParamType.Typ.ToAuraString()}")
+		);
+		var returnType = F.ReturnType is not AuraNil ? $" -> {F.ReturnType.ToAuraString()}" : string.Empty;
 		return $"{pub}fn {Name}({@params}){returnType}";
 	}
 
@@ -851,7 +906,19 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 		switch (triggerCharacter)
 		{
 			case ".":
-				var completionItems = Methods
+				var completionParams = Parameters.Select(
+					param => new CompletionItem
+					{
+						Label = param.Name.Value,
+						Kind = CompletionItemKind.Property,
+						Documentation = new MarkupContent
+						{
+							Kind = MarkupKind.Markdown,
+							Value = $"```\n{param.ParamType.Typ.ToAuraString()}\n```"
+						}
+					}
+				);
+				var completionMethods = Methods
 					.Where(m => m.Public == Visibility.Public)
 					.Select(
 					m => new CompletionItem
@@ -861,10 +928,14 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 						Documentation = new MarkupContent
 						{
 							Kind = MarkupKind.Markdown,
-							Value = $"```\n{m.Documentation}\n```"
+							Value =
+								$"```\n{(m.Documentation != string.Empty ? $"{m.Documentation}" : m.ToAuraString())}\n```"
 						}
 					}
 				);
+				var completionItems = new List<CompletionItem>();
+				completionItems.AddRange(completionParams);
+				completionItems.AddRange(completionMethods);
 				return new CompletionList { Items = completionItems.ToArray() };
 			default:
 				return new CompletionList();
@@ -1049,7 +1120,7 @@ public class AuraChar : AuraType
 ///     Represents a data type containing a series of key-value pairs. All the keys must have the same
 ///     type and all the values must have the same type.
 /// </summary>
-public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportableModule
+public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportableModule, ICompletable
 {
 	public AuraType Key { get; }
 	public AuraType Value { get; }
@@ -1074,6 +1145,8 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 	{
 		return $"map[{Key.ToType()}]{Value}";
 	}
+
+	public override string ToAuraString() { return $"map[{Key.ToAuraString()} : {Value.ToAuraString()}]"; }
 
 	public AuraType IndexingType()
 	{
@@ -1113,6 +1186,36 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 	public string GetModuleName()
 	{
 		return "maps";
+	}
+
+	public IEnumerable<string> SupportedTriggerCharacters => new List<string> { "." };
+
+	public bool IsTriggerCharacterSupported(string triggerCharacter)
+	{
+		return SupportedTriggerCharacters.Contains(triggerCharacter);
+	}
+
+	public CompletionList ProvideCompletableOptions(string triggerCharacter)
+	{
+		switch (triggerCharacter)
+		{
+			case ".":
+				// Get "maps" module's methods
+				if (!AuraStdlib.TryGetModule("aura/maps", out var mapsModule)) return new CompletionList();
+
+				var completionItems = mapsModule!.PublicFunctions.Select(
+					f => new CompletionItem
+					{
+						Label = f.Name,
+						Kind = CompletionItemKind.Function,
+						Documentation =
+							new MarkupContent { Value = $"```\n{f.AuraDocumentation}\n```", Kind = MarkupKind.Markdown }
+					}
+				);
+				return new CompletionList { Items = completionItems.ToArray() };
+			default:
+				return new CompletionList();
+		}
 	}
 }
 
