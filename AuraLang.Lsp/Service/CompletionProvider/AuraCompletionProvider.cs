@@ -28,6 +28,7 @@ public class AuraCompletionProvider : AuraLspService
 	)
 	{
 		var immediatelyPrecedingNode = FindImmediatelyPrecedingNode(position, typedAst);
+		Console.Error.WriteLine($"immediatelyPrecedingNode = {immediatelyPrecedingNode}");
 		if (immediatelyPrecedingNode?.Typ is ICompletable c) return c.ProvideCompletableOptions(triggerCharacter);
 		return null;
 	}
