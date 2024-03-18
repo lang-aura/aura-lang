@@ -343,6 +343,8 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 		return new AuraInt();
 	}
 
+	public override string ToType() { return ToString(); }
+
 	public AuraType GetIndexedType()
 	{
 		return Kind;
