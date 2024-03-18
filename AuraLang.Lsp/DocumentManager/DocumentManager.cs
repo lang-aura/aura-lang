@@ -155,12 +155,33 @@ public class AuraDocumentManager
 	/// <returns>A list of completion items</returns>
 	public CompletionList? GetCompletionItems(CompletionParams completionParams)
 	{
-		var position = completionParams.Position;
+		var position = Position.FromMicrosoftPosition(completionParams.Position);
 		var fileContents = GetDocument(completionParams.TextDocument.Uri.ToString());
+		var contents = fileContents?.Contents ?? string.Empty;
+
+		Console.Error.WriteLine($"contents = {contents}");
+		// Remove trigger character
+		var lines = contents.Split('\n');
+		if (lines[position.Line][position.OnePositionBefore().Character].ToString() ==
+			completionParams.Context?.TriggerCharacter)
+		{
+			lines[position.Line] = lines[position.Line].Remove(position.OnePositionBefore().Character, 1);
+			contents = string.Join('\n', lines);
+		}
+
+		Console.Error.WriteLine($"contents = {contents}");
+
+		// Type check contents
+		var (typedAst, _) = CompileFile(
+			completionParams.TextDocument.Uri.ToString(),
+			contents,
+			new GlobalSymbolsTable()
+		);
+
 		return _completionProvider.ComputeCompletionOptions(
-			Position.FromMicrosoftPosition(position),
+			position,
 			completionParams.Context!.TriggerCharacter!,
-			fileContents!.TypedAst
+			typedAst
 		);
 	}
 
