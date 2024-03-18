@@ -851,7 +851,9 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 		switch (triggerCharacter)
 		{
 			case ".":
-				var completionItems = Methods.Select(
+				var completionItems = Methods
+					.Where(m => m.Public == Visibility.Public)
+					.Select(
 					m => new CompletionItem
 					{
 						Label = m.Name,
