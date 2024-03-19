@@ -197,7 +197,7 @@ public class AuraDocumentManager
 		var lines = contents.Split('\n');
 
 		if (lines[position.Line][position.OnePositionBefore().Character].ToString() ==
-		    signatureHelpParams.Context?.TriggerCharacter)
+			signatureHelpParams.Context?.TriggerCharacter)
 		{
 			lines[position.Line] = lines[position.Line].Remove(position.OnePositionBefore().Character, 2);
 			contents = string.Join('\n', lines);
