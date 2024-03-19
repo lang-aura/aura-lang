@@ -64,7 +64,7 @@ public class AuraLanguageServer : IDisposable
 				TextDocumentSync =
 					new TextDocumentSyncOptions
 					{
-						Change = TextDocumentSyncKind.Full,
+						Change = TextDocumentSyncKind.Incremental,
 						OpenClose = true,
 						Save = new SaveOptions { IncludeText = true },
 						WillSave = true,
