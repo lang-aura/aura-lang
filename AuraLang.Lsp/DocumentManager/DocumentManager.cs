@@ -159,7 +159,6 @@ public class AuraDocumentManager
 		var fileContents = GetDocument(completionParams.TextDocument.Uri.ToString());
 		var contents = fileContents?.Contents ?? string.Empty;
 
-		Console.Error.WriteLine($"contents = {contents}");
 		// Remove trigger character
 		var lines = contents.Split('\n');
 		if (lines[position.Line][position.OnePositionBefore().Character].ToString() ==
@@ -168,8 +167,6 @@ public class AuraDocumentManager
 			lines[position.Line] = lines[position.Line].Remove(position.OnePositionBefore().Character, 1);
 			contents = string.Join('\n', lines);
 		}
-
-		Console.Error.WriteLine($"contents = {contents}");
 
 		// Type check contents
 		var (typedAst, _) = CompileFile(
@@ -192,12 +189,31 @@ public class AuraDocumentManager
 	/// <returns>Signature help information</returns>
 	public SignatureHelp? GetSignatureHelp(SignatureHelpParams signatureHelpParams)
 	{
-		var position = signatureHelpParams.Position;
+		var position = Position.FromMicrosoftPosition(signatureHelpParams.Position);
 		var fileContents = GetDocument(signatureHelpParams.TextDocument.Uri.ToString());
+		var contents = fileContents?.Contents ?? string.Empty;
+
+		// Remove trigger character
+		var lines = contents.Split('\n');
+
+		if (lines[position.Line][position.OnePositionBefore().Character].ToString() ==
+			signatureHelpParams.Context?.TriggerCharacter)
+		{
+			lines[position.Line] = lines[position.Line].Remove(position.OnePositionBefore().Character, 2);
+			contents = string.Join('\n', lines);
+		}
+
+		// Type check contents
+		var (typedAst, _) = CompileFile(
+			signatureHelpParams.TextDocument.Uri.ToString(),
+			contents,
+			new GlobalSymbolsTable()
+		);
+
 		return _signatureHelpProvider.ComputeSignatureHelp(
-			Position.FromMicrosoftPosition(position),
+			position,
 			signatureHelpParams.Context!.TriggerCharacter!,
-			fileContents!.TypedAst
+			typedAst
 		);
 	}
 
