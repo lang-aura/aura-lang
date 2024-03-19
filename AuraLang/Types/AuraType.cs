@@ -399,7 +399,12 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 				// Get "lists" module's methods
 				if (!AuraStdlib.TryGetModule("aura/lists", out var listsModule)) return new CompletionList();
 
-				var completionItems = listsModule!.PublicFunctions.Select(
+				var pubFunctions = listsModule!.PublicFunctions;
+				if (Kind is not AuraInt)
+					pubFunctions = pubFunctions
+						.Where(pf => pf.Name != "sum" && pf.Name != "max" && pf.Name != "min")
+						.ToList();
+				var completionItems = pubFunctions.Select(
 					f => new CompletionItem
 					{
 						Label = f.Name,
