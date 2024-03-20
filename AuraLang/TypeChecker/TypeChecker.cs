@@ -633,9 +633,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			new AuraSymbol(
-				let.Names[0].Value,
+				let.Names[0].Item2.Value,
 				typedInit.Typ,
-				let.Mutable
+				let.Names[0].Item1
 			),
 			ModuleName!
 		);
@@ -667,7 +667,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		var typedInit = ExpressionAndConfirm(let.Initializer!, names);
 		// Add new variables to list of locals
 		foreach (var (name, typ) in let.Names.Zip(let.NameTyps))
-			_symbolsTable.TryAddSymbol(new AuraSymbol(name.Value, typ), ModuleName!);
+			_symbolsTable.TryAddSymbol(
+				new AuraSymbol(
+					name.Item2.Value,
+					typ,
+					name.Item1
+				),
+				ModuleName!
+			);
 	}
 
 	private void AddShortLetStmtToSymbolsTable(UntypedLet let)
@@ -683,9 +690,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			new AuraSymbol(
-				let.Names[0].Value,
+				let.Names[0].Item2.Value,
 				typedInit?.Typ ?? new AuraNil(),
-				let.Mutable
+				let.Names[0].Item1
 			),
 			ModuleName!
 		);
@@ -699,7 +706,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		foreach (var (name, typ) in let.Names.Zip(
 					 ((AuraAnonymousStruct)typedInit.Typ).Parameters.Select(p => p.ParamType.Typ)
 				 ))
-			_symbolsTable.TryAddSymbol(new AuraSymbol(name.Value, typ), ModuleName!);
+			_symbolsTable.TryAddSymbol(
+				new AuraSymbol(
+					name.Item2.Value,
+					typ,
+					name.Item1
+				),
+				ModuleName!
+			);
 	}
 
 	/// <summary>
@@ -738,7 +752,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					let.Let,
 					let.Names,
 					true,
-					let.Mutable,
 					typedInit
 				);
 			},
@@ -749,9 +762,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			new AuraSymbol(
-				typedLet.Names[0].Value,
+				typedLet.Names[0].Item2.Value,
 				typedLet.Initializer?.Typ ?? new AuraNone(),
-				typedLet.Mutable
+				typedLet.Names[0].Item1
 			),
 			ModuleName!
 		);
@@ -791,7 +804,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					let.Let,
 					let.Names,
 					true,
-					false,
 					typedInit
 				);
 			},
@@ -801,7 +813,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 
 		// Add new variables to list of locals
 		foreach (var (name, typ) in let.Names.Zip(let.NameTyps))
-			_symbolsTable.TryAddSymbol(new AuraSymbol(name.Value, typ), ModuleName!);
+			_symbolsTable.TryAddSymbol(
+				new AuraSymbol(
+					name.Item2.Value,
+					typ,
+					name.Item1
+				),
+				ModuleName!
+			);
 
 		return typedLet;
 	}
@@ -824,7 +843,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					null,
 					let.Names,
 					false,
-					let.Mutable,
 					typedInit
 				);
 			},
@@ -835,9 +853,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
 			new AuraSymbol(
-				typedShortLet.Names[0].Value,
+				typedShortLet.Names[0].Item2.Value,
 				typedShortLet.Initializer!.Typ,
-				typedShortLet.Mutable
+				typedShortLet.Names[0].Item1
 			),
 			ModuleName!
 		);
@@ -857,7 +875,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					null,
 					let.Names,
 					false,
-					false,
 					typedInit
 				);
 			},
@@ -869,7 +886,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		foreach (var (name, typ) in let.Names.Zip(
 					 ((AuraAnonymousStruct)typedLet.Initializer!.Typ).Parameters.Select(p => p.ParamType.Typ)
 				 ))
-			_symbolsTable.TryAddSymbol(new AuraSymbol(name.Value, typ), ModuleName!);
+			_symbolsTable.TryAddSymbol(
+				new AuraSymbol(
+					name.Item2.Value,
+					typ,
+					name.Item1
+				),
+				ModuleName!
+			);
 
 		return typedLet;
 	}
@@ -1187,7 +1211,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				exportedTypes.methods.ToList(),
 				exportedTypes.interfaces.ToList(),
 				exportedTypes.classes.ToList(),
-				exportedTypes.variables.ToDictionary(v => v.Names[0].Value, v => v.Initializer!)
+				exportedTypes.variables.ToDictionary(v => v.Names[0].Item2.Value, v => v.Initializer!)
 			);
 			// Add module to list of local variables
 			_symbolsTable.AddModule(importedModule);

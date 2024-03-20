@@ -958,9 +958,8 @@ public class PrecedingNodeFinderTest
 				"let",
 				new Range(new Position(), new Position(3, 0))
 			),
-			new List<Tok> { new(TokType.Identifier, "i") },
+			new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 			true,
-			false,
 			init
 		);
 		var after = new Position(12, 0);

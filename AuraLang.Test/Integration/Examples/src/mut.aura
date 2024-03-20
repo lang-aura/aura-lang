@@ -1,0 +1,17 @@
+mod main
+
+import aura/io
+
+fn main() {
+    // Variables in Aura are declared as immutable by default, meaning they cannot be reassigned to a new value after initialization.
+    // However, when variables are declared with the `mut` keyword, they become mutable and can be reassigned a new value.
+    let mut i: int = 5
+    // Since the variable `i` was declared with the `mut` keyword, reassigning it here is a valid operation
+    i = 6
+    io.printf("%d\n", i)
+    
+    // The `mut` keyword can also be used when declaring a new variable with the short syntax.
+    mut j := 5
+    j = 6
+    io.printf("%d\n", j)
+}

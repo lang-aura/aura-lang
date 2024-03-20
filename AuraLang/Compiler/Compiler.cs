@@ -250,11 +250,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 		switch (let.Initializer)
 		{
 			case TypedBlock block:
-				var decl = $"var {let.Names[0].Value} {AuraTypeToGoType(let.Typ)}";
-				var body = ParseReturnableBody(block.Statements, let.Names[0].Value);
+				var decl = $"var {let.Names[0].Item2.Value} {AuraTypeToGoType(let.Typ)}";
+				var body = ParseReturnableBody(block.Statements, let.Names[0].Item2.Value);
 				return $"{decl}\n{{{body}\n}}";
 			case TypedIf iff:
-				var varName = let.Names[0].Value;
+				var varName = let.Names[0].Item2.Value;
 				var decll = $"var {varName} {AuraTypeToGoType(let.Initializer.Typ)}";
 				var init = Expression(iff.Condition);
 				var then = ParseReturnableBody(iff.Then.Statements, varName);
@@ -268,7 +268,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 				return $"{decll}\nif {init} {{{then}\n}} else {{{@else}\n}}";
 			case TypedIs @is:
 				var typedIs = Expression(@is);
-				return $"_, {let.Names[0].Value} := {typedIs}";
+				return $"_, {let.Names[0].Item2.Value} := {typedIs}";
 			default:
 				var value = let.Initializer is not null ? Expression(let.Initializer) : string.Empty;
 				// We check to see if we are inside a `for` loop because Aura and Go differ in whether a a long variable initialization is allowed
@@ -281,11 +281,11 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 					if (!b ||
 						@for is not TypedFor)
 					{
-						return $"var {let.Names[0].Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
+						return $"var {let.Names[0].Item2.Value} {AuraTypeToGoType(let.Initializer!.Typ)} = {value}";
 					}
 				}
 
-				return $"{let.Names[0].Value} := {value}";
+				return $"{let.Names[0].Item2.Value} := {value}";
 		}
 	}
 
@@ -296,7 +296,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	/// <returns>A valid Go string representing the let statement</returns>
 	private string LetStmtMultipleNames(TypedLet let)
 	{
-		var names = string.Join(", ", let.Names.Select(n => n.Value));
+		var names = string.Join(", ", let.Names.Select(n => n.Item2.Value));
 		return $"{names} := {Expression(let.Initializer!)}";
 	}
 

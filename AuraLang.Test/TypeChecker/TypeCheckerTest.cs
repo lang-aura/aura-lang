@@ -134,9 +134,8 @@ public class TypeCheckerTest
 						{
 							new UntypedLet(
 								new Tok(TokType.Let, "let"),
-								new List<Tok> { new(TokType.Identifier, "i") },
+								new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 								new List<AuraType> { new AuraInt() },
-								false,
 								new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 							)
 						},
@@ -154,9 +153,8 @@ public class TypeCheckerTest
 					{
 						new TypedLet(
 							new Tok(TokType.Let, "let"),
-							new List<Tok> { new(TokType.Identifier, "i") },
+							new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 							true,
-							false,
 							new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 						)
 					},
@@ -1211,9 +1209,8 @@ public class TypeCheckerTest
 					new Tok(TokType.For, "for"),
 					new UntypedLet(
 						null,
-						new List<Tok> { new(TokType.Identifier, "i") },
+						new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 						new List<AuraType>(),
-						false,
 						new IntLiteral(new Tok(TokType.IntLiteral, "0"))
 					),
 					new UntypedLogical(
@@ -1233,8 +1230,7 @@ public class TypeCheckerTest
 				new Tok(TokType.For, "for"),
 				new TypedLet(
 					null,
-					new List<Tok> { new(TokType.Identifier, "i") },
-					false,
+					new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 					false,
 					new IntLiteral(new Tok(TokType.IntLiteral, "0"))
 				),
@@ -1504,9 +1500,8 @@ public class TypeCheckerTest
 			{
 				new UntypedLet(
 					new Tok(TokType.Let, "let"),
-					new List<Tok> { new(TokType.Identifier, "i") },
+					new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 					new List<AuraType> { new AuraInt() },
-					false,
 					new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 				)
 			}
@@ -1515,9 +1510,8 @@ public class TypeCheckerTest
 			typedAst,
 			new TypedLet(
 				new Tok(TokType.Let, "let"),
-				new List<Tok> { new(TokType.Identifier, "i") },
+				new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 				true,
-				false,
 				new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 			)
 		);
@@ -1531,9 +1525,8 @@ public class TypeCheckerTest
 			{
 				new UntypedLet(
 					new Tok(TokType.Let, "let"),
-					new List<Tok> { new(TokType.Identifier, "i") },
+					new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 					new List<AuraType> { new AuraInt() },
-					false,
 					null
 				)
 			}
@@ -1542,9 +1535,8 @@ public class TypeCheckerTest
 			typedAst,
 			new TypedLet(
 				new Tok(TokType.Let, "let"),
-				new List<Tok> { new(TokType.Identifier, "i") },
+				new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 				true,
-				false,
 				new IntLiteral(new Tok(TokType.IntLiteral, "0"))
 			)
 		);
@@ -1558,9 +1550,8 @@ public class TypeCheckerTest
 			{
 				new UntypedLet(
 					new Tok(TokType.Let, "let"),
-					new List<Tok> { new(TokType.Identifier, "c") },
+					new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "c")) },
 					new List<AuraType> { new AuraChar() },
-					false,
 					null
 				)
 			},
@@ -1576,9 +1567,8 @@ public class TypeCheckerTest
 			{
 				new UntypedLet(
 					null,
-					new List<Tok> { new(TokType.Identifier, "i") },
+					new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 					new List<AuraType>(),
-					false,
 					new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 				)
 			}
@@ -1587,8 +1577,7 @@ public class TypeCheckerTest
 			typedAst,
 			new TypedLet(
 				null,
-				new List<Tok> { new(TokType.Identifier, "i") },
-				false,
+				new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 				false,
 				new IntLiteral(new Tok(TokType.IntLiteral, "1"))
 			)

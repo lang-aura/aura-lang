@@ -534,27 +534,26 @@ public record UntypedAnonymousFunction
 ///     A token representing the <c>let</c> keyword, which helps determine the node's starting position
 ///     in the Aura source file
 /// </param>
-/// <param name="Names">The name(s) of the newly-declared variable(s)</param>
+/// <param name="Names">The name(s) of the newly-declared variable(s), along with a boolean value indicating if they are mutable or not</param>
 /// <param name="NameTyps">
 ///     The variable(s)'s types, if they were declared with an explicit type annotation. If not, the value of this field
 ///     will
 ///     be <see cref="AuraUnknown" />
 /// </param>
-/// <param name="Mutable">Indicates if the variable is mutable or not</param>
 /// <param name="Initializer">
 ///     The initializer expression whose result will be assigned to the new variable. This expression
 ///     may be omitted.
 /// </param>
 public record UntypedLet
-	(Tok? Let, List<Tok> Names, List<AuraType> NameTyps, bool Mutable, IUntypedAuraExpression? Initializer)
+	(Tok? Let, List<(bool, Tok)> Names, List<AuraType> NameTyps, IUntypedAuraExpression? Initializer)
 	: IUntypedAuraStatement
 {
 	public T Accept<T>(IUntypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
 	public Range Range =>
 		new(
-			Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
-			Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
+			Let is not null ? Let.Value.Range.Start : Names.First().Item2.Range.Start,
+			Initializer is not null ? Initializer.Range.End : Names.Last().Item2.Range.End
 		);
 }
 

@@ -1598,15 +1598,16 @@ public class ParserTest
 				),
 				new UntypedLet(
 					null,
-					new List<Tok>
+					new List<(bool, Tok)>
 					{
-						new(
+						(false,
+							new Tok(
 							TokType.Identifier,
 							"i"
+							)
 						)
 					},
 					new List<AuraType>(),
-					false,
 					new IntLiteral(
 						new Tok(
 							TokType.IntLiteral,
@@ -2039,15 +2040,17 @@ public class ParserTest
 					TokType.Let,
 					"let"
 				),
-				new List<Tok>
+				new List<(bool, Tok)>
 				{
-					new(
-						TokType.Identifier,
-						"i"
+					(
+						false,
+						new Tok(
+							TokType.Identifier,
+							"i"
+						)
 					)
 				},
 				new List<AuraType> { new AuraInt() },
-				false,
 				new IntLiteral(
 					new Tok(
 						TokType.IntLiteral,
@@ -2090,15 +2093,17 @@ public class ParserTest
 			untypedAst,
 			new UntypedLet(
 				null,
-				new List<Tok>
+				new List<(bool, Tok)>
 				{
-					new(
-						TokType.Identifier,
-						"i"
+					(
+						false,
+						new Tok(
+							TokType.Identifier,
+							"i"
+						)
 					)
 				},
 				new List<AuraType>(),
-				false,
 				new IntLiteral(
 					new Tok(
 						TokType.IntLiteral,
