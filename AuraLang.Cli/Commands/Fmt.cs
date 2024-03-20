@@ -143,17 +143,17 @@ public class AuraFmt : AuraCommand, IUntypedAuraStmtVisitor<string>, IUntypedAur
 	{
 		if (let.NameTyps.Count == 0) return ShortLetStmt(let);
 
-		var mut = let.Mutable ? "mut " : string.Empty;
+		var mut = let.Names[0].Item1 ? "mut " : string.Empty;
 		return let.Initializer is not null
-			? $"let {mut}{let.Names[0].Value}: {let.NameTyps[0]!} = {Expression(let.Initializer)}"
-			: $"let {mut}{let.Names[0].Value}: {let.NameTyps[0]!}";
+			? $"let {mut}{let.Names[0].Item2.Value}: {let.NameTyps[0]!} = {Expression(let.Initializer)}"
+			: $"let {mut}{let.Names[0].Item2.Value}: {let.NameTyps[0]!}";
 	}
 
 	private string ShortLetStmt(UntypedLet let)
 	{
-		var mut = let.Mutable ? "mut " : string.Empty;
+		var mut = let.Names[0].Item1 ? "mut " : string.Empty;
 		var init = Expression(let.Initializer!);
-		return $"{mut}{let.Names[0].Value} := {init}";
+		return $"{mut}{let.Names[0].Item2.Value} := {init}";
 	}
 
 	public string Visit(UntypedMod mod) { return $"mod {mod.Value.Value}"; }

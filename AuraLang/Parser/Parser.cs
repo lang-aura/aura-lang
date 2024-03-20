@@ -930,8 +930,6 @@ public class AuraParser
 	private IUntypedAuraStatement LetDeclaration()
 	{
 		var let = Previous();
-		// Check if the variable is declared as mutable
-		var isMutable = Match(TokType.Mut);
 		// Parse the variable's name(s)
 		var names = ParseLongVariableNames();
 		// Parse the variable's initializer (if there is one)
@@ -943,9 +941,8 @@ public class AuraParser
 
 		return new UntypedLet(
 			let,
-			names.Select(n => n.Item1).ToList(),
-			names.Select(n => n.Item2).ToList(),
-			isMutable,
+			names.Select(n => (n.Item1, n.Item2)).ToList(),
+			names.Select(n => n.Item3).ToList(),
 			initializer
 		);
 	}
@@ -958,7 +955,7 @@ public class AuraParser
 	private IUntypedAuraStatement ShortLetDeclaration(bool isMutable)
 	{
 		// Parse the variable's name
-		var names = ParseShortVariableNames();
+		var names = ParseShortVariableNames(isMutable);
 		Consume(TokType.ColonEqual, new ExpectColonEqualException(Peek().Value, Peek().Range));
 		// Parse the variable's initializer
 		var initializer = Expression();
@@ -969,7 +966,6 @@ public class AuraParser
 			null,
 			names,
 			new List<AuraType>(),
-			isMutable,
 			initializer
 		);
 	}
@@ -978,18 +974,19 @@ public class AuraParser
 	///     Parses the variable names being declared in a <c>let</c> statement
 	/// </summary>
 	/// <returns>
-	///     The parsed variable names, where each tuple in the returned list contains a token representing the variable's
+	///     The parsed variable names, where each tuple in the returned list contains the variable's mutability, a token representing the variable's
 	///     name and the variable's type
 	/// </returns>
-	private List<(Tok, AuraType)> ParseLongVariableNames()
+	private List<(bool, Tok, AuraType)> ParseLongVariableNames()
 	{
-		var names = new List<(Tok, AuraType)>();
+		var names = new List<(bool, Tok, AuraType)>();
 		while (!IsAtEnd())
 		{
+			var mut = Match(TokType.Mut);
 			var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
 			Consume(TokType.Colon, new ExpectColonAfterParameterName(Peek().Value, Peek().Range));
 			var nameType = TypeTokenToType(Advance());
-			names.Add((name, nameType));
+			names.Add((mut, name, nameType));
 
 			if (Peek().Typ != TokType.Equal &&
 				Peek().Typ != TokType.Semicolon)
@@ -1005,12 +1002,22 @@ public class AuraParser
 	///     Parses the variable names being declared in a short <c>let</c> statement
 	/// </summary>
 	/// <returns>The parsed variable names</returns>
-	private List<Tok> ParseShortVariableNames()
+	private List<(bool, Tok)> ParseShortVariableNames(bool isMutable)
 	{
-		var names = new List<Tok>();
+		var names = new List<(bool, Tok)>();
+		// Parse first variable name
+		var firstName = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
+		names.Add((isMutable, firstName));
+		if (Peek().Typ != TokType.ColonEqual)
+			Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));
+		else
+			return names;
+		// Parse the rest of the variable names
 		while (true)
 		{
-			names.Add(Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range)));
+			var mut = Match(TokType.Mut);
+			var name = Consume(TokType.Identifier, new ExpectIdentifierException(Peek().Value, Peek().Range));
+			names.Add((mut, name));
 
 			if (Peek().Typ != TokType.ColonEqual)
 				Consume(TokType.Comma, new ExpectCommaException(Peek().Value, Peek().Range));

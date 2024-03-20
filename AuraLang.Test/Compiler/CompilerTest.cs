@@ -70,9 +70,8 @@ public class CompilerTest
 					{
 						new TypedLet(
 							Let: new Tok(TokType.Let, "let"),
-							Names: new List<Tok>{ new(TokType.Identifier, "i") },
+							new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 							TypeAnnotation: true,
-							Mutable: false,
 							Initializer: new IntLiteral(new Tok(TokType.IntLiteral, "5"))
 						),
 					},
@@ -648,9 +647,8 @@ public class CompilerTest
 				new Tok(TokType.For, "for"),
 				new TypedLet(
 					new Tok(TokType.Let, "let"),
-					new List<Tok>{ new(TokType.Identifier, "i") },
+					new List<(bool, Tok)> { (true, new Tok(TokType.Identifier, "i")) },
 					false,
-					true,
 					new IntLiteral(new Tok(TokType.IntLiteral, "0"))),
 				new TypedLogical(
 					new TypedVariable(
@@ -675,9 +673,8 @@ public class CompilerTest
 				new Tok(TokType.For, "for"),
 				new TypedLet(
 					new Tok(TokType.Let, "let"),
-					new List<Tok>{ new(TokType.Identifier, "i") },
+					new List<(bool, Tok)> { (true, new Tok(TokType.Identifier, "i")) },
 					false,
-					true,
 					new IntLiteral(new Tok(TokType.IntLiteral, "0"))),
 				new TypedLogical(
 					new TypedVariable(
@@ -691,8 +688,7 @@ public class CompilerTest
 				{
 					new TypedLet(
 						null,
-						new List<Tok>{ new(TokType.Identifier, "name") },
-						false,
+						new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "name")) },
 						false,
 						new StringLiteral(new Tok(TokType.StringLiteral, "Bob")))
 				},
@@ -733,9 +729,8 @@ public class CompilerTest
 				{
 					new TypedLet(
 						null,
-						new List<Tok>{ new(TokType.Identifier, "i") },
+						new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 						true,
-						false,
 						new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 				},
 				new Tok(TokType.RightBrace, "}"))
@@ -782,9 +777,8 @@ public class CompilerTest
 		{
 			new TypedLet(
 				null,
-				new List<Tok>{ new(TokType.Identifier, "i") },
+				new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 				true,
-				false,
 				new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		});
 		MakeAssertions(output, "var i int = 5");
@@ -797,8 +791,7 @@ public class CompilerTest
 		{
 			new TypedLet(
 				null,
-				new List<Tok>{ new(TokType.Identifier, "i") },
-				false,
+				new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "i")) },
 				false,
 				new IntLiteral(new Tok(TokType.IntLiteral, "5")))
 		});
@@ -962,8 +955,7 @@ public class CompilerTest
 		{
 			new TypedLet(
 				null,
-				new List<Tok>{ new(TokType.Identifier, "b") },
-				false,
+				new List<(bool, Tok)> { (false, new Tok(TokType.Identifier, "b")) },
 				false,
 				new TypedIs(
 					new TypedVariable(

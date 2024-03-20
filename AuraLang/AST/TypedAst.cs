@@ -72,7 +72,7 @@ public interface IHoverable : IAuraAstNode
 /// <param name="Value">the variable's new value</param>
 public record TypedAssignment(Tok Name, ITypedAuraExpression Value, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
-	public string HoverText => $"let {Name}: {Value.Typ}";
+	public string HoverText => $"let {Name.Value}: {Value.Typ}";
 
 	public Range HoverableRange => Name.Range;
 
@@ -716,24 +716,23 @@ public record TypedAnonymousFunction(Tok Fn, List<Param> Params, TypedBlock Body
 ///     A token representing the <c>let</c> keyword, which determines the node's starting position in the
 ///     Aura source file
 /// </param>
-/// <param name="Names">The name(s) of the newly-declared variable(s)</param>
+/// <param name="Names">The name(s) of the newly-declared variable(s), along with a boolean value indicating if they are mutable or not</param>
 /// <param name="TypeAnnotation">Indicates whether the variables were declared with a type annotation</param>
-/// <param name="Mutable">Indicates whether the variable was declared as mutable</param>
 /// <param name="Initializer">The initializer expression. This can be omitted.</param>
-public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Mutable, ITypedAuraExpression? Initializer)
+public record TypedLet(Tok? Let, List<(bool, Tok)> Names, bool TypeAnnotation, ITypedAuraExpression? Initializer)
 	: ITypedAuraStatement, IHoverable
 {
 	public string HoverText
 	{
 		get
 		{
-			var names = string.Join(", ", Names.Select(n => n.Value));
+			var names = string.Join(", ", Names.Select(n => n.Item2.Value));
 			var typ = Initializer is not null ? $": {Initializer.Typ.ToAuraString()}" : string.Empty;
 			return $"let {names}{typ}";
 		}
 	}
 
-	public Range HoverableRange => new(Names.First().Range.Start, Names.Last().Range.End);
+	public Range HoverableRange => new(Names.First().Item2.Range.Start, Names.Last().Item2.Range.End);
 
 	public T Accept<T>(ITypedAuraStmtVisitor<T> visitor) { return visitor.Visit(this); }
 
@@ -741,8 +740,8 @@ public record TypedLet(Tok? Let, List<Tok> Names, bool TypeAnnotation, bool Muta
 
 	public Range Range =>
 		new(
-			Let is not null ? Let.Value.Range.Start : Names.First().Range.Start,
-			Initializer is not null ? Initializer.Range.End : Names.Last().Range.End
+			Let is not null ? Let.Value.Range.Start : Names.First().Item2.Range.Start,
+			Initializer is not null ? Initializer.Range.End : Names.Last().Item2.Range.End
 		);
 
 	public IEnumerable<IHoverable> ExtractHoverables()

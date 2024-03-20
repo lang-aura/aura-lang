@@ -193,6 +193,20 @@ public class IntegrationTest_SingleFile
 		);
 	}
 
+	[Test]
+	public async Task TestIntegration_MutAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/mut.aura");
+		MakeAssertions(output, "6\n6\n");
+	}
+
+	[Test]
+	public async Task TestIntegration_MutMultipleAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/mut_multiple.aura");
+		MakeAssertions(output, "5\n9\n5\n9\n");
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);

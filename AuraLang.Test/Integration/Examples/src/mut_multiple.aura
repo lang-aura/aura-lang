@@ -1,0 +1,22 @@
+mod main
+
+import aura/io
+
+fn main() {
+    // When declaring multiple variables at once, you can mix mutable and immutable variables. In this case, the variable
+    // `i` is declared as immutable, and the variable `j` is declared as mutable
+    i, mut j := f()
+    // Since `j` was defined as mutable, it can be reassigned here
+    j = 9
+    io.printf("%d\n", i)
+    io.printf("%d\n", j)
+    
+    let a: int, mut b: int = f()
+    b = 9
+    io.printf("%d\n", a)
+    io.printf("%d\n", b)
+}
+
+fn f() -> (int, int) {
+    return 5, 6
+}
