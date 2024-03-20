@@ -333,3 +333,12 @@ public class CannotInvokePrivateMethodOutsideClass : TypeCheckerException
 	)
 	{ }
 }
+
+public class CannotReassignImmutableVariable : TypeCheckerException
+{
+	public CannotReassignImmutableVariable(string varName, Range range) : base(
+		$"`{varName}` was initialized as immutable, so it may not be reassigned to a new value",
+		range
+	)
+	{ }
+}

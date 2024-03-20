@@ -32,7 +32,15 @@ public class TypeCheckerTest
 	[Test]
 	public void TestTypeCheck_Assignment()
 	{
-		_symbolsTable.Setup(v => v.GetSymbol("i", It.IsAny<string>())).Returns(new AuraSymbol("i", new AuraInt()));
+		_symbolsTable
+			.Setup(v => v.GetSymbol("i", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"i",
+					new AuraInt(),
+					true
+				)
+			);
 
 		var typedAst = ArrangeAndAct(
 			new List<IUntypedAuraStatement>
@@ -2459,6 +2467,32 @@ public class TypeCheckerTest
 				new Tok(TokType.RightParen, ")"),
 				string.Empty
 			)
+		);
+	}
+
+	[Test]
+	public void TestTypeCheck_ReassignImmutableVariable()
+	{
+		_symbolsTable
+			.Setup(st => st.GetSymbol("i", It.IsAny<string>()))
+			.Returns(
+				new AuraSymbol(
+					"i",
+					new AuraInt(),
+					false
+				)
+			);
+		ArrangeAndAct_Invalid(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedExpressionStmt(
+					new UntypedAssignment(
+						new Tok(TokType.Identifier, "i"),
+						new IntLiteral(new Tok(TokType.IntLiteral, "5"))
+					)
+				)
+			},
+			typeof(CannotReassignImmutableVariable)
 		);
 	}
 

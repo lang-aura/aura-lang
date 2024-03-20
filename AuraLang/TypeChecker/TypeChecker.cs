@@ -117,11 +117,25 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						break;
 					case UntypedNamedFunction nf:
 						var f = ParseFunctionSignature(nf);
-						_symbolsTable.TryAddSymbol(new AuraSymbol(nf.Name.Value, f), ModuleName);
+						_symbolsTable.TryAddSymbol(
+							new AuraSymbol(
+								nf.Name.Value,
+								f,
+								false
+							),
+							ModuleName
+						);
 						break;
 					case UntypedClass c:
 						var cl = ParseClassSignature(c);
-						_symbolsTable.TryAddSymbol(new AuraSymbol(c.Name.Value, cl), ModuleName);
+						_symbolsTable.TryAddSymbol(
+							new AuraSymbol(
+								c.Name.Value,
+								cl,
+								false
+							),
+							ModuleName
+						);
 						break;
 					case UntypedStruct @struct:
 						var s = (TypedStruct)Visit(@struct);
@@ -617,7 +631,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			? ExpressionAndConfirm(let.Initializer, nameTyp)
 			: defaultable!.Default(let.Range);
 		// Add new variable to list of locals
-		_symbolsTable.TryAddSymbol(new AuraSymbol(let.Names[0].Value, typedInit.Typ), ModuleName!);
+		_symbolsTable.TryAddSymbol(
+			new AuraSymbol(
+				let.Names[0].Value,
+				typedInit.Typ,
+				let.Mutable
+			),
+			ModuleName!
+		);
 	}
 
 	private void TypeCheckMultipleVariablesInLetStmt(UntypedLet let)
@@ -660,7 +681,14 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		// Type check initializer
 		var typedInit = let.Initializer is not null ? Expression(let.Initializer) : null;
 		// Add new variable to list of locals
-		_symbolsTable.TryAddSymbol(new AuraSymbol(let.Names[0].Value, typedInit?.Typ ?? new AuraNil()), ModuleName!);
+		_symbolsTable.TryAddSymbol(
+			new AuraSymbol(
+				let.Names[0].Value,
+				typedInit?.Typ ?? new AuraNil(),
+				let.Mutable
+			),
+			ModuleName!
+		);
 	}
 
 	private void TypeCheckMultipleVariablesInShortLetStmt(UntypedLet let)
@@ -720,7 +748,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
-			new AuraSymbol(typedLet.Names[0].Value, typedLet.Initializer?.Typ ?? new AuraNone()),
+			new AuraSymbol(
+				typedLet.Names[0].Value,
+				typedLet.Initializer?.Typ ?? new AuraNone(),
+				typedLet.Mutable
+			),
 			ModuleName!
 		);
 
@@ -802,7 +834,11 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 
 		// Add new variable to list of locals
 		_symbolsTable.TryAddSymbol(
-			new AuraSymbol(typedShortLet.Names[0].Value, typedShortLet.Initializer!.Typ),
+			new AuraSymbol(
+				typedShortLet.Names[0].Value,
+				typedShortLet.Initializer!.Typ,
+				typedShortLet.Mutable
+			),
 			ModuleName!
 		);
 
@@ -1296,6 +1332,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					ModuleName!,
 					assignment.Name.Range
 				);
+				if (!v.Mutable) throw new CannotReassignImmutableVariable(v.Name, assignment.Name.Range);
 				// Ensure that the new value and the variable have the same type
 				var typedExpr = ExpressionAndConfirm(assignment.Value, v.Kind);
 				return new TypedAssignment(
