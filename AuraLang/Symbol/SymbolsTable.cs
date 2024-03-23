@@ -20,19 +20,13 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 {
 	private readonly Dictionary<string, ISymbolsNamespace> _symbolsTable = new();
 
-	public GlobalSymbolsTable()
-	{
-		Initialize();
-	}
+	public GlobalSymbolsTable() { Initialize(); }
 
-	private void Initialize()
-	{
-		AddModule(new AuraPrelude().GetPrelude());
-	}
+	private void Initialize() { AddModule(new AuraPrelude().GetPrelude()); }
 
 	public ISymbolsNamespace? GetNamespace(string name)
 	{
-		if (_symbolsTable.TryGetValue(name, out ISymbolsNamespace? symbolsNamespace)) return symbolsNamespace;
+		if (_symbolsTable.TryGetValue(name, out var symbolsNamespace)) return symbolsNamespace;
 		return null;
 	}
 
@@ -48,7 +42,7 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 		return @namespace?.Find(name);
 	}
 
-	public void AddNamespace(string name) => _symbolsTable.TryAdd(name, new SymbolsNamespace(name));
+	public void AddNamespace(string name) { _symbolsTable.TryAdd(name, new SymbolsNamespace(name)); }
 
 	public void AddModule(AuraModule module)
 	{
@@ -56,45 +50,37 @@ public class GlobalSymbolsTable : IGlobalSymbolsTable
 		AddNamespace(module.Name);
 		// Then, add all of the module's exported functions, classes, variables, etc.
 		foreach (var f in module.PublicFunctions)
-		{
 			TryAddSymbol(
-				symbol: new AuraSymbol(
-					Name: f.Name,
-					Kind: f
+				new AuraSymbol(
+					f.Name,
+					f
 				),
-				symbolsNamespace: module.Name
+				module.Name
 			);
-		}
 		foreach (var i in module.PublicInterfaces)
-		{
 			TryAddSymbol(
-				symbol: new AuraSymbol(
-					Name: i.Name,
-					Kind: i
+				new AuraSymbol(
+					i.Name,
+					i
 				),
-				symbolsNamespace: module.Name
+				module.Name
 			);
-		}
 		foreach (var c in module.PublicClasses)
-		{
 			TryAddSymbol(
-				symbol: new AuraSymbol(
-					Name: c.Name,
-					Kind: c
+				new AuraSymbol(
+					c.Name,
+					c
 				),
-				symbolsNamespace: module.Name
+				module.Name
 			);
-		}
 		foreach (var (varName, v) in module.PublicVariables)
-		{
 			TryAddSymbol(
-				symbol: new AuraSymbol(
-					Name: varName,
-					Kind: v.Typ
+				new AuraSymbol(
+					varName,
+					v.Typ
 				),
-				symbolsNamespace: module.Name
+				module.Name
 			);
-		}
 	}
 
 	public bool TryAddSymbol(AuraSymbol symbol, string symbolsNamespace)
@@ -141,15 +127,14 @@ public interface ISymbolsNamespace
 
 public class SymbolsNamespace : ISymbolsNamespace
 {
-	private string Name { get; init; }
+	private string Name { get; }
+
+	// TODO add scope when creating namespace
 	private readonly List<ISymbolsTable> _scopes = new();
 
-	public SymbolsNamespace(string name)
-	{
-		Name = name;
-	}
+	public SymbolsNamespace(string name) { Name = name; }
 
-	public void AddScope() => _scopes.Insert(0, new SymbolsTable());
+	public void AddScope() { _scopes.Insert(0, new SymbolsTable()); }
 
 	public void AddSymbol(AuraSymbol symbol)
 	{
@@ -165,6 +150,7 @@ public class SymbolsNamespace : ISymbolsNamespace
 			var symbol = scope.Find(name);
 			if (symbol is not null) return symbol;
 		}
+
 		return null;
 	}
 
@@ -185,30 +171,30 @@ public class SymbolsNamespace : ISymbolsNamespace
 		}
 
 		return new AuraModule(
-			name: Name,
-			publicFunctions: functions,
-			publicInterfaces: interfaces,
-			publicClasses: classes,
-			publicVariables: variables
+			Name,
+			functions,
+			interfaces,
+			classes,
+			variables
 		);
 	}
 
-	public void ExitScope() => _scopes.RemoveAt(0);
+	public void ExitScope() { _scopes.RemoveAt(0); }
 }
 
 /// <summary>
-/// Represents a single lexical scope in a single namespace
+///     Represents a single lexical scope in a single namespace
 /// </summary>
 public interface ISymbolsTable
 {
 	/// <summary>
-	/// Adds a new symbol
+	///     Adds a new symbol
 	/// </summary>
 	/// <param name="symbol">The local variable to be added</param>
 	void Add(AuraSymbol symbol);
 
 	/// <summary>
-	/// Find an existing local variable, if it exists
+	///     Find an existing local variable, if it exists
 	/// </summary>
 	/// <param name="name">The name of the variable</param>
 	AuraSymbol? Find(string name);
@@ -220,7 +206,7 @@ public class SymbolsTable : ISymbolsTable
 {
 	private readonly Dictionary<string, AuraSymbol> _symbols = new();
 
-	public void Add(AuraSymbol symbol) => _symbols.TryAdd(symbol.Name, symbol);
+	public void Add(AuraSymbol symbol) { _symbols.TryAdd(symbol.Name, symbol); }
 
 	public AuraSymbol? Find(string name)
 	{
@@ -228,5 +214,5 @@ public class SymbolsTable : ISymbolsTable
 		return null;
 	}
 
-	public List<AuraSymbol> GetAllSymbols() => _symbols.Values.ToList();
+	public List<AuraSymbol> GetAllSymbols() { return _symbols.Values.ToList(); }
 }

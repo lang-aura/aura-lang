@@ -342,3 +342,21 @@ public class CannotReassignImmutableVariable : TypeCheckerException
 	)
 	{ }
 }
+
+public class ImportStatementMustBeInTopLevelScopeException : TypeCheckerException
+{
+	public ImportStatementMustBeInTopLevelScopeException(string module, Range range) : base(
+		$"`{module}` module must be imported in the top-level scope",
+		range
+	)
+	{ }
+}
+
+public class ImportStatementMustAppearBeforeAllOtherStatements : TypeCheckerException
+{
+	public ImportStatementMustAppearBeforeAllOtherStatements(string module, Range range) : base(
+		$"`{module}` module import statement in the top-level scope must appear before all other statements",
+		range
+	)
+	{ }
+}

@@ -1,0 +1,7 @@
+mod main
+
+fn main() {
+    io.println("Hello world")
+}
+
+import aura/io
