@@ -28,7 +28,9 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	private string? ModuleName { get; set; }
 	private readonly AuraPrelude _prelude = new();
 	public IImportedModuleProvider ImportedModuleProvider { get; }
-	private string _filePath;
+	private readonly string _filePath;
+	private int _scope = 1;
+	private bool _nonImportStmtEncountered;
 
 	public AuraTypeChecker(
 		IGlobalSymbolsTable symbolsTable,
@@ -114,6 +116,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						break;
 					case UntypedLet l:
 						AddLetStmtToSymbolsTable(l);
+						_nonImportStmtEncountered = true;
 						break;
 					case UntypedNamedFunction nf:
 						var f = ParseFunctionSignature(nf);
@@ -125,6 +128,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							),
 							ModuleName
 						);
+						_nonImportStmtEncountered = true;
 						break;
 					case UntypedClass c:
 						var cl = ParseClassSignature(c);
@@ -136,6 +140,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							),
 							ModuleName
 						);
+						_nonImportStmtEncountered = true;
 						break;
 					case UntypedStruct @struct:
 						var s = (TypedStruct)Visit(@struct);
@@ -150,6 +155,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 							),
 							ModuleName
 						);
+						_nonImportStmtEncountered = true;
 						break;
 					case UntypedInterface @interface:
 						_symbolsTable.TryAddSymbol(
@@ -173,7 +179,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 								new AuraSymbol(m.Name.Value, ((TypedFunctionSignature)Visit(m)).Typ),
 								ModuleName
 							);
-
+						_nonImportStmtEncountered = true;
 						break;
 				}
 			}
@@ -183,6 +189,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			}
 
 		if (!_exContainer.IsEmpty()) throw _exContainer;
+		_nonImportStmtEncountered = false;
 	}
 
 	public List<ITypedAuraStatement> CheckTypes(List<IUntypedAuraStatement> untypedAst)
@@ -1171,11 +1178,17 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		);
 	}
 
+	private void VisitFakeImport(UntypedImport import)
+	{
+		if (AuraStdlib.TryGetModule(import.Package.Value, out var module)) _symbolsTable.AddModule(module!);
+	}
+
 	public ITypedAuraStatement Visit(UntypedImport import)
 	{
 		// First, check if the module being imported is built-in
 		if (!AuraStdlib.TryGetModule(import.Package.Value, out var module))
 		{
+			var tmp = _nonImportStmtEncountered;
 			var typedAsts = new AuraModuleCompiler(
 				$"src/{import.Package.Value}",
 				ProjectName,
@@ -1215,11 +1228,20 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			);
 			// Add module to list of local variables
 			_symbolsTable.AddModule(importedModule);
+			_nonImportStmtEncountered = tmp;
 		}
 		else
 		{
 			_symbolsTable.AddModule(module!);
 		}
+
+		// We check if we're in the top-level scope after adding the import statement to the symbols table because we don't
+		// want any cascading `Unknown variable` errors to stem from not adding the module to the symbols table. In this
+		// case, the import statement is syntactically valid, its just in an invalid location.
+		if (!IsTopLevelScope())
+			throw new ImportStatementMustBeInTopLevelScopeException(import.Package.Value, import.Range);
+		if (_nonImportStmtEncountered)
+			throw new ImportStatementMustAppearBeforeAllOtherStatements(import.Package.Value, import.Range);
 
 		return new TypedImport(
 			import.Import,
@@ -1716,7 +1738,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 
 				// Check if a stdlib package needs to be imported
 				if (g is AuraString)
-					Visit(
+					VisitFakeImport(
 						new UntypedImport(
 							new Tok(TokType.Import, "import"),
 							new Tok(TokType.Identifier, "aura/strings"),
@@ -1725,7 +1747,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 
 				if (g is AuraList)
-					Visit(
+					VisitFakeImport(
 						new UntypedImport(
 							new Tok(TokType.Import, "import"),
 							new Tok(TokType.Identifier, "aura/lists"),
@@ -1734,7 +1756,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 
 				if (g is AuraError)
-					Visit(
+					VisitFakeImport(
 						new UntypedImport(
 							new Tok(TokType.Import, "import"),
 							new Tok(TokType.Identifier, "aura/errors"),
@@ -1743,7 +1765,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 
 				if (g is AuraResult)
-					Visit(
+					VisitFakeImport(
 						new UntypedImport(
 							new Tok(TokType.Import, "import"),
 							new Tok(TokType.Identifier, "aura/results"),
@@ -1752,7 +1774,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 					);
 
 				if (g is AuraMap)
-					Visit(
+					VisitFakeImport(
 						new UntypedImport(
 							new Tok(TokType.Import, "import"),
 							new Tok(TokType.Identifier, "aura/maps"),
@@ -2161,9 +2183,12 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 
 	private T InNewScope<T>(Func<T> f) where T : ITypedAuraAstNode
 	{
+		_nonImportStmtEncountered = true;
 		_symbolsTable.AddScope(ModuleName!);
+		_scope++;
 		var typedNode = f();
 		ExitScope();
+		_scope--;
 		return typedNode;
 	}
 
@@ -2423,4 +2448,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			);
 		return @interface;
 	}
+
+	private bool IsTopLevelScope() { return _scope == 1; }
 }

@@ -207,6 +207,26 @@ public class IntegrationTest_SingleFile
 		MakeAssertions(output, "5\n9\n5\n9\n");
 	}
 
+	[Test]
+	public async Task TestIntegration_ImportNestedScopeAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/import_nested_scope.aura");
+		MakeAssertions(
+			output,
+			"[src/import_nested_scope.aura line 4] `aura/io` module must be imported in the top-level scope"
+		);
+	}
+
+	[Test]
+	public async Task TestIntegration_ImportAfterStatementAsync()
+	{
+		var output = await ArrangeAndAct_SingleFileAsync("src/import_invalid_top_level.aura");
+		MakeAssertions(
+			output,
+			"[src/import_invalid_top_level.aura line 7] `aura/io` module import statement in the top-level scope must appear before all other statements"
+		);
+	}
+
 	private async Task<string> ArrangeAndAct_SingleFileAsync(string path)
 	{
 		var fileName = Path.GetFileNameWithoutExtension(path);
