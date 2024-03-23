@@ -25,4 +25,12 @@ public interface ICompletable
 	/// <param name="triggerCharacter">The trigger character</param>
 	/// <returns>A list of completion options</returns>
 	CompletionList ProvideCompletableOptions(string triggerCharacter);
+
+	CompletionList ProvideCompletableOptionsAndAlphabetize(string triggerCharacter)
+	{
+		var completionOptions = ProvideCompletableOptions(triggerCharacter);
+		completionOptions.Items = completionOptions.Items.OrderBy(item => item.Label).ToArray();
+		Console.Error.WriteLine("are we here?");
+		return completionOptions;
+	}
 }
