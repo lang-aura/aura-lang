@@ -348,7 +348,8 @@ public class ImportStatementMustBeInTopLevelScopeException : TypeCheckerExceptio
 	public ImportStatementMustBeInTopLevelScopeException(string module, Range range) : base(
 		$"`{module}` module must be imported in the top-level scope",
 		range
-	) { }
+	)
+	{ }
 }
 
 public class ImportStatementMustAppearBeforeAllOtherStatements : TypeCheckerException
@@ -356,5 +357,6 @@ public class ImportStatementMustAppearBeforeAllOtherStatements : TypeCheckerExce
 	public ImportStatementMustAppearBeforeAllOtherStatements(string module, Range range) : base(
 		$"`{module}` module import statement in the top-level scope must appear before all other statements",
 		range
-	) { }
+	)
+	{ }
 }
