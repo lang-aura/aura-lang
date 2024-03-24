@@ -1,0 +1,34 @@
+name: Auto Assign to aura-lang Project
+
+on:
+  issues:
+    types: [opened, labeled]
+  pull_request_target:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+env:
+  MY_GITHUB_TOKEN: ${{ secrets.AURA_LANG_ORG_TOKEN }}
+
+jobs:
+  assign_to_project:
+    runs-on: ubuntu-latest
+    name: Assign to Project
+    steps:
+      - name: Assign NEW issues and NEW pull requests to project
+        uses: srggrs/assign-one-project-github-action@1.2.1
+        if: |
+          !contains(github.event.issue.labels.*.name, 'backlog') &&
+          !contains(github.event.pull_request.labels.*.name, 'backlog')
+        with:
+          project: 'https://github.com/orgs/lang-aura/projects/1'
+          column_name: 'Todo'
+
+      - name: Assign issues and pull requests with `backlog` label
+        uses: srggrs/assign-one-project-github-action@1.2.1
+        if: |
+          contains(github.event.issue.labels.*.name, 'backlog') ||
+          contains(github.event.pull_request.labels.*.name, 'backlog')
+        with:
+          project: 'https://github.com/orgs/lang-aura/projects/1'
+          column_name: 'Backlog'
