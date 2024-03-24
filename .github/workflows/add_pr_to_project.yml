@@ -41,7 +41,6 @@ jobs:
           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
           echo 'TODO_OPTION_ID='$(jq '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Todo") |.id' project_data.json) >> $GITHUB_ENV
-      
       - name: Add PR to project
         env:
           GH_TOKEN: ${{ secrets.AURA_LANG_ORG_TOKEN }}
@@ -58,7 +57,6 @@ jobs:
           
           # Stores the ID of the created item as an environment variable.
                echo 'ITEM_ID='$item_id >> $GITHUB_ENV
-      
       - name: Set fields
         env:
           GH_TOKEN: ${{ secrets.YOUR_TOKEN }}
