@@ -26,11 +26,15 @@ public interface ICompletable
 	/// <returns>A list of completion options</returns>
 	CompletionList ProvideCompletableOptions(string triggerCharacter);
 
+	/// <summary>
+	///     Returns an alphabetized list of completion options for the supplied trigger character
+	/// </summary>
+	/// <param name="triggerCharacter">The trigger character</param>
+	/// <returns>An alphabetized list of completion options</returns>
 	CompletionList ProvideCompletableOptionsAndAlphabetize(string triggerCharacter)
 	{
 		var completionOptions = ProvideCompletableOptions(triggerCharacter);
 		completionOptions.Items = completionOptions.Items.OrderBy(item => item.Label).ToArray();
-		Console.Error.WriteLine("are we here?");
 		return completionOptions;
 	}
 }
