@@ -405,12 +405,19 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 						.Where(pf => pf.Name != "sum" && pf.Name != "max" && pf.Name != "min")
 						.ToList();
 				var completionItems = pubFunctions.Select(
-					f => new CompletionItem
+					f =>
 					{
-						Label = f.Name,
-						Kind = CompletionItemKind.Function,
-						Documentation =
-							new MarkupContent { Value = $"```\n{f.AuraDocumentation}\n```", Kind = MarkupKind.Markdown }
+						// TODO find better solution
+						var fnDocs = f.AuraDocumentation;
+						fnDocs = fnDocs.Replace("any", Kind.ToAuraString());
+
+						return new CompletionItem
+						{
+							Label = f.Name,
+							Kind = CompletionItemKind.Function,
+							Documentation =
+								new MarkupContent { Value = $"```\n{fnDocs}\n```", Kind = MarkupKind.Markdown }
+						};
 					}
 				);
 				return new CompletionList { Items = completionItems.ToArray() };
@@ -1209,12 +1216,20 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 				if (!AuraStdlib.TryGetModule("aura/maps", out var mapsModule)) return new CompletionList();
 
 				var completionItems = mapsModule!.PublicFunctions.Select(
-					f => new CompletionItem
+					f =>
 					{
-						Label = f.Name,
-						Kind = CompletionItemKind.Function,
-						Documentation =
-							new MarkupContent { Value = $"```\n{f.AuraDocumentation}\n```", Kind = MarkupKind.Markdown }
+						// TODO find a better solution
+						var fnDocs = f.AuraDocumentation;
+						fnDocs = fnDocs.Replace("key: any", $"key: {Key.ToAuraString()}");
+						fnDocs = fnDocs.Replace("value: any", $"value: {Value.ToAuraString()}");
+
+						return new CompletionItem
+						{
+							Label = f.Name,
+							Kind = CompletionItemKind.Function,
+							Documentation =
+								new MarkupContent { Value = $"```\n{fnDocs}\n```", Kind = MarkupKind.Markdown }
+						};
 					}
 				);
 				return new CompletionList { Items = completionItems.ToArray() };
