@@ -1119,7 +1119,7 @@ public class CompilerTest
 					ClosingParen: new Tok(TokType.RightParen, ")"))
 			)
 		});
-		MakeAssertions(output, "e := f()\nif e.Failure != nil {\nreturn e\n}");
+		MakeAssertions(output, "e := f()\nif e != nil {\nreturn e\n}");
 	}
 
 	[Test]

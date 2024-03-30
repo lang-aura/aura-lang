@@ -2376,7 +2376,7 @@ public class TypeCheckerTest
 						new List<IUntypedAuraStatement>(),
 						new Tok(TokType.RightBrace, "}")
 					),
-					new List<AuraType> { new AuraResult(new AuraString(), new AuraError()) },
+					new List<AuraType> { new AuraError() },
 					Visibility.Public,
 					string.Empty
 				)
@@ -2389,7 +2389,7 @@ public class TypeCheckerTest
 					new AuraNamedFunction(
 						"c",
 						Visibility.Public,
-						new AuraFunction(new List<Param>(), new AuraResult(new AuraString(), new AuraError()))
+						new AuraFunction(new List<Param>(), new AuraError())
 					)
 				)
 			);
@@ -2417,7 +2417,7 @@ public class TypeCheckerTest
 						new AuraNamedFunction(
 							"c",
 							Visibility.Public,
-							new AuraFunction(new List<Param>(), new AuraResult(new AuraString(), new AuraError()))
+							new AuraFunction(new List<Param>(), new AuraError())
 						)
 					),
 					new List<ITypedAuraExpression>(),
@@ -2425,7 +2425,7 @@ public class TypeCheckerTest
 					new AuraNamedFunction(
 						"c",
 						Visibility.Public,
-						new AuraFunction(new List<Param>(), new AuraResult(new AuraString(), new AuraError()))
+						new AuraFunction(new List<Param>(), new AuraError())
 					)
 				)
 			)

@@ -300,12 +300,12 @@ public class DirectoryCannotContainMultipleModulesException : TypeCheckerExcepti
 
 /// <summary>
 ///     Thrown when the <c>check</c> keyword is used in an invalid context. The <c>check</c> keyword may only be used
-///     before a function call that returns a <see cref="AuraResult" /> value
+///     before a function call that returns a <see cref="AuraError" /> value
 /// </summary>
 public class InvalidUseOfCheckKeywordException : TypeCheckerException
 {
 	public InvalidUseOfCheckKeywordException(Range range) : base(
-		"Invalid use of `check` keyword. The `check` keyword may only be used with function calls whose return type is `Result`",
+		"Invalid use of `check` keyword. The `check` keyword may only be used with function calls whose return type is `error`",
 		range
 	)
 	{ }

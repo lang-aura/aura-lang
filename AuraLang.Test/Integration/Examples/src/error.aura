@@ -3,24 +3,24 @@ mod main
 import aura/io
 
 fn main() {
-	// Here, the variable `r` has a type of `result`
-	res := f()
+	// Here, the variable `r` has a type of `error`
+	e := f()
 	// Error values contain an error message, which we can access using the `message` method. This method is built onto the error type, so we can call it
 	// by placing it after the type, separated by a dot.
-	io.printf("%v\n", res.failure())
-	res2 := check_err()
-	io.printf("%v\n", res2.failure())
+	io.printf("%v\n", e.message())
+	e2 := check_err()
+	io.printf("%v\n", e2.message())
 }
 
 // The `error` type in Aura is a regular value (i.e. Aura does not support exceptions). Error types can be returned from a function and accepted as a parameter,
 // just like any other type in Aura.
-fn f() -> result[string] {
+fn f() -> error {
 	// The built-in `err()` function returns an Aura type containing the supplied string argument. This method is included in Aura's prelude, so you don't need
 	// to import any modules to use it.
 	return err("Helpful error message")
 }
 
-fn check_err() -> result[string] {
+fn check_err() -> error {
 	// In specific circumstances, Aura permits a more streamlined approach to error handling. When making a function call inside of a function declaration, if both the
 	// function being called and the enclosing function declaration have a return type of `error`, the `check` keyword can be used. If the function call returns an error,
 	// that error will automatically be returned as the enclosing function's return value. If the function call does not return an error, execution will continue to the next
