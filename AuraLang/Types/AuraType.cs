@@ -1067,7 +1067,7 @@ public class AuraModule : AuraType, IGettable, ICompletable
 ///     This type differs from <see cref="AuraUnknown" /> in that <c>Nil</c> indicates the type is known to not
 ///     exist, whereas <c>Unknown</c> indicates that the type is not yet known.
 /// </summary>
-public class AuraNil : AuraType
+public class AuraNil : AuraType, INilable
 {
 	public override bool IsSameType(AuraType other)
 	{
