@@ -857,27 +857,6 @@ public class ScannerTest
 	}
 
 	[Test]
-	public void TestScan_Result()
-	{
-		var tokens = ArrangeAndAct("result");
-		MakeAssertions_Valid(
-			tokens,
-			2,
-			new Tok(
-				TokType.Result,
-				"result",
-				new Range(
-					_startPosition,
-					new Position(
-						6,
-						0
-					)
-				)
-			)
-		);
-	}
-
-	[Test]
 	public void TestScan_Modulo()
 	{
 		var tokens = ArrangeAndAct("%");

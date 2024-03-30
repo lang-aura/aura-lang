@@ -312,17 +312,6 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			return "return";
 		}
 
-		if (_enclosingFunctionDeclarationStore.Count > 0 &&
-			_enclosingFunctionDeclarationStore.Peek().ReturnType is AuraResult res)
-		{
-			if (r.Value.Typ.IsSameOrInheritingType(res.Success))
-			{
-				return $"return {res}{{\nSuccess: {Expression(r.Value)},\n}}";
-			}
-
-			return $"return {res}{{\nFailure: {Expression(r.Value)},\n}}";
-		}
-
 		if (r.Value.Typ is AuraAnonymousStruct)
 		{
 			var values = string.Join(", ", ((TypedAnonymousStruct)r.Value).Values.Select(Expression));
@@ -844,7 +833,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return typ switch
 		{
-			AuraString or AuraList or AuraError or AuraResult or AuraMap => true,
+			AuraString or AuraList or AuraError or AuraMap => true,
 			_ => false
 		};
 	}
@@ -861,7 +850,6 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 			AuraString => "strings",
 			AuraList => "lists",
 			AuraError => "errors",
-			AuraResult => "results",
 			AuraMap => "maps",
 			_ => string.Empty
 		};
@@ -890,7 +878,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 	{
 		return pkg switch
 		{
-			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" or "aura/results" or "aura/maps" => true,
+			"aura/io" or "aura/strings" or "aura/lists" or "aura/errors" or "aura/maps" => true,
 			_ => false
 		};
 	}
@@ -1022,7 +1010,7 @@ public class AuraCompiler : ITypedAuraStmtVisitor<string>, ITypedAuraExprVisitor
 
 	public string Visit(TypedCheck check)
 	{
-		return $"e := {Visit(check.Call)}\nif e.Failure != nil {{\nreturn e\n}}";
+		return $"e := {Visit(check.Call)}\nif e != nil {{\nreturn e\n}}";
 	}
 
 	public string Visit(TypedStruct @struct)

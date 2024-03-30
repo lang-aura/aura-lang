@@ -329,12 +329,6 @@ public class AuraParser
 				return new AuraMap(key, value);
 			case TokType.Error:
 				return new AuraError();
-			case TokType.Result:
-				// Parse result's success type
-				Consume(TokType.LeftBracket, new ExpectLeftBracketException(Peek().Value, tok.Range));
-				var success = TypeTokenToType(Advance());
-				Consume(TokType.RightBracket, new ExpectRightBracketException(Peek().Value, tok.Range));
-				return new AuraResult(success, new AuraError());
 			default:
 				throw new UnexpectedTypeException(tok.Value, tok.Range);
 		}

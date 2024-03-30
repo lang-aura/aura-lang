@@ -575,25 +575,12 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			throw;
 		}
 		// Ensure the function's body returns the same type specified in its signature
-		if (returnType is AuraResult r)
-		{
-			if (!r.Success.IsSameOrInheritingType(typedBody.Typ) &&
-				!r.Failure.IsSameOrInheritingType(typedBody.Typ))
-				throw new TypeMismatchException(
-					r.Failure,
-					typedBody.Typ,
-					f.Body.ClosingBrace.Range
-				);
-		}
-		else
-		{
-			if (!returnType.IsSameOrInheritingType(typedBody.Typ))
-				throw new TypeMismatchException(
-					returnType,
-					typedBody.Typ,
-					f.Body.ClosingBrace.Range
-				);
-		}
+		if (!returnType.IsSameOrInheritingType(typedBody.Typ))
+			throw new TypeMismatchException(
+				returnType,
+				typedBody.Typ,
+				f.Body.ClosingBrace.Range
+			);
 
 		return new TypedNamedFunction(
 			f.Fn,
@@ -1764,15 +1751,6 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 						)
 					);
 
-				if (g is AuraResult)
-					VisitFakeImport(
-						new UntypedImport(
-							new Tok(TokType.Import, "import"),
-							new Tok(TokType.Identifier, "aura/results"),
-							new Tok(TokType.Identifier, "results")
-						)
-					);
-
 				if (g is AuraMap)
 					VisitFakeImport(
 						new UntypedImport(
@@ -2368,17 +2346,17 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 	{
 		var typedCall = Visit(check.Call);
 		// The `check` keyword is only valid when the enclosing function and the checked function call both have a return
-		// type of `result`
+		// type of `error`
 		var enclosingFuncDeclaration = _enclosingFunctionDeclarationStore.Peek() ??
 									   throw new InvalidUseOfCheckKeywordException(check.Range);
-		// When using the `check` keyword, the enclosing function must return a `result` type as its only return value
+		// When using the `check` keyword, the enclosing function must return an `error` type as its only return value
 		if (enclosingFuncDeclaration.ReturnType?.Count != 1) throw new InvalidUseOfCheckKeywordException(check.Range);
 
-		if (enclosingFuncDeclaration.ReturnType?.First() is not AuraResult)
+		if (enclosingFuncDeclaration.ReturnType?.First() is not AuraError)
 			throw new InvalidUseOfCheckKeywordException(check.Range);
 
 		// The function call must also return a `result` as its only return value
-		if (typedCall.Typ is not AuraResult) throw new InvalidUseOfCheckKeywordException(check.Range);
+		if (typedCall.Typ is not AuraError) throw new InvalidUseOfCheckKeywordException(check.Range);
 
 		return new TypedCheck(check.Check, (TypedCall)typedCall);
 	}

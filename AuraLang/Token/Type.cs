@@ -72,7 +72,6 @@ public enum TokType
 	Error, // error
 	Check, // check
 	Struct, // struct
-	Result, // result
 	Identifier,
 	StringLiteral,
 	CharLiteral,

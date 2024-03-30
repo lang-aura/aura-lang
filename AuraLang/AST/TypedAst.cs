@@ -1260,7 +1260,7 @@ public record TypedYield(Tok Yield, ITypedAuraExpression Value) : ITypedAuraStat
 public record TypedCheck(Tok Check, TypedCall Call) : ITypedAuraStatement, IHoverable
 {
 	public string HoverText =>
-		"Used to simplify error handling on a function call whose return type is a `Result`. The enclosing function must also return a `Result`";
+		"Used to simplify error handling on a function call whose return type is an `error`. The enclosing function must also return an `error`";
 
 	public Range HoverableRange => Check.Range;
 

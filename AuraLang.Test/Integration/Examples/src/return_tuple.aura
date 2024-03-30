@@ -22,8 +22,7 @@ fn main() {
 // Even though Aura does not support tuples as first-class data types, functions can return pseudo-tuples containing multiple values.
 // This is typically used to return both a success value and an error value, since errors in Aura are treated as a normal type (i.e. Aura
 // does not support exceptions). In this case, the function's body must return the same number of values as defined in the function's
-// signature (in this case, 2), which can be done by separating them with a comma in the `return` statement. Aura also supports the `result`
-// type to streamline error handling - see `error.aura` in this directory for an example.
+// signature (in this case, 2), which can be done by separating them with a comma in the `return` statement.
 fn f(s: string) -> (string, error) {
 	// The `nil` value is used to indicate that no error occurred
 	return s.to_upper(), nil
