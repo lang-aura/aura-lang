@@ -575,12 +575,24 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 			throw;
 		}
 		// Ensure the function's body returns the same type specified in its signature
-		if (!returnType.IsSameOrInheritingType(typedBody.Typ))
-			throw new TypeMismatchException(
-				returnType,
-				typedBody.Typ,
-				f.Body.ClosingBrace.Range
-			);
+		if (typedBody.Typ is AuraNil)
+		{
+			if (returnType is not INilable)
+				throw new TypeMismatchException(
+					returnType,
+					typedBody.Typ,
+					f.Body.ClosingBrace.Range
+				);
+		}
+		else
+		{
+			if (!returnType.IsSameOrInheritingType(typedBody.Typ))
+				throw new TypeMismatchException(
+					returnType,
+					typedBody.Typ,
+					f.Body.ClosingBrace.Range
+				);
+		}
 
 		return new TypedNamedFunction(
 			f.Fn,
