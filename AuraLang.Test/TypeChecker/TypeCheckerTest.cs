@@ -2433,6 +2433,58 @@ public class TypeCheckerTest
 	}
 
 	[Test]
+	public void TestTypeCheck_NilError()
+	{
+		var typedAst = ArrangeAndAct(
+			new List<IUntypedAuraStatement>
+			{
+				new UntypedNamedFunction(
+					new Tok(TokType.Fn, "fn"),
+					new Tok(TokType.Identifier, "f"),
+					new List<Param>(),
+					new UntypedBlock(
+						new Tok(TokType.LeftBrace, "{"),
+						new List<IUntypedAuraStatement>
+						{
+							new UntypedReturn(
+								new Tok(TokType.Return, "return"),
+								new List<IUntypedAuraExpression> { new UntypedNil(new Tok(TokType.Nil, "nil")) }
+							)
+						},
+						new Tok(TokType.RightBrace, "}")
+					),
+					new List<AuraType> { new AuraError() },
+					Visibility.Public,
+					null
+				)
+			}
+		);
+		MakeAssertions(
+			typedAst,
+			new TypedNamedFunction(
+				new Tok(TokType.Fn, "fn"),
+				new Tok(TokType.Identifier, "f"),
+				new List<Param>(),
+				new TypedBlock(
+					new Tok(TokType.LeftBrace, "{"),
+					new List<ITypedAuraStatement>
+					{
+						new TypedReturn(
+							new Tok(TokType.Return, "return"),
+							new TypedNil(new Tok(TokType.Nil, "nil"))
+						)
+					},
+					new Tok(TokType.RightBrace, "}"),
+					new AuraNil()
+				),
+				new AuraError(),
+				Visibility.Public,
+				null
+			)
+		);
+	}
+
+	[Test]
 	public void TestTypeCheck_Struct()
 	{
 		var typedAst = ArrangeAndAct(
