@@ -746,9 +746,9 @@ public class AuraParser
 
 		if (Match(TokType.Comment)) return Comment();
 
-		if (Match(TokType.Continue)) return new UntypedContinue(Previous());
+		if (Match(TokType.Continue)) return ContinueStatement();
 
-		if (Match(TokType.Break)) return new UntypedBreak(Previous());
+		if (Match(TokType.Break)) return BreakStatement();
 
 		if (Match(TokType.Yield)) return Yield();
 
@@ -921,6 +921,28 @@ public class AuraParser
 
 		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
 		return new UntypedDefer(defer, callableExpr);
+	}
+
+	/// <summary>
+	///     Parses a <c>break</c> statement
+	/// </summary>
+	/// <returns>The parsed <c>break</c> statement</returns>
+	private UntypedBreak BreakStatement()
+	{
+		var @break = Previous();
+		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
+		return new UntypedBreak(@break);
+	}
+
+	/// <summary>
+	///     Parses a <c>continue</c> statement
+	/// </summary>
+	/// <returns>the parsed <c>continue</c> statement</returns>
+	private UntypedContinue ContinueStatement()
+	{
+		var @continue = Previous();
+		Consume(TokType.Semicolon, new ExpectSemicolonException(Peek().Value, Peek().Range));
+		return new UntypedContinue(@continue);
 	}
 
 	/// <summary>
