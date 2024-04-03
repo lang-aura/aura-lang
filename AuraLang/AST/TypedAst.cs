@@ -316,7 +316,7 @@ public record TypedIf(Tok If, ITypedAuraExpression Condition, TypedBlock Then, I
 	{
 		var hoverables = new List<IHoverable>();
 		hoverables.AddRange(Condition.ExtractHoverables());
-		hoverables.AddRange(Then.Statements.OfType<IHoverable>());
+		hoverables.AddRange(Then.Statements.SelectMany(stmt => stmt.ExtractHoverables()));
 		if (Else is TypedBlock b) hoverables.AddRange(b.Statements.OfType<IHoverable>());
 
 		return hoverables;
@@ -373,7 +373,7 @@ public record TypedSet(ITypedAuraExpression Obj, Tok Name, ITypedAuraExpression 
 /// <param name="This">A token representing the <c>this</c> keyword</param>
 public record TypedThis(Tok This, AuraType Typ) : ITypedAuraExpression, IHoverable
 {
-	public string HoverText => $"{Typ}";
+	public string HoverText => $"{Typ.ToAuraString()}";
 
 	public Range HoverableRange => This.Range;
 
@@ -1114,7 +1114,7 @@ public record TypedWhile(Tok While, ITypedAuraExpression Condition, List<ITypedA
 	{
 		var hoverables = new List<IHoverable>();
 		hoverables.AddRange(Condition.ExtractHoverables());
-		hoverables.AddRange(Body.OfType<IHoverable>());
+		hoverables.AddRange(Body.SelectMany(stmt => stmt.ExtractHoverables()));
 		return hoverables;
 	}
 }
