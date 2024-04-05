@@ -28,7 +28,8 @@ public class Run : AuraCommand
 	/// <returns>An integer status indicating if the process succeeded</returns>
 	protected override async Task<int> ExecuteCommandAsync()
 	{
-		await Build.ExecuteAsync();
+		var exitCode = await Build.ExecuteAsync();
+		if (exitCode > 0) return exitCode;
 		// After build is finished executing, the current directory will be the `build/pkg` directory, so we return to the project's root directory here
 		Directory.SetCurrentDirectory("../..");
 		var projName = _toml.GetProjectName();
