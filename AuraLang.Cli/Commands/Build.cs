@@ -53,11 +53,21 @@ public class Build : AuraCommand
 		// Build Go binary executable
 		Directory.SetCurrentDirectory("./build/pkg");
 		FormatGoProject();
-		var build = new Process { StartInfo = new ProcessStartInfo { FileName = "go", Arguments = "build" } };
+		var build = new Process
+		{
+			StartInfo = new ProcessStartInfo
+			{
+				FileName = "go",
+				Arguments = "build",
+				RedirectStandardError = true,
+				RedirectStandardOutput = true
+			}
+		};
 		build.Start();
 		await build.WaitForExitAsync();
 
-		return 0;
+		if (build.ExitCode > 0) Console.Write(await build.StandardError.ReadToEndAsync());
+		return build.ExitCode;
 	}
 
 	private void WriteGoOutputFile(string auraPath, string content)
