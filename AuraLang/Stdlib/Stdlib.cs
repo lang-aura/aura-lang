@@ -45,7 +45,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Prints the supplied format string to stdout"
+						"// Prints the supplied format string to stdout"
 					),
 					new(
 						"println",
@@ -67,7 +67,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Prints the supplied string to stdout, followed by a newline"
+						"// Prints the supplied string to stdout, followed by a newline"
 					),
 					new(
 						"print",
@@ -89,7 +89,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Prints the supplied string to stdout"
+						"// Prints the supplied string to stdout"
 					),
 					new(
 						"eprintln",
@@ -111,7 +111,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Prints the supplied string to stderr, followed by a newline"
+						"// Prints the supplied string to stderr, followed by a newline"
 					),
 					new(
 						"eprint",
@@ -133,7 +133,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Prints the supplied string to stderr"
+						"// Prints the supplied string to stderr"
 					),
 					new(
 						"readln",
@@ -142,7 +142,7 @@ public static class AuraStdlib
 							new List<Param>(),
 							new AuraString()
 						),
-						"Reads a single line from stdin"
+						"// Reads a single line from stdin"
 					),
 					new(
 						"read_file",
@@ -164,7 +164,7 @@ public static class AuraStdlib
 							},
 							new AuraString()
 						),
-						"Reads the entire contents of the file located at the supplied path, returning the contents as a single string"
+						"// Reads the entire contents of the file located at the supplied path, returning the contents as a single string"
 					),
 					new(
 						"read_lines",
@@ -186,7 +186,7 @@ public static class AuraStdlib
 							},
 							new AuraList(new AuraString())
 						),
-						"Reads the entire contents of the file located at the supplied path, returning the contents as a list of strings, where each string represents a single line in the file"
+						"// Reads the entire contents of the file located at the supplied path, returning the contents as a list of strings, where each string represents a single line in the file"
 					),
 					new(
 						"write_file",
@@ -219,7 +219,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Writes the supplied content to the file located at the supplied path"
+						"// Writes the supplied content to the file located at the supplied path"
 					)
 				},
 				new List<AuraInterface>(),
@@ -252,7 +252,7 @@ public static class AuraStdlib
 							},
 							new AuraString()
 						),
-						"Returns a new string where all characters in the original have been converted to lower case"
+						"// Returns a new string where all characters in the original have been converted to lower case"
 					),
 					new(
 						"to_upper",
@@ -274,7 +274,7 @@ public static class AuraStdlib
 							},
 							new AuraString()
 						),
-						"Returns a new string where all characters in the original have been converted to upper case"
+						"// Returns a new string where all characters in the original have been converted to upper case"
 					),
 					new(
 						"contains",
@@ -307,7 +307,7 @@ public static class AuraStdlib
 							},
 							new AuraBool()
 						),
-						"Returns a boolean indicating if the string `s` contains the supplied substring"
+						"// Returns a boolean indicating if the string `s` contains the supplied substring"
 					),
 					new(
 						"length",
@@ -329,7 +329,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Returns the number of characters in the supplied string"
+						"// Returns the number of characters in the supplied string"
 					),
 					new(
 						"split",
@@ -362,7 +362,7 @@ public static class AuraStdlib
 							},
 							new AuraList(new AuraString())
 						),
-						"Separates `s` into all of the substrings separated by (but not including) `sep`"
+						"// Separates `s` into all of the substrings separated by (but not including) `sep`"
 					),
 					new(
 						"to_int",
@@ -384,7 +384,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Converts the supplied string to its corresponding integer value"
+						"// Converts the supplied string to its corresponding integer value"
 					)
 				},
 				new List<AuraInterface>(),
@@ -428,7 +428,7 @@ public static class AuraStdlib
 							},
 							new AuraBool()
 						),
-						"Returns a boolean value indicating if the supplied list contains `item`"
+						"// Returns a boolean value indicating if the supplied list contains `item`"
 					),
 					new(
 						"is_empty",
@@ -450,7 +450,7 @@ public static class AuraStdlib
 							},
 							new AuraBool()
 						),
-						"Returns a boolean value indicating if the supplied list is empty (i.e. contains zero items)"
+						"// Returns a boolean value indicating if the supplied list is empty (i.e. contains zero items)"
 					),
 					new(
 						"length",
@@ -472,7 +472,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Returns the number of items contained in the supplied list"
+						"// Returns the number of items contained in the supplied list"
 					),
 					new(
 						"map_",
@@ -521,7 +521,7 @@ public static class AuraStdlib
 							},
 							new AuraList(new AuraAny())
 						),
-						"Applies the supplied function to each item in the supplied list, returning a new list containing the result of each invocation"
+						"// Applies the supplied function to each item in the supplied list, returning a new list containing the result of each invocation"
 					),
 					new(
 						"filter",
@@ -570,7 +570,7 @@ public static class AuraStdlib
 							},
 							new AuraList(new AuraAny())
 						),
-						"Returns a new list containing only those items in the original list that return a value of `true` when passed in to the supplied anonymous function"
+						"// Returns a new list containing only those items in the original list that return a value of `true` when passed in to the supplied anonymous function"
 					),
 					new(
 						"reduce",
@@ -641,7 +641,7 @@ public static class AuraStdlib
 							},
 							new AuraAny()
 						),
-						"Reduces the supplied list to a single item"
+						"// Reduces the supplied list to a single item"
 					),
 					new(
 						"min",
@@ -663,7 +663,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Returns the minimum value contained in the list"
+						"// Returns the minimum value contained in the list"
 					),
 					new(
 						"max",
@@ -685,7 +685,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Returns the maximum value contained in the list"
+						"// Returns the maximum value contained in the list"
 					),
 					new(
 						"push",
@@ -718,7 +718,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Adds a new item to the end of the supplied list"
+						"// Adds a new item to the end of the supplied list"
 					),
 					new(
 						"pop",
@@ -740,7 +740,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Removes the last item in the list"
+						"// Removes the last item in the list"
 					),
 					new(
 						"sum",
@@ -762,7 +762,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Sums together all items in the list"
+						"// Sums together all items in the list"
 					)
 				},
 				new List<AuraInterface>(),
@@ -795,7 +795,7 @@ public static class AuraStdlib
 							},
 							new AuraString()
 						),
-						"Returns the error's message"
+						"// Returns the error's message"
 					)
 				},
 				new List<AuraInterface>(),
@@ -841,7 +841,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Adds the supplied key and value pair to a dictionary"
+						"// Adds the supplied key and value pair to a dictionary"
 					),
 					new(
 						"remove",
@@ -868,7 +868,7 @@ public static class AuraStdlib
 							},
 							new AuraNil()
 						),
-						"Removes a key from a dictionary"
+						"// Removes a key from a dictionary"
 					),
 					new(
 						"contains",
@@ -895,7 +895,7 @@ public static class AuraStdlib
 							},
 							new AuraBool()
 						),
-						"Determines if the supplied key is present in the map"
+						"// Determines if the supplied key is present in the map"
 					),
 					new(
 						"count",
@@ -914,7 +914,7 @@ public static class AuraStdlib
 							},
 							new AuraInt()
 						),
-						"Returns the number of items contained in the map"
+						"// Returns the number of items contained in the map"
 					)
 				},
 				new List<AuraInterface>(),
