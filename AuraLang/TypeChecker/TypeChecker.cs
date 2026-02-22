@@ -2014,23 +2014,30 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				var m = literal
 					.Value.Select(pair => ((IUntypedAuraExpression)pair.Key, (IUntypedAuraExpression)pair.Value))
 					.ToDictionary(pair => pair.Item1, pair => pair.Item2);
-				var typedKey = Expression(m.Keys.First());
-				var typedValue = Expression(m.Values.First());
-				var typedM = m
-					.Select(
-						pair =>
-						{
-							var typedK = ExpressionAndConfirm(pair.Key, typedKey.Typ);
-							var typedV = ExpressionAndConfirm(pair.Value, typedValue.Typ);
-							return (typedK, typedV);
-						}
-					)
-					.ToDictionary(pair => pair.Item1, pair => pair.Item2);
+				var typedKey = literal.KeyType;
+				var typedValue = literal.ValueType;
+				var typedM = new Dictionary<ITypedAuraExpression, ITypedAuraExpression>();
+				if (m.Count > 0)
+				{
+					typedKey = Expression(m.Keys.First()).Typ;
+	                typedValue = Expression(m.Values.First()).Typ;
+	                typedM = m
+	                    .Select(
+                    		pair =>
+                    		{
+                    			var typedK = ExpressionAndConfirm(pair.Key, typedKey);
+                    			var typedV = ExpressionAndConfirm(pair.Value, typedValue);
+                    			return (typedK, typedV);
+                    		}
+	                    )
+	                    .ToDictionary(pair => pair.Item1, pair => pair.Item2);
+				}
+				
 				return new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 					literal.Map,
 					typedM,
-					typedKey.Typ,
-					typedValue.Typ,
+					typedKey,
+					typedValue,
 					literal.ClosingBrace
 				);
 			},
