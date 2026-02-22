@@ -262,6 +262,7 @@ public class AuraString : AuraType, IIterable, IIndexable, IRangeIndexable, IDef
 					{
 						Label = f.Name,
 						Kind = CompletionItemKind.Function,
+						Detail = f.ToAuraString(),
 						Documentation =
 							new MarkupContent { Value = $"```\n{f.Documentation}\n```", Kind = MarkupKind.Markdown }
 					}
@@ -415,6 +416,7 @@ public class AuraList : AuraType, IIterable, IIndexable, IRangeIndexable, IDefau
 						{
 							Label = f.Name,
 							Kind = CompletionItemKind.Function,
+							Detail = f.ToAuraString(),
 							Documentation =
 								new MarkupContent { Value = $"```\n{fnDocs}\n```", Kind = MarkupKind.Markdown }
 						};
@@ -923,6 +925,7 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 					{
 						Label = param.Name.Value,
 						Kind = CompletionItemKind.Property,
+						Detail = param.ParamType.Typ.ToAuraString(),
 						Documentation = new MarkupContent
 						{
 							Kind = MarkupKind.Markdown,
@@ -937,6 +940,7 @@ public class AuraClass : AuraType, IGettable, ICallable, ICompletable, IDocument
 					{
 						Label = m.Name,
 						Kind = CompletionItemKind.Function,
+						Detail = m.ToAuraString(),
 						Documentation = new MarkupContent
 						{
 							Kind = MarkupKind.Markdown,
@@ -1228,6 +1232,7 @@ public class AuraMap : AuraType, IIndexable, IDefaultable, IGettable, IImportabl
 						{
 							Label = f.Name,
 							Kind = CompletionItemKind.Function,
+							Detail = f.ToAuraString(),
 							Documentation =
 								new MarkupContent { Value = $"```\n{fnDocs}\n```", Kind = MarkupKind.Markdown }
 						};
@@ -1397,7 +1402,12 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumen
 		{
 			case ".":
 				var completionItems = Parameters.Select(
-					p => new CompletionItem { Label = p.Name.Value, Kind = CompletionItemKind.Property }
+					p => new CompletionItem
+					{
+						Label = p.Name.Value, 
+						Kind = CompletionItemKind.Property,
+						Detail = p.ParamType.Typ.ToAuraString()
+					}
 				);
 				return new CompletionList { Items = completionItems.ToArray() };
 			default:
