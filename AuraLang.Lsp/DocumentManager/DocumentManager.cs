@@ -169,11 +169,15 @@ public class AuraDocumentManager
 		}
 
 		// Type check contents
-		var (typedAst, _) = CompileFile(
+		var (typedAst, ex) = CompileFile(
 			completionParams.TextDocument.Uri.ToString(),
 			contents,
 			new GlobalSymbolsTable()
 		);
+		if (ex?.Exs.Count > 0)
+		{
+			return new CompletionList();
+		}
 
 		return _completionProvider.ComputeCompletionOptions(
 			position,
@@ -186,7 +190,7 @@ public class AuraDocumentManager
 	///     Fetches signature help for a function to display in the LSP client
 	/// </summary>
 	/// <param name="signatureHelpParams">The signature help parameters provided by the LSP client</param>
-	/// <returns>Signature help information</returns>
+	/// <returns>Signature help inf ormation</returns>
 	public SignatureHelp? GetSignatureHelp(SignatureHelpParams signatureHelpParams)
 	{
 		var position = Position.FromMicrosoftPosition(signatureHelpParams.Position);

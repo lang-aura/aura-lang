@@ -286,6 +286,16 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 		Range range
 	)
 	{
+		var symNamespace = _symbolsTable.GetNamespace(varName);
+		if (symNamespace is not null)
+		{
+			return new AuraSymbol(
+				varName,
+				symNamespace.ParseAsModule(),
+				false
+			);
+		}
+		
 		var local = _symbolsTable.GetSymbol(varName, symbolNamespace) ??
 					throw new UnknownVariableException(varName, range);
 		return local;

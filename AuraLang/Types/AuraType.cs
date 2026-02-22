@@ -1041,13 +1041,14 @@ public class AuraModule : AuraType, IGettable, ICompletable
 		{
 			case ".":
 				// Get stdlib module
-				if (!AuraStdlib.TryGetModule("Name", out var module)) return new CompletionList();
+				if (!AuraStdlib.TryGetModule("aura/io", out var module)) return new CompletionList();
 
 				var completionItems = module!.PublicFunctions.Select(
 					f => new CompletionItem
 					{
 						Label = f.Name,
 						Kind = CompletionItemKind.Function,
+						Detail = f.F.ToAuraString(),
 						Documentation = new MarkupContent
 						{
 							Kind = MarkupKind.Markdown,
