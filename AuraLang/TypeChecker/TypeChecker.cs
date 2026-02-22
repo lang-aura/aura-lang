@@ -295,7 +295,7 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				false
 			);
 		}
-		
+
 		var local = _symbolsTable.GetSymbol(varName, symbolNamespace) ??
 					throw new UnknownVariableException(varName, range);
 		return local;
@@ -2020,19 +2020,19 @@ public class AuraTypeChecker : IUntypedAuraStmtVisitor<ITypedAuraStatement>,
 				if (m.Count > 0)
 				{
 					typedKey = Expression(m.Keys.First()).Typ;
-	                typedValue = Expression(m.Values.First()).Typ;
-	                typedM = m
-	                    .Select(
-                    		pair =>
-                    		{
-                    			var typedK = ExpressionAndConfirm(pair.Key, typedKey);
-                    			var typedV = ExpressionAndConfirm(pair.Value, typedValue);
-                    			return (typedK, typedV);
-                    		}
-	                    )
-	                    .ToDictionary(pair => pair.Item1, pair => pair.Item2);
+					typedValue = Expression(m.Values.First()).Typ;
+					typedM = m
+						.Select(
+							pair =>
+							{
+								var typedK = ExpressionAndConfirm(pair.Key, typedKey);
+								var typedV = ExpressionAndConfirm(pair.Value, typedValue);
+								return (typedK, typedV);
+							}
+						)
+						.ToDictionary(pair => pair.Item1, pair => pair.Item2);
 				}
-				
+
 				return new MapLiteral<ITypedAuraExpression, ITypedAuraExpression>(
 					literal.Map,
 					typedM,

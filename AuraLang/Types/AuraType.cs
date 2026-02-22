@@ -1404,7 +1404,7 @@ public class AuraStruct : AuraType, ICallable, IGettable, ICompletable, IDocumen
 				var completionItems = Parameters.Select(
 					p => new CompletionItem
 					{
-						Label = p.Name.Value, 
+						Label = p.Name.Value,
 						Kind = CompletionItemKind.Property,
 						Detail = p.ParamType.Typ.ToAuraString()
 					}
